@@ -24,7 +24,7 @@ export const VehicleList = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [forceUpdate, setForceUpdate] = useState(0);
 
   useEffect(() => {
     if (user) {
@@ -32,7 +32,7 @@ export const VehicleList = () => {
     }
   }, [user]);
 
-  // Update current time at midnight each day to keep lagerdagar current
+  // Force re-render at midnight each day to keep lagerdagar current
   useEffect(() => {
     const now = new Date();
     const tomorrow = new Date(now);
@@ -43,11 +43,11 @@ export const VehicleList = () => {
     
     // Set timeout for midnight, then interval for every 24 hours
     const midnightTimeout = setTimeout(() => {
-      setCurrentTime(new Date());
+      setForceUpdate(prev => prev + 1);
       
       // Set interval for every 24 hours after the first midnight update
       const dailyInterval = setInterval(() => {
-        setCurrentTime(new Date());
+        setForceUpdate(prev => prev + 1);
       }, 24 * 60 * 60 * 1000); // 24 hours
       
       return () => clearInterval(dailyInterval);
@@ -116,10 +116,15 @@ export const VehicleList = () => {
   };
 
   const calculateStorageDays = (purchaseDate: string) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset to start of today
+    
     const purchase = new Date(purchaseDate);
-    const diffTime = Math.abs(currentTime.getTime() - purchase.getTime());
+    purchase.setHours(0, 0, 0, 0); // Reset to start of purchase day
+    
+    const diffTime = today.getTime() - purchase.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+    return Math.max(0, diffDays); // Ensure non-negative
   };
 
   const formatPurchaserName = (fullName: string) => {
