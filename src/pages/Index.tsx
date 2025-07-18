@@ -8,6 +8,7 @@ import { LogisticsList } from "@/components/Logistics/LogisticsList";
 import { LogisticsDetail } from "@/components/Logistics/LogisticsDetail";
 import { SalesList } from "@/components/Sales/SalesList";
 import { SalesForm } from "@/components/Sales/SalesForm";
+import { Settings } from "@/components/Settings/Settings";
 import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
@@ -16,6 +17,7 @@ const Index = () => {
   const [showPurchaseForm, setShowPurchaseForm] = useState(false);
   const [showLogistics, setShowLogistics] = useState(false);
   const [showSales, setShowSales] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [selectedSaleVehicleId, setSelectedSaleVehicleId] = useState<string | null>(null);
   const [stats, setStats] = useState({
@@ -56,6 +58,10 @@ const Index = () => {
     setSelectedSaleVehicleId(null);
     setShowSales(false);
     loadStats(); // Refresh stats after successful sale
+  };
+
+  const handleBackToSettings = () => {
+    setShowSettings(false);
   };
 
   const loadStats = async () => {
@@ -239,21 +245,50 @@ const Index = () => {
     );
   }
 
+  if (showSettings) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="border-b">
+          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 className="text-2xl font-bold">Lagermodulen</h1>
+            <div className="flex items-center gap-4">
+              <Button variant="outline" onClick={() => setShowSettings(false)}>
+                Tillbaka till dashboard
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                Välkommen, {user.email}
+              </span>
+              <Button variant="outline" onClick={signOut}>
+                Logga ut
+              </Button>
+            </div>
+          </div>
+        </header>
+        <main className="container mx-auto px-4 py-8">
+          <Settings onBack={handleBackToSettings} />
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Lagermodulen</h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">
-              Välkommen, {user.email}
-            </span>
-            <Button variant="outline" onClick={signOut}>
-              Logga ut
-            </Button>
+        <header className="border-b">
+          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 className="text-2xl font-bold">Lagermodulen</h1>
+            <div className="flex items-center gap-4">
+              <Button variant="outline" onClick={() => setShowSettings(true)} size="sm">
+                Inställningar
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                Välkommen, {user.email}
+              </span>
+              <Button variant="outline" onClick={signOut}>
+                Logga ut
+              </Button>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
       <main className="container mx-auto px-4 py-8">
         <DashboardStats 
           totalStock={stats.totalStock}
