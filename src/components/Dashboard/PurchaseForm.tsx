@@ -431,7 +431,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
         
         toast({
           title: "Fil uppladdad",
-          description: "Inköpsdokument har laddats upp",
+          description: "Inköpsunderlag har laddats upp",
         });
       }, 500);
     } catch (error) {
