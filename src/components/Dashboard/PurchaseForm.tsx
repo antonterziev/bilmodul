@@ -127,7 +127,7 @@ const purchaseSchema = z.object({
   purchase_date: z.date(),
   down_payment: z.number().min(0, "Handpenning kan inte vara negativ").optional(),
   down_payment_document: z.any().optional(),
-  purchase_documentation: z.string().optional(),
+  purchase_documentation: z.string().min(1, "Inköpsunderlag krävs"),
   purchase_channel: z.string().optional(),
   purchase_channel_other: z.string().optional(),
   marketplace_channel: z.string().optional(),
@@ -165,6 +165,8 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
   const [expectedPriceDisplay, setExpectedPriceDisplay] = useState("");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadedPurchaseDoc, setUploadedPurchaseDoc] = useState<File | null>(null);
+  const [isUploadingPurchaseDoc, setIsUploadingPurchaseDoc] = useState(false);
   
   // Generate year options (last 50 years)
   const currentYear = new Date().getFullYear();
@@ -329,6 +331,47 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
   const handleFileRemove = () => {
     setUploadedFile(null);
     form.setValue('down_payment_document', undefined);
+  };
+
+  // Handle purchase documentation file upload
+  const handlePurchaseDocUpload = async (file: File) => {
+    if (!user) return;
+    
+    setIsUploadingPurchaseDoc(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      const filePath = `purchase-docs/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('down-payment-docs')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      setUploadedPurchaseDoc(file);
+      form.setValue('purchase_documentation', filePath);
+      
+      toast({
+        title: "Fil uppladdad",
+        description: "Inköpsdokument har laddats upp",
+      });
+    } catch (error) {
+      console.error('Error uploading purchase documentation:', error);
+      toast({
+        title: "Fel",
+        description: "Det gick inte att ladda upp filen",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingPurchaseDoc(false);
+    }
+  };
+
+  // Handle purchase documentation file removal
+  const handlePurchaseDocRemove = () => {
+    setUploadedPurchaseDoc(null);
+    form.setValue('purchase_documentation', undefined);
   };
 
   const onSubmit = async (data: PurchaseFormData) => {
@@ -956,9 +999,63 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
             </div>
 
             <div>
-              <Label htmlFor="purchase_documentation">Inköpsunderlag</Label>
-              <Textarea id="purchase_documentation" {...form.register("purchase_documentation")} />
-            </div>
+              <Label htmlFor="purchase_documentation">Inköpsunderlag*</Label>
+              <div className="space-y-2">
+                {!uploadedPurchaseDoc ? (
+                  <div>
+                    <div className="relative">
+                      <Input
+                        type="file"
+                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            handlePurchaseDocUpload(file);
+                          }
+                        }}
+                        disabled={isUploadingPurchaseDoc}
+                        className="hidden"
+                        id="purchase-doc-upload"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal"
+                        onClick={() => document.getElementById('purchase-doc-upload')?.click()}
+                        disabled={isUploadingPurchaseDoc}
+                      >
+                        <Upload className="mr-2 h-4 w-4" />
+                        Välj fil
+                      </Button>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Ingen fil vald</p>
+                    {isUploadingPurchaseDoc && (
+                      <p className="text-sm text-muted-foreground">Laddar upp fil...</p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between p-2 border rounded-md bg-muted/50">
+                    <div className="flex items-center space-x-2">
+                      <Upload className="h-4 w-4" />
+                      <span className="text-sm">{uploadedPurchaseDoc.name}</span>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={handlePurchaseDocRemove}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                 )}
+               </div>
+               {form.formState.errors.purchase_documentation && (
+                 <p className="text-sm text-destructive mt-1">
+                   {form.formState.errors.purchase_documentation.message}
+                 </p>
+               )}
+             </div>
 
           </div>
 
