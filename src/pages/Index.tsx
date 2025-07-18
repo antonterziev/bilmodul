@@ -12,7 +12,7 @@ import { SalesList } from "@/components/Sales/SalesList";
 import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
 import { supabase } from "@/integrations/supabase/client";
-import { Home, BarChart3, Package, Settings as SettingsIcon, Truck } from "lucide-react";
+import { Home, BarChart3, Package, Settings as SettingsIcon, Truck, Download } from "lucide-react";
 
 const Index = () => {
   const { user, signOut, isLoading } = useAuth();
@@ -203,9 +203,6 @@ const Index = () => {
                 <Button onClick={() => setShowLogistics(true)} variant="outline" size="sm">
                   Transport
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => setShowExportDialog(true)}>
-                  Exportera
-                </Button>
                 <Button variant="outline" size="sm">
                   Supportchatt
                 </Button>
@@ -283,6 +280,16 @@ const Index = () => {
                 >
                   <Truck className="mr-2 h-4 w-4" />
                   Transport
+                </Button>
+              </li>
+              <li>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-muted-foreground"
+                  onClick={() => setShowExportDialog(true)}
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  Exportera
                 </Button>
               </li>
               <li>
