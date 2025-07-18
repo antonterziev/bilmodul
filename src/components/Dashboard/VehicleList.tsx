@@ -225,14 +225,16 @@ export const VehicleList = () => {
                   <div className="text-center">
                     <p className="text-xs text-muted-foreground whitespace-nowrap">Status</p>
                     <div className="flex justify-center">
-                      <Badge 
-                        variant={getStatusVariant(vehicle.status)} 
-                        className={`text-xs whitespace-nowrap px-2 justify-center ${
-                          vehicle.status === 'på_lager' 
-                            ? 'bg-green-500 hover:bg-green-600 text-white' 
-                            : ''
-                        }`}
-                      >
+                       <Badge 
+                         variant={getStatusVariant(vehicle.status)} 
+                         className={`text-xs whitespace-nowrap px-2 justify-center w-16 ${
+                           vehicle.status === 'på_lager' 
+                             ? 'bg-blue-500 hover:bg-blue-600 text-white' 
+                             : vehicle.status === 'såld'
+                             ? 'bg-green-500 hover:bg-green-600 text-white'
+                             : ''
+                         }`}
+                       >
                         {getStatusLabel(vehicle.status)}
                       </Badge>
                     </div>
