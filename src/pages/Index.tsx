@@ -375,7 +375,18 @@ const Index = () => {
           <nav className="flex-1 p-4">
             <ul className="space-y-2">
               <li>
-                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-muted-foreground"
+                  onClick={() => {
+                    setShowPurchaseForm(false);
+                    setShowLogistics(false);
+                    setShowSales(false);
+                    setShowSettings(false);
+                    setSelectedVehicleId(null);
+                    setSelectedSaleVehicleId(null);
+                  }}
+                >
                   <Home className="mr-2 h-4 w-4" />
                   Hem
                 </Button>
