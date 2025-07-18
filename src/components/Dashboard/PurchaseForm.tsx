@@ -694,7 +694,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
 
             <div>
               <Label htmlFor="comment">Kommentar</Label>
-              <Textarea id="comment" {...form.register("comment")} />
+              <Input id="comment" {...form.register("comment")} />
             </div>
           </div>
 
