@@ -142,23 +142,27 @@ export const VehicleList = () => {
                     {vehicle.registration_number}
                   </p>
                   
-                  {/* Additional details in specified order */}
+                  {/* Additional details in two rows */}
                   <div className="space-y-1 text-xs">
-                    <div>
-                      <span className="text-muted-foreground">Inköpsdatum: </span>
-                      <span>{formatDate(vehicle.purchase_date)}</span>
+                    <div className="flex gap-4">
+                      <div>
+                        <span className="text-muted-foreground">Inköpsdatum: </span>
+                        <span>{formatDate(vehicle.purchase_date)}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Inköpare: </span>
+                        <span>{vehicle.purchaser}</span>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-muted-foreground">Inköpare: </span>
-                      <span>{vehicle.purchaser}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Inköpspris: </span>
-                      <span>{formatPrice(vehicle.purchase_price)}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Lagerdagar: </span>
-                      <span>{calculateStorageDays(vehicle.purchase_date)} dagar</span>
+                    <div className="flex gap-4">
+                      <div>
+                        <span className="text-muted-foreground">Inköpspris: </span>
+                        <span>{formatPrice(vehicle.purchase_price)}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Lagerdagar: </span>
+                        <span>{calculateStorageDays(vehicle.purchase_date)} dagar</span>
+                      </div>
                     </div>
                   </div>
                 </div>
