@@ -419,7 +419,7 @@ const Index = () => {
             </div>
             <div className="text-center space-y-2">
               <p className="text-muted-foreground">
-                Dataexport till Fortnox är en betalfunktion
+                Dataexport till Fortnox och Visma är en betalfunktion
               </p>
               <p className="text-sm text-muted-foreground">
                 Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
