@@ -13,7 +13,7 @@ import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
 import { Statistics } from "@/components/Statistics/Statistics";
 import { supabase } from "@/integrations/supabase/client";
-import { Home, BarChart3, Car, Settings as SettingsIcon, Truck, Download, Phone } from "lucide-react";
+import { Home, BarChart3, Car, Settings as SettingsIcon, Truck, Download, Phone, MessageCircle, LogOut } from "lucide-react";
 
 const Index = () => {
   const { user, signOut, isLoading } = useAuth();
@@ -237,10 +237,12 @@ const Index = () => {
                   <Phone className="h-4 w-4" />
                   <span className="text-foreground">070 112 112</span>
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => setShowSupportDialog(true)}>
+                <Button variant="outline" size="sm" onClick={() => setShowSupportDialog(true)} className="flex items-center gap-2">
+                  <MessageCircle className="h-4 w-4" />
                   Supportchatt
                 </Button>
-                <Button variant="outline" onClick={signOut} size="sm">
+                <Button variant="outline" onClick={signOut} size="sm" className="flex items-center gap-2">
+                  <LogOut className="h-4 w-4" />
                   Logga ut
                 </Button>
               </div>
@@ -256,7 +258,7 @@ const Index = () => {
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="flex-1"
+                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white border-blue-500"
                 onClick={() => {
                   setShowPurchaseForm(true);
                   setShowLogistics(false);
@@ -273,7 +275,7 @@ const Index = () => {
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="flex-1"
+                className="flex-1 bg-green-500 hover:bg-green-600 text-white border-green-500"
                 onClick={() => {
                   setShowPurchaseForm(false);
                   setShowLogistics(false);
