@@ -442,7 +442,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                   min="0"
                   value={mileageDisplay}
                   onChange={handleMileageChange}
-                  placeholder="t.ex. 50,000"
+                  placeholder="t.ex. 4,500"
                 />
                 {form.formState.errors.mileage && (
                   <p className="text-sm text-destructive mt-1">
