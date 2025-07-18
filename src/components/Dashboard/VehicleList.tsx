@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Car, Trash2 } from "lucide-react";
+import { Car, Trash2, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Vehicle {
@@ -132,6 +132,14 @@ export const VehicleList = () => {
     }
   };
 
+  const handleView = (vehicleId: string) => {
+    // For now, just show a toast. This could navigate to a detail view later
+    toast({
+      title: "Visa fordon",
+      description: "Fordonsdetaljer visas här i framtiden.",
+    });
+  };
+
   if (loading) {
     return (
       <Card>
@@ -215,8 +223,18 @@ export const VehicleList = () => {
                   </div>
                 </div>
                 
-                {/* Delete button */}
-                <div className="flex-shrink-0">
+                {/* Action buttons */}
+                <div className="flex-shrink-0 flex flex-col gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleView(vehicle.id)}
+                    className="text-primary hover:bg-primary hover:text-primary-foreground"
+                  >
+                    <Eye className="h-4 w-4 mr-1" />
+                    Visa
+                  </Button>
+                  
                   <Button
                     variant="outline"
                     size="sm"
