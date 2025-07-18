@@ -257,7 +257,6 @@ const Index = () => {
             <div className="flex gap-2">
               <Button 
                 variant="outline" 
-                size="sm" 
                 className="flex-1 bg-blue-500 hover:bg-blue-600 text-white border-blue-500"
                 onClick={() => {
                   setShowPurchaseForm(true);
@@ -274,7 +273,6 @@ const Index = () => {
               </Button>
               <Button 
                 variant="outline" 
-                size="sm" 
                 className="flex-1 bg-green-500 hover:bg-green-600 text-white border-green-500"
                 onClick={() => {
                   setShowPurchaseForm(false);
