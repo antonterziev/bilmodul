@@ -863,10 +863,6 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="comment">Anteckning</Label>
-                <Input id="comment" {...form.register("comment")} />
-              </div>
 
               <div className="flex justify-end">
                 <Button 
@@ -1201,7 +1197,12 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                      {form.formState.errors.purchase_documentation.message}
                    </p>
                  )}
-               </div>
+                </div>
+
+              <div>
+                <Label htmlFor="comment">Anteckning</Label>
+                <Input id="comment" {...form.register("comment")} />
+              </div>
 
               <div className="flex justify-between">
                 <Button 
