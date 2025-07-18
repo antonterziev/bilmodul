@@ -794,7 +794,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
               </div>
 
               {/* File upload for down payment documentation */}
-              {form.watch("down_payment") && form.watch("down_payment") > 0 && (
+              {form.watch("down_payment") > 0 && (
                 <div>
                   <Label htmlFor="down_payment_document">Bifoga handpenningsunderlag*</Label>
                   <div className="space-y-2">
