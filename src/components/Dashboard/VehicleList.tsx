@@ -142,7 +142,7 @@ export const VehicleList = () => {
                     {vehicle.registration_number}
                   </p>
                   
-                  {/* Additional details in two rows */}
+                  {/* Additional details in two rows - aligned with brand/model */}
                   <div className="space-y-1 text-xs w-full">
                     <div className="flex gap-8 w-full">
                       <div className="flex-1">
