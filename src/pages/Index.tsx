@@ -363,10 +363,20 @@ const Index = () => {
         <aside className="w-64 bg-white border-r border-border flex flex-col">
           <div className="p-4">
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="flex-1">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex-1"
+                onClick={() => setShowPurchaseForm(true)}
+              >
                 Köp
               </Button>
-              <Button variant="outline" size="sm" className="flex-1">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex-1"
+                onClick={() => setShowSales(true)}
+              >
                 Sälj
               </Button>
             </div>
