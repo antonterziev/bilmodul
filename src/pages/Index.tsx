@@ -318,152 +318,153 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-border flex flex-col">
-        <div className="p-4 border-b">
+    <div className="min-h-screen bg-background">
+      <header className="border-b flex">
+        <div className="w-64 p-4 border-r">
           <h2 className="text-xl font-bold">Lagermodulen</h2>
         </div>
-        
-        <div className="p-4 border-b">
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="flex-1">
-              Köp
-            </Button>
-            <Button variant="outline" size="sm" className="flex-1">
-              Sälj
-            </Button>
+        <div className="flex-1 px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center space-x-3">
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-muted-foreground">
+              Välkommen {getDisplayName()}
+            </span>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm">
+                Hem
+              </Button>
+              <Button onClick={() => setShowPurchaseForm(true)} variant="outline" size="sm">
+                Inköp
+              </Button>
+              <Button onClick={() => setShowLogistics(true)} variant="outline" size="sm">
+                Transport
+              </Button>
+              <Button onClick={() => setShowSales(true)} variant="outline" size="sm">
+                Försäljning
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setShowExportDialog(true)}>
+                Exportera
+              </Button>
+              <Button variant="outline" onClick={() => setShowSettings(true)} size="sm">
+                Inställningar
+              </Button>
+              <Button variant="outline" onClick={signOut}>
+                Logga ut
+              </Button>
+            </div>
           </div>
         </div>
-        
-        <nav className="flex-1 p-4">
-          <ul className="space-y-2">
-            <li>
-              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                📊 Hem
+      </header>
+      
+      <div className="flex">
+        {/* Sidebar */}
+        <aside className="w-64 bg-white border-r border-border flex flex-col">
+          <div className="p-4 border-b">
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" className="flex-1">
+                Köp
               </Button>
-            </li>
-            <li>
-              <Button variant="default" className="w-full justify-start bg-primary text-primary-foreground">
-                📈 Statistik
+              <Button variant="outline" size="sm" className="flex-1">
+                Sälj
               </Button>
-            </li>
-            <li>
-              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                🔄 Direktförsörjt
-              </Button>
-            </li>
-            <li>
-              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                📦 Direktimportation
-              </Button>
-            </li>
-            <li>
-              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                🏪 Lagerförråd
-              </Button>
-            </li>
-            <li>
-              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                📋 Avtal
-              </Button>
-            </li>
-            <li>
-              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                📄 Dokument
-              </Button>
-            </li>
-            <li>
-              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                🧾 Fakturor
-              </Button>
-            </li>
-            <li>
-              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                💳 Direktbetalningar
-              </Button>
-            </li>
-            <li>
-              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                👥 Kundregister
-              </Button>
-            </li>
-            <li>
-              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                📊 Bokföringsunderlag
-              </Button>
-            </li>
-            <li>
-              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                ✅ Verifikation
-              </Button>
-            </li>
-            <li>
-              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                📝 Bloggar
-              </Button>
-            </li>
-            <li>
-              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                🛒 Marknadsplats
-              </Button>
-            </li>
-            <li>
-              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                📞 Leads
-              </Button>
-            </li>
-          </ul>
-        </nav>
-      </aside>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        <header className="border-b">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <div className="flex items-center space-x-3">
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">
-                Välkommen {getDisplayName()}
-              </span>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm">
-                  Hem
-                </Button>
-                <Button onClick={() => setShowPurchaseForm(true)} variant="outline" size="sm">
-                  Inköp
-                </Button>
-                <Button onClick={() => setShowLogistics(true)} variant="outline" size="sm">
-                  Transport
-                </Button>
-                <Button onClick={() => setShowSales(true)} variant="outline" size="sm">
-                  Försäljning
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setShowExportDialog(true)}>
-                  Exportera
-                </Button>
-                <Button variant="outline" onClick={() => setShowSettings(true)} size="sm">
-                  Inställningar
-                </Button>
-                <Button variant="outline" onClick={signOut}>
-                  Logga ut
-                </Button>
-              </div>
             </div>
           </div>
-        </header>
-        
-        <main className="container mx-auto px-4 py-8">
-          <DashboardStats 
-            totalStock={stats.totalStock}
-            inventoryValue={stats.inventoryValue}
-            lastSale={stats.lastSale}
-          />
           
-          <VehicleList />
-          
-        </main>
+          <nav className="flex-1 p-4">
+            <ul className="space-y-2">
+              <li>
+                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                  📊 Hem
+                </Button>
+              </li>
+              <li>
+                <Button variant="default" className="w-full justify-start bg-primary text-primary-foreground">
+                  📈 Statistik
+                </Button>
+              </li>
+              <li>
+                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                  🔄 Direktförsörjt
+                </Button>
+              </li>
+              <li>
+                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                  📦 Direktimportation
+                </Button>
+              </li>
+              <li>
+                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                  🏪 Lagerförråd
+                </Button>
+              </li>
+              <li>
+                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                  📋 Avtal
+                </Button>
+              </li>
+              <li>
+                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                  📄 Dokument
+                </Button>
+              </li>
+              <li>
+                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                  🧾 Fakturor
+                </Button>
+              </li>
+              <li>
+                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                  💳 Direktbetalningar
+                </Button>
+              </li>
+              <li>
+                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                  👥 Kundregister
+                </Button>
+              </li>
+              <li>
+                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                  📊 Bokföringsunderlag
+                </Button>
+              </li>
+              <li>
+                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                  ✅ Verifikation
+                </Button>
+              </li>
+              <li>
+                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                  📝 Bloggar
+                </Button>
+              </li>
+              <li>
+                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                  🛒 Marknadsplats
+                </Button>
+              </li>
+              <li>
+                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                  📞 Leads
+                </Button>
+              </li>
+            </ul>
+          </nav>
+        </aside>
+
+        {/* Main Content */}
+        <div className="flex-1">
+          <main className="container mx-auto px-4 py-8">
+            <DashboardStats 
+              totalStock={stats.totalStock}
+              inventoryValue={stats.inventoryValue}
+              lastSale={stats.lastSale}
+            />
+            
+            <VehicleList />
+            
+          </main>
+        </div>
       </div>
 
       {/* Export Dialog */}
