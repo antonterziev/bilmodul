@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 import { sv } from "date-fns/locale";
 
 const carBrands = [
-  "Annan bilmodell",
+  "Annan",
   "Alfa Romeo",
   "Alpine", 
   "Aston Martin",
@@ -114,6 +114,7 @@ const purchaseSchema = z.object({
   chassis_number: z.string().optional(),
   mileage: z.number().min(0, "Miltal kan inte vara negativt").optional(),
   brand: z.string().min(1, "Märke krävs"),
+  brand_other: z.string().optional(),
   model: z.string().optional(),
   comment: z.string().optional(),
   year_model: z.number().min(1900, "Modellår måste vara minst 1900").max(new Date().getFullYear() + 1, "Modellår kan inte vara i framtiden").optional(),
@@ -261,6 +262,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
         chassis_number: data.chassis_number || null,
         mileage: data.mileage || null,
         brand: data.brand,
+        brand_other: data.brand_other || null,
         model: data.model || null,
         comment: data.comment || null,
         year_model: data.year_model || null,
@@ -378,6 +380,9 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                               value={brand}
                               onSelect={(currentValue) => {
                                 form.setValue("brand", currentValue === form.watch("brand") ? "" : currentValue);
+                                if (currentValue !== "Annan") {
+                                  form.setValue("brand_other", undefined);
+                                }
                                 setOpen(false);
                               }}
                             >
@@ -401,6 +406,17 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                   </p>
                 )}
               </div>
+
+              {form.watch("brand") === "Annan" && (
+                <div>
+                  <Label htmlFor="brand_other">Beskriv märke</Label>
+                  <Input
+                    id="brand_other"
+                    {...form.register("brand_other")}
+                    placeholder="Ange vilket märke"
+                  />
+                </div>
+              )}
 
               <div>
                 <Label htmlFor="model">Modell</Label>

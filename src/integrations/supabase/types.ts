@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           additional_costs: number | null
           brand: string
+          brand_other: string | null
           chassis_number: string | null
           comment: string | null
           created_at: string
@@ -62,6 +63,7 @@ export type Database = {
         Insert: {
           additional_costs?: number | null
           brand: string
+          brand_other?: string | null
           chassis_number?: string | null
           comment?: string | null
           created_at?: string
@@ -106,6 +108,7 @@ export type Database = {
         Update: {
           additional_costs?: number | null
           brand?: string
+          brand_other?: string | null
           chassis_number?: string | null
           comment?: string | null
           created_at?: string
