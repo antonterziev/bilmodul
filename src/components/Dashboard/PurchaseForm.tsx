@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { sv } from "date-fns/locale";
 
 const carBrands = [
   "Annan bilmodell",
@@ -127,7 +128,20 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [open, setOpen] = useState(false);
+  const [firstRegOpen, setFirstRegOpen] = useState(false);
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   
+  // Generate year options (last 50 years)
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: 50 }, (_, i) => currentYear - i);
+  
+  // Month names in Swedish
+  const monthNames = [
+    "Januari", "Februari", "Mars", "April", "Maj", "Juni",
+    "Juli", "Augusti", "September", "Oktober", "November", "December"
+  ];
+
   const form = useForm<PurchaseFormData>({
     resolver: zodResolver(purchaseSchema),
     defaultValues: {
@@ -301,24 +315,111 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
               </div>
 
               <div>
-                <Label htmlFor="first_registration_date">Första registreringsdatum</Label>
-                <Popover>
+                <Label>Första registeringsdatum</Label>
+                <Popover open={firstRegOpen} onOpenChange={setFirstRegOpen}>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start text-left font-normal">
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !form.watch("first_registration_date") && "text-muted-foreground"
+                      )}
+                    >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {form.watch("first_registration_date") 
-                        ? format(form.watch("first_registration_date"), "yyyy-MM-dd")
-                        : "Välj datum"
-                      }
+                      {form.watch("first_registration_date") ? (
+                        format(form.watch("first_registration_date")!, "PPP", { locale: sv })
+                      ) : (
+                        <span>Välj datum</span>
+                      )}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={form.watch("first_registration_date")}
-                      onSelect={(date) => form.setValue("first_registration_date", date)}
-                      className="pointer-events-auto"
-                    />
+                  <PopoverContent className="w-auto p-4" align="start">
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <Label className="text-sm">År</Label>
+                          <Select 
+                            value={selectedYear?.toString() || ""} 
+                            onValueChange={(value) => setSelectedYear(parseInt(value))}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Välj år" />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-48">
+                              {yearOptions.map((year) => (
+                                <SelectItem key={year} value={year.toString()}>
+                                  {year}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div>
+                          <Label className="text-sm">Månad</Label>
+                          <Select 
+                            value={selectedMonth?.toString() || ""} 
+                            onValueChange={(value) => setSelectedMonth(parseInt(value))}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Välj månad" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {monthNames.map((month, index) => (
+                                <SelectItem key={index} value={index.toString()}>
+                                  {month}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      
+                      {selectedYear && selectedMonth !== null && (
+                        <Calendar
+                          mode="single"
+                          selected={form.watch("first_registration_date")}
+                          onSelect={(date) => {
+                            if (date) {
+                              form.setValue("first_registration_date", date);
+                              setFirstRegOpen(false);
+                            }
+                          }}
+                          month={new Date(selectedYear, selectedMonth)}
+                          onMonthChange={(date) => {
+                            setSelectedYear(date.getFullYear());
+                            setSelectedMonth(date.getMonth());
+                          }}
+                          className="rounded-md border"
+                          disabled={(date) => 
+                            date > new Date() || 
+                            date.getFullYear() !== selectedYear ||
+                            date.getMonth() !== selectedMonth
+                          }
+                        />
+                      )}
+                      
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          onClick={() => {
+                            form.setValue("first_registration_date", undefined);
+                            setSelectedYear(null);
+                            setSelectedMonth(null);
+                            setFirstRegOpen(false);
+                          }}
+                          className="flex-1"
+                        >
+                          Rensa
+                        </Button>
+                        <Button 
+                          onClick={() => setFirstRegOpen(false)}
+                          className="flex-1"
+                        >
+                          Klar
+                        </Button>
+                      </div>
+                    </div>
                   </PopoverContent>
                 </Popover>
               </div>
