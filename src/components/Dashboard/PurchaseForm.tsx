@@ -107,7 +107,7 @@ const purchaseSchema = z.object({
   
   // Purchase information
   purchaser: z.string().min(1, "Inköpare krävs"),
-  purchase_price: z.number().min(0, "Inköpspris måste vara positivt"),
+  purchase_price: z.number().min(0.01, "Inköpspris måste vara positivt och större än 0"),
   purchase_date: z.date(),
   down_payment: z.number().min(0).optional(),
   down_payment_docs_sent: z.boolean().default(false),
@@ -132,6 +132,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [mileageDisplay, setMileageDisplay] = useState("");
+  const [priceDisplay, setPriceDisplay] = useState("");
   
   // Generate year options (last 50 years)
   const currentYear = new Date().getFullYear();
@@ -160,6 +161,21 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
     return parseInt(num).toLocaleString('sv-SE');
   };
 
+  // Format price with thousands separator and decimals
+  const formatPriceWithThousands = (value: string) => {
+    // Remove existing formatting
+    const cleanValue = value.replace(/\s/g, '').replace(/,/g, '.');
+    if (!cleanValue) return '';
+    
+    const num = parseFloat(cleanValue);
+    if (isNaN(num)) return value;
+    
+    return num.toLocaleString('sv-SE', { 
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2 
+    });
+  };
+
   // Handle mileage input change
   const handleMileageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/,/g, '');
@@ -167,6 +183,21 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
       const numValue = value === '' ? undefined : parseInt(value);
       form.setValue('mileage', numValue);
       setMileageDisplay(value === '' ? '' : formatWithThousands(value));
+    }
+  };
+
+  // Handle price input change
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Allow digits, comma, and decimal point
+    const cleanValue = value.replace(/\s/g, '').replace(/,/g, '.');
+    
+    if (cleanValue === '' || /^\d+([.,]\d{0,2})?$/.test(cleanValue)) {
+      const numValue = cleanValue === '' ? undefined : parseFloat(cleanValue);
+      if (numValue === undefined || numValue >= 0) {
+        form.setValue('purchase_price', numValue);
+        setPriceDisplay(value === '' ? '' : formatPriceWithThousands(value));
+      }
     }
   };
 
@@ -498,9 +529,10 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                 <Label htmlFor="purchase_price">Inköpspris (SEK) *</Label>
                 <Input
                   id="purchase_price"
-                  type="number"
-                  step="0.01"
-                  {...form.register("purchase_price", { valueAsNumber: true })}
+                  type="text"
+                  value={priceDisplay}
+                  onChange={handlePriceChange}
+                  placeholder="t.ex. 150,000"
                   className={form.formState.errors.purchase_price ? "border-destructive" : ""}
                 />
                 {form.formState.errors.purchase_price && (
