@@ -318,7 +318,107 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex">
+      {/* Sidebar */}
+      <aside className="w-64 bg-white border-r border-border flex flex-col">
+        <div className="p-4 border-b">
+          <h2 className="text-xl font-bold">AutoFlow</h2>
+        </div>
+        
+        <div className="p-4 border-b">
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="flex-1">
+              Köp
+            </Button>
+            <Button variant="outline" size="sm" className="flex-1">
+              Sälj
+            </Button>
+          </div>
+        </div>
+        
+        <nav className="flex-1 p-4">
+          <ul className="space-y-2">
+            <li>
+              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                📊 Hem
+              </Button>
+            </li>
+            <li>
+              <Button variant="default" className="w-full justify-start bg-primary text-primary-foreground">
+                📈 Statistik
+              </Button>
+            </li>
+            <li>
+              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                🔄 Direktförsörjt
+              </Button>
+            </li>
+            <li>
+              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                📦 Direktimportation
+              </Button>
+            </li>
+            <li>
+              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                🏪 Lagerförråd
+              </Button>
+            </li>
+            <li>
+              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                📋 Avtal
+              </Button>
+            </li>
+            <li>
+              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                📄 Dokument
+              </Button>
+            </li>
+            <li>
+              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                🧾 Fakturor
+              </Button>
+            </li>
+            <li>
+              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                💳 Direktbetalningar
+              </Button>
+            </li>
+            <li>
+              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                👥 Kundregister
+              </Button>
+            </li>
+            <li>
+              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                📊 Bokföringsunderlag
+              </Button>
+            </li>
+            <li>
+              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                ✅ Verifikation
+              </Button>
+            </li>
+            <li>
+              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                📝 Bloggar
+              </Button>
+            </li>
+            <li>
+              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                🛒 Marknadsplats
+              </Button>
+            </li>
+            <li>
+              <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                📞 Leads
+              </Button>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
         <header className="border-b">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <div className="flex items-center space-x-3">
@@ -354,16 +454,18 @@ const Index = () => {
             </div>
           </div>
         </header>
-      <main className="container mx-auto px-4 py-8">
-        <DashboardStats 
-          totalStock={stats.totalStock}
-          inventoryValue={stats.inventoryValue}
-          lastSale={stats.lastSale}
-        />
         
-        <VehicleList />
-        
-      </main>
+        <main className="container mx-auto px-4 py-8">
+          <DashboardStats 
+            totalStock={stats.totalStock}
+            inventoryValue={stats.inventoryValue}
+            lastSale={stats.lastSale}
+          />
+          
+          <VehicleList />
+          
+        </main>
+      </div>
 
       {/* Export Dialog */}
       <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
