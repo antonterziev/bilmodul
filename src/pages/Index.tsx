@@ -139,7 +139,16 @@ const Index = () => {
       <div className="min-h-screen bg-background">
         <header className="border-b">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Lagermodulen</h1>
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg">
+                <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
+                  <path d="M5 11h14l-1-1H6l-1 1zm0 2h14l1 1H4l1-1zm1.5-9A1.5 1.5 0 0 0 5 5.5v1A1.5 1.5 0 0 0 6.5 8h11A1.5 1.5 0 0 0 19 6.5v-1A1.5 1.5 0 0 0 17.5 4h-11zm.25 6c0-.69.56-1.25 1.25-1.25h8c.69 0 1.25.56 1.25 1.25s-.56 1.25-1.25 1.25h-8c-.69 0-1.25-.56-1.25-1.25z"/>
+                  <circle cx="8" cy="16" r="1.5"/>
+                  <circle cx="16" cy="16" r="1.5"/>
+                </svg>
+              </div>
+              <h1 className="text-2xl font-bold">Lagermodulen</h1>
+            </div>
             <div className="flex items-center gap-4">
               <Button variant="outline" onClick={() => setShowPurchaseForm(false)}>
                 Tillbaka till dashboard
@@ -169,7 +178,16 @@ const Index = () => {
         <div className="min-h-screen bg-background">
           <header className="border-b">
             <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg">
+                <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
+                  <path d="M5 11h14l-1-1H6l-1 1zm0 2h14l1 1H4l1-1zm1.5-9A1.5 1.5 0 0 0 5 5.5v1A1.5 1.5 0 0 0 6.5 8h11A1.5 1.5 0 0 0 19 6.5v-1A1.5 1.5 0 0 0 17.5 4h-11zm.25 6c0-.69.56-1.25 1.25-1.25h8c.69 0 1.25.56 1.25 1.25s-.56 1.25-1.25 1.25h-8c-.69 0-1.25-.56-1.25-1.25z"/>
+                  <circle cx="8" cy="16" r="1.5"/>
+                  <circle cx="16" cy="16" r="1.5"/>
+                </svg>
+              </div>
               <h1 className="text-2xl font-bold">Lagermodulen</h1>
+            </div>
               <div className="flex items-center gap-4">
                 <Button variant="outline" onClick={() => setShowLogistics(false)}>
                   Tillbaka till dashboard
@@ -197,7 +215,16 @@ const Index = () => {
       <div className="min-h-screen bg-background">
         <header className="border-b">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Lagermodulen</h1>
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg">
+                <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
+                  <path d="M5 11h14l-1-1H6l-1 1zm0 2h14l1 1H4l1-1zm1.5-9A1.5 1.5 0 0 0 5 5.5v1A1.5 1.5 0 0 0 6.5 8h11A1.5 1.5 0 0 0 19 6.5v-1A1.5 1.5 0 0 0 17.5 4h-11zm.25 6c0-.69.56-1.25 1.25-1.25h8c.69 0 1.25.56 1.25 1.25s-.56 1.25-1.25 1.25h-8c-.69 0-1.25-.56-1.25-1.25z"/>
+                  <circle cx="8" cy="16" r="1.5"/>
+                  <circle cx="16" cy="16" r="1.5"/>
+                </svg>
+              </div>
+              <h1 className="text-2xl font-bold">Lagermodulen</h1>
+            </div>
             <div className="flex items-center gap-4">
               <Button variant="outline" onClick={() => setShowLogistics(false)}>
                 Tillbaka till dashboard
@@ -224,7 +251,16 @@ const Index = () => {
         <div className="min-h-screen bg-background">
           <header className="border-b">
             <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg">
+                <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
+                  <path d="M5 11h14l-1-1H6l-1 1zm0 2h14l1 1H4l1-1zm1.5-9A1.5 1.5 0 0 0 5 5.5v1A1.5 1.5 0 0 0 6.5 8h11A1.5 1.5 0 0 0 19 6.5v-1A1.5 1.5 0 0 0 17.5 4h-11zm.25 6c0-.69.56-1.25 1.25-1.25h8c.69 0 1.25.56 1.25 1.25s-.56 1.25-1.25 1.25h-8c-.69 0-1.25-.56-1.25-1.25z"/>
+                  <circle cx="8" cy="16" r="1.5"/>
+                  <circle cx="16" cy="16" r="1.5"/>
+                </svg>
+              </div>
               <h1 className="text-2xl font-bold">Lagermodulen</h1>
+            </div>
               <div className="flex items-center gap-4">
                 <Button variant="outline" onClick={() => setShowSales(false)}>
                   Tillbaka till dashboard
@@ -253,7 +289,16 @@ const Index = () => {
       <div className="min-h-screen bg-background">
         <header className="border-b">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Lagermodulen</h1>
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg">
+                <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
+                  <path d="M5 11h14l-1-1H6l-1 1zm0 2h14l1 1H4l1-1zm1.5-9A1.5 1.5 0 0 0 5 5.5v1A1.5 1.5 0 0 0 6.5 8h11A1.5 1.5 0 0 0 19 6.5v-1A1.5 1.5 0 0 0 17.5 4h-11zm.25 6c0-.69.56-1.25 1.25-1.25h8c.69 0 1.25.56 1.25 1.25s-.56 1.25-1.25 1.25h-8c-.69 0-1.25-.56-1.25-1.25z"/>
+                  <circle cx="8" cy="16" r="1.5"/>
+                  <circle cx="16" cy="16" r="1.5"/>
+                </svg>
+              </div>
+              <h1 className="text-2xl font-bold">Lagermodulen</h1>
+            </div>
             <div className="flex items-center gap-4">
               <Button variant="outline" onClick={() => setShowSales(false)}>
                 Tillbaka till dashboard
@@ -279,7 +324,16 @@ const Index = () => {
       <div className="min-h-screen bg-background">
         <header className="border-b">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Lagermodulen</h1>
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg">
+                <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
+                  <path d="M5 11h14l-1-1H6l-1 1zm0 2h14l1 1H4l1-1zm1.5-9A1.5 1.5 0 0 0 5 5.5v1A1.5 1.5 0 0 0 6.5 8h11A1.5 1.5 0 0 0 19 6.5v-1A1.5 1.5 0 0 0 17.5 4h-11zm.25 6c0-.69.56-1.25 1.25-1.25h8c.69 0 1.25.56 1.25 1.25s-.56 1.25-1.25 1.25h-8c-.69 0-1.25-.56-1.25-1.25z"/>
+                  <circle cx="8" cy="16" r="1.5"/>
+                  <circle cx="16" cy="16" r="1.5"/>
+                </svg>
+              </div>
+              <h1 className="text-2xl font-bold">Lagermodulen</h1>
+            </div>
             <div className="flex items-center gap-4">
               <Button variant="outline" onClick={() => setShowSettings(false)}>
                 Tillbaka till dashboard
@@ -304,7 +358,16 @@ const Index = () => {
     <div className="min-h-screen bg-background">
         <header className="border-b">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Lagermodulen</h1>
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg">
+                <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
+                  <path d="M5 11h14l-1-1H6l-1 1zm0 2h14l1 1H4l1-1zm1.5-9A1.5 1.5 0 0 0 5 5.5v1A1.5 1.5 0 0 0 6.5 8h11A1.5 1.5 0 0 0 19 6.5v-1A1.5 1.5 0 0 0 17.5 4h-11zm.25 6c0-.69.56-1.25 1.25-1.25h8c.69 0 1.25.56 1.25 1.25s-.56 1.25-1.25 1.25h-8c-.69 0-1.25-.56-1.25-1.25z"/>
+                  <circle cx="8" cy="16" r="1.5"/>
+                  <circle cx="16" cy="16" r="1.5"/>
+                </svg>
+              </div>
+              <h1 className="text-2xl font-bold">Lagermodulen</h1>
+            </div>
             <div className="flex items-center gap-4">
               <div className="flex gap-2">
                 <Button onClick={() => setShowPurchaseForm(true)} size="sm">
