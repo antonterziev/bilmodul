@@ -20,6 +20,7 @@ const Index = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [selectedSaleVehicleId, setSelectedSaleVehicleId] = useState<string | null>(null);
+  const [userProfile, setUserProfile] = useState<any>(null);
   const [stats, setStats] = useState({
     totalStock: 0,
     inTransit: 0,
@@ -35,6 +36,7 @@ const Index = () => {
   useEffect(() => {
     if (user) {
       loadStats();
+      loadUserProfile();
     }
   }, [user]);
 
@@ -64,6 +66,24 @@ const Index = () => {
     setShowSettings(false);
   };
 
+  const loadUserProfile = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('full_name, company_name')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!error && data) {
+        setUserProfile(data);
+      }
+    } catch (error) {
+      console.error('Error loading user profile:', error);
+    }
+  };
+
   const loadStats = async () => {
     if (!user) return;
 
@@ -91,6 +111,13 @@ const Index = () => {
     }
   };
 
+  const getDisplayName = () => {
+    if (userProfile?.full_name) {
+      return userProfile.full_name;
+    }
+    return user?.email || 'Användare';
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -116,7 +143,7 @@ const Index = () => {
                 Tillbaka till dashboard
               </Button>
               <span className="text-sm text-muted-foreground">
-                Välkommen, {user.email}
+                Välkommen, {getDisplayName()}
               </span>
               <Button variant="outline" onClick={signOut}>
                 Logga ut
@@ -146,7 +173,7 @@ const Index = () => {
                   Tillbaka till dashboard
                 </Button>
                 <span className="text-sm text-muted-foreground">
-                  Välkommen, {user.email}
+                  Välkommen, {getDisplayName()}
                 </span>
                 <Button variant="outline" onClick={signOut}>
                   Logga ut
@@ -174,7 +201,7 @@ const Index = () => {
                 Tillbaka till dashboard
               </Button>
               <span className="text-sm text-muted-foreground">
-                Välkommen, {user.email}
+                Välkommen, {getDisplayName()}
               </span>
               <Button variant="outline" onClick={signOut}>
                 Logga ut
@@ -201,7 +228,7 @@ const Index = () => {
                   Tillbaka till dashboard
                 </Button>
                 <span className="text-sm text-muted-foreground">
-                  Välkommen, {user.email}
+                  Välkommen, {getDisplayName()}
                 </span>
                 <Button variant="outline" onClick={signOut}>
                   Logga ut
@@ -230,7 +257,7 @@ const Index = () => {
                 Tillbaka till dashboard
               </Button>
               <span className="text-sm text-muted-foreground">
-                Välkommen, {user.email}
+                Välkommen, {getDisplayName()}
               </span>
               <Button variant="outline" onClick={signOut}>
                 Logga ut
@@ -256,7 +283,7 @@ const Index = () => {
                 Tillbaka till dashboard
               </Button>
               <span className="text-sm text-muted-foreground">
-                Välkommen, {user.email}
+                Välkommen, {getDisplayName()}
               </span>
               <Button variant="outline" onClick={signOut}>
                 Logga ut
@@ -281,7 +308,7 @@ const Index = () => {
                 Inställningar
               </Button>
               <span className="text-sm text-muted-foreground">
-                Välkommen, {user.email}
+                Välkommen, {getDisplayName()}
               </span>
               <Button variant="outline" onClick={signOut}>
                 Logga ut
