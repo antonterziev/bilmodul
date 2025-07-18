@@ -135,6 +135,15 @@ const purchaseSchema = z.object({
   marketplace_channel: z.string().optional(),
   marketplace_channel_other: z.string().optional(),
   expected_selling_price: z.number().min(0, "Förväntat försäljningspris kan inte vara negativt").optional(),
+}).refine((data) => {
+  // If there's a down payment, file upload is required
+  if (data.down_payment && data.down_payment > 0) {
+    return data.down_payment_document;
+  }
+  return true;
+}, {
+  message: "Handpenningsunderlag krävs när handpenning anges",
+  path: ["down_payment_document"],
 });
 
 type PurchaseFormData = z.infer<typeof purchaseSchema>;
@@ -745,7 +754,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
               {/* File upload for down payment documentation */}
               {form.watch("down_payment") && form.watch("down_payment") > 0 && (
                 <div>
-                  <Label htmlFor="down_payment_document">Bifoga handpenningsunderlag</Label>
+                  <Label htmlFor="down_payment_document">Bifoga handpenningsunderlag*</Label>
                   <div className="space-y-2">
                     {!uploadedFile ? (
                       <div>
@@ -779,10 +788,17 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
-                    )}
-                  </div>
-                </div>
-              )}
+                     )}
+                   </div>
+                   {form.formState.errors.down_payment_document && (
+                     <p className="text-sm text-destructive mt-1">
+                       {typeof form.formState.errors.down_payment_document.message === 'string' 
+                         ? form.formState.errors.down_payment_document.message 
+                         : "Handpenningsunderlag krävs när handpenning anges"}
+                     </p>
+                   )}
+                 </div>
+               )}
 
               <div>
                 <Label htmlFor="purchase_channel">Inköpskanal</Label>
