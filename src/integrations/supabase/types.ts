@@ -27,6 +27,7 @@ export type Database = {
           customer_type: string | null
           down_payment: number | null
           down_payment_docs_sent: boolean | null
+          down_payment_document_path: string | null
           expected_selling_price: number | null
           financing_details: string | null
           financing_provided: boolean | null
@@ -72,6 +73,7 @@ export type Database = {
           customer_type?: string | null
           down_payment?: number | null
           down_payment_docs_sent?: boolean | null
+          down_payment_document_path?: string | null
           expected_selling_price?: number | null
           financing_details?: string | null
           financing_provided?: boolean | null
@@ -117,6 +119,7 @@ export type Database = {
           customer_type?: string | null
           down_payment?: number | null
           down_payment_docs_sent?: boolean | null
+          down_payment_document_path?: string | null
           expected_selling_price?: number | null
           financing_details?: string | null
           financing_provided?: boolean | null

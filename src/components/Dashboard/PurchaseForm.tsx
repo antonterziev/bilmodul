@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
+import { CalendarIcon, Check, ChevronsUpDown, Upload, X } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -127,6 +127,7 @@ const purchaseSchema = z.object({
   purchase_date: z.date(),
   down_payment: z.number().min(0, "Handpenning kan inte vara negativ").optional(),
   down_payment_docs_sent: z.boolean().default(false),
+  down_payment_document: z.any().optional(),
   purchase_documentation: z.string().optional(),
   purchase_docs_sent: z.boolean().default(false),
   purchase_channel: z.string().optional(),
@@ -154,6 +155,8 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
   const [priceDisplay, setPriceDisplay] = useState("");
   const [downPaymentDisplay, setDownPaymentDisplay] = useState("");
   const [expectedPriceDisplay, setExpectedPriceDisplay] = useState("");
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   
   // Generate year options (last 50 years)
   const currentYear = new Date().getFullYear();
@@ -255,6 +258,47 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
     }
   };
 
+  // Handle file upload
+  const handleFileUpload = async (file: File) => {
+    if (!user) return;
+    
+    setIsUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      const filePath = `down-payment-docs/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('down-payment-docs')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      setUploadedFile(file);
+      form.setValue('down_payment_document', filePath);
+      
+      toast({
+        title: "Fil uppladdad",
+        description: "Handpenningsdokument har laddats upp",
+      });
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      toast({
+        title: "Fel",
+        description: "Det gick inte att ladda upp filen",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Handle file removal
+  const handleFileRemove = () => {
+    setUploadedFile(null);
+    form.setValue('down_payment_document', undefined);
+  };
+
   const onSubmit = async (data: PurchaseFormData) => {
     if (!user) return;
     
@@ -278,6 +322,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
         purchase_date: data.purchase_date.toISOString().split('T')[0],
         down_payment: data.down_payment || 0,
         down_payment_docs_sent: data.down_payment_docs_sent,
+        down_payment_document_path: data.down_payment_document || null,
         purchase_documentation: data.purchase_documentation || null,
         purchase_docs_sent: data.purchase_docs_sent,
         purchase_channel: data.purchase_channel || null,
@@ -696,6 +741,48 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                   </p>
                 )}
               </div>
+
+              {/* File upload for down payment documentation */}
+              {form.watch("down_payment") && form.watch("down_payment") > 0 && (
+                <div>
+                  <Label htmlFor="down_payment_document">Handpenningsdokumentation</Label>
+                  <div className="space-y-2">
+                    {!uploadedFile ? (
+                      <div>
+                        <Input
+                          type="file"
+                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              handleFileUpload(file);
+                            }
+                          }}
+                          disabled={isUploading}
+                        />
+                        {isUploading && (
+                          <p className="text-sm text-muted-foreground">Laddar upp fil...</p>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between p-2 border rounded-md bg-muted/50">
+                        <div className="flex items-center space-x-2">
+                          <Upload className="h-4 w-4" />
+                          <span className="text-sm">{uploadedFile.name}</span>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleFileRemove}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               <div>
                 <Label htmlFor="purchase_channel">Inköpskanal</Label>
