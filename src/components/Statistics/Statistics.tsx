@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { DashboardStats } from "@/components/Dashboard/DashboardStats";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,9 +11,12 @@ import { cn } from "@/lib/utils";
 
 interface StatisticsProps {
   onBack: () => void;
+  totalStock: number;
+  inventoryValue: number;
+  lastSale: string;
 }
 
-export const Statistics = ({ onBack }: StatisticsProps) => {
+export const Statistics = ({ onBack, totalStock, inventoryValue, lastSale }: StatisticsProps) => {
   const currentYear = new Date().getFullYear();
   const [startDate, setStartDate] = useState<Date>(new Date(currentYear, 0, 1)); // January 1st of current year
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
@@ -88,6 +92,14 @@ export const Statistics = ({ onBack }: StatisticsProps) => {
           </div>
         </CardContent>
       </Card>
+
+      
+      {/* Dashboard Stats */}
+      <DashboardStats 
+        totalStock={totalStock}
+        inventoryValue={inventoryValue}
+        lastSale={lastSale}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Statistics Card */}

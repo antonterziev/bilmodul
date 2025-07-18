@@ -182,7 +182,12 @@ const Index = () => {
     }
 
     if (showStatistics) {
-      return <Statistics onBack={handleBackToStatistics} />;
+      return <Statistics 
+        onBack={handleBackToStatistics}
+        totalStock={stats.totalStock}
+        inventoryValue={stats.inventoryValue}
+        lastSale={stats.lastSale}
+      />;
     }
 
     if (showLager) {
