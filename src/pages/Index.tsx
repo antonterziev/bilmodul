@@ -343,9 +343,18 @@ const Index = () => {
               </li>
               <li>
                 <Button 
-                  variant="ghost" 
-                  className="w-full justify-start text-muted-foreground"
-                  onClick={() => setShowSettings(true)}
+                  variant={showSettings ? "default" : "ghost"} 
+                  className={`w-full justify-start ${showSettings ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                  onClick={() => {
+                    setShowPurchaseForm(false);
+                    setShowLogistics(false);
+                    setShowSales(false);
+                    setShowSettings(true);
+                    setShowStatistics(false);
+                    setShowLager(false);
+                    setSelectedVehicleId(null);
+                    setSelectedSaleVehicleId(null);
+                  }}
                 >
                   <SettingsIcon className="mr-2 h-4 w-4" />
                   Inställningar
