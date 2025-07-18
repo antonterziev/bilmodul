@@ -324,7 +324,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
             <h3 className="text-lg font-semibold">Fordonsdata</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="registration_number">Registreringsnummer</Label>
+                <Label htmlFor="registration_number">Registreringsnummer*</Label>
                 <Input
                   id="registration_number"
                   {...form.register("registration_number")}
