@@ -112,7 +112,7 @@ const purchaseSchema = z.object({
   // Vehicle data
   registration_number: z.string().min(1, "Registreringsnummer krävs"),
   chassis_number: z.string().optional(),
-  mileage: z.number().min(0, "Miltal kan inte vara negativt").optional(),
+  mileage: z.number().min(0, "Miltal kan inte vara negativt").max(500000, "Miltal kan inte vara över 500,000").optional(),
   brand: z.string().min(1, "Märke krävs"),
   brand_other: z.string().optional(),
   model: z.string().optional(),
