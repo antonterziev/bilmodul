@@ -322,7 +322,7 @@ const Index = () => {
       {/* Sidebar */}
       <aside className="w-64 bg-white border-r border-border flex flex-col">
         <div className="p-4 border-b">
-          <h2 className="text-xl font-bold">AutoFlow</h2>
+          <h2 className="text-xl font-bold">Lagermodulen</h2>
         </div>
         
         <div className="p-4 border-b">
@@ -422,7 +422,6 @@ const Index = () => {
         <header className="border-b">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <div className="flex items-center space-x-3">
-              <h1 className="text-2xl font-bold">Lagermodulen</h1>
             </div>
             <div className="flex items-center gap-4">
               <span className="text-sm text-muted-foreground">
