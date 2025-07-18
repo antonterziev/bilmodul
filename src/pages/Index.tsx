@@ -203,15 +203,12 @@ const Index = () => {
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Phone className="h-4 w-4" />
                   <div className="flex flex-col">
-                    <span>Kundtjänst</span>
+                    <span className="font-bold">Kundtjänst</span>
                     <span>070 112 112</span>
                   </div>
                 </div>
                 <Button variant="outline" size="sm">
                   Supportchatt
-                </Button>
-                <Button variant="outline" onClick={() => setShowSettings(true)} size="sm">
-                  Inställningar
                 </Button>
                 <Button variant="outline" onClick={signOut}>
                   Logga ut
