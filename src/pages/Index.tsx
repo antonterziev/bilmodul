@@ -89,6 +89,12 @@ const Index = () => {
     setShowStatistics(false);
   };
 
+  const handleLogout = () => {
+    if (confirm("Är du säker på att du vill logga ut?")) {
+      signOut();
+    }
+  };
+
   const loadUserProfile = async () => {
     if (!user) return;
 
@@ -252,7 +258,7 @@ const Index = () => {
                   <MessageCircle className="h-4 w-4" />
                   Supportchatt
                 </Button>
-                <Button variant="outline" onClick={signOut} size="sm" className="flex items-center gap-2">
+                <Button variant="outline" onClick={handleLogout} size="sm" className="flex items-center gap-2">
                   <LogOut className="h-4 w-4" />
                   Logga ut
                 </Button>
