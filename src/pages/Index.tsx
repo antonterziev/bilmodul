@@ -325,30 +325,32 @@ const Index = () => {
               <h1 className="text-2xl font-bold">Lagermodulen</h1>
             </div>
             <div className="flex items-center gap-4">
+              <span className="text-sm text-muted-foreground">
+                Välkommen {getDisplayName()}
+              </span>
               <div className="flex gap-2">
-                <Button onClick={() => setShowPurchaseForm(true)} size="sm">
-                  + Inköp
+                <Button variant="outline" size="sm">
+                  Hem
+                </Button>
+                <Button onClick={() => setShowPurchaseForm(true)} variant="outline" size="sm">
+                  Inköp
                 </Button>
                 <Button onClick={() => setShowLogistics(true)} variant="outline" size="sm">
-                  Logistik
+                  Transport
                 </Button>
                 <Button onClick={() => setShowSales(true)} variant="outline" size="sm">
-                  + Försäljning
+                  Försäljning
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => setShowExportDialog(true)}>
                   Exportera
                 </Button>
+                <Button variant="outline" onClick={() => setShowSettings(true)} size="sm">
+                  Inställningar
+                </Button>
+                <Button variant="outline" onClick={signOut}>
+                  Logga ut
+                </Button>
               </div>
-              <div className="h-6 w-px bg-border"></div>
-              <Button variant="outline" onClick={() => setShowSettings(true)} size="sm">
-                Inställningar
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                Välkommen {getDisplayName()}
-              </span>
-              <Button variant="outline" onClick={signOut}>
-                Logga ut
-              </Button>
             </div>
           </div>
         </header>
