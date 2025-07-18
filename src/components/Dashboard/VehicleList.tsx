@@ -3,7 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Car } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Car, Trash2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface Vehicle {
   id: string;
@@ -18,8 +20,10 @@ interface Vehicle {
 
 export const VehicleList = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -92,6 +96,40 @@ export const VehicleList = () => {
     const diffTime = Math.abs(today.getTime() - purchase.getTime());
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
+  };
+
+  const handleDelete = async (vehicleId: string, registrationNumber: string) => {
+    if (!confirm(`Är du säker på att du vill ta bort ${registrationNumber}? Detta kan inte ångras.`)) {
+      return;
+    }
+
+    try {
+      setDeletingId(vehicleId);
+      const { error } = await supabase
+        .from('inventory_items')
+        .delete()
+        .eq('id', vehicleId)
+        .eq('user_id', user?.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Fordon borttaget",
+        description: `${registrationNumber} har tagits bort från lagret.`,
+      });
+
+      // Reload the vehicles list
+      loadVehicles();
+    } catch (error) {
+      console.error('Error deleting vehicle:', error);
+      toast({
+        title: "Fel",
+        description: "Kunde inte ta bort fordonet. Försök igen.",
+        variant: "destructive",
+      });
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   if (loading) {
@@ -175,6 +213,26 @@ export const VehicleList = () => {
                     <p className="text-xs text-muted-foreground">Lagerdagar</p>
                     <p className="font-medium">{calculateStorageDays(vehicle.purchase_date)} dagar</p>
                   </div>
+                </div>
+                
+                {/* Delete button */}
+                <div className="flex-shrink-0">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDelete(vehicle.id, vehicle.registration_number)}
+                    disabled={deletingId === vehicle.id}
+                    className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                  >
+                    {deletingId === vehicle.id ? (
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    ) : (
+                      <>
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Ta bort
+                      </>
+                    )}
+                  </Button>
                 </div>
               </div>
             ))}
