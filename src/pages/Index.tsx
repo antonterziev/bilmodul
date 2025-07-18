@@ -200,11 +200,11 @@ const Index = () => {
               Välkommen {getDisplayName()}
             </span>
               <div className="flex gap-2">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Phone className="h-4 w-4" />
+                <div className="flex items-center gap-2 text-sm">
+                  <Phone className="h-4 w-4 text-muted-foreground" />
                   <div className="flex flex-col">
-                    <span className="font-bold">Kundtjänst</span>
-                    <span>070 112 112</span>
+                    <span className="font-bold text-foreground">Kundtjänst</span>
+                    <span className="text-muted-foreground">070 112 112</span>
                   </div>
                 </div>
                 <Button variant="outline" size="sm">
