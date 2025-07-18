@@ -22,9 +22,13 @@ export type Database = {
           comment: string | null
           created_at: string
           current_location: string | null
+          customer_country: string | null
+          customer_type: string | null
           down_payment: number | null
           down_payment_docs_sent: boolean | null
           expected_selling_price: number | null
+          financing_details: string | null
+          financing_provided: boolean | null
           first_registration_date: string | null
           id: string
           logistics_documentation_attached: boolean | null
@@ -38,10 +42,18 @@ export type Database = {
           purchase_price: number
           purchaser: string
           registration_number: string
+          sales_channel: string | null
+          sales_documentation: string | null
+          sales_notes: string | null
+          seller: string | null
+          selling_date: string | null
+          selling_price: number | null
           status: string
           updated_at: string
           user_id: string
           vat_type: string | null
+          warranty_details: string | null
+          warranty_provided: boolean | null
           year_model: number | null
         }
         Insert: {
@@ -51,9 +63,13 @@ export type Database = {
           comment?: string | null
           created_at?: string
           current_location?: string | null
+          customer_country?: string | null
+          customer_type?: string | null
           down_payment?: number | null
           down_payment_docs_sent?: boolean | null
           expected_selling_price?: number | null
+          financing_details?: string | null
+          financing_provided?: boolean | null
           first_registration_date?: string | null
           id?: string
           logistics_documentation_attached?: boolean | null
@@ -67,10 +83,18 @@ export type Database = {
           purchase_price: number
           purchaser: string
           registration_number: string
+          sales_channel?: string | null
+          sales_documentation?: string | null
+          sales_notes?: string | null
+          seller?: string | null
+          selling_date?: string | null
+          selling_price?: number | null
           status?: string
           updated_at?: string
           user_id: string
           vat_type?: string | null
+          warranty_details?: string | null
+          warranty_provided?: boolean | null
           year_model?: number | null
         }
         Update: {
@@ -80,9 +104,13 @@ export type Database = {
           comment?: string | null
           created_at?: string
           current_location?: string | null
+          customer_country?: string | null
+          customer_type?: string | null
           down_payment?: number | null
           down_payment_docs_sent?: boolean | null
           expected_selling_price?: number | null
+          financing_details?: string | null
+          financing_provided?: boolean | null
           first_registration_date?: string | null
           id?: string
           logistics_documentation_attached?: boolean | null
@@ -96,10 +124,18 @@ export type Database = {
           purchase_price?: number
           purchaser?: string
           registration_number?: string
+          sales_channel?: string | null
+          sales_documentation?: string | null
+          sales_notes?: string | null
+          seller?: string | null
+          selling_date?: string | null
+          selling_price?: number | null
           status?: string
           updated_at?: string
           user_id?: string
           vat_type?: string | null
+          warranty_details?: string | null
+          warranty_provided?: boolean | null
           year_model?: number | null
         }
         Relationships: []
