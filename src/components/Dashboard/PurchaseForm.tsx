@@ -129,7 +129,9 @@ const purchaseSchema = z.object({
   purchase_documentation: z.string().optional(),
   purchase_docs_sent: z.boolean().default(false),
   purchase_channel: z.string().optional(),
+  purchase_channel_other: z.string().optional(),
   marketplace_channel: z.string().optional(),
+  marketplace_channel_other: z.string().optional(),
   expected_selling_price: z.number().min(0, "Förväntat försäljningspris kan inte vara negativt").optional(),
 });
 
@@ -272,7 +274,9 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
         purchase_documentation: data.purchase_documentation || null,
         purchase_docs_sent: data.purchase_docs_sent,
         purchase_channel: data.purchase_channel || null,
+        purchase_channel_other: data.purchase_channel_other || null,
         marketplace_channel: data.marketplace_channel || null,
+        marketplace_channel_other: data.marketplace_channel_other || null,
         expected_selling_price: data.expected_selling_price || null,
       };
 
@@ -634,6 +638,10 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                   form.setValue("purchase_channel", value);
                   if (value !== "Marknadsplats") {
                     form.setValue("marketplace_channel", undefined);
+                    form.setValue("marketplace_channel_other", undefined);
+                  }
+                  if (value !== "Annan") {
+                    form.setValue("purchase_channel_other", undefined);
                   }
                 }}>
                   <SelectTrigger>
@@ -649,10 +657,26 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                 </Select>
               </div>
 
+              {form.watch("purchase_channel") === "Annan" && (
+                <div>
+                  <Label htmlFor="purchase_channel_other">Beskriv inköpskanal</Label>
+                  <Input
+                    id="purchase_channel_other"
+                    {...form.register("purchase_channel_other")}
+                    placeholder="Ange vilken inköpskanal"
+                  />
+                </div>
+              )}
+
               {form.watch("purchase_channel") === "Marknadsplats" && (
                 <div>
                   <Label htmlFor="marketplace_channel">Marknadsplats</Label>
-                  <Select onValueChange={(value) => form.setValue("marketplace_channel", value)}>
+                  <Select onValueChange={(value) => {
+                    form.setValue("marketplace_channel", value);
+                    if (value !== "Annan") {
+                      form.setValue("marketplace_channel_other", undefined);
+                    }
+                  }}>
                     <SelectTrigger>
                       <SelectValue placeholder="Välj marknadsplats" />
                     </SelectTrigger>
@@ -664,6 +688,17 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+              )}
+
+              {form.watch("purchase_channel") === "Marknadsplats" && form.watch("marketplace_channel") === "Annan" && (
+                <div>
+                  <Label htmlFor="marketplace_channel_other">Beskriv marknadsplats</Label>
+                  <Input
+                    id="marketplace_channel_other"
+                    {...form.register("marketplace_channel_other")}
+                    placeholder="Ange vilken marknadsplats"
+                  />
                 </div>
               )}
 
