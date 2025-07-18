@@ -11,6 +11,7 @@ import { LogisticsDetail } from "@/components/Logistics/LogisticsDetail";
 import { SalesList } from "@/components/Sales/SalesList";
 import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
+import { Statistics } from "@/components/Statistics/Statistics";
 import { supabase } from "@/integrations/supabase/client";
 import { Home, BarChart3, Package, Settings as SettingsIcon, Truck, Download, Phone } from "lucide-react";
 
@@ -21,6 +22,7 @@ const Index = () => {
   const [showLogistics, setShowLogistics] = useState(false);
   const [showSales, setShowSales] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showStatistics, setShowStatistics] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [selectedSaleVehicleId, setSelectedSaleVehicleId] = useState<string | null>(null);
@@ -68,6 +70,10 @@ const Index = () => {
 
   const handleBackToSettings = () => {
     setShowSettings(false);
+  };
+
+  const handleBackToStatistics = () => {
+    setShowStatistics(false);
   };
 
   const loadUserProfile = async () => {
@@ -173,6 +179,10 @@ const Index = () => {
       return <Settings onBack={handleBackToSettings} />;
     }
 
+    if (showStatistics) {
+      return <Statistics onBack={handleBackToStatistics} />;
+    }
+
     // Default dashboard content
     return (
       <>
@@ -246,13 +256,14 @@ const Index = () => {
             <ul className="space-y-2">
               <li>
                 <Button 
-                  variant={!showPurchaseForm && !showLogistics && !showSales && !showSettings ? "default" : "ghost"} 
-                  className={`w-full justify-start ${!showPurchaseForm && !showLogistics && !showSales && !showSettings ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                  variant={!showPurchaseForm && !showLogistics && !showSales && !showSettings && !showStatistics ? "default" : "ghost"} 
+                  className={`w-full justify-start ${!showPurchaseForm && !showLogistics && !showSales && !showSettings && !showStatistics ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
                   onClick={() => {
                     setShowPurchaseForm(false);
                     setShowLogistics(false);
                     setShowSales(false);
                     setShowSettings(false);
+                    setShowStatistics(false);
                     setSelectedVehicleId(null);
                     setSelectedSaleVehicleId(null);
                   }}
@@ -262,7 +273,11 @@ const Index = () => {
                 </Button>
               </li>
               <li>
-                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+                <Button 
+                  variant={showStatistics ? "default" : "ghost"} 
+                  className={`w-full justify-start ${showStatistics ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                  onClick={() => setShowStatistics(true)}
+                >
                   <BarChart3 className="mr-2 h-4 w-4" />
                   Statistik
                 </Button>
