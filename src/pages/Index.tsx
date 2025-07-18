@@ -177,7 +177,7 @@ const Index = () => {
     }
 
     if (showSettings) {
-      return <Settings onBack={handleBackToSettings} />;
+      return <Settings />;
     }
 
     if (showStatistics) {

@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, User, Lock, Settings as SettingsIcon } from "lucide-react";
+import { User, Lock, Settings as SettingsIcon } from "lucide-react";
 
 interface UserProfile {
   id: string;
@@ -20,11 +20,9 @@ interface UserProfile {
   company_name: string;
 }
 
-interface SettingsProps {
-  onBack: () => void;
-}
+interface SettingsProps {}
 
-export const Settings = ({ onBack }: SettingsProps) => {
+export const Settings = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -178,13 +176,7 @@ export const Settings = ({ onBack }: SettingsProps) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="outline" onClick={onBack}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Tillbaka
-        </Button>
-        <h2 className="text-2xl font-bold">Inställningar</h2>
-      </div>
+      <h2 className="text-2xl font-bold">Inställningar</h2>
 
       <Tabs defaultValue="profile" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3">
