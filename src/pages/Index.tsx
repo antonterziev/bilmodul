@@ -376,8 +376,8 @@ const Index = () => {
             <ul className="space-y-2">
               <li>
                 <Button 
-                  variant="ghost" 
-                  className="w-full justify-start text-muted-foreground"
+                  variant={!showPurchaseForm && !showLogistics && !showSales && !showSettings ? "default" : "ghost"} 
+                  className={`w-full justify-start ${!showPurchaseForm && !showLogistics && !showSales && !showSettings ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
                   onClick={() => {
                     setShowPurchaseForm(false);
                     setShowLogistics(false);
@@ -392,7 +392,7 @@ const Index = () => {
                 </Button>
               </li>
               <li>
-                <Button variant="default" className="w-full justify-start bg-primary text-primary-foreground">
+                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
                   <BarChart3 className="mr-2 h-4 w-4" />
                   Statistik
                 </Button>
