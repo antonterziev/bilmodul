@@ -25,6 +25,7 @@ const Index = () => {
   const [showStatistics, setShowStatistics] = useState(false);
   const [showLager, setShowLager] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
+  const [showSupportDialog, setShowSupportDialog] = useState(false);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [selectedSaleVehicleId, setSelectedSaleVehicleId] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -231,7 +232,7 @@ const Index = () => {
                   <Phone className="h-4 w-4" />
                   <span className="text-foreground">070 112 112</span>
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => setShowSupportDialog(true)}>
                   Supportchatt
                 </Button>
                 <Button variant="outline" onClick={signOut} size="sm">
@@ -407,7 +408,7 @@ const Index = () => {
       <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-center">Premium Feature</DialogTitle>
+            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col items-center space-y-6 py-4">
             <div className="flex items-center justify-center w-20 h-20 bg-blue-100 rounded-lg">
@@ -425,6 +426,34 @@ const Index = () => {
               </p>
             </div>
             <Button className="w-full" onClick={() => setShowExportDialog(false)}>
+              Uppgradera mitt medlemskap
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Support Dialog */}
+      <Dialog open={showSupportDialog} onOpenChange={setShowSupportDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-6 py-4">
+            <div className="flex items-center justify-center w-20 h-20 bg-green-100 rounded-lg">
+              <svg viewBox="0 0 100 100" className="w-12 h-12">
+                <text x="50" y="35" textAnchor="middle" className="text-lg font-bold fill-green-600">💬</text>
+                <text x="50" y="70" textAnchor="middle" className="text-xs fill-green-600">SUPPORT</text>
+              </svg>
+            </div>
+            <div className="text-center space-y-2">
+              <p className="text-muted-foreground">
+                Supportchatt är en betalfunktion
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
+              </p>
+            </div>
+            <Button className="w-full" onClick={() => setShowSupportDialog(false)}>
               Uppgradera mitt medlemskap
             </Button>
           </div>
