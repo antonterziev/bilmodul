@@ -126,10 +126,8 @@ const purchaseSchema = z.object({
   purchase_price: z.number().min(0.01, "Inköpspris måste vara positivt och större än 0"),
   purchase_date: z.date(),
   down_payment: z.number().min(0, "Handpenning kan inte vara negativ").optional(),
-  down_payment_docs_sent: z.boolean().default(false),
   down_payment_document: z.any().optional(),
   purchase_documentation: z.string().optional(),
-  purchase_docs_sent: z.boolean().default(false),
   purchase_channel: z.string().optional(),
   purchase_channel_other: z.string().optional(),
   marketplace_channel: z.string().optional(),
@@ -183,8 +181,6 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
     defaultValues: {
       purchase_date: new Date(),
       down_payment: 0,
-      down_payment_docs_sent: false,
-      purchase_docs_sent: false,
     },
   });
 
@@ -357,10 +353,8 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
         purchase_price: data.purchase_price,
         purchase_date: data.purchase_date.toISOString().split('T')[0],
         down_payment: data.down_payment || 0,
-        down_payment_docs_sent: data.down_payment_docs_sent,
         down_payment_document_path: data.down_payment_document || null,
         purchase_documentation: data.purchase_documentation || null,
-        purchase_docs_sent: data.purchase_docs_sent,
         purchase_channel: data.purchase_channel || null,
         purchase_channel_other: data.purchase_channel_other || null,
         marketplace_channel: data.marketplace_channel || null,
@@ -960,25 +954,6 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
               <Textarea id="purchase_documentation" {...form.register("purchase_documentation")} />
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="down_payment_docs_sent"
-                  checked={form.watch("down_payment_docs_sent")}
-                  onCheckedChange={(checked) => form.setValue("down_payment_docs_sent", !!checked)}
-                />
-                <Label htmlFor="down_payment_docs_sent">Handpenningsunderlag skickat?</Label>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="purchase_docs_sent"
-                  checked={form.watch("purchase_docs_sent")}
-                  onCheckedChange={(checked) => form.setValue("purchase_docs_sent", !!checked)}
-                />
-                <Label htmlFor="purchase_docs_sent">Inköpsunderlag skickat?</Label>
-              </div>
-            </div>
           </div>
 
           <Button type="submit" disabled={isSubmitting} className="w-full">
