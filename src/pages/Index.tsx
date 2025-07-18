@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { DashboardStats } from "@/components/Dashboard/DashboardStats";
+import { VehicleList } from "@/components/Dashboard/VehicleList";
 import { PurchaseForm } from "@/components/Dashboard/PurchaseForm";
 import { LogisticsList } from "@/components/Logistics/LogisticsList";
 import { LogisticsDetail } from "@/components/Logistics/LogisticsDetail";
@@ -401,6 +402,8 @@ const Index = () => {
           inTransit={stats.inTransit}
           lastSale={stats.lastSale}
         />
+        
+        <VehicleList />
         
         <div className="text-center text-muted-foreground">
           <p>Använd knapparna ovan för att hantera ditt fordonslager.</p>
