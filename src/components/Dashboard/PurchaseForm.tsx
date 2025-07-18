@@ -113,7 +113,7 @@ const purchaseSchema = z.object({
   registration_number: z.string().min(1, "Registreringsnummer krävs"),
   chassis_number: z.string().optional(),
   mileage: z.number().min(0, "Miltal kan inte vara negativt").max(500000, "Miltal kan inte vara över 500,000").optional(),
-  brand: z.string().min(1, "Märke krävs"),
+  brand: z.string().optional(),
   brand_other: z.string().optional(),
   model: z.string().optional(),
   comment: z.string().optional(),
@@ -360,7 +360,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
               </div>
 
               <div>
-                <Label htmlFor="brand">Märke *</Label>
+                <Label htmlFor="brand">Märke</Label>
                 <Popover open={open} onOpenChange={setOpen}>
                   <PopoverTrigger asChild>
                     <Button
@@ -369,7 +369,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                       aria-expanded={open}
                       className="w-full justify-between"
                     >
-                      {form.watch("brand") || "Välj märke..."}
+                      {form.watch("brand") || "Välj märke"}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
@@ -428,7 +428,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                 <Input id="model" {...form.register("model")} />
               </div>
 
-              <div>
+               <div>
                 <Label htmlFor="year_model">Modellår</Label>
                 <Input
                   id="year_model"
@@ -437,9 +437,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                   max={new Date().getFullYear() + 1}
                   placeholder="t.ex. 2020"
                   {...form.register("year_model", { 
-                    valueAsNumber: true,
-                    min: { value: 1900, message: "Modellår måste vara minst 1900" },
-                    max: { value: new Date().getFullYear() + 1, message: "Modellår kan inte vara i framtiden" }
+                    valueAsNumber: true
                   })}
                 />
                 {form.formState.errors.year_model && (
