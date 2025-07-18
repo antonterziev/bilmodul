@@ -101,7 +101,7 @@ const purchaseSchema = z.object({
   brand: z.string().min(1, "Bilmärke krävs"),
   model: z.string().optional(),
   comment: z.string().optional(),
-  year_model: z.number().min(1900).max(new Date().getFullYear() + 1).optional(),
+  year_model: z.number().min(1900, "Årsmodell måste vara minst 1900").max(new Date().getFullYear() + 1, "Årsmodell kan inte vara i framtiden").optional(),
   first_registration_date: z.date().optional(),
   vat_type: z.string().optional(),
   
@@ -310,8 +310,20 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                 <Input
                   id="year_model"
                   type="number"
-                  {...form.register("year_model", { valueAsNumber: true })}
+                  min="1900"
+                  max={new Date().getFullYear() + 1}
+                  placeholder="t.ex. 2020"
+                  {...form.register("year_model", { 
+                    valueAsNumber: true,
+                    min: { value: 1900, message: "Årsmodell måste vara minst 1900" },
+                    max: { value: new Date().getFullYear() + 1, message: "Årsmodell kan inte vara i framtiden" }
+                  })}
                 />
+                {form.formState.errors.year_model && (
+                  <p className="text-sm text-destructive mt-1">
+                    {form.formState.errors.year_model.message}
+                  </p>
+                )}
               </div>
 
               <div>
