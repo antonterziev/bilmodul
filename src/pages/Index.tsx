@@ -237,7 +237,7 @@ const Index = () => {
                 <Button variant="outline" size="sm">
                   Supportchatt
                 </Button>
-                <Button variant="outline" onClick={signOut}>
+                <Button variant="outline" onClick={signOut} size="sm">
                   Logga ut
                 </Button>
               </div>
