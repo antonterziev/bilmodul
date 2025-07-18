@@ -14,6 +14,7 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [companyName, setCompanyName] = useState("");
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -95,6 +96,40 @@ const Auth = () => {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!email.trim()) {
+      toast({
+        title: "E-post krävs",
+        description: "Ange din e-postadress för att återställa lösenordet.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsResettingPassword(true);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth?reset=true`,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "E-post skickad!",
+        description: "Kontrollera din e-post för instruktioner om hur du återställer ditt lösenord.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Fel vid återställning",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsResettingPassword(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
@@ -136,6 +171,16 @@ const Auth = () => {
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Loggar in..." : "Logga in"}
                 </Button>
+                <div className="text-center">
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    disabled={isResettingPassword}
+                    className="text-sm text-muted-foreground hover:text-primary underline-offset-4 hover:underline disabled:opacity-50"
+                  >
+                    {isResettingPassword ? "Skickar e-post..." : "Glömt lösenord?"}
+                  </button>
+                </div>
               </form>
             </TabsContent>
             
