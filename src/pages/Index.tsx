@@ -313,7 +313,7 @@ const Index = () => {
               <li>
                 <Button 
                   variant={!showPurchaseForm && !showLogistics && !showSales && !showSettings && !showStatistics && !showLager ? "default" : "ghost"} 
-                  className={`w-full justify-start ${!showPurchaseForm && !showLogistics && !showSales && !showSettings && !showStatistics && !showLager ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                  className={`w-full justify-start ${!showPurchaseForm && !showLogistics && !showSales && !showSettings && !showStatistics && !showLager ? "bg-primary text-primary-foreground" : "text-black"}`}
                   onClick={() => {
                     setShowPurchaseForm(false);
                     setShowLogistics(false);
@@ -332,7 +332,7 @@ const Index = () => {
               <li>
                 <Button 
                   variant={showStatistics ? "default" : "ghost"} 
-                  className={`w-full justify-start ${showStatistics ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                  className={`w-full justify-start ${showStatistics ? "bg-primary text-primary-foreground" : "text-black"}`}
                   onClick={() => {
                     setShowPurchaseForm(false);
                     setShowLogistics(false);
@@ -351,7 +351,7 @@ const Index = () => {
               <li>
                 <Button 
                   variant={showLager ? "default" : "ghost"} 
-                  className={`w-full justify-start ${showLager ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                  className={`w-full justify-start ${showLager ? "bg-primary text-primary-foreground" : "text-black"}`}
                   onClick={() => {
                     setShowPurchaseForm(false);
                     setShowLogistics(false);
@@ -370,7 +370,7 @@ const Index = () => {
               <li>
                 <Button 
                   variant={showLogistics ? "default" : "ghost"} 
-                  className={`w-full justify-start ${showLogistics ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                  className={`w-full justify-start ${showLogistics ? "bg-primary text-primary-foreground" : "text-black"}`}
                   onClick={() => {
                     setShowPurchaseForm(false);
                     setShowLogistics(true);
@@ -499,7 +499,7 @@ const Index = () => {
               <li>
                 <Button 
                   variant="ghost" 
-                  className="w-full justify-start text-muted-foreground"
+                  className="w-full justify-start text-black"
                   onClick={() => setShowExportDialog(true)}
                 >
                   <Download className="mr-2 h-4 w-4" />
@@ -509,7 +509,7 @@ const Index = () => {
               <li>
                 <Button 
                   variant={showSettings ? "default" : "ghost"} 
-                  className={`w-full justify-start ${showSettings ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                  className={`w-full justify-start ${showSettings ? "bg-primary text-primary-foreground" : "text-black"}`}
                   onClick={() => {
                     setShowPurchaseForm(false);
                     setShowLogistics(false);
