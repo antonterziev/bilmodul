@@ -18,7 +18,6 @@ interface UserProfile {
   email: string;
   full_name: string;
   company_name: string;
-  role: string;
 }
 
 interface SettingsProps {
@@ -36,7 +35,6 @@ export const Settings = ({ onBack }: SettingsProps) => {
   // Profile form state
   const [fullName, setFullName] = useState("");
   const [companyName, setCompanyName] = useState("");
-  const [role, setRole] = useState("");
 
   // Password form state
   const [currentPassword, setCurrentPassword] = useState("");
@@ -66,8 +64,7 @@ export const Settings = ({ onBack }: SettingsProps) => {
               user_id: user?.id,
               email: user?.email || '',
               full_name: '',
-              company_name: '',
-              role: 'user'
+              company_name: ''
             })
             .select()
             .single();
@@ -76,7 +73,6 @@ export const Settings = ({ onBack }: SettingsProps) => {
           setProfile(newProfile);
           setFullName(newProfile.full_name || '');
           setCompanyName(newProfile.company_name || '');
-          setRole(newProfile.role || 'user');
         } else {
           throw error;
         }
@@ -84,7 +80,6 @@ export const Settings = ({ onBack }: SettingsProps) => {
         setProfile(data);
         setFullName(data.full_name || '');
         setCompanyName(data.company_name || '');
-        setRole(data.role || 'user');
       }
     } catch (error) {
       console.error('Error loading profile:', error);
@@ -106,7 +101,6 @@ export const Settings = ({ onBack }: SettingsProps) => {
         .update({
           full_name: fullName,
           company_name: companyName,
-          role: role,
         })
         .eq('user_id', user?.id);
 
@@ -248,19 +242,6 @@ export const Settings = ({ onBack }: SettingsProps) => {
                 />
               </div>
 
-              <div>
-                <Label htmlFor="role">Roll</Label>
-                <Select value={role} onValueChange={setRole}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="user">Användare</SelectItem>
-                    <SelectItem value="admin">Administratör</SelectItem>
-                    <SelectItem value="manager">Manager</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
 
               <Button 
                 onClick={saveProfile} 

@@ -107,7 +107,7 @@ export const VehicleList = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Registreringsnummer</TableHead>
-                  <TableHead>Bilmärke</TableHead>
+                  <TableHead>Märke</TableHead>
                   <TableHead>Modell</TableHead>
                   <TableHead>Inköpsdatum</TableHead>
                   <TableHead>Inköpare</TableHead>

@@ -113,10 +113,10 @@ const purchaseSchema = z.object({
   registration_number: z.string().min(1, "Registreringsnummer krävs"),
   chassis_number: z.string().optional(),
   mileage: z.number().min(0, "Miltal kan inte vara negativt").optional(),
-  brand: z.string().min(1, "Bilmärke krävs"),
+  brand: z.string().min(1, "Märke krävs"),
   model: z.string().optional(),
   comment: z.string().optional(),
-  year_model: z.number().min(1900, "Årsmodell måste vara minst 1900").max(new Date().getFullYear() + 1, "Årsmodell kan inte vara i framtiden").optional(),
+  year_model: z.number().min(1900, "Modellår måste vara minst 1900").max(new Date().getFullYear() + 1, "Modellår kan inte vara i framtiden").optional(),
   first_registration_date: z.date().optional(),
   vat_type: z.string().optional(),
   
@@ -353,7 +353,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
               </div>
 
               <div>
-                <Label htmlFor="brand">Bilmärke *</Label>
+                <Label htmlFor="brand">Märke *</Label>
                 <Popover open={open} onOpenChange={setOpen}>
                   <PopoverTrigger asChild>
                     <Button
@@ -362,14 +362,14 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                       aria-expanded={open}
                       className="w-full justify-between"
                     >
-                      {form.watch("brand") || "Välj bilmärke..."}
+                      {form.watch("brand") || "Välj märke..."}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-full p-0">
                     <Command>
-                      <CommandInput placeholder="Sök bilmärke..." />
-                      <CommandEmpty>Inget bilmärke hittades.</CommandEmpty>
+                      <CommandInput placeholder="Sök märke..." />
+                      <CommandEmpty>Inget märke hittades.</CommandEmpty>
                       <CommandList>
                         <CommandGroup>
                           {carBrands.map((brand) => (
@@ -408,7 +408,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
               </div>
 
               <div>
-                <Label htmlFor="year_model">Årsmodell</Label>
+                <Label htmlFor="year_model">Modellår</Label>
                 <Input
                   id="year_model"
                   type="number"
@@ -417,8 +417,8 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                   placeholder="t.ex. 2020"
                   {...form.register("year_model", { 
                     valueAsNumber: true,
-                    min: { value: 1900, message: "Årsmodell måste vara minst 1900" },
-                    max: { value: new Date().getFullYear() + 1, message: "Årsmodell kan inte vara i framtiden" }
+                    min: { value: 1900, message: "Modellår måste vara minst 1900" },
+                    max: { value: new Date().getFullYear() + 1, message: "Modellår kan inte vara i framtiden" }
                   })}
                 />
                 {form.formState.errors.year_model && (
@@ -429,7 +429,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
               </div>
 
               <div>
-                <Label>Första registeringsdatum</Label>
+                <Label>Första datum i trafik</Label>
                 <Popover open={firstRegOpen} onOpenChange={setFirstRegOpen}>
                   <PopoverTrigger asChild>
                     <Button

@@ -156,7 +156,7 @@ export const LogisticsDetail = ({ vehicleId, onBack }: LogisticsDetailProps) => 
             </div>
             
             <div>
-              <Label className="text-sm text-muted-foreground">Bilmärke</Label>
+              <Label className="text-sm text-muted-foreground">Märke</Label>
               <div>{vehicle.brand}</div>
             </div>
             
@@ -166,7 +166,7 @@ export const LogisticsDetail = ({ vehicleId, onBack }: LogisticsDetailProps) => 
             </div>
             
             <div>
-              <Label className="text-sm text-muted-foreground">Årsmodell</Label>
+              <Label className="text-sm text-muted-foreground">Modellår</Label>
               <div>{vehicle.year_model}</div>
             </div>
             
