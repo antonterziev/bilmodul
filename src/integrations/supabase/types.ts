@@ -34,6 +34,7 @@ export type Database = {
           logistics_documentation_attached: boolean | null
           logistics_notes: string | null
           marketplace_channel: string | null
+          marketplace_channel_other: string | null
           mileage: number | null
           model: string | null
           purchase_channel: string | null
@@ -77,6 +78,7 @@ export type Database = {
           logistics_documentation_attached?: boolean | null
           logistics_notes?: string | null
           marketplace_channel?: string | null
+          marketplace_channel_other?: string | null
           mileage?: number | null
           model?: string | null
           purchase_channel?: string | null
@@ -120,6 +122,7 @@ export type Database = {
           logistics_documentation_attached?: boolean | null
           logistics_notes?: string | null
           marketplace_channel?: string | null
+          marketplace_channel_other?: string | null
           mileage?: number | null
           model?: string | null
           purchase_channel?: string | null
