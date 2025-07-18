@@ -405,7 +405,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                   <Input
                     id="brand_other"
                     {...form.register("brand_other")}
-                    placeholder="Ange vilket märke"
+                    placeholder="t.ex. Batmobile"
                   />
                 </div>
               )}
