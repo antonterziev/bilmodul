@@ -121,7 +121,7 @@ const purchaseSchema = z.object({
   comment: z.string().optional(),
   year_model: z.number().min(1900, "Modellår måste vara minst 1900").max(new Date().getFullYear() + 1, "Modellår kan inte vara i framtiden").optional(),
   first_registration_date: z.date().optional(),
-  vat_type: z.string().optional(),
+  vat_type: z.string().min(1, "Momsregel krävs"),
   
   // Purchase information
   purchaser: z.string().min(1, "Inköpare krävs"),
@@ -718,7 +718,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                 </div>
 
                 <div>
-                  <Label htmlFor="vat_type">Momsregel</Label>
+                  <Label htmlFor="vat_type">Momsregel*</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -726,7 +726,8 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                         role="combobox"
                         className={cn(
                           "w-full justify-between font-normal",
-                          !form.watch("vat_type") && "text-muted-foreground"
+                          !form.watch("vat_type") && "text-muted-foreground",
+                          form.formState.errors.vat_type && "border-destructive"
                         )}
                       >
                         {form.watch("vat_type") || "Välj momsregel"}
@@ -770,6 +771,11 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                       </Command>
                     </PopoverContent>
                   </Popover>
+                  {form.formState.errors.vat_type && (
+                    <p className="text-sm text-destructive mt-1">
+                      {form.formState.errors.vat_type.message}
+                    </p>
+                  )}
                 </div>
               </div>
 
