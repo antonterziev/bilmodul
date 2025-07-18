@@ -143,7 +143,7 @@ const Index = () => {
                 Tillbaka till dashboard
               </Button>
               <span className="text-sm text-muted-foreground">
-                Välkommen, {getDisplayName()}
+                Välkommen {getDisplayName()}
               </span>
               <Button variant="outline" onClick={signOut}>
                 Logga ut
@@ -173,7 +173,7 @@ const Index = () => {
                   Tillbaka till dashboard
                 </Button>
                 <span className="text-sm text-muted-foreground">
-                  Välkommen, {getDisplayName()}
+                  Välkommen {getDisplayName()}
                 </span>
                 <Button variant="outline" onClick={signOut}>
                   Logga ut
@@ -201,7 +201,7 @@ const Index = () => {
                 Tillbaka till dashboard
               </Button>
               <span className="text-sm text-muted-foreground">
-                Välkommen, {getDisplayName()}
+                Välkommen {getDisplayName()}
               </span>
               <Button variant="outline" onClick={signOut}>
                 Logga ut
@@ -228,7 +228,7 @@ const Index = () => {
                   Tillbaka till dashboard
                 </Button>
                 <span className="text-sm text-muted-foreground">
-                  Välkommen, {getDisplayName()}
+                  Välkommen {getDisplayName()}
                 </span>
                 <Button variant="outline" onClick={signOut}>
                   Logga ut
@@ -257,7 +257,7 @@ const Index = () => {
                 Tillbaka till dashboard
               </Button>
               <span className="text-sm text-muted-foreground">
-                Välkommen, {getDisplayName()}
+                Välkommen {getDisplayName()}
               </span>
               <Button variant="outline" onClick={signOut}>
                 Logga ut
@@ -283,7 +283,7 @@ const Index = () => {
                 Tillbaka till dashboard
               </Button>
               <span className="text-sm text-muted-foreground">
-                Välkommen, {getDisplayName()}
+                Välkommen {getDisplayName()}
               </span>
               <Button variant="outline" onClick={signOut}>
                 Logga ut
@@ -304,11 +304,26 @@ const Index = () => {
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <h1 className="text-2xl font-bold">Lagermodulen</h1>
             <div className="flex items-center gap-4">
+              <div className="flex gap-2">
+                <Button onClick={() => setShowPurchaseForm(true)} size="sm">
+                  + Ny Inköp
+                </Button>
+                <Button onClick={() => setShowLogistics(true)} variant="outline" size="sm">
+                  Logistik
+                </Button>
+                <Button onClick={() => setShowSales(true)} variant="outline" size="sm">
+                  + Försäljning
+                </Button>
+                <Button variant="outline" size="sm" disabled>
+                  Exportera data
+                </Button>
+              </div>
+              <div className="h-6 w-px bg-border"></div>
               <Button variant="outline" onClick={() => setShowSettings(true)} size="sm">
                 Inställningar
               </Button>
               <span className="text-sm text-muted-foreground">
-                Välkommen, {getDisplayName()}
+                Välkommen {getDisplayName()}
               </span>
               <Button variant="outline" onClick={signOut}>
                 Logga ut
@@ -323,23 +338,8 @@ const Index = () => {
           lastSale={stats.lastSale}
         />
         
-        <div className="flex gap-4 mb-8">
-          <Button onClick={() => setShowPurchaseForm(true)}>
-            + Ny Inköp
-          </Button>
-          <Button onClick={() => setShowLogistics(true)} variant="outline">
-            Logistik
-          </Button>
-          <Button onClick={() => setShowSales(true)} variant="outline">
-            + Ny Försäljning
-          </Button>
-          <Button variant="outline" disabled>
-            Exportera data
-          </Button>
-        </div>
-
         <div className="text-center text-muted-foreground">
-          <p>Klicka på "Ny Inköp" för att registrera ett nytt fordon i lagret.</p>
+          <p>Använd knapparna ovan för att hantera ditt fordonslager.</p>
         </div>
       </main>
     </div>
