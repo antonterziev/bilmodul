@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Progress } from "@/components/ui/progress";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon, Check, ChevronsUpDown, Upload, X } from "lucide-react";
 import { format } from "date-fns";
@@ -167,6 +168,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedPurchaseDoc, setUploadedPurchaseDoc] = useState<File | null>(null);
   const [isUploadingPurchaseDoc, setIsUploadingPurchaseDoc] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   
   // Generate year options (last 50 years)
   const currentYear = new Date().getFullYear();
@@ -338,7 +340,17 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
     if (!user) return;
     
     setIsUploadingPurchaseDoc(true);
+    setUploadProgress(0);
+    
     try {
+      // Simulate progress for visual feedback
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          const newProgress = prev + Math.random() * 30;
+          return newProgress > 90 ? 90 : newProgress;
+        });
+      }, 200);
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
       const filePath = `purchase-docs/${fileName}`;
@@ -347,24 +359,32 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
         .from('down-payment-docs')
         .upload(fileName, file);
 
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+
       if (uploadError) throw uploadError;
 
-      setUploadedPurchaseDoc(file);
-      form.setValue('purchase_documentation', filePath);
-      
-      toast({
-        title: "Fil uppladdad",
-        description: "Inköpsdokument har laddats upp",
-      });
+      // Small delay to show 100% completion
+      setTimeout(() => {
+        setUploadedPurchaseDoc(file);
+        form.setValue('purchase_documentation', filePath);
+        setUploadProgress(0);
+        
+        toast({
+          title: "Fil uppladdad",
+          description: "Inköpsdokument har laddats upp",
+        });
+      }, 500);
     } catch (error) {
       console.error('Error uploading purchase documentation:', error);
+      setUploadProgress(0);
       toast({
         title: "Fel",
         description: "Det gick inte att ladda upp filen",
         variant: "destructive",
       });
     } finally {
-      setIsUploadingPurchaseDoc(false);
+      setTimeout(() => setIsUploadingPurchaseDoc(false), 500);
     }
   };
 
@@ -1030,7 +1050,17 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                     </div>
                     <p className="text-sm text-muted-foreground">Ingen fil vald</p>
                     {isUploadingPurchaseDoc && (
-                      <p className="text-sm text-muted-foreground">Laddar upp fil...</p>
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <Progress value={uploadProgress} className="flex-1 h-2" />
+                          <span className="text-sm text-muted-foreground min-w-[3rem]">
+                            {Math.round(uploadProgress)}%
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground animate-pulse">
+                          Laddar upp fil...
+                        </p>
+                      </div>
                     )}
                   </div>
                 ) : (
