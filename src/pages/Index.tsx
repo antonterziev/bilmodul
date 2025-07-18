@@ -26,7 +26,7 @@ const Index = () => {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [stats, setStats] = useState({
     totalStock: 0,
-    inTransit: 0,
+    inventoryValue: 0,
     lastSale: "-"
   });
 
@@ -94,13 +94,17 @@ const Index = () => {
       // Get inventory counts by status
       const { data: inventoryData, error } = await supabase
         .from('inventory_items')
-        .select('status, registration_number, created_at')
+        .select('status, registration_number, created_at, purchase_price')
         .eq('user_id', user.id);
 
       if (error) throw error;
 
       const totalStock = inventoryData?.filter(item => item.status === 'på_lager').length || 0;
-      const inTransit = inventoryData?.filter(item => item.status === 'på_väg').length || 0;
+      
+      // Calculate inventory value (sum of purchase prices for vehicles with status "på_väg")
+      const inventoryValue = inventoryData
+        ?.filter(item => item.status === 'på_väg')
+        .reduce((sum, item) => sum + (item.purchase_price || 0), 0) || 0;
       
       // Get last sold item
       const soldItems = inventoryData?.filter(item => item.status === 'såld').sort((a, b) => 
@@ -108,7 +112,7 @@ const Index = () => {
       );
       const lastSale = soldItems?.[0]?.registration_number || "-";
 
-      setStats({ totalStock, inTransit, lastSale });
+      setStats({ totalStock, inventoryValue, lastSale });
     } catch (error) {
       console.error('Error loading stats:', error);
     }
@@ -399,7 +403,7 @@ const Index = () => {
       <main className="container mx-auto px-4 py-8">
         <DashboardStats 
           totalStock={stats.totalStock}
-          inTransit={stats.inTransit}
+          inventoryValue={stats.inventoryValue}
           lastSale={stats.lastSale}
         />
         
