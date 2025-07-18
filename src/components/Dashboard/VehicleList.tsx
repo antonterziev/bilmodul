@@ -241,25 +241,25 @@ export const VehicleList = () => {
                   </div>
                   
                   {/* Column 3: Purchase Date */}
-                  <div className="text-center">
+                  <div>
                     <p className="text-xs text-muted-foreground whitespace-nowrap">Inköpsdatum</p>
                     <p className="font-medium text-sm">{formatDate(vehicle.purchase_date)}</p>
                   </div>
                   
                   {/* Column 4: Purchaser */}
-                  <div className="text-center">
+                  <div>
                     <p className="text-xs text-muted-foreground whitespace-nowrap">Inköpare</p>
                     <p className="font-medium">{formatPurchaserName(vehicle.purchaser)}</p>
                   </div>
                   
                   {/* Column 5: Purchase Price */}
-                  <div className="text-center">
+                  <div>
                     <p className="text-xs text-muted-foreground whitespace-nowrap">Inköpspris</p>
                     <p className="font-medium">{formatPrice(vehicle.purchase_price)}</p>
                   </div>
                   
                   {/* Column 6: Storage Days */}
-                  <div className="text-center">
+                  <div>
                     <p className="text-xs text-muted-foreground whitespace-nowrap">Lagerdagar</p>
                     <p className="font-medium">{calculateStorageDays(vehicle.purchase_date)} dagar</p>
                   </div>
