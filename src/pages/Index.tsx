@@ -361,7 +361,7 @@ const Index = () => {
       <div className="flex">
         {/* Sidebar */}
         <aside className="w-64 bg-white border-r border-border flex flex-col">
-          <div className="p-4 border-b">
+          <div className="p-4">
             <div className="flex gap-2">
               <Button variant="outline" size="sm" className="flex-1">
                 Köp
