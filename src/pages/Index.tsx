@@ -432,7 +432,7 @@ const Index = () => {
               </p>
             </div>
             <Button className="w-full" onClick={() => setShowExportDialog(false)}>
-              Uppgradera mitt medlemskap
+              Uppgradera medlemskap
             </Button>
           </div>
         </DialogContent>
@@ -460,7 +460,7 @@ const Index = () => {
               </p>
             </div>
             <Button className="w-full" onClick={() => setShowSupportDialog(false)}>
-              Uppgradera mitt medlemskap
+              Uppgradera medlemskap
             </Button>
           </div>
         </DialogContent>
