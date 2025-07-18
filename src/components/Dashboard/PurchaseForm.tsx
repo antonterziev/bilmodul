@@ -758,17 +758,32 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                   <div className="space-y-2">
                     {!uploadedFile ? (
                       <div>
-                        <Input
-                          type="file"
-                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              handleFileUpload(file);
-                            }
-                          }}
-                          disabled={isUploading}
-                        />
+                        <div className="relative">
+                          <Input
+                            type="file"
+                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                handleFileUpload(file);
+                              }
+                            }}
+                            disabled={isUploading}
+                            className="hidden"
+                            id="file-upload"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="w-full justify-start text-left font-normal"
+                            onClick={() => document.getElementById('file-upload')?.click()}
+                            disabled={isUploading}
+                          >
+                            <Upload className="mr-2 h-4 w-4" />
+                            Välj fil
+                          </Button>
+                        </div>
+                        <p className="text-sm text-muted-foreground">Ingen fil vald</p>
                         {isUploading && (
                           <p className="text-sm text-muted-foreground">Laddar upp fil...</p>
                         )}
