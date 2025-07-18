@@ -200,10 +200,15 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
   // Handle mileage input change
   const handleMileageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/,/g, '');
+    console.log('Mileage input value:', value);
     if (value === '' || /^\d+$/.test(value)) {
       const numValue = value === '' ? undefined : parseInt(value);
+      console.log('Parsed mileage number:', numValue);
+      console.log('Setting form value with:', numValue);
       form.setValue('mileage', numValue);
       setMileageDisplay(value === '' ? '' : formatWithThousands(value));
+    } else {
+      console.log('Mileage value rejected by regex:', value);
     }
   };
 
