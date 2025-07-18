@@ -539,10 +539,10 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
               </div>
 
               <div>
-                <Label htmlFor="vat_type">Momstyp</Label>
+                <Label htmlFor="vat_type">Momsregel</Label>
                 <Select onValueChange={(value) => form.setValue("vat_type", value)}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Välj momstyp" />
+                    <SelectValue placeholder="Välj momsregel" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Vinstmarginalbeskattning (VMB)">Vinstmarginalbeskattning (VMB)</SelectItem>
