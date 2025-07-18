@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 import { sv } from "date-fns/locale";
 
 const carBrands = [
-  "Annan",
+  "Annat",
   "Alfa Romeo",
   "Alpine", 
   "Aston Martin",
@@ -372,7 +372,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                               value={brand}
                               onSelect={(currentValue) => {
                                 form.setValue("brand", currentValue === form.watch("brand") ? "" : currentValue);
-                                if (currentValue !== "Annan") {
+                                if (currentValue !== "Annat") {
                                   form.setValue("brand_other", undefined);
                                 }
                                 setOpen(false);
@@ -399,7 +399,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                 )}
               </div>
 
-              {form.watch("brand") === "Annan" && (
+              {form.watch("brand") === "Annat" && (
                 <div>
                   <Label htmlFor="brand_other">Ange märke</Label>
                   <Input
