@@ -173,7 +173,7 @@ export const VehicleList = () => {
                 <div className="flex-shrink-0">
                   {vehicle.brand.toLowerCase() === 'tesla' ? (
                     <img 
-                      src="/lovable-uploads/96f5ef5f-8c71-4020-b5a3-14d58104343f.png" 
+                      src="/lovable-uploads/7cabba07-206a-4755-b690-eed0738888de.png" 
                       alt="Tesla logo" 
                       className="h-8 w-8 object-contain"
                     />
