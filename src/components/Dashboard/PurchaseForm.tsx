@@ -699,27 +699,53 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
 
               <div>
                 <Label htmlFor="purchase_channel">Inköpskanal</Label>
-                <Select onValueChange={(value) => {
-                  form.setValue("purchase_channel", value);
-                  if (value !== "Marknadsplats") {
-                    form.setValue("marketplace_channel", undefined);
-                    form.setValue("marketplace_channel_other", undefined);
-                  }
-                  if (value !== "Annan") {
-                    form.setValue("purchase_channel_other", undefined);
-                  }
-                }}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Välj inköpskanal" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {purchaseChannels.map((channel) => (
-                      <SelectItem key={channel} value={channel}>
-                        {channel}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className={cn(
+                        "w-full justify-between font-normal",
+                        !form.watch("purchase_channel") && "text-muted-foreground"
+                      )}
+                    >
+                      {form.watch("purchase_channel") || "Välj inköpskanal"}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0">
+                    <Command>
+                      <CommandList>
+                        <CommandGroup>
+                          {purchaseChannels.map((channel) => (
+                            <CommandItem
+                              key={channel}
+                              value={channel}
+                              onSelect={() => {
+                                form.setValue("purchase_channel", channel);
+                                if (channel !== "Marknadsplats") {
+                                  form.setValue("marketplace_channel", undefined);
+                                  form.setValue("marketplace_channel_other", undefined);
+                                }
+                                if (channel !== "Annan") {
+                                  form.setValue("purchase_channel_other", undefined);
+                                }
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  form.watch("purchase_channel") === channel ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {channel}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               {form.watch("purchase_channel") === "Annan" && (
