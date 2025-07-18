@@ -385,67 +385,7 @@ const Index = () => {
               </li>
               <li>
                 <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                  🔄 Direktförsörjt
-                </Button>
-              </li>
-              <li>
-                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                  📦 Direktimportation
-                </Button>
-              </li>
-              <li>
-                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                  🏪 Lagerförråd
-                </Button>
-              </li>
-              <li>
-                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                  📋 Avtal
-                </Button>
-              </li>
-              <li>
-                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                  📄 Dokument
-                </Button>
-              </li>
-              <li>
-                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                  🧾 Fakturor
-                </Button>
-              </li>
-              <li>
-                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                  💳 Direktbetalningar
-                </Button>
-              </li>
-              <li>
-                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                  👥 Kundregister
-                </Button>
-              </li>
-              <li>
-                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                  📊 Bokföringsunderlag
-                </Button>
-              </li>
-              <li>
-                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                  ✅ Verifikation
-                </Button>
-              </li>
-              <li>
-                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                  📝 Bloggar
-                </Button>
-              </li>
-              <li>
-                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                  🛒 Marknadsplats
-                </Button>
-              </li>
-              <li>
-                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                  📞 Leads
+                  📦 Lager
                 </Button>
               </li>
             </ul>
