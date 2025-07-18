@@ -628,7 +628,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
             <h3 className="text-lg font-semibold">Inköpsinformation</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="purchaser">Inköpare *</Label>
+                <Label htmlFor="purchaser">Inköpare*</Label>
                 <Input
                   id="purchaser"
                   {...form.register("purchaser")}
