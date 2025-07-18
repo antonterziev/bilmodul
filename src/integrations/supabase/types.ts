@@ -16,15 +16,19 @@ export type Database = {
     Tables: {
       inventory_items: {
         Row: {
+          additional_costs: number | null
           brand: string
           chassis_number: string | null
           comment: string | null
           created_at: string
+          current_location: string | null
           down_payment: number | null
           down_payment_docs_sent: boolean | null
           expected_selling_price: number | null
           first_registration_date: string | null
           id: string
+          logistics_documentation_attached: boolean | null
+          logistics_notes: string | null
           mileage: number | null
           model: string | null
           purchase_channel: string | null
@@ -41,15 +45,19 @@ export type Database = {
           year_model: number | null
         }
         Insert: {
+          additional_costs?: number | null
           brand: string
           chassis_number?: string | null
           comment?: string | null
           created_at?: string
+          current_location?: string | null
           down_payment?: number | null
           down_payment_docs_sent?: boolean | null
           expected_selling_price?: number | null
           first_registration_date?: string | null
           id?: string
+          logistics_documentation_attached?: boolean | null
+          logistics_notes?: string | null
           mileage?: number | null
           model?: string | null
           purchase_channel?: string | null
@@ -66,15 +74,19 @@ export type Database = {
           year_model?: number | null
         }
         Update: {
+          additional_costs?: number | null
           brand?: string
           chassis_number?: string | null
           comment?: string | null
           created_at?: string
+          current_location?: string | null
           down_payment?: number | null
           down_payment_docs_sent?: boolean | null
           expected_selling_price?: number | null
           first_registration_date?: string | null
           id?: string
+          logistics_documentation_attached?: boolean | null
+          logistics_notes?: string | null
           mileage?: number | null
           model?: string | null
           purchase_channel?: string | null

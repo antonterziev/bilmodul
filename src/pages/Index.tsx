@@ -4,12 +4,16 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { DashboardStats } from "@/components/Dashboard/DashboardStats";
 import { PurchaseForm } from "@/components/Dashboard/PurchaseForm";
+import { LogisticsList } from "@/components/Logistics/LogisticsList";
+import { LogisticsDetail } from "@/components/Logistics/LogisticsDetail";
 import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const { user, signOut, isLoading } = useAuth();
   const navigate = useNavigate();
   const [showPurchaseForm, setShowPurchaseForm] = useState(false);
+  const [showLogistics, setShowLogistics] = useState(false);
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [stats, setStats] = useState({
     totalStock: 0,
     inTransit: 0,
@@ -27,6 +31,14 @@ const Index = () => {
       loadStats();
     }
   }, [user]);
+
+  const handleViewVehicle = (vehicleId: string) => {
+    setSelectedVehicleId(vehicleId);
+  };
+
+  const handleBackToLogistics = () => {
+    setSelectedVehicleId(null);
+  };
 
   const loadStats = async () => {
     if (!user) return;
@@ -98,6 +110,61 @@ const Index = () => {
     );
   }
 
+  if (showLogistics) {
+    if (selectedVehicleId) {
+      return (
+        <div className="min-h-screen bg-background">
+          <header className="border-b">
+            <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+              <h1 className="text-2xl font-bold">Lagermodulen</h1>
+              <div className="flex items-center gap-4">
+                <Button variant="outline" onClick={() => setShowLogistics(false)}>
+                  Tillbaka till dashboard
+                </Button>
+                <span className="text-sm text-muted-foreground">
+                  Välkommen, {user.email}
+                </span>
+                <Button variant="outline" onClick={signOut}>
+                  Logga ut
+                </Button>
+              </div>
+            </div>
+          </header>
+          <main className="container mx-auto px-4 py-8">
+            <LogisticsDetail 
+              vehicleId={selectedVehicleId} 
+              onBack={handleBackToLogistics} 
+            />
+          </main>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="border-b">
+          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 className="text-2xl font-bold">Lagermodulen</h1>
+            <div className="flex items-center gap-4">
+              <Button variant="outline" onClick={() => setShowLogistics(false)}>
+                Tillbaka till dashboard
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                Välkommen, {user.email}
+              </span>
+              <Button variant="outline" onClick={signOut}>
+                Logga ut
+              </Button>
+            </div>
+          </div>
+        </header>
+        <main className="container mx-auto px-4 py-8">
+          <LogisticsList onViewVehicle={handleViewVehicle} />
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b">
@@ -123,6 +190,9 @@ const Index = () => {
         <div className="flex gap-4 mb-8">
           <Button onClick={() => setShowPurchaseForm(true)}>
             + Ny Inköp
+          </Button>
+          <Button onClick={() => setShowLogistics(true)} variant="outline">
+            Logistik
           </Button>
           <Button variant="outline" disabled>
             + Ny Försäljning
