@@ -200,6 +200,9 @@ const Index = () => {
               Välkommen {getDisplayName()}
             </span>
               <div className="flex gap-2">
+                <span className="text-sm text-muted-foreground flex items-center">
+                  Kundtjänst: 010-660 02 85
+                </span>
                 <Button variant="outline" size="sm">
                   Supportchatt
                 </Button>
