@@ -12,6 +12,7 @@ interface Vehicle {
   model: string | null;
   purchase_date: string;
   purchaser: string;
+  purchase_price: number;
   status: string;
 }
 
@@ -33,7 +34,7 @@ export const VehicleList = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('inventory_items')
-        .select('id, registration_number, brand, model, purchase_date, purchaser, status')
+        .select('id, registration_number, brand, model, purchase_date, purchaser, purchase_price, status')
         .eq('user_id', user.id)
         .order('purchase_date', { ascending: false });
 
@@ -76,6 +77,23 @@ export const VehicleList = () => {
     return new Date(dateString).toLocaleDateString('sv-SE');
   };
 
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('sv-SE', {
+      style: 'currency',
+      currency: 'SEK',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
+
+  const calculateStorageDays = (purchaseDate: string) => {
+    const today = new Date();
+    const purchase = new Date(purchaseDate);
+    const diffTime = Math.abs(today.getTime() - purchase.getTime());
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
   if (loading) {
     return (
       <Card>
@@ -112,7 +130,7 @@ export const VehicleList = () => {
                 
                 {/* Vehicle info */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 mb-2">
                     <h3 className="font-medium text-sm">
                       {vehicle.brand} {vehicle.model || ''}
                     </h3>
@@ -120,19 +138,29 @@ export const VehicleList = () => {
                       {getStatusLabel(vehicle.status)}
                     </Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground mb-2">
                     {vehicle.registration_number}
                   </p>
-                </div>
-                
-                {/* Additional info */}
-                <div className="flex-shrink-0 text-right">
-                  <p className="text-sm text-muted-foreground">
-                    {formatDate(vehicle.purchase_date)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {vehicle.purchaser}
-                  </p>
+                  
+                  {/* Additional details in specified order */}
+                  <div className="space-y-1 text-xs">
+                    <div>
+                      <span className="text-muted-foreground">Inköpsdatum: </span>
+                      <span>{formatDate(vehicle.purchase_date)}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Inköpare: </span>
+                      <span>{vehicle.purchaser}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Inköpspris: </span>
+                      <span>{formatPrice(vehicle.purchase_price)}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Lagerdagar: </span>
+                      <span>{calculateStorageDays(vehicle.purchase_date)} dagar</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
