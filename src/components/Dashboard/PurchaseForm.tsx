@@ -109,12 +109,12 @@ const purchaseSchema = z.object({
   purchaser: z.string().min(1, "Inköpare krävs"),
   purchase_price: z.number().min(0.01, "Inköpspris måste vara positivt och större än 0"),
   purchase_date: z.date(),
-  down_payment: z.number().min(0).optional(),
+  down_payment: z.number().min(0, "Handpenning kan inte vara negativ").optional(),
   down_payment_docs_sent: z.boolean().default(false),
   purchase_documentation: z.string().optional(),
   purchase_docs_sent: z.boolean().default(false),
   purchase_channel: z.string().optional(),
-  expected_selling_price: z.number().min(0).optional(),
+  expected_selling_price: z.number().min(0, "Förväntat försäljningspris kan inte vara negativt").optional(),
 });
 
 type PurchaseFormData = z.infer<typeof purchaseSchema>;
@@ -133,6 +133,8 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [mileageDisplay, setMileageDisplay] = useState("");
   const [priceDisplay, setPriceDisplay] = useState("");
+  const [downPaymentDisplay, setDownPaymentDisplay] = useState("");
+  const [expectedPriceDisplay, setExpectedPriceDisplay] = useState("");
   
   // Generate year options (last 50 years)
   const currentYear = new Date().getFullYear();
@@ -197,6 +199,34 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
       if (numValue === undefined || numValue >= 0) {
         form.setValue('purchase_price', numValue);
         setPriceDisplay(value === '' ? '' : formatPriceWithThousands(value));
+      }
+    }
+  };
+
+  // Handle down payment input change
+  const handleDownPaymentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const cleanValue = value.replace(/\s/g, '').replace(/,/g, '.');
+    
+    if (cleanValue === '' || /^\d+([.,]\d{0,2})?$/.test(cleanValue)) {
+      const numValue = cleanValue === '' ? undefined : parseFloat(cleanValue);
+      if (numValue === undefined || numValue >= 0) {
+        form.setValue('down_payment', numValue);
+        setDownPaymentDisplay(value === '' ? '' : formatPriceWithThousands(value));
+      }
+    }
+  };
+
+  // Handle expected selling price input change
+  const handleExpectedPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const cleanValue = value.replace(/\s/g, '').replace(/,/g, '.');
+    
+    if (cleanValue === '' || /^\d+([.,]\d{0,2})?$/.test(cleanValue)) {
+      const numValue = cleanValue === '' ? undefined : parseFloat(cleanValue);
+      if (numValue === undefined || numValue >= 0) {
+        form.setValue('expected_selling_price', numValue);
+        setExpectedPriceDisplay(value === '' ? '' : formatPriceWithThousands(value));
       }
     }
   };
@@ -569,10 +599,16 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                 <Label htmlFor="down_payment">Handpenning (SEK)</Label>
                 <Input
                   id="down_payment"
-                  type="number"
-                  step="0.01"
-                  {...form.register("down_payment", { valueAsNumber: true })}
+                  type="text"
+                  value={downPaymentDisplay}
+                  onChange={handleDownPaymentChange}
+                  placeholder="t.ex. 25,000"
                 />
+                {form.formState.errors.down_payment && (
+                  <p className="text-sm text-destructive mt-1">
+                    {form.formState.errors.down_payment.message}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -581,13 +617,19 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
               </div>
 
               <div>
-                <Label htmlFor="expected_selling_price">Förväntad säljpris (SEK)</Label>
+                <Label htmlFor="expected_selling_price">Förväntat försäljningspris (SEK)</Label>
                 <Input
                   id="expected_selling_price"
-                  type="number"
-                  step="0.01"
-                  {...form.register("expected_selling_price", { valueAsNumber: true })}
+                  type="text"
+                  value={expectedPriceDisplay}
+                  onChange={handleExpectedPriceChange}
+                  placeholder="t.ex. 180,000"
                 />
+                {form.formState.errors.expected_selling_price && (
+                  <p className="text-sm text-destructive mt-1">
+                    {form.formState.errors.expected_selling_price.message}
+                  </p>
+                )}
               </div>
             </div>
 
