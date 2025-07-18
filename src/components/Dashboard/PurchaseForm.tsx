@@ -563,15 +563,57 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
 
               <div>
                 <Label htmlFor="vat_type">Momsregel</Label>
-                <Select onValueChange={(value) => form.setValue("vat_type", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Välj momsregel" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Vinstmarginalbeskattning (VMB)">Vinstmarginalbeskattning (VMB)</SelectItem>
-                    <SelectItem value="Moms (25%)">Moms (25%)</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className={cn(
+                        "w-full justify-between font-normal",
+                        !form.watch("vat_type") && "text-muted-foreground"
+                      )}
+                    >
+                      {form.watch("vat_type") || "Välj momsregel"}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0">
+                    <Command>
+                      <CommandList>
+                        <CommandGroup>
+                          <CommandItem
+                            value="Vinstmarginalbeskattning (VMB)"
+                            onSelect={() => {
+                              form.setValue("vat_type", "Vinstmarginalbeskattning (VMB)");
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                form.watch("vat_type") === "Vinstmarginalbeskattning (VMB)" ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            Vinstmarginalbeskattning (VMB)
+                          </CommandItem>
+                          <CommandItem
+                            value="Moms (25%)"
+                            onSelect={() => {
+                              form.setValue("vat_type", "Moms (25%)");
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                form.watch("vat_type") === "Moms (25%)" ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            Moms (25%)
+                          </CommandItem>
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
 
