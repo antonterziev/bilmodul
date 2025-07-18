@@ -37,6 +37,7 @@ const Index = () => {
   const [showBokforingsunderlag, setShowBokforingsunderlag] = useState(false);
   const [showVerifikation, setShowVerifikation] = useState(false);
   const [showBilagor, setShowBilagor] = useState(false);
+  const [showKundtjanst, setShowKundtjanst] = useState(false);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [selectedSaleVehicleId, setSelectedSaleVehicleId] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -250,9 +251,9 @@ const Index = () => {
               Välkommen {getDisplayName()}
             </span>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => setShowKundtjanst(true)} className="flex items-center gap-2">
                   <Phone className="h-4 w-4" />
-                  <span className="text-foreground">070 112 112</span>
+                  <span className="text-foreground">Kundtjänst</span>
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => setShowSupportDialog(true)} className="flex items-center gap-2">
                   <MessageCircle className="h-4 w-4" />
@@ -862,6 +863,31 @@ const Index = () => {
               </p>
             </div>
             <Button className="w-full" onClick={() => setShowBilagor(false)}>
+              Uppgradera medlemskap
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Kundtjänst Dialog */}
+      <Dialog open={showKundtjanst} onOpenChange={setShowKundtjanst}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-6 py-4">
+            <div className="flex items-center justify-center w-20 h-20 bg-blue-100 rounded-lg">
+              <Phone className="w-12 h-12 text-blue-600" />
+            </div>
+            <div className="text-center space-y-2">
+              <p className="text-muted-foreground">
+                Kundtjänst är en betalfunktion
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
+              </p>
+            </div>
+            <Button className="w-full" onClick={() => setShowKundtjanst(false)}>
               Uppgradera medlemskap
             </Button>
           </div>
