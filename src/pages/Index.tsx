@@ -306,7 +306,7 @@ const Index = () => {
             <div className="flex items-center gap-4">
               <div className="flex gap-2">
                 <Button onClick={() => setShowPurchaseForm(true)} size="sm">
-                  + Ny Inköp
+                  + Inköp
                 </Button>
                 <Button onClick={() => setShowLogistics(true)} variant="outline" size="sm">
                   Logistik
