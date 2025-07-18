@@ -131,6 +131,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
   const [firstRegOpen, setFirstRegOpen] = useState(false);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+  const [mileageDisplay, setMileageDisplay] = useState("");
   
   // Generate year options (last 50 years)
   const currentYear = new Date().getFullYear();
@@ -151,6 +152,23 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
       purchase_docs_sent: false,
     },
   });
+
+  // Format number with thousands separator
+  const formatWithThousands = (value: string) => {
+    const num = value.replace(/,/g, '');
+    if (!num) return '';
+    return parseInt(num).toLocaleString('sv-SE');
+  };
+
+  // Handle mileage input change
+  const handleMileageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/,/g, '');
+    if (value === '' || /^\d+$/.test(value)) {
+      const numValue = value === '' ? undefined : parseInt(value);
+      form.setValue('mileage', numValue);
+      setMileageDisplay(value === '' ? '' : formatWithThousands(value));
+    }
+  };
 
   const onSubmit = async (data: PurchaseFormData) => {
     if (!user) return;
@@ -239,9 +257,11 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                 <Label htmlFor="mileage">Miltal (km)</Label>
                 <Input
                   id="mileage"
-                  type="number"
+                  type="text"
                   min="0"
-                  {...form.register("mileage", { valueAsNumber: true })}
+                  value={mileageDisplay}
+                  onChange={handleMileageChange}
+                  placeholder="t.ex. 50,000"
                 />
                 {form.formState.errors.mileage && (
                   <p className="text-sm text-destructive mt-1">
