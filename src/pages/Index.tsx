@@ -323,9 +323,18 @@ const Index = () => {
               </li>
               <li>
                 <Button 
-                  variant="ghost" 
-                  className="w-full justify-start text-muted-foreground"
-                  onClick={() => setShowLogistics(true)}
+                  variant={showLogistics ? "default" : "ghost"} 
+                  className={`w-full justify-start ${showLogistics ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                  onClick={() => {
+                    setShowPurchaseForm(false);
+                    setShowLogistics(true);
+                    setShowSales(false);
+                    setShowSettings(false);
+                    setShowStatistics(false);
+                    setShowLager(false);
+                    setSelectedVehicleId(null);
+                    setSelectedSaleVehicleId(null);
+                  }}
                 >
                   <Truck className="mr-2 h-4 w-4" />
                   Transport
