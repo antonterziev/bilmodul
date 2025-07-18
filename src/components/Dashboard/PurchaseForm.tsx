@@ -344,23 +344,6 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
               </div>
 
               <div>
-                <Label htmlFor="mileage">Miltal</Label>
-                <Input
-                  id="mileage"
-                  type="text"
-                  min="0"
-                  value={mileageDisplay}
-                  onChange={handleMileageChange}
-                  placeholder="t.ex. 50,000"
-                />
-                {form.formState.errors.mileage && (
-                  <p className="text-sm text-destructive mt-1">
-                    {form.formState.errors.mileage.message}
-                  </p>
-                )}
-              </div>
-
-              <div>
                 <Label htmlFor="brand">Märke</Label>
                 <Popover open={open} onOpenChange={setOpen}>
                   <PopoverTrigger asChild>
@@ -447,6 +430,23 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                 {form.formState.errors.year_model && (
                   <p className="text-sm text-destructive mt-1">
                     {form.formState.errors.year_model.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="mileage">Miltal</Label>
+                <Input
+                  id="mileage"
+                  type="text"
+                  min="0"
+                  value={mileageDisplay}
+                  onChange={handleMileageChange}
+                  placeholder="t.ex. 50,000"
+                />
+                {form.formState.errors.mileage && (
+                  <p className="text-sm text-destructive mt-1">
+                    {form.formState.errors.mileage.message}
                   </p>
                 )}
               </div>
