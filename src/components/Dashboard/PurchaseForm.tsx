@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -156,6 +156,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [userProfile, setUserProfile] = useState<{ full_name?: string } | null>(null);
   const [open, setOpen] = useState(false);
   const [firstRegOpen, setFirstRegOpen] = useState(false);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -186,6 +187,32 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
       purchase_docs_sent: false,
     },
   });
+
+  // Fetch user profile and auto-populate purchaser field
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (!user) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('user_id', user.id)
+          .single();
+
+        if (error) throw error;
+        
+        if (data?.full_name) {
+          setUserProfile(data);
+          form.setValue('purchaser', data.full_name);
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, [user, form]);
 
   // Format number with thousands separator
   const formatWithThousands = (value: string) => {
