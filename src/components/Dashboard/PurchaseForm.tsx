@@ -368,7 +368,10 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                       variant="outline"
                       role="combobox"
                       aria-expanded={open}
-                      className="w-full justify-between"
+                      className={cn(
+                        "w-full justify-between font-normal",
+                        !form.watch("brand") && "text-muted-foreground"
+                      )}
                     >
                       {form.watch("brand") || "Välj märke"}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
