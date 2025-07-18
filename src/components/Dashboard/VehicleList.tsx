@@ -129,41 +129,46 @@ export const VehicleList = () => {
                 </div>
                 
                 {/* Vehicle main info */}
-                <div className="flex-1 grid grid-cols-6 gap-4 items-center text-sm">
+                <div className="flex-1 grid grid-cols-7 gap-4 items-center text-sm">
                   {/* Column 1: Brand & Model + Registration */}
                   <div className="col-span-2">
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="font-medium">
                         {vehicle.brand} {vehicle.model || ''}
                       </h3>
-                      <Badge variant={getStatusVariant(vehicle.status)} className="text-xs">
-                        {getStatusLabel(vehicle.status)}
-                      </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">
                       {vehicle.registration_number}
                     </p>
                   </div>
                   
-                  {/* Column 2: Purchase Date */}
+                  {/* Column 2: Status */}
+                  <div>
+                    <p className="text-xs text-muted-foreground">Status</p>
+                    <Badge variant={getStatusVariant(vehicle.status)} className="text-xs">
+                      {getStatusLabel(vehicle.status)}
+                    </Badge>
+                  </div>
+                  
+                  {/* Column 3: Purchase Date */}
                   <div>
                     <p className="text-xs text-muted-foreground">Inköpsdatum</p>
                     <p className="font-medium">{formatDate(vehicle.purchase_date)}</p>
                   </div>
                   
-                  {/* Column 3: Purchaser */}
+                  {/* Column 4: Purchaser */}
                   <div>
                     <p className="text-xs text-muted-foreground">Inköpare</p>
                     <p className="font-medium">{vehicle.purchaser}</p>
                   </div>
                   
-                  {/* Column 4: Purchase Price */}
+                  {/* Column 5: Purchase Price */}
                   <div>
                     <p className="text-xs text-muted-foreground">Inköpspris</p>
                     <p className="font-medium">{formatPrice(vehicle.purchase_price)}</p>
                   </div>
                   
-                  {/* Column 5: Storage Days */}
+                  {/* Column 6: Storage Days */}
                   <div>
                     <p className="text-xs text-muted-foreground">Lagerdagar</p>
                     <p className="font-medium">{calculateStorageDays(vehicle.purchase_date)} dagar</p>
