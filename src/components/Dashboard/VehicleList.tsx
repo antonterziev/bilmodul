@@ -32,13 +32,28 @@ export const VehicleList = () => {
     }
   }, [user]);
 
-  // Update current time every minute to keep lagerdagar current
+  // Update current time at midnight each day to keep lagerdagar current
   useEffect(() => {
-    const interval = setInterval(() => {
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0); // Set to midnight
+    
+    const msUntilMidnight = tomorrow.getTime() - now.getTime();
+    
+    // Set timeout for midnight, then interval for every 24 hours
+    const midnightTimeout = setTimeout(() => {
       setCurrentTime(new Date());
-    }, 60000); // Update every minute
+      
+      // Set interval for every 24 hours after the first midnight update
+      const dailyInterval = setInterval(() => {
+        setCurrentTime(new Date());
+      }, 24 * 60 * 60 * 1000); // 24 hours
+      
+      return () => clearInterval(dailyInterval);
+    }, msUntilMidnight);
 
-    return () => clearInterval(interval);
+    return () => clearTimeout(midnightTimeout);
   }, []);
 
   const loadVehicles = async () => {
