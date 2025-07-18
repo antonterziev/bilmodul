@@ -14,6 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
+      inventory_items: {
+        Row: {
+          brand: string
+          chassis_number: string | null
+          comment: string | null
+          created_at: string
+          down_payment: number | null
+          down_payment_docs_sent: boolean | null
+          expected_selling_price: number | null
+          first_registration_date: string | null
+          id: string
+          mileage: number | null
+          model: string | null
+          purchase_channel: string | null
+          purchase_date: string
+          purchase_docs_sent: boolean | null
+          purchase_documentation: string | null
+          purchase_price: number
+          purchaser: string
+          registration_number: string
+          status: string
+          updated_at: string
+          user_id: string
+          vat_type: string | null
+          year_model: number | null
+        }
+        Insert: {
+          brand: string
+          chassis_number?: string | null
+          comment?: string | null
+          created_at?: string
+          down_payment?: number | null
+          down_payment_docs_sent?: boolean | null
+          expected_selling_price?: number | null
+          first_registration_date?: string | null
+          id?: string
+          mileage?: number | null
+          model?: string | null
+          purchase_channel?: string | null
+          purchase_date: string
+          purchase_docs_sent?: boolean | null
+          purchase_documentation?: string | null
+          purchase_price: number
+          purchaser: string
+          registration_number: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          vat_type?: string | null
+          year_model?: number | null
+        }
+        Update: {
+          brand?: string
+          chassis_number?: string | null
+          comment?: string | null
+          created_at?: string
+          down_payment?: number | null
+          down_payment_docs_sent?: boolean | null
+          expected_selling_price?: number | null
+          first_registration_date?: string | null
+          id?: string
+          mileage?: number | null
+          model?: string | null
+          purchase_channel?: string | null
+          purchase_date?: string
+          purchase_docs_sent?: boolean | null
+          purchase_documentation?: string | null
+          purchase_price?: number
+          purchaser?: string
+          registration_number?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          vat_type?: string | null
+          year_model?: number | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           company_name: string | null
