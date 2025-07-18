@@ -255,14 +255,15 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
 
   // Watch for changes in registration number and check for duplicates
   useEffect(() => {
-    const subscription = form.watch((value) => {
-      if (value.registration_number) {
+    const subscription = form.watch((value, { name }) => {
+      // Only check for duplicates when registration_number field changes
+      if (name === 'registration_number' && value.registration_number) {
         const timeoutId = setTimeout(() => {
           checkForDuplicateRegNumber(value.registration_number as string);
         }, 500); // Debounce for 500ms
 
         return () => clearTimeout(timeoutId);
-      } else {
+      } else if (name === 'registration_number' && !value.registration_number) {
         setIsDuplicateRegNumber(false);
       }
     });
@@ -453,7 +454,9 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
   // Check if vehicle data is properly filled to enable the second tab
   const isVehicleDataValid = () => {
     const registrationNumber = form.watch("registration_number");
-    return registrationNumber && registrationNumber.trim().length > 0;
+    const vatType = form.watch("vat_type");
+    return registrationNumber && registrationNumber.trim().length > 0 && 
+           vatType && vatType.trim().length > 0;
   };
 
   const onSubmit = async (data: PurchaseFormData) => {
