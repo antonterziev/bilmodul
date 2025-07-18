@@ -344,15 +344,18 @@ const Index = () => {
               <Button onClick={() => setShowSales(true)} variant="outline" size="sm">
                 Försäljning
               </Button>
-              <Button variant="outline" size="sm" onClick={() => setShowExportDialog(true)}>
-                Exportera
-              </Button>
-              <Button variant="outline" onClick={() => setShowSettings(true)} size="sm">
-                Inställningar
-              </Button>
-              <Button variant="outline" onClick={signOut}>
-                Logga ut
-              </Button>
+                <Button variant="outline" size="sm" onClick={() => setShowExportDialog(true)}>
+                  Exportera
+                </Button>
+                <Button variant="outline" size="sm">
+                  Supportchatt
+                </Button>
+                <Button variant="outline" onClick={() => setShowSettings(true)} size="sm">
+                  Inställningar
+                </Button>
+                <Button variant="outline" onClick={signOut}>
+                  Logga ut
+                </Button>
             </div>
           </div>
         </div>
