@@ -199,7 +199,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
 
   // Handle mileage input change
   const handleMileageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/,/g, '');
+    const value = e.target.value.replace(/[\s,]/g, ''); // Remove both spaces and commas
     console.log('Mileage input value:', value);
     if (value === '' || /^\d+$/.test(value)) {
       const numValue = value === '' ? undefined : parseInt(value);
