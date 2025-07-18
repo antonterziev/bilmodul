@@ -145,12 +145,6 @@ const Index = () => {
         <header className="border-b">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg">
-                <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
-                  <path d="M5 17h2c0 1.1.9 2 2 2s2-.9 2-2h6c0 1.1.9 2 2 2s2-.9 2-2h2v-2l-1-5H4l-1 5v2h2zm2.5-7h9l.5 2H7l.5-2zM9 13.5c-.8 0-1.5.7-1.5 1.5s.7 1.5 1.5 1.5 1.5-.7 1.5-1.5-.7-1.5-1.5-1.5zm10 0c-.8 0-1.5.7-1.5 1.5s.7 1.5 1.5 1.5 1.5-.7 1.5-1.5-.7-1.5-1.5-1.5z"/>
-                  <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L3 12v8h2c0-1.1.9-2 2-2s2 .9 2 2h6c0-1.1.9-2 2-2s2 .9 2 2h2v-8l-2.08-5.99z"/>
-                </svg>
-              </div>
               <h1 className="text-2xl font-bold">Lagermodulen</h1>
             </div>
             <div className="flex items-center gap-4">
@@ -183,13 +177,6 @@ const Index = () => {
           <header className="border-b">
             <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg">
-                <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
-                  <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L4 10v8c0 .55.45 1 1 1h1c0-1.1.9-2 2-2s2 .9 2 2h4c0-1.1.9-2 2-2s2 .9 2 2h1c.55 0 1-.45 1-1v-8l-1.08-3.99z"/>
-                  <circle cx="8" cy="17" r="1.5"/>
-                  <circle cx="16" cy="17" r="1.5"/>
-                </svg>
-              </div>
               <h1 className="text-2xl font-bold">Lagermodulen</h1>
             </div>
               <div className="flex items-center gap-4">
@@ -220,13 +207,6 @@ const Index = () => {
         <header className="border-b">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg">
-                <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
-                  <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L4 10v8c0 .55.45 1 1 1h1c0-1.1.9-2 2-2s2 .9 2 2h4c0-1.1.9-2 2-2s2 .9 2 2h1c.55 0 1-.45 1-1v-8l-1.08-3.99z"/>
-                  <circle cx="8" cy="17" r="1.5"/>
-                  <circle cx="16" cy="17" r="1.5"/>
-                </svg>
-              </div>
               <h1 className="text-2xl font-bold">Lagermodulen</h1>
             </div>
             <div className="flex items-center gap-4">
@@ -256,13 +236,6 @@ const Index = () => {
           <header className="border-b">
             <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg">
-                <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
-                  <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L4 10v8c0 .55.45 1 1 1h1c0-1.1.9-2 2-2s2 .9 2 2h4c0-1.1.9-2 2-2s2 .9 2 2h1c.55 0 1-.45 1-1v-8l-1.08-3.99z"/>
-                  <circle cx="8" cy="17" r="1.5"/>
-                  <circle cx="16" cy="17" r="1.5"/>
-                </svg>
-              </div>
               <h1 className="text-2xl font-bold">Lagermodulen</h1>
             </div>
               <div className="flex items-center gap-4">
@@ -294,13 +267,6 @@ const Index = () => {
         <header className="border-b">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg">
-                <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
-                  <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L4 10v8c0 .55.45 1 1 1h1c0-1.1.9-2 2-2s2 .9 2 2h4c0-1.1.9-2 2-2s2 .9 2 2h1c.55 0 1-.45 1-1v-8l-1.08-3.99z"/>
-                  <circle cx="8" cy="17" r="1.5"/>
-                  <circle cx="16" cy="17" r="1.5"/>
-                </svg>
-              </div>
               <h1 className="text-2xl font-bold">Lagermodulen</h1>
             </div>
             <div className="flex items-center gap-4">
@@ -329,13 +295,6 @@ const Index = () => {
         <header className="border-b">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg">
-                <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
-                  <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L4 10v8c0 .55.45 1 1 1h1c0-1.1.9-2 2-2s2 .9 2 2h4c0-1.1.9-2 2-2s2 .9 2 2h1c.55 0 1-.45 1-1v-8l-1.08-3.99z"/>
-                  <circle cx="8" cy="17" r="1.5"/>
-                  <circle cx="16" cy="17" r="1.5"/>
-                </svg>
-              </div>
               <h1 className="text-2xl font-bold">Lagermodulen</h1>
             </div>
             <div className="flex items-center gap-4">
@@ -363,13 +322,6 @@ const Index = () => {
         <header className="border-b">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg">
-                <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
-                  <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L4 10v8c0 .55.45 1 1 1h1c0-1.1.9-2 2-2s2 .9 2 2h4c0-1.1.9-2 2-2s2 .9 2 2h1c.55 0 1-.45 1-1v-8l-1.08-3.99z"/>
-                  <circle cx="8" cy="17" r="1.5"/>
-                  <circle cx="16" cy="17" r="1.5"/>
-                </svg>
-              </div>
               <h1 className="text-2xl font-bold">Lagermodulen</h1>
             </div>
             <div className="flex items-center gap-4">
