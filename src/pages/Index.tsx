@@ -331,19 +331,10 @@ const Index = () => {
             <span className="text-sm text-muted-foreground">
               Välkommen {getDisplayName()}
             </span>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                Hem
-              </Button>
-              <Button onClick={() => setShowPurchaseForm(true)} variant="outline" size="sm">
-                Inköp
-              </Button>
-              <Button onClick={() => setShowLogistics(true)} variant="outline" size="sm">
-                Transport
-              </Button>
-              <Button onClick={() => setShowSales(true)} variant="outline" size="sm">
-                Försäljning
-              </Button>
+              <div className="flex gap-2">
+                <Button onClick={() => setShowLogistics(true)} variant="outline" size="sm">
+                  Transport
+                </Button>
                 <Button variant="outline" size="sm" onClick={() => setShowExportDialog(true)}>
                   Exportera
                 </Button>
@@ -356,7 +347,7 @@ const Index = () => {
                 <Button variant="outline" onClick={signOut}>
                   Logga ut
                 </Button>
-            </div>
+              </div>
           </div>
         </div>
       </header>
