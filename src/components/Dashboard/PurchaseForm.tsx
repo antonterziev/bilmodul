@@ -171,6 +171,8 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
   const [isUploadingPurchaseDoc, setIsUploadingPurchaseDoc] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [activeTab, setActiveTab] = useState("fordonsdata");
+  const [isDuplicateRegNumber, setIsDuplicateRegNumber] = useState(false);
+  const [isCheckingRegNumber, setIsCheckingRegNumber] = useState(false);
   
   // Generate year options (last 50 years)
   const currentYear = new Date().getFullYear();
@@ -215,6 +217,58 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
 
     fetchUserProfile();
   }, [user, form]);
+
+  // Check for duplicate registration numbers
+  const checkForDuplicateRegNumber = async (regNumber: string) => {
+    if (!user || !regNumber.trim()) {
+      setIsDuplicateRegNumber(false);
+      return;
+    }
+
+    setIsCheckingRegNumber(true);
+    try {
+      const { data, error } = await supabase
+        .from('inventory_items')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('registration_number', regNumber.trim())
+        .limit(1);
+
+      if (error) throw error;
+
+      const isDuplicate = data && data.length > 0;
+      setIsDuplicateRegNumber(isDuplicate);
+      
+      if (isDuplicate) {
+        toast({
+          title: "Registreringsnummer finns redan",
+          description: "Detta registreringsnummer finns redan i systemet. Du kan inte ha fler än ett fordon med samma registreringsnummer.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error checking for duplicate registration number:', error);
+    } finally {
+      setIsCheckingRegNumber(false);
+    }
+  };
+
+  // Watch for changes in registration number and check for duplicates
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      if (value.registration_number) {
+        const timeoutId = setTimeout(() => {
+          checkForDuplicateRegNumber(value.registration_number as string);
+        }, 500); // Debounce for 500ms
+
+        return () => clearTimeout(timeoutId);
+      } else {
+        setIsDuplicateRegNumber(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form, user]);
 
   // Format number with thousands separator
   const formatWithThousands = (value: string) => {
@@ -405,6 +459,16 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
   const onSubmit = async (data: PurchaseFormData) => {
     if (!user) return;
     
+    // Prevent submission if there's a duplicate registration number
+    if (isDuplicateRegNumber) {
+      toast({
+        title: "Kan inte registrera",
+        description: "Detta registreringsnummer finns redan. Du kan inte ha fler än ett fordon med samma registreringsnummer.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     try {
       const insertData = {
@@ -485,8 +549,21 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                     id="registration_number"
                     placeholder="t.ex. JSK15L"
                     {...form.register("registration_number")}
-                    className={form.formState.errors.registration_number ? "border-destructive" : ""}
+                    className={cn(
+                      form.formState.errors.registration_number && "border-destructive",
+                      isDuplicateRegNumber && "border-destructive"
+                    )}
                   />
+                  {isCheckingRegNumber && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Kontrollerar registreringsnummer...
+                    </p>
+                  )}
+                  {isDuplicateRegNumber && (
+                    <p className="text-sm text-destructive mt-1">
+                      Detta registreringsnummer finns redan registrerat
+                    </p>
+                  )}
                   {form.formState.errors.registration_number && (
                     <p className="text-sm text-destructive mt-1">
                       {form.formState.errors.registration_number.message}
