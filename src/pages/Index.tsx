@@ -12,7 +12,7 @@ import { SalesList } from "@/components/Sales/SalesList";
 import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
 import { supabase } from "@/integrations/supabase/client";
-import { Home, BarChart3, Package, Settings as SettingsIcon, Truck, Download } from "lucide-react";
+import { Home, BarChart3, Package, Settings as SettingsIcon, Truck, Download, Phone } from "lucide-react";
 
 const Index = () => {
   const { user, signOut, isLoading } = useAuth();
@@ -200,9 +200,13 @@ const Index = () => {
               Välkommen {getDisplayName()}
             </span>
               <div className="flex gap-2">
-                <span className="text-sm text-muted-foreground flex items-center">
-                  Kundtjänst: 010-660 02 85
-                </span>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Phone className="h-4 w-4" />
+                  <div className="flex flex-col">
+                    <span>Kundtjänst</span>
+                    <span>070 112 112</span>
+                  </div>
+                </div>
                 <Button variant="outline" size="sm">
                   Supportchatt
                 </Button>
