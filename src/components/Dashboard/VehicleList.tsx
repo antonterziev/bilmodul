@@ -170,7 +170,7 @@ export const VehicleList = () => {
             {vehicles.map((vehicle) => (
               <div key={vehicle.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors w-full">
                 {/* Car icon or Tesla logo */}
-                <div className="flex-shrink-0">
+                <div className="flex-shrink-0 w-16 flex justify-center items-center">
                   {vehicle.brand.toLowerCase() === 'tesla' ? (
                     <img 
                       src="/lovable-uploads/7cabba07-206a-4755-b690-eed0738888de.png" 
