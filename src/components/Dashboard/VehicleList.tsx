@@ -143,11 +143,13 @@ export const VehicleList = () => {
                   </div>
                   
                   {/* Column 2: Status */}
-                  <div>
+                  <div className="text-center">
                     <p className="text-xs text-muted-foreground">Status</p>
-                    <Badge variant={getStatusVariant(vehicle.status)} className="text-xs">
-                      {getStatusLabel(vehicle.status)}
-                    </Badge>
+                    <div className="flex justify-center">
+                      <Badge variant={getStatusVariant(vehicle.status)} className="text-xs">
+                        {getStatusLabel(vehicle.status)}
+                      </Badge>
+                    </div>
                   </div>
                   
                   {/* Column 3: Purchase Date */}
