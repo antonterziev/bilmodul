@@ -198,9 +198,16 @@ const Index = () => {
     }
 
     // Default content for Hem
+    const getFirstName = () => {
+      if (userProfile?.full_name) {
+        return userProfile.full_name.split(' ')[0];
+      }
+      return user?.email?.split('@')[0] || 'Användare';
+    };
+
     return (
       <div className="text-center py-12">
-        <h1 className="text-2xl font-bold mb-4">Välkommen till Lagermodulen</h1>
+        <h1 className="text-2xl font-bold mb-4">Välkommen till Lagermodulen, {getFirstName()}</h1>
         <p className="text-muted-foreground">Välj en sektion från menyn för att komma igång.</p>
       </div>
     );
