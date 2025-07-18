@@ -37,6 +37,7 @@ export type Database = {
           mileage: number | null
           model: string | null
           purchase_channel: string | null
+          purchase_channel_other: string | null
           purchase_date: string
           purchase_docs_sent: boolean | null
           purchase_documentation: string | null
@@ -79,6 +80,7 @@ export type Database = {
           mileage?: number | null
           model?: string | null
           purchase_channel?: string | null
+          purchase_channel_other?: string | null
           purchase_date: string
           purchase_docs_sent?: boolean | null
           purchase_documentation?: string | null
@@ -121,6 +123,7 @@ export type Database = {
           mileage?: number | null
           model?: string | null
           purchase_channel?: string | null
+          purchase_channel_other?: string | null
           purchase_date?: string
           purchase_docs_sent?: boolean | null
           purchase_documentation?: string | null
