@@ -24,12 +24,22 @@ export const VehicleList = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
     if (user) {
       loadVehicles();
     }
   }, [user]);
+
+  // Update current time every minute to keep lagerdagar current
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, []);
 
   const loadVehicles = async () => {
     if (!user) return;
@@ -91,9 +101,8 @@ export const VehicleList = () => {
   };
 
   const calculateStorageDays = (purchaseDate: string) => {
-    const today = new Date();
     const purchase = new Date(purchaseDate);
-    const diffTime = Math.abs(today.getTime() - purchase.getTime());
+    const diffTime = Math.abs(currentTime.getTime() - purchase.getTime());
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
   };
