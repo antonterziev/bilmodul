@@ -33,6 +33,7 @@ export type Database = {
           id: string
           logistics_documentation_attached: boolean | null
           logistics_notes: string | null
+          marketplace_channel: string | null
           mileage: number | null
           model: string | null
           purchase_channel: string | null
@@ -74,6 +75,7 @@ export type Database = {
           id?: string
           logistics_documentation_attached?: boolean | null
           logistics_notes?: string | null
+          marketplace_channel?: string | null
           mileage?: number | null
           model?: string | null
           purchase_channel?: string | null
@@ -115,6 +117,7 @@ export type Database = {
           id?: string
           logistics_documentation_attached?: boolean | null
           logistics_notes?: string | null
+          marketplace_channel?: string | null
           mileage?: number | null
           model?: string | null
           purchase_channel?: string | null
