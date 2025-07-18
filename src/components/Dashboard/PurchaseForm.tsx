@@ -401,7 +401,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
 
               {form.watch("brand") === "Annan" && (
                 <div>
-                  <Label htmlFor="brand_other">Beskriv märke</Label>
+                  <Label htmlFor="brand_other">Ange märke</Label>
                   <Input
                     id="brand_other"
                     {...form.register("brand_other")}
