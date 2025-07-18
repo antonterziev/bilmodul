@@ -287,7 +287,16 @@ const Index = () => {
                 <Button 
                   variant={showStatistics ? "default" : "ghost"} 
                   className={`w-full justify-start ${showStatistics ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
-                  onClick={() => setShowStatistics(true)}
+                  onClick={() => {
+                    setShowPurchaseForm(false);
+                    setShowLogistics(false);
+                    setShowSales(false);
+                    setShowSettings(false);
+                    setShowStatistics(true);
+                    setShowLager(false);
+                    setSelectedVehicleId(null);
+                    setSelectedSaleVehicleId(null);
+                  }}
                 >
                   <BarChart3 className="mr-2 h-4 w-4" />
                   Statistik
@@ -297,7 +306,16 @@ const Index = () => {
                 <Button 
                   variant={showLager ? "default" : "ghost"} 
                   className={`w-full justify-start ${showLager ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
-                  onClick={() => setShowLager(true)}
+                  onClick={() => {
+                    setShowPurchaseForm(false);
+                    setShowLogistics(false);
+                    setShowSales(false);
+                    setShowSettings(false);
+                    setShowStatistics(false);
+                    setShowLager(true);
+                    setSelectedVehicleId(null);
+                    setSelectedSaleVehicleId(null);
+                  }}
                 >
                   <Car className="mr-2 h-4 w-4" />
                   Lager
