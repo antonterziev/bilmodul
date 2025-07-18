@@ -318,6 +318,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
       const numValue = cleanValue === '' ? undefined : parseFloat(cleanValue);
       if (numValue === undefined || numValue >= 0) {
         form.setValue('purchase_price', numValue);
+        form.trigger('purchase_price'); // Trigger validation
         setPriceDisplay(value === '' ? '' : formatPriceWithThousands(value));
       }
     }
@@ -425,6 +426,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
       setTimeout(() => {
         setUploadedPurchaseDoc(file);
         form.setValue('purchase_documentation', filePath);
+        form.trigger('purchase_documentation'); // Trigger validation
         setUploadProgress(0);
         
         toast({
@@ -820,9 +822,10 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                           <CommandGroup>
                             <CommandItem
                               value="Vinstmarginalbeskattning (VMB)"
-                              onSelect={() => {
-                                form.setValue("vat_type", "Vinstmarginalbeskattning (VMB)");
-                              }}
+                               onSelect={() => {
+                                 form.setValue("vat_type", "Vinstmarginalbeskattning (VMB)");
+                                 form.trigger("vat_type"); // Trigger validation
+                               }}
                             >
                               <Check
                                 className={cn(
@@ -834,9 +837,10 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                             </CommandItem>
                             <CommandItem
                               value="Moms (25%)"
-                              onSelect={() => {
-                                form.setValue("vat_type", "Moms (25%)");
-                              }}
+                               onSelect={() => {
+                                 form.setValue("vat_type", "Moms (25%)");
+                                 form.trigger("vat_type"); // Trigger validation
+                               }}
                             >
                               <Check
                                 className={cn(
