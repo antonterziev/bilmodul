@@ -702,6 +702,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Inköpsinformation</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* 1. Inköpare */}
               <div>
                 <Label htmlFor="purchaser">Inköpare*</Label>
                 <Input
@@ -716,23 +717,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                 )}
               </div>
 
-              <div>
-                <Label htmlFor="purchase_price">Inköpspris (SEK) *</Label>
-                <Input
-                  id="purchase_price"
-                  type="text"
-                  value={priceDisplay}
-                  onChange={handlePriceChange}
-                  placeholder="t.ex. 150,000"
-                  className={form.formState.errors.purchase_price ? "border-destructive" : ""}
-                />
-                {form.formState.errors.purchase_price && (
-                  <p className="text-sm text-destructive mt-1">
-                    {form.formState.errors.purchase_price.message}
-                  </p>
-                )}
-              </div>
-
+              {/* 2. Inköpsdatum */}
               <div>
                 <Label htmlFor="purchase_date">Inköpsdatum *</Label>
                 <Popover>
@@ -756,6 +741,42 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                 </Popover>
               </div>
 
+              {/* 3. Inköpspris */}
+              <div>
+                <Label htmlFor="purchase_price">Inköpspris (SEK) *</Label>
+                <Input
+                  id="purchase_price"
+                  type="text"
+                  value={priceDisplay}
+                  onChange={handlePriceChange}
+                  placeholder="t.ex. 150,000"
+                  className={form.formState.errors.purchase_price ? "border-destructive" : ""}
+                />
+                {form.formState.errors.purchase_price && (
+                  <p className="text-sm text-destructive mt-1">
+                    {form.formState.errors.purchase_price.message}
+                  </p>
+                )}
+              </div>
+
+              {/* 4. Förväntat försäljningspris */}
+              <div>
+                <Label htmlFor="expected_selling_price">Förväntat försäljningspris (SEK)</Label>
+                <Input
+                  id="expected_selling_price"
+                  type="text"
+                  value={expectedPriceDisplay}
+                  onChange={handleExpectedPriceChange}
+                  placeholder="t.ex. 180,000"
+                />
+                {form.formState.errors.expected_selling_price && (
+                  <p className="text-sm text-destructive mt-1">
+                    {form.formState.errors.expected_selling_price.message}
+                  </p>
+                )}
+              </div>
+
+              {/* 5. Handpenning */}
               <div>
                 <Label htmlFor="down_payment">Handpenning (SEK)</Label>
                 <Input
@@ -836,6 +857,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                  </div>
                )}
 
+              {/* 6. Inköpskanal */}
               <div>
                 <Label htmlFor="purchase_channel">Inköpskanal</Label>
                 <Popover>
@@ -931,22 +953,6 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                   />
                 </div>
               )}
-
-              <div>
-                <Label htmlFor="expected_selling_price">Förväntat försäljningspris (SEK)</Label>
-                <Input
-                  id="expected_selling_price"
-                  type="text"
-                  value={expectedPriceDisplay}
-                  onChange={handleExpectedPriceChange}
-                  placeholder="t.ex. 180,000"
-                />
-                {form.formState.errors.expected_selling_price && (
-                  <p className="text-sm text-destructive mt-1">
-                    {form.formState.errors.expected_selling_price.message}
-                  </p>
-                )}
-              </div>
             </div>
 
             <div>
