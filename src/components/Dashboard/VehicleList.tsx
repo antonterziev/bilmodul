@@ -172,20 +172,20 @@ export const VehicleList = () => {
                 {/* Car icon or Tesla logo */}
                 <div className="flex-shrink-0 w-16 flex justify-center items-center">
                   {vehicle.brand.toLowerCase() === 'tesla' ? (
-                    <img 
-                      src="/lovable-uploads/7cabba07-206a-4755-b690-eed0738888de.png" 
-                      alt="Tesla logo" 
-                      className="h-8 w-8 object-contain"
-                    />
+                     <img 
+                       src="/lovable-uploads/7cabba07-206a-4755-b690-eed0738888de.png" 
+                       alt="Tesla logo" 
+                       className="h-12 w-12 object-contain"
+                     />
                   ) : vehicle.brand.toLowerCase() === 'aston martin' ? (
-                    <img 
-                      src="/lovable-uploads/eac64da7-3b14-4cba-8714-fc5441349d8d.png" 
-                      alt="Aston Martin logo" 
-                      className="h-8 w-8 object-contain"
-                    />
-                  ) : (
-                    <Car className="h-8 w-8 text-muted-foreground" />
-                  )}
+                     <img 
+                       src="/lovable-uploads/eac64da7-3b14-4cba-8714-fc5441349d8d.png" 
+                       alt="Aston Martin logo" 
+                       className="h-12 w-12 object-contain"
+                     />
+                   ) : (
+                     <Car className="h-12 w-12 text-muted-foreground" />
+                   )}
                 </div>
                 
                 {/* Vehicle main info */}
