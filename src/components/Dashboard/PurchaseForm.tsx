@@ -327,6 +327,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                 <Label htmlFor="registration_number">Registreringsnummer*</Label>
                 <Input
                   id="registration_number"
+                  placeholder="t.ex. JSK15L"
                   {...form.register("registration_number")}
                   className={form.formState.errors.registration_number ? "border-destructive" : ""}
                 />
@@ -339,7 +340,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
 
               <div>
                 <Label htmlFor="chassis_number">Chassinummer</Label>
-                <Input id="chassis_number" {...form.register("chassis_number")} />
+                <Input id="chassis_number" placeholder="t.ex. 1234567890ABCDEFG" {...form.register("chassis_number")} />
               </div>
 
               <div>
