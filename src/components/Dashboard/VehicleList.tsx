@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Car } from "lucide-react";
 
 interface Vehicle {
   id: string;
@@ -102,35 +102,40 @@ export const VehicleList = () => {
             <p className="text-muted-foreground">Inga fordon registrerade än.</p>
           </div>
         ) : (
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Registreringsnummer</TableHead>
-                  <TableHead>Märke</TableHead>
-                  <TableHead>Modell</TableHead>
-                  <TableHead>Inköpsdatum</TableHead>
-                  <TableHead>Inköpare</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {vehicles.map((vehicle) => (
-                  <TableRow key={vehicle.id}>
-                    <TableCell className="font-medium">{vehicle.registration_number}</TableCell>
-                    <TableCell>{vehicle.brand}</TableCell>
-                    <TableCell>{vehicle.model || '-'}</TableCell>
-                    <TableCell>{formatDate(vehicle.purchase_date)}</TableCell>
-                    <TableCell>{vehicle.purchaser}</TableCell>
-                    <TableCell>
-                      <Badge variant={getStatusVariant(vehicle.status)}>
-                        {getStatusLabel(vehicle.status)}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+          <div className="space-y-4">
+            {vehicles.map((vehicle) => (
+              <div key={vehicle.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                {/* Car icon */}
+                <div className="flex-shrink-0">
+                  <Car className="h-8 w-8 text-muted-foreground" />
+                </div>
+                
+                {/* Vehicle info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-medium text-sm">
+                      {vehicle.brand} {vehicle.model || ''}
+                    </h3>
+                    <Badge variant={getStatusVariant(vehicle.status)} className="text-xs">
+                      {getStatusLabel(vehicle.status)}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {vehicle.registration_number}
+                  </p>
+                </div>
+                
+                {/* Additional info */}
+                <div className="flex-shrink-0 text-right">
+                  <p className="text-sm text-muted-foreground">
+                    {formatDate(vehicle.purchase_date)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {vehicle.purchaser}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </CardContent>
