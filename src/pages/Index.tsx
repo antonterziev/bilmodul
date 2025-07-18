@@ -254,7 +254,16 @@ const Index = () => {
                 variant="outline" 
                 size="sm" 
                 className="flex-1"
-                onClick={() => setShowPurchaseForm(true)}
+                onClick={() => {
+                  setShowPurchaseForm(true);
+                  setShowLogistics(false);
+                  setShowSales(false);
+                  setShowSettings(false);
+                  setShowStatistics(false);
+                  setShowLager(false);
+                  setSelectedVehicleId(null);
+                  setSelectedSaleVehicleId(null);
+                }}
               >
                 Köp
               </Button>
@@ -262,7 +271,16 @@ const Index = () => {
                 variant="outline" 
                 size="sm" 
                 className="flex-1"
-                onClick={() => setShowSales(true)}
+                onClick={() => {
+                  setShowPurchaseForm(false);
+                  setShowLogistics(false);
+                  setShowSales(true);
+                  setShowSettings(false);
+                  setShowStatistics(false);
+                  setShowLager(false);
+                  setSelectedVehicleId(null);
+                  setSelectedSaleVehicleId(null);
+                }}
               >
                 Sälj
               </Button>
