@@ -12,7 +12,7 @@ import { SalesList } from "@/components/Sales/SalesList";
 import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
 import { supabase } from "@/integrations/supabase/client";
-import { Home, BarChart3, Package } from "lucide-react";
+import { Home, BarChart3, Package, Settings as SettingsIcon } from "lucide-react";
 
 const Index = () => {
   const { user, signOut, isLoading } = useAuth();
@@ -411,6 +411,16 @@ const Index = () => {
                 <Button variant="ghost" className="w-full justify-start text-muted-foreground">
                   <Package className="mr-2 h-4 w-4" />
                   Lager
+                </Button>
+              </li>
+              <li>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-muted-foreground"
+                  onClick={() => setShowSettings(true)}
+                >
+                  <SettingsIcon className="mr-2 h-4 w-4" />
+                  Inställningar
                 </Button>
               </li>
             </ul>
