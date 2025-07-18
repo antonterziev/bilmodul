@@ -93,6 +93,21 @@ const carBrands = [
   "Volvo"
 ];
 
+const purchaseChannels = [
+  "Bilhandlare",
+  "Privatperson",
+  "Marknadsplats", 
+  "Annan"
+];
+
+const marketplaces = [
+  "Blocket",
+  "KVD",
+  "BCA",
+  "Auto1",
+  "Annan"
+];
+
 const purchaseSchema = z.object({
   // Vehicle data
   registration_number: z.string().min(1, "Registreringsnummer krävs"),
@@ -114,6 +129,7 @@ const purchaseSchema = z.object({
   purchase_documentation: z.string().optional(),
   purchase_docs_sent: z.boolean().default(false),
   purchase_channel: z.string().optional(),
+  marketplace_channel: z.string().optional(),
   expected_selling_price: z.number().min(0, "Förväntat försäljningspris kan inte vara negativt").optional(),
 });
 
@@ -256,6 +272,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
         purchase_documentation: data.purchase_documentation || null,
         purchase_docs_sent: data.purchase_docs_sent,
         purchase_channel: data.purchase_channel || null,
+        marketplace_channel: data.marketplace_channel || null,
         expected_selling_price: data.expected_selling_price || null,
       };
 
@@ -613,8 +630,42 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
 
               <div>
                 <Label htmlFor="purchase_channel">Inköpskanal</Label>
-                <Input id="purchase_channel" {...form.register("purchase_channel")} />
+                <Select onValueChange={(value) => {
+                  form.setValue("purchase_channel", value);
+                  if (value !== "Marknadsplats") {
+                    form.setValue("marketplace_channel", undefined);
+                  }
+                }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Välj inköpskanal" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {purchaseChannels.map((channel) => (
+                      <SelectItem key={channel} value={channel}>
+                        {channel}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+
+              {form.watch("purchase_channel") === "Marknadsplats" && (
+                <div>
+                  <Label htmlFor="marketplace_channel">Marknadsplats</Label>
+                  <Select onValueChange={(value) => form.setValue("marketplace_channel", value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Välj marknadsplats" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {marketplaces.map((marketplace) => (
+                        <SelectItem key={marketplace} value={marketplace}>
+                          {marketplace}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               <div>
                 <Label htmlFor="expected_selling_price">Förväntat försäljningspris (SEK)</Label>
