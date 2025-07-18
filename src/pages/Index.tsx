@@ -13,7 +13,7 @@ import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
 import { Statistics } from "@/components/Statistics/Statistics";
 import { supabase } from "@/integrations/supabase/client";
-import { Home, BarChart3, Car, Settings as SettingsIcon, Truck, Download, Phone, MessageCircle, LogOut } from "lucide-react";
+import { Home, BarChart3, Car, Settings as SettingsIcon, Truck, Download, Phone, MessageCircle, LogOut, CreditCard, Zap, FileCheck, FileText, File, Receipt, CreditCard as DirectPayments, Users, BookOpen, CheckSquare, Paperclip } from "lucide-react";
 
 const Index = () => {
   const { user, signOut, isLoading } = useAuth();
@@ -26,6 +26,17 @@ const Index = () => {
   const [showLager, setShowLager] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showSupportDialog, setShowSupportDialog] = useState(false);
+  const [showFinansiering, setShowFinansiering] = useState(false);
+  const [showDirektatkomst, setShowDirektatkomst] = useState(false);
+  const [showDirektanmalan, setShowDirektanmalan] = useState(false);
+  const [showAvtal, setShowAvtal] = useState(false);
+  const [showDokument, setShowDokument] = useState(false);
+  const [showFakturor, setShowFakturor] = useState(false);
+  const [showDirektbetalningar, setShowDirektbetalningar] = useState(false);
+  const [showKundregister, setShowKundregister] = useState(false);
+  const [showBokforingsunderlag, setShowBokforingsunderlag] = useState(false);
+  const [showVerifikation, setShowVerifikation] = useState(false);
+  const [showBilagor, setShowBilagor] = useState(false);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [selectedSaleVehicleId, setSelectedSaleVehicleId] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -372,6 +383,116 @@ const Index = () => {
                 <Button 
                   variant="ghost" 
                   className="w-full justify-start text-muted-foreground"
+                  onClick={() => setShowFinansiering(true)}
+                >
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  Finansiering
+                </Button>
+              </li>
+              <li>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-muted-foreground"
+                  onClick={() => setShowDirektatkomst(true)}
+                >
+                  <Zap className="mr-2 h-4 w-4" />
+                  Direktåtkomst
+                </Button>
+              </li>
+              <li>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-muted-foreground"
+                  onClick={() => setShowDirektanmalan(true)}
+                >
+                  <FileCheck className="mr-2 h-4 w-4" />
+                  Direktanmälan
+                </Button>
+              </li>
+              <li>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-muted-foreground"
+                  onClick={() => setShowAvtal(true)}
+                >
+                  <FileText className="mr-2 h-4 w-4" />
+                  Avtal
+                </Button>
+              </li>
+              <li>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-muted-foreground"
+                  onClick={() => setShowDokument(true)}
+                >
+                  <File className="mr-2 h-4 w-4" />
+                  Dokument
+                </Button>
+              </li>
+              <li>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-muted-foreground"
+                  onClick={() => setShowFakturor(true)}
+                >
+                  <Receipt className="mr-2 h-4 w-4" />
+                  Fakturor
+                </Button>
+              </li>
+              <li>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-muted-foreground"
+                  onClick={() => setShowDirektbetalningar(true)}
+                >
+                  <DirectPayments className="mr-2 h-4 w-4" />
+                  Direktbetalningar
+                </Button>
+              </li>
+              <li>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-muted-foreground"
+                  onClick={() => setShowKundregister(true)}
+                >
+                  <Users className="mr-2 h-4 w-4" />
+                  Kundregister
+                </Button>
+              </li>
+              <li>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-muted-foreground"
+                  onClick={() => setShowBokforingsunderlag(true)}
+                >
+                  <BookOpen className="mr-2 h-4 w-4" />
+                  Bokföringsunderlag
+                </Button>
+              </li>
+              <li>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-muted-foreground"
+                  onClick={() => setShowVerifikation(true)}
+                >
+                  <CheckSquare className="mr-2 h-4 w-4" />
+                  Verifikation
+                </Button>
+              </li>
+              <li>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-muted-foreground"
+                  onClick={() => setShowBilagor(true)}
+                >
+                  <Paperclip className="mr-2 h-4 w-4" />
+                  Bilagor
+                </Button>
+              </li>
+              <li>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-muted-foreground"
                   onClick={() => setShowExportDialog(true)}
                 >
                   <Download className="mr-2 h-4 w-4" />
@@ -460,6 +581,281 @@ const Index = () => {
               </p>
             </div>
             <Button className="w-full" onClick={() => setShowSupportDialog(false)}>
+              Uppgradera medlemskap
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Finansiering Dialog */}
+      <Dialog open={showFinansiering} onOpenChange={setShowFinansiering}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-6 py-4">
+            <div className="flex items-center justify-center w-20 h-20 bg-blue-100 rounded-lg">
+              <CreditCard className="w-12 h-12 text-blue-600" />
+            </div>
+            <div className="text-center space-y-2">
+              <p className="text-muted-foreground">
+                Finansiering är en betalfunktion
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
+              </p>
+            </div>
+            <Button className="w-full" onClick={() => setShowFinansiering(false)}>
+              Uppgradera medlemskap
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Direktåtkomst Dialog */}
+      <Dialog open={showDirektatkomst} onOpenChange={setShowDirektatkomst}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-6 py-4">
+            <div className="flex items-center justify-center w-20 h-20 bg-yellow-100 rounded-lg">
+              <Zap className="w-12 h-12 text-yellow-600" />
+            </div>
+            <div className="text-center space-y-2">
+              <p className="text-muted-foreground">
+                Direktåtkomst är en betalfunktion
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
+              </p>
+            </div>
+            <Button className="w-full" onClick={() => setShowDirektatkomst(false)}>
+              Uppgradera medlemskap
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Direktanmälan Dialog */}
+      <Dialog open={showDirektanmalan} onOpenChange={setShowDirektanmalan}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-6 py-4">
+            <div className="flex items-center justify-center w-20 h-20 bg-purple-100 rounded-lg">
+              <FileCheck className="w-12 h-12 text-purple-600" />
+            </div>
+            <div className="text-center space-y-2">
+              <p className="text-muted-foreground">
+                Direktanmälan är en betalfunktion
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
+              </p>
+            </div>
+            <Button className="w-full" onClick={() => setShowDirektanmalan(false)}>
+              Uppgradera medlemskap
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Avtal Dialog */}
+      <Dialog open={showAvtal} onOpenChange={setShowAvtal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-6 py-4">
+            <div className="flex items-center justify-center w-20 h-20 bg-gray-100 rounded-lg">
+              <FileText className="w-12 h-12 text-gray-600" />
+            </div>
+            <div className="text-center space-y-2">
+              <p className="text-muted-foreground">
+                Avtal är en betalfunktion
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
+              </p>
+            </div>
+            <Button className="w-full" onClick={() => setShowAvtal(false)}>
+              Uppgradera medlemskap
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dokument Dialog */}
+      <Dialog open={showDokument} onOpenChange={setShowDokument}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-6 py-4">
+            <div className="flex items-center justify-center w-20 h-20 bg-indigo-100 rounded-lg">
+              <File className="w-12 h-12 text-indigo-600" />
+            </div>
+            <div className="text-center space-y-2">
+              <p className="text-muted-foreground">
+                Dokument är en betalfunktion
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
+              </p>
+            </div>
+            <Button className="w-full" onClick={() => setShowDokument(false)}>
+              Uppgradera medlemskap
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Fakturor Dialog */}
+      <Dialog open={showFakturor} onOpenChange={setShowFakturor}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-6 py-4">
+            <div className="flex items-center justify-center w-20 h-20 bg-orange-100 rounded-lg">
+              <Receipt className="w-12 h-12 text-orange-600" />
+            </div>
+            <div className="text-center space-y-2">
+              <p className="text-muted-foreground">
+                Fakturor är en betalfunktion
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
+              </p>
+            </div>
+            <Button className="w-full" onClick={() => setShowFakturor(false)}>
+              Uppgradera medlemskap
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Direktbetalningar Dialog */}
+      <Dialog open={showDirektbetalningar} onOpenChange={setShowDirektbetalningar}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-6 py-4">
+            <div className="flex items-center justify-center w-20 h-20 bg-green-100 rounded-lg">
+              <DirectPayments className="w-12 h-12 text-green-600" />
+            </div>
+            <div className="text-center space-y-2">
+              <p className="text-muted-foreground">
+                Direktbetalningar är en betalfunktion
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
+              </p>
+            </div>
+            <Button className="w-full" onClick={() => setShowDirektbetalningar(false)}>
+              Uppgradera medlemskap
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Kundregister Dialog */}
+      <Dialog open={showKundregister} onOpenChange={setShowKundregister}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-6 py-4">
+            <div className="flex items-center justify-center w-20 h-20 bg-teal-100 rounded-lg">
+              <Users className="w-12 h-12 text-teal-600" />
+            </div>
+            <div className="text-center space-y-2">
+              <p className="text-muted-foreground">
+                Kundregister är en betalfunktion
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
+              </p>
+            </div>
+            <Button className="w-full" onClick={() => setShowKundregister(false)}>
+              Uppgradera medlemskap
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bokföringsunderlag Dialog */}
+      <Dialog open={showBokforingsunderlag} onOpenChange={setShowBokforingsunderlag}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-6 py-4">
+            <div className="flex items-center justify-center w-20 h-20 bg-red-100 rounded-lg">
+              <BookOpen className="w-12 h-12 text-red-600" />
+            </div>
+            <div className="text-center space-y-2">
+              <p className="text-muted-foreground">
+                Bokföringsunderlag är en betalfunktion
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
+              </p>
+            </div>
+            <Button className="w-full" onClick={() => setShowBokforingsunderlag(false)}>
+              Uppgradera medlemskap
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Verifikation Dialog */}
+      <Dialog open={showVerifikation} onOpenChange={setShowVerifikation}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-6 py-4">
+            <div className="flex items-center justify-center w-20 h-20 bg-cyan-100 rounded-lg">
+              <CheckSquare className="w-12 h-12 text-cyan-600" />
+            </div>
+            <div className="text-center space-y-2">
+              <p className="text-muted-foreground">
+                Verifikation är en betalfunktion
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
+              </p>
+            </div>
+            <Button className="w-full" onClick={() => setShowVerifikation(false)}>
+              Uppgradera medlemskap
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bilagor Dialog */}
+      <Dialog open={showBilagor} onOpenChange={setShowBilagor}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-6 py-4">
+            <div className="flex items-center justify-center w-20 h-20 bg-pink-100 rounded-lg">
+              <Paperclip className="w-12 h-12 text-pink-600" />
+            </div>
+            <div className="text-center space-y-2">
+              <p className="text-muted-foreground">
+                Bilagor är en betalfunktion
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
+              </p>
+            </div>
+            <Button className="w-full" onClick={() => setShowBilagor(false)}>
               Uppgradera medlemskap
             </Button>
           </div>
