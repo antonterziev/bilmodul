@@ -12,6 +12,7 @@ import { SalesList } from "@/components/Sales/SalesList";
 import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
 import { supabase } from "@/integrations/supabase/client";
+import { Home, BarChart3, Package } from "lucide-react";
 
 const Index = () => {
   const { user, signOut, isLoading } = useAuth();
@@ -375,17 +376,20 @@ const Index = () => {
             <ul className="space-y-2">
               <li>
                 <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                  📊 Hem
+                  <Home className="mr-2 h-4 w-4" />
+                  Hem
                 </Button>
               </li>
               <li>
                 <Button variant="default" className="w-full justify-start bg-primary text-primary-foreground">
-                  📈 Statistik
+                  <BarChart3 className="mr-2 h-4 w-4" />
+                  Statistik
                 </Button>
               </li>
               <li>
                 <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                  📦 Lager
+                  <Package className="mr-2 h-4 w-4" />
+                  Lager
                 </Button>
               </li>
             </ul>
