@@ -405,9 +405,6 @@ const Index = () => {
         
         <VehicleList />
         
-        <div className="text-center text-muted-foreground">
-          <p>Använd knapparna ovan för att hantera ditt fordonslager.</p>
-        </div>
       </main>
 
       {/* Export Dialog */}
