@@ -251,15 +251,15 @@ const Index = () => {
               Välkommen {getDisplayName()}
             </span>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => setShowKundtjanst(true)} className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => setShowKundtjanst(true)} className="flex items-center gap-2 w-32">
                   <Phone className="h-4 w-4" />
                   <span className="text-foreground">Kundtjänst</span>
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => setShowSupportDialog(true)} className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => setShowSupportDialog(true)} className="flex items-center gap-2 w-32">
                   <MessageCircle className="h-4 w-4" />
                   Supportchatt
                 </Button>
-                <Button variant="outline" onClick={handleLogout} size="sm" className="flex items-center gap-2">
+                <Button variant="outline" onClick={handleLogout} size="sm" className="flex items-center gap-2 w-32">
                   <LogOut className="h-4 w-4" />
                   Logga ut
                 </Button>
