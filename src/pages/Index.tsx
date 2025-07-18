@@ -200,9 +200,6 @@ const Index = () => {
               Välkommen {getDisplayName()}
             </span>
               <div className="flex gap-2">
-                <Button onClick={() => setShowLogistics(true)} variant="outline" size="sm">
-                  Transport
-                </Button>
                 <Button variant="outline" size="sm">
                   Supportchatt
                 </Button>
