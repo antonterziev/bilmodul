@@ -54,13 +54,13 @@ export const VehicleList = () => {
   const getStatusVariant = (status: string) => {
     switch (status) {
       case 'på_lager':
-        return 'default';
+        return 'default' as const; // Will be styled green with custom CSS
       case 'på_väg':
-        return 'secondary';
+        return 'secondary' as const;
       case 'såld':
-        return 'outline';
+        return 'outline' as const;
       default:
-        return 'default';
+        return 'default' as const;
     }
   };
 
@@ -192,7 +192,14 @@ export const VehicleList = () => {
                   <div className="text-center">
                     <p className="text-xs text-muted-foreground">Status</p>
                     <div className="flex justify-center">
-                      <Badge variant={getStatusVariant(vehicle.status)} className="text-xs">
+                      <Badge 
+                        variant={getStatusVariant(vehicle.status)} 
+                        className={`text-xs w-20 justify-center ${
+                          vehicle.status === 'på_lager' 
+                            ? 'bg-green-500 hover:bg-green-600 text-white' 
+                            : ''
+                        }`}
+                      >
                         {getStatusLabel(vehicle.status)}
                       </Badge>
                     </div>

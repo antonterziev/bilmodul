@@ -101,9 +101,9 @@ const Index = () => {
 
       const totalStock = inventoryData?.filter(item => item.status === 'på_lager').length || 0;
       
-      // Calculate inventory value (sum of purchase prices for vehicles with status "på_väg")
+      // Calculate inventory value (sum of purchase prices for vehicles with status "på_lager")
       const inventoryValue = inventoryData
-        ?.filter(item => item.status === 'på_väg')
+        ?.filter(item => item.status === 'på_lager')
         .reduce((sum, item) => sum + (item.purchase_price || 0), 0) || 0;
       
       // Get last sold item
