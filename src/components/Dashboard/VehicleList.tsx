@@ -122,14 +122,14 @@ export const VehicleList = () => {
         ) : (
           <div className="space-y-4">
             {vehicles.map((vehicle) => (
-              <div key={vehicle.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+              <div key={vehicle.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors w-full">
                 {/* Car icon */}
                 <div className="flex-shrink-0">
                   <Car className="h-8 w-8 text-muted-foreground" />
                 </div>
                 
                 {/* Vehicle info */}
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 w-full">
                   <div className="flex items-center gap-2 mb-2">
                     <h3 className="font-medium text-sm">
                       {vehicle.brand} {vehicle.model || ''}
@@ -143,23 +143,23 @@ export const VehicleList = () => {
                   </p>
                   
                   {/* Additional details in two rows */}
-                  <div className="space-y-1 text-xs">
-                    <div className="flex gap-4">
-                      <div>
+                  <div className="space-y-1 text-xs w-full">
+                    <div className="flex gap-8 w-full">
+                      <div className="flex-1">
                         <span className="text-muted-foreground">Inköpsdatum: </span>
                         <span>{formatDate(vehicle.purchase_date)}</span>
                       </div>
-                      <div>
+                      <div className="flex-1">
                         <span className="text-muted-foreground">Inköpare: </span>
                         <span>{vehicle.purchaser}</span>
                       </div>
                     </div>
-                    <div className="flex gap-4">
-                      <div>
+                    <div className="flex gap-8 w-full">
+                      <div className="flex-1">
                         <span className="text-muted-foreground">Inköpspris: </span>
                         <span>{formatPrice(vehicle.purchase_price)}</span>
                       </div>
-                      <div>
+                      <div className="flex-1">
                         <span className="text-muted-foreground">Lagerdagar: </span>
                         <span>{calculateStorageDays(vehicle.purchase_date)} dagar</span>
                       </div>
