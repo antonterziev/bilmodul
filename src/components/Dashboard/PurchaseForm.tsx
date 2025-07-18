@@ -5,23 +5,98 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+
+const carBrands = [
+  "Annan bilmodell",
+  "Alfa Romeo",
+  "Alpine", 
+  "Aston Martin",
+  "Audi",
+  "Bentley",
+  "BMW",
+  "BYD",
+  "Cadillac",
+  "Chevrolet",
+  "Chrysler",
+  "Citroën",
+  "Dacia",
+  "Daihatsu",
+  "Dodge",
+  "Ferrari",
+  "Fiat",
+  "Fisker, Karma",
+  "Ford",
+  "GMC",
+  "Honda",
+  "Hummer",
+  "Hyundai",
+  "Infiniti",
+  "Isuzu",
+  "Iveco",
+  "Jaguar",
+  "Jeep",
+  "Kia",
+  "Koenigsegg",
+  "KTM",
+  "Lada",
+  "Lamborghini",
+  "Lancia",
+  "Land Rover",
+  "Lexus",
+  "Ligier",
+  "Lincoln",
+  "Lotus",
+  "Maserati",
+  "Mazda",
+  "McLaren",
+  "Mercedes-Benz",
+  "Maybach",
+  "Mini",
+  "Mitsubishi",
+  "Nissan",
+  "Opel",
+  "Peugeot",
+  "Piaggio",
+  "Pininfarina",
+  "Polestar",
+  "Pontiac, Asüna",
+  "Porsche",
+  "Renault",
+  "Rivian",
+  "Rolls-Royce",
+  "Saab",
+  "Santana",
+  "Seat",
+  "Shelby SuperCars",
+  "Skoda",
+  "smart",
+  "SsangYong",
+  "Subaru",
+  "Suzuki",
+  "Tesla",
+  "Toyota",
+  "Volkswagen",
+  "Volvo"
+];
 
 const purchaseSchema = z.object({
   // Vehicle data
   registration_number: z.string().min(1, "Registreringsnummer krävs"),
   chassis_number: z.string().optional(),
-  mileage: z.number().min(0).optional(),
+  mileage: z.number().min(0, "Miltal kan inte vara negativt").optional(),
   brand: z.string().min(1, "Bilmärke krävs"),
   model: z.string().optional(),
   comment: z.string().optional(),
@@ -51,6 +126,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [open, setOpen] = useState(false);
   
   const form = useForm<PurchaseFormData>({
     resolver: zodResolver(purchaseSchema),
@@ -118,7 +194,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
   return (
     <Card className="max-w-4xl mx-auto">
       <CardHeader>
-        <CardTitle>Ny Inköp</CardTitle>
+        <CardTitle>Registera nytt inköp</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -146,21 +222,63 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
               </div>
 
               <div>
-                <Label htmlFor="mileage">Milttal (km)</Label>
+                <Label htmlFor="mileage">Miltal (km)</Label>
                 <Input
                   id="mileage"
                   type="number"
+                  min="0"
                   {...form.register("mileage", { valueAsNumber: true })}
                 />
+                {form.formState.errors.mileage && (
+                  <p className="text-sm text-destructive mt-1">
+                    {form.formState.errors.mileage.message}
+                  </p>
+                )}
               </div>
 
               <div>
                 <Label htmlFor="brand">Bilmärke *</Label>
-                <Input
-                  id="brand"
-                  {...form.register("brand")}
-                  className={form.formState.errors.brand ? "border-destructive" : ""}
-                />
+                <Popover open={open} onOpenChange={setOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={open}
+                      className="w-full justify-between"
+                    >
+                      {form.watch("brand") || "Välj bilmärke..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0">
+                    <Command>
+                      <CommandInput placeholder="Sök bilmärke..." />
+                      <CommandEmpty>Inget bilmärke hittades.</CommandEmpty>
+                      <CommandList>
+                        <CommandGroup>
+                          {carBrands.map((brand) => (
+                            <CommandItem
+                              key={brand}
+                              value={brand}
+                              onSelect={(currentValue) => {
+                                form.setValue("brand", currentValue === form.watch("brand") ? "" : currentValue);
+                                setOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  form.watch("brand") === brand ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {brand}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
                 {form.formState.errors.brand && (
                   <p className="text-sm text-destructive mt-1">
                     {form.formState.errors.brand.message}
