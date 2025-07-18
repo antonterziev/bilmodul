@@ -315,7 +315,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
   return (
     <Card className="max-w-4xl mx-auto">
       <CardHeader>
-        <CardTitle>Registera nytt inköp</CardTitle>
+        <CardTitle>Registrera inköp</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
