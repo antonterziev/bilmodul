@@ -379,7 +379,7 @@ const Index = () => {
                   + Försäljning
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => setShowExportDialog(true)}>
-                  Exportera data
+                  Exportera
                 </Button>
               </div>
               <div className="h-6 w-px bg-border"></div>
