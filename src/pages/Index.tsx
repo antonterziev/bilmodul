@@ -140,183 +140,51 @@ const Index = () => {
     return null;
   }
 
-  if (showPurchaseForm) {
-    return (
-      <div className="min-h-screen bg-background">
-        <header className="border-b">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <div className="flex items-center space-x-3">
-              <h1 className="text-2xl font-bold">Lagermodulen</h1>
-            </div>
-            <div className="flex items-center gap-4">
-              <Button variant="outline" onClick={() => setShowPurchaseForm(false)}>
-                Tillbaka till dashboard
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                Välkommen {getDisplayName()}
-              </span>
-              <Button variant="outline" onClick={signOut}>
-                Logga ut
-              </Button>
-            </div>
-          </div>
-        </header>
-        <main className="container mx-auto px-4 py-8">
-          <PurchaseForm onSuccess={() => {
-            loadStats();
-            setShowPurchaseForm(false);
-          }} />
-        </main>
-      </div>
-    );
-  }
-
-  if (showLogistics) {
-    if (selectedVehicleId) {
-      return (
-        <div className="min-h-screen bg-background">
-          <header className="border-b">
-            <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <div className="flex items-center space-x-3">
-              <h1 className="text-2xl font-bold">Lagermodulen</h1>
-            </div>
-              <div className="flex items-center gap-4">
-                <Button variant="outline" onClick={() => setShowLogistics(false)}>
-                  Tillbaka till dashboard
-                </Button>
-                <span className="text-sm text-muted-foreground">
-                  Välkommen {getDisplayName()}
-                </span>
-                <Button variant="outline" onClick={signOut}>
-                  Logga ut
-                </Button>
-              </div>
-            </div>
-          </header>
-          <main className="container mx-auto px-4 py-8">
-            <LogisticsDetail 
-              vehicleId={selectedVehicleId} 
-              onBack={handleBackToLogistics} 
-            />
-          </main>
-        </div>
-      );
+  const renderMainContent = () => {
+    if (showPurchaseForm) {
+      return <PurchaseForm onSuccess={() => {
+        loadStats();
+        setShowPurchaseForm(false);
+      }} />;
     }
-    
-    return (
-      <div className="min-h-screen bg-background">
-        <header className="border-b">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <div className="flex items-center space-x-3">
-              <h1 className="text-2xl font-bold">Lagermodulen</h1>
-            </div>
-            <div className="flex items-center gap-4">
-              <Button variant="outline" onClick={() => setShowLogistics(false)}>
-                Tillbaka till dashboard
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                Välkommen {getDisplayName()}
-              </span>
-              <Button variant="outline" onClick={signOut}>
-                Logga ut
-              </Button>
-            </div>
-          </div>
-        </header>
-        <main className="container mx-auto px-4 py-8">
-          <LogisticsList onViewVehicle={handleViewVehicle} />
-        </main>
-      </div>
-    );
-  }
 
-  if (showSales) {
-    if (selectedSaleVehicleId) {
-      return (
-        <div className="min-h-screen bg-background">
-          <header className="border-b">
-            <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <div className="flex items-center space-x-3">
-              <h1 className="text-2xl font-bold">Lagermodulen</h1>
-            </div>
-              <div className="flex items-center gap-4">
-                <Button variant="outline" onClick={() => setShowSales(false)}>
-                  Tillbaka till dashboard
-                </Button>
-                <span className="text-sm text-muted-foreground">
-                  Välkommen {getDisplayName()}
-                </span>
-                <Button variant="outline" onClick={signOut}>
-                  Logga ut
-                </Button>
-              </div>
-            </div>
-          </header>
-          <main className="container mx-auto px-4 py-8">
-            <SalesForm 
-              vehicleId={selectedSaleVehicleId} 
-              onBack={handleBackToSales}
-              onSuccess={handleSalesSuccess}
-            />
-          </main>
-        </div>
-      );
+    if (showLogistics) {
+      if (selectedVehicleId) {
+        return <LogisticsDetail 
+          vehicleId={selectedVehicleId} 
+          onBack={handleBackToLogistics} 
+        />;
+      }
+      return <LogisticsList onViewVehicle={handleViewVehicle} />;
     }
-    
-    return (
-      <div className="min-h-screen bg-background">
-        <header className="border-b">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <div className="flex items-center space-x-3">
-              <h1 className="text-2xl font-bold">Lagermodulen</h1>
-            </div>
-            <div className="flex items-center gap-4">
-              <Button variant="outline" onClick={() => setShowSales(false)}>
-                Tillbaka till dashboard
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                Välkommen {getDisplayName()}
-              </span>
-              <Button variant="outline" onClick={signOut}>
-                Logga ut
-              </Button>
-            </div>
-          </div>
-        </header>
-        <main className="container mx-auto px-4 py-8">
-          <SalesList onSellVehicle={handleSellVehicle} />
-        </main>
-      </div>
-    );
-  }
 
-  if (showSettings) {
+    if (showSales) {
+      if (selectedSaleVehicleId) {
+        return <SalesForm 
+          vehicleId={selectedSaleVehicleId} 
+          onBack={handleBackToSales}
+          onSuccess={handleSalesSuccess}
+        />;
+      }
+      return <SalesList onSellVehicle={handleSellVehicle} />;
+    }
+
+    if (showSettings) {
+      return <Settings onBack={handleBackToSettings} />;
+    }
+
+    // Default dashboard content
     return (
-      <div className="min-h-screen bg-background">
-        <header className="border-b">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <div className="flex items-center space-x-3">
-              <h1 className="text-2xl font-bold">Lagermodulen</h1>
-            </div>
-            <div className="flex items-center gap-4">
-              <Button variant="outline" onClick={() => setShowSettings(false)}>
-                Tillbaka till dashboard
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                Välkommen {getDisplayName()}
-              </span>
-              <Button variant="outline" onClick={signOut}>
-                Logga ut
-              </Button>
-            </div>
-          </div>
-        </header>
-        <main className="container mx-auto px-4 py-8">
-          <Settings onBack={handleBackToSettings} />
-        </main>
-      </div>
+      <>
+        <DashboardStats 
+          totalStock={stats.totalStock}
+          inventoryValue={stats.inventoryValue}
+          lastSale={stats.lastSale}
+        />
+        <VehicleList />
+      </>
     );
-  }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -434,14 +302,7 @@ const Index = () => {
         {/* Main Content */}
         <div className="flex-1">
           <main className="container mx-auto px-4 py-8">
-            <DashboardStats 
-              totalStock={stats.totalStock}
-              inventoryValue={stats.inventoryValue}
-              lastSale={stats.lastSale}
-            />
-            
-            <VehicleList />
-            
+            {renderMainContent()}
           </main>
         </div>
       </div>
