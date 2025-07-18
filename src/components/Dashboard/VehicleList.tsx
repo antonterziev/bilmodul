@@ -98,6 +98,16 @@ export const VehicleList = () => {
     return diffDays;
   };
 
+  const formatPurchaserName = (fullName: string) => {
+    const nameParts = fullName.trim().split(' ');
+    if (nameParts.length === 1) {
+      return nameParts[0]; // Only first name
+    }
+    const firstName = nameParts[0];
+    const lastNameInitial = nameParts[nameParts.length - 1][0]; // Get first letter of last name
+    return `${firstName} ${lastNameInitial}`;
+  };
+
   const handleDelete = async (vehicleId: string, registrationNumber: string) => {
     if (!confirm(`Är du säker på att du vill ta bort ${registrationNumber}? Detta kan inte ångras.`)) {
       return;
@@ -228,7 +238,7 @@ export const VehicleList = () => {
                   {/* Column 4: Purchaser - More space */}
                   <div className="col-span-2">
                     <p className="text-xs text-muted-foreground">Inköpare</p>
-                    <p className="font-medium">{vehicle.purchaser}</p>
+                    <p className="font-medium">{formatPurchaserName(vehicle.purchaser)}</p>
                   </div>
                   
                   {/* Column 5: Purchase Price */}
