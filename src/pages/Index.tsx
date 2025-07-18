@@ -13,7 +13,7 @@ import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
 import { Statistics } from "@/components/Statistics/Statistics";
 import { supabase } from "@/integrations/supabase/client";
-import { Home, BarChart3, Package, Settings as SettingsIcon, Truck, Download, Phone } from "lucide-react";
+import { Home, BarChart3, Car, Settings as SettingsIcon, Truck, Download, Phone } from "lucide-react";
 
 const Index = () => {
   const { user, signOut, isLoading } = useAuth();
@@ -23,6 +23,7 @@ const Index = () => {
   const [showSales, setShowSales] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showStatistics, setShowStatistics] = useState(false);
+  const [showLager, setShowLager] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [selectedSaleVehicleId, setSelectedSaleVehicleId] = useState<string | null>(null);
@@ -183,16 +184,25 @@ const Index = () => {
       return <Statistics onBack={handleBackToStatistics} />;
     }
 
-    // Default dashboard content
+    if (showLager) {
+      return (
+        <>
+          <DashboardStats 
+            totalStock={stats.totalStock}
+            inventoryValue={stats.inventoryValue}
+            lastSale={stats.lastSale}
+          />
+          <VehicleList />
+        </>
+      );
+    }
+
+    // Default content for Hem
     return (
-      <>
-        <DashboardStats 
-          totalStock={stats.totalStock}
-          inventoryValue={stats.inventoryValue}
-          lastSale={stats.lastSale}
-        />
-        <VehicleList />
-      </>
+      <div className="text-center py-12">
+        <h1 className="text-2xl font-bold mb-4">Välkommen till Lagermodulen</h1>
+        <p className="text-muted-foreground">Välj en sektion från menyn för att komma igång.</p>
+      </div>
     );
   };
 
@@ -256,14 +266,15 @@ const Index = () => {
             <ul className="space-y-2">
               <li>
                 <Button 
-                  variant={!showPurchaseForm && !showLogistics && !showSales && !showSettings && !showStatistics ? "default" : "ghost"} 
-                  className={`w-full justify-start ${!showPurchaseForm && !showLogistics && !showSales && !showSettings && !showStatistics ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                  variant={!showPurchaseForm && !showLogistics && !showSales && !showSettings && !showStatistics && !showLager ? "default" : "ghost"} 
+                  className={`w-full justify-start ${!showPurchaseForm && !showLogistics && !showSales && !showSettings && !showStatistics && !showLager ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
                   onClick={() => {
                     setShowPurchaseForm(false);
                     setShowLogistics(false);
                     setShowSales(false);
                     setShowSettings(false);
                     setShowStatistics(false);
+                    setShowLager(false);
                     setSelectedVehicleId(null);
                     setSelectedSaleVehicleId(null);
                   }}
@@ -283,8 +294,12 @@ const Index = () => {
                 </Button>
               </li>
               <li>
-                <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-                  <Package className="mr-2 h-4 w-4" />
+                <Button 
+                  variant={showLager ? "default" : "ghost"} 
+                  className={`w-full justify-start ${showLager ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                  onClick={() => setShowLager(true)}
+                >
+                  <Car className="mr-2 h-4 w-4" />
                   Lager
                 </Button>
               </li>
