@@ -693,7 +693,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
             </div>
 
             <div>
-              <Label htmlFor="comment">Kommentar</Label>
+              <Label htmlFor="comment">Anteckning</Label>
               <Input id="comment" {...form.register("comment")} />
             </div>
           </div>
