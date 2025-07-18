@@ -411,12 +411,13 @@ const Index = () => {
             <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col items-center space-y-6 py-4">
-            <div className="flex items-center justify-center w-20 h-20 bg-blue-100 rounded-lg">
-              <svg viewBox="0 0 100 100" className="w-12 h-12">
-                <text x="50" y="35" textAnchor="middle" className="text-lg font-bold fill-blue-600">F</text>
-                <text x="50" y="70" textAnchor="middle" className="text-xs fill-blue-600">ORTNOX</text>
-              </svg>
-            </div>
+             <div className="flex items-center justify-center w-32 h-20 bg-white rounded-lg border">
+               <img 
+                 src="/lovable-uploads/ff47e205-8367-4921-a257-530eb5597fdd.png" 
+                 alt="Fortnox logo" 
+                 className="h-12 object-contain"
+               />
+             </div>
             <div className="text-center space-y-2">
               <p className="text-muted-foreground">
                 Dataexport till Fortnox och Visma är en betalfunktion
