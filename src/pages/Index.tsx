@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { DashboardStats } from "@/components/Dashboard/DashboardStats";
 import { PurchaseForm } from "@/components/Dashboard/PurchaseForm";
@@ -18,6 +19,7 @@ const Index = () => {
   const [showLogistics, setShowLogistics] = useState(false);
   const [showSales, setShowSales] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [selectedSaleVehicleId, setSelectedSaleVehicleId] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -314,7 +316,7 @@ const Index = () => {
                 <Button onClick={() => setShowSales(true)} variant="outline" size="sm">
                   + Försäljning
                 </Button>
-                <Button variant="outline" size="sm" disabled>
+                <Button variant="outline" size="sm" onClick={() => setShowExportDialog(true)}>
                   Exportera data
                 </Button>
               </div>
@@ -342,6 +344,34 @@ const Index = () => {
           <p>Använd knapparna ovan för att hantera ditt fordonslager.</p>
         </div>
       </main>
+
+      {/* Export Dialog */}
+      <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Premium Feature</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-6 py-4">
+            <div className="flex items-center justify-center w-20 h-20 bg-blue-100 rounded-lg">
+              <svg viewBox="0 0 100 100" className="w-12 h-12">
+                <text x="50" y="35" textAnchor="middle" className="text-lg font-bold fill-blue-600">F</text>
+                <text x="50" y="70" textAnchor="middle" className="text-xs fill-blue-600">ORTNOX</text>
+              </svg>
+            </div>
+            <div className="text-center space-y-2">
+              <p className="text-muted-foreground">
+                Dataexport till Fortnox är en betalfunktion
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
+              </p>
+            </div>
+            <Button className="w-full" onClick={() => setShowExportDialog(false)}>
+              Uppgradera mitt medlemskap
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
