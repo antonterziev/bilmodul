@@ -466,7 +466,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="fordonsdata">Fordonsdata</TabsTrigger>
+            <TabsTrigger value="fordonsdata">Fordonsinformation</TabsTrigger>
             <TabsTrigger 
               value="inkopsinformation" 
               disabled={!isVehicleDataValid()}
@@ -1119,7 +1119,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                   variant="outline"
                   onClick={() => setActiveTab("fordonsdata")}
                 >
-                  Tillbaka till fordonsdata
+                  Tillbaka till fordonsinformation
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting ? "Registrerar..." : "Registrera inköp"}
