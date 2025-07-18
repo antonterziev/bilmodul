@@ -487,7 +487,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
 
               <div>
                 <Label htmlFor="model">Modell</Label>
-                <Input id="model" {...form.register("model")} />
+                <Input id="model" {...form.register("model")} placeholder="t.ex. XC60" />
               </div>
 
                <div>
