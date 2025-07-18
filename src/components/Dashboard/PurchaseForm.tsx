@@ -431,9 +431,8 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                     <SelectValue placeholder="Välj momstyp" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="VMB">VMB</SelectItem>
-                    <SelectItem value="Moms">Moms</SelectItem>
-                    <SelectItem value="Momsfri">Momsfri</SelectItem>
+                    <SelectItem value="Vinstmarginalbeskattning (VMB)">Vinstmarginalbeskattning (VMB)</SelectItem>
+                    <SelectItem value="Moms (25%)">Moms (25%)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
