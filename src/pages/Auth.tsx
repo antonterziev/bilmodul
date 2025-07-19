@@ -18,6 +18,7 @@ const Auth = () => {
   const [isSignup, setIsSignup] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
+  const [showPasswordStep, setShowPasswordStep] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -143,6 +144,17 @@ const Auth = () => {
     }
   };
 
+  const handleEmailContinue = () => {
+    if (email.trim()) {
+      setShowPasswordStep(true);
+    }
+  };
+
+  const handleBackToEmail = () => {
+    setShowPasswordStep(false);
+    setPassword("");
+  };
+
   if (isSignup) {
     return (
       <div className="min-h-screen flex">
@@ -258,6 +270,69 @@ const Auth = () => {
     );
   }
 
+  // Email entry step
+  if (!showPasswordStep) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="w-full max-w-md">
+          {/* Brand Logo */}
+          <div className="text-center mb-8">
+            <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-16 mx-auto mb-8" />
+          </div>
+          
+          <Card className="shadow-lg border-0">
+            <CardContent className="p-8">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-2">Välkommen!</h2>
+                <p className="text-gray-600">Logga in till Veksla genom att ange din e-postadress</p>
+              </div>
+              
+              <form onSubmit={(e) => { e.preventDefault(); handleEmailContinue(); }} className="space-y-4">
+                <div className="space-y-1">
+                  <Label htmlFor="email" className="text-sm text-gray-700">E-post</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="din.email@example.com"
+                    required
+                  />
+                </div>
+                
+                <Button 
+                  type="submit"
+                  disabled={!email.trim()}
+                  className={`w-full h-12 text-white font-medium transition-colors ${
+                    email.trim() 
+                      ? "bg-blue-600 hover:bg-blue-700" 
+                      : "bg-gray-300 cursor-not-allowed"
+                  }`}
+                >
+                  Fortsätt
+                </Button>
+              </form>
+              
+              {/* Sign up link */}
+              <div className="text-center mt-6">
+                <span className="text-gray-600 text-sm">Har du inget konto? </span>
+                <button
+                  type="button"
+                  onClick={() => setIsSignup(true)}
+                  className="text-blue-600 text-sm hover:underline"
+                >
+                  Skapa konto
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Password entry step
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <div className="w-full max-w-md">
@@ -276,14 +351,12 @@ const Auth = () => {
             <div className="space-y-4">
               {/* Email field with change button */}
               <div className="flex items-center gap-2 p-3 bg-gray-100 rounded border">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1 bg-transparent border-0 outline-none text-gray-900"
-                  placeholder="din.email@example.com"
-                />
-                <Button variant="link" className="text-blue-600 text-sm p-0 h-auto">
+                <span className="flex-1 text-gray-900">{email}</span>
+                <Button 
+                  variant="link" 
+                  className="text-blue-600 text-sm p-0 h-auto"
+                  onClick={handleBackToEmail}
+                >
                   Ändra
                 </Button>
               </div>
