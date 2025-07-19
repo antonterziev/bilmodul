@@ -417,8 +417,10 @@ const Index = () => {
                     setSelectedSaleVehicleId(null);
                   }}
                 >
-                  <Home className="mr-2 h-4 w-4" />
-                  Översikt
+                  <div className="flex items-center">
+                    <Home className="mr-2 h-4 w-4" />
+                    Översikt
+                  </div>
                 </Button>
               </li>
               <li>
@@ -436,8 +438,10 @@ const Index = () => {
                     setSelectedSaleVehicleId(null);
                   }}
                 >
-                  <BarChart3 className="mr-2 h-4 w-4" />
-                  Statistik
+                  <div className="flex items-center">
+                    <BarChart3 className="mr-2 h-4 w-4" />
+                    Statistik
+                  </div>
                 </Button>
               </li>
               <li>
