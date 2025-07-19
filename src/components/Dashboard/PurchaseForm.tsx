@@ -684,7 +684,7 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
             </div>
             
             <div className="max-w-md mx-auto">
-              <Label htmlFor="registration_number">Registreringsnummer*</Label>
+              <Label htmlFor="registration_number"></Label>
               <div className="relative">
                 <Input
                   id="registration_number"
