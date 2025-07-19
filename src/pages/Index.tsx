@@ -380,8 +380,7 @@ const Index = () => {
           <div className="p-4">
             <div className="space-y-2">
               <Button 
-                variant="outline" 
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white border-blue-500"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 font-medium"
                 onClick={() => {
                   setShowPurchaseForm(true);
                   setPurchaseFormKey(prev => prev + 1); // Force reset of form
