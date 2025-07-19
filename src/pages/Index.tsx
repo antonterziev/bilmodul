@@ -386,7 +386,7 @@ const Index = () => {
               <li>
                 <Button 
                   variant={showLager ? "default" : "ghost"} 
-                  className={`w-full justify-between ${showLager ? "bg-primary text-primary-foreground" : "text-black"}`}
+                  className={`w-full justify-between ${showLager ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
                   onClick={() => {
                     setShowLagerExpanded(!showLagerExpanded);
                     if (!showLager) {
@@ -403,7 +403,7 @@ const Index = () => {
                   }}
                 >
                   <div className="flex items-center">
-                    <Package className="mr-2 h-4 w-4" />
+                    <Car className="mr-2 h-4 w-4" />
                     Lagerhantering
                   </div>
                   {showLagerExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -411,11 +411,11 @@ const Index = () => {
                 
                 {/* Subcategories */}
                 {showLagerExpanded && (
-                  <div className="ml-6 mt-2 space-y-1">
+                  <div className="ml-0 mt-2 space-y-1">
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={`w-full justify-start text-sm ${lagerFilter === 'på_lager' ? 'bg-muted' : ''}`}
+                      className={`w-full justify-start text-sm text-muted-foreground pl-8 ${lagerFilter === 'på_lager' ? 'bg-muted' : ''}`}
                       onClick={() => {
                         setShowPurchaseForm(false);
                         setShowLogistics(false);
@@ -433,7 +433,7 @@ const Index = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={`w-full justify-start text-sm ${lagerFilter === 'såld' ? 'bg-muted' : ''}`}
+                      className={`w-full justify-start text-sm text-muted-foreground pl-8 ${lagerFilter === 'såld' ? 'bg-muted' : ''}`}
                       onClick={() => {
                         setShowPurchaseForm(false);
                         setShowLogistics(false);
@@ -451,7 +451,7 @@ const Index = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={`w-full justify-start text-sm ${lagerFilter === 'transport' ? 'bg-muted' : ''}`}
+                      className={`w-full justify-start text-sm text-muted-foreground pl-8 ${lagerFilter === 'transport' ? 'bg-muted' : ''}`}
                       onClick={() => {
                         setShowPurchaseForm(false);
                         setShowLogistics(false);
