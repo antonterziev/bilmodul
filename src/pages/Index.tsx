@@ -39,7 +39,7 @@ const Index = () => {
   const [showKundregister, setShowKundregister] = useState(false);
   const [showBokforingsunderlag, setShowBokforingsunderlag] = useState(false);
   const [showVerifikation, setShowVerifikation] = useState(false);
-  const [showBilagor, setShowBilagor] = useState(false);
+  
   const [showKundtjanst, setShowKundtjanst] = useState(false);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [selectedSaleVehicleId, setSelectedSaleVehicleId] = useState<string | null>(null);
@@ -648,19 +648,6 @@ const Index = () => {
                 <Button 
                   variant="ghost" 
                   className="w-full justify-start text-muted-foreground"
-                  onClick={() => setShowBilagor(true)}
-                >
-                  <Paperclip className="mr-2 h-4 w-4" />
-                  Bilagor
-                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                    PRO
-                  </div>
-                </Button>
-              </li>
-              <li>
-                <Button 
-                  variant="ghost" 
-                  className="w-full justify-start text-muted-foreground"
                   onClick={() => setShowExportDialog(true)}
                 >
                   <Download className="mr-2 h-4 w-4" />
@@ -1005,30 +992,6 @@ const Index = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Bilagor Dialog */}
-      <Dialog open={showBilagor} onOpenChange={setShowBilagor}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center space-y-6 py-4">
-            <div className="flex items-center justify-center w-20 h-20 bg-pink-100 rounded-lg">
-              <Paperclip className="w-12 h-12 text-pink-600" />
-            </div>
-            <div className="text-center space-y-2">
-              <p className="text-muted-foreground">
-                Bilagor är en betalfunktion
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
-              </p>
-            </div>
-            <Button className="w-full" onClick={() => setShowBilagor(false)}>
-              Uppgradera medlemskap
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Kundtjänst Dialog */}
       <Dialog open={showKundtjanst} onOpenChange={setShowKundtjanst}>
