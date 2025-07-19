@@ -21,6 +21,7 @@ const Auth = () => {
   const [showPasswordStep, setShowPasswordStep] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
+  const [showEmailExists, setShowEmailExists] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -59,6 +60,20 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
+      // First check if email already exists
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('email', email)
+        .maybeSingle();
+
+      if (existingProfile) {
+        setShowEmailExists(true);
+        setIsLoading(false);
+        return;
+      }
+
+      // If email doesn't exist, proceed with signup
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -86,6 +101,20 @@ const Auth = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleLoginFromEmailExists = () => {
+    setShowEmailExists(false);
+    setIsSignup(false);
+    setShowPasswordStep(true);
+  };
+
+  const handleCreateNewAccountFromEmailExists = () => {
+    setShowEmailExists(false);
+    // Reset form but keep email
+    setFirstName("");
+    setLastName("");
+    setAcceptedTerms(false);
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -184,6 +213,48 @@ const Auth = () => {
       setResetEmail(email);
     }
   }, [showForgotPassword, email]);
+
+  // Email exists confirmation screen
+  if (showEmailExists) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="w-full max-w-md">
+          {/* Brand Logo */}
+          <div className="text-center mb-8">
+            <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-16 mx-auto mb-8" />
+          </div>
+          
+          <Card className="shadow-lg border-0">
+            <CardContent className="p-8">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">Försökte du logga in?</h2>
+                <p className="text-gray-600 text-sm">
+                  Vi märkte att du redan har ett konto hos Veksla, försökte du att komma till det?
+                </p>
+              </div>
+              
+              <div className="space-y-3">
+                <Button 
+                  onClick={handleLoginFromEmailExists}
+                  className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                >
+                  Ja, jag försökte logga in
+                </Button>
+                
+                <Button 
+                  variant="outline"
+                  onClick={handleCreateNewAccountFromEmailExists}
+                  className="w-full h-12 border-gray-300 text-gray-700 hover:bg-gray-50 font-medium"
+                >
+                  Nej, jag vill skapa ett nytt konto
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   if (isSignup) {
     return (
