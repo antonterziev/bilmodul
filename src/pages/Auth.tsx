@@ -97,7 +97,7 @@ const Auth = () => {
         password: crypto.randomUUID(),
         // Temporary password, will be set later
         options: {
-          emailRedirectTo: `${window.location.origin}/onboarding`,
+          emailRedirectTo: `https://lagermodulen.se/onboarding`,
           data: {
             first_name: firstName,
             last_name: lastName,
@@ -194,7 +194,7 @@ const Auth = () => {
       const {
         error
       } = await supabase.auth.resetPasswordForEmail(emailToUse, {
-        redirectTo: `${window.location.origin}/password-reset`
+        redirectTo: `https://lagermodulen.se/password-reset`
       });
       if (error) throw error;
       toast({
