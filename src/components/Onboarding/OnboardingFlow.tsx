@@ -241,15 +241,12 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
         )}
 
         <div className="text-center mt-4">
-          <button 
-            onClick={() => setCurrentStep(3)}
-            className="text-sm text-gray-500 hover:text-gray-700"
-          >
+          <span className="text-sm text-gray-500">
             Kunde du inte hitta ditt företag? Inga problem, du kan{" "}
-            <span className="text-blue-600 hover:underline">
+            <span className="text-blue-600">
               fortsätta utan att hämta dina uppgifter
             </span>
-          </button>
+          </span>
         </div>
       </div>
     </div>
