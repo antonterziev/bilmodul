@@ -333,7 +333,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b flex">
-        <div className="w-64 p-4 flex items-center justify-center">
+        <div className="w-72 p-4 flex items-center justify-center">
           <h2 className="text-2xl font-bold">Lagermodulen</h2>
         </div>
         <div className="flex-1 px-4 py-4 flex justify-between items-center">
@@ -363,7 +363,7 @@ const Index = () => {
       
       <div className="flex">
         {/* Sidebar */}
-        <aside className="w-64 bg-white border-r border-border flex flex-col">
+        <aside className="w-72 bg-white border-r border-border flex flex-col">
           <div className="p-4">
             <div className="space-y-2">
               <Button 
