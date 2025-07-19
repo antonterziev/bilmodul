@@ -183,9 +183,6 @@ export const VehicleList = () => {
   if (loading) {
     return (
       <Card>
-        <CardHeader>
-          <CardTitle>Fordon</CardTitle>
-        </CardHeader>
         <CardContent>
           <div className="text-center py-8">
             <p className="text-muted-foreground">Laddar fordon...</p>
@@ -197,9 +194,6 @@ export const VehicleList = () => {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Fordon</CardTitle>
-      </CardHeader>
       <CardContent>
         {vehicles.length === 0 ? (
           <div className="text-center py-8">
