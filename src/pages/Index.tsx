@@ -296,9 +296,6 @@ const Index = () => {
                 <Button variant="outline" size="sm" onClick={() => setShowSupportDialog(true)} className="flex items-center gap-2 w-32">
                   <MessageCircle className="h-4 w-4" />
                   Supportchatt
-                  <div className="ml-auto bg-gradient-to-r from-amber-400 to-yellow-500 text-black text-xs px-1 py-0.5 rounded-full font-bold">
-                    PRO
-                  </div>
                 </Button>
                 <Button variant="outline" onClick={handleLogout} size="sm" className="flex items-center gap-2 w-32">
                   <LogOut className="h-4 w-4" />
@@ -387,9 +384,6 @@ const Index = () => {
                 >
                   <BarChart3 className="mr-2 h-4 w-4" />
                   Statistik
-                  <div className="ml-auto bg-gradient-to-r from-amber-400 to-yellow-500 text-black text-xs px-2 py-0.5 rounded-full font-bold">
-                    PRO
-                  </div>
                 </Button>
               </li>
               <li>
@@ -505,7 +499,7 @@ const Index = () => {
                 >
                   <CreditCard className="mr-2 h-4 w-4" />
                   Finansiering
-                  <div className="ml-auto bg-gradient-to-r from-amber-400 to-yellow-500 text-black text-xs px-2 py-0.5 rounded-full font-bold">
+                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
                     PRO
                   </div>
                 </Button>
@@ -518,7 +512,7 @@ const Index = () => {
                 >
                   <Zap className="mr-2 h-4 w-4" />
                   Direktåtkomst
-                  <div className="ml-auto bg-gradient-to-r from-amber-400 to-yellow-500 text-black text-xs px-2 py-0.5 rounded-full font-bold">
+                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
                     PRO
                   </div>
                 </Button>
@@ -531,7 +525,7 @@ const Index = () => {
                 >
                   <FileCheck className="mr-2 h-4 w-4" />
                   Direktanmälan
-                  <div className="ml-auto bg-gradient-to-r from-amber-400 to-yellow-500 text-black text-xs px-2 py-0.5 rounded-full font-bold">
+                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
                     PRO
                   </div>
                 </Button>
@@ -544,7 +538,7 @@ const Index = () => {
                 >
                   <FileText className="mr-2 h-4 w-4" />
                   Avtal
-                  <div className="ml-auto bg-gradient-to-r from-amber-400 to-yellow-500 text-black text-xs px-2 py-0.5 rounded-full font-bold">
+                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
                     PRO
                   </div>
                 </Button>
@@ -557,7 +551,7 @@ const Index = () => {
                 >
                   <File className="mr-2 h-4 w-4" />
                   Dokument
-                  <div className="ml-auto bg-gradient-to-r from-amber-400 to-yellow-500 text-black text-xs px-2 py-0.5 rounded-full font-bold">
+                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
                     PRO
                   </div>
                 </Button>
@@ -570,7 +564,7 @@ const Index = () => {
                 >
                   <Receipt className="mr-2 h-4 w-4" />
                   Fakturor
-                  <div className="ml-auto bg-gradient-to-r from-amber-400 to-yellow-500 text-black text-xs px-2 py-0.5 rounded-full font-bold">
+                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
                     PRO
                   </div>
                 </Button>
@@ -583,7 +577,7 @@ const Index = () => {
                 >
                   <DirectPayments className="mr-2 h-4 w-4" />
                   Direktbetalningar
-                  <div className="ml-auto bg-gradient-to-r from-amber-400 to-yellow-500 text-black text-xs px-2 py-0.5 rounded-full font-bold">
+                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
                     PRO
                   </div>
                 </Button>
@@ -596,7 +590,7 @@ const Index = () => {
                 >
                   <Users className="mr-2 h-4 w-4" />
                   Kundregister
-                  <div className="ml-auto bg-gradient-to-r from-amber-400 to-yellow-500 text-black text-xs px-2 py-0.5 rounded-full font-bold">
+                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
                     PRO
                   </div>
                 </Button>
@@ -609,7 +603,7 @@ const Index = () => {
                 >
                   <BookOpen className="mr-2 h-4 w-4" />
                   Bokföringsunderlag
-                  <div className="ml-auto bg-gradient-to-r from-amber-400 to-yellow-500 text-black text-xs px-2 py-0.5 rounded-full font-bold">
+                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
                     PRO
                   </div>
                 </Button>
@@ -622,7 +616,7 @@ const Index = () => {
                 >
                   <CheckSquare className="mr-2 h-4 w-4" />
                   Verifikation
-                  <div className="ml-auto bg-gradient-to-r from-amber-400 to-yellow-500 text-black text-xs px-2 py-0.5 rounded-full font-bold">
+                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
                     PRO
                   </div>
                 </Button>
@@ -635,7 +629,7 @@ const Index = () => {
                 >
                   <Paperclip className="mr-2 h-4 w-4" />
                   Bilagor
-                  <div className="ml-auto bg-gradient-to-r from-amber-400 to-yellow-500 text-black text-xs px-2 py-0.5 rounded-full font-bold">
+                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
                     PRO
                   </div>
                 </Button>
@@ -648,7 +642,7 @@ const Index = () => {
                 >
                   <Download className="mr-2 h-4 w-4" />
                   Exportera
-                  <div className="ml-auto bg-gradient-to-r from-amber-400 to-yellow-500 text-black text-xs px-2 py-0.5 rounded-full font-bold">
+                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
                     PRO
                   </div>
                 </Button>
