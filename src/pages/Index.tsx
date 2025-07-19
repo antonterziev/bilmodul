@@ -77,7 +77,12 @@ const Index = () => {
         navigate("/onboarding");
       }
     }
-  }, [user, isLoading, navigate]);
+    
+    // Force logout since user was deleted from Supabase
+    if (!isLoading && user) {
+      signOut();
+    }
+  }, [user, isLoading, navigate, signOut]);
 
   useEffect(() => {
     if (user) {
