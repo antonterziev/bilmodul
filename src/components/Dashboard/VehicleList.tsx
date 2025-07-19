@@ -142,7 +142,7 @@ export const VehicleList = ({ filter = 'all', onSellVehicle, onStatsUpdate }: Ve
     
     const diffTime = today.getTime() - purchase.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    return Math.max(0, diffDays); // Ensure non-negative
+    return Math.max(1, diffDays + 1); // Ensure minimum 1 day, add 1 to show day 1 when purchased today
   };
 
   const formatPurchaserName = (fullName: string) => {
