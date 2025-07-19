@@ -173,6 +173,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
   const [activeTab, setActiveTab] = useState("fordonsdata");
   const [isDuplicateRegNumber, setIsDuplicateRegNumber] = useState(false);
   const [isCheckingRegNumber, setIsCheckingRegNumber] = useState(false);
+  const [isLoadingCarInfo, setIsLoadingCarInfo] = useState(false);
   
   // Generate year options (last 50 years)
   const currentYear = new Date().getFullYear();
@@ -218,6 +219,67 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
     fetchUserProfile();
   }, [user, form]);
 
+  // Fetch vehicle data from car.info API
+  const fetchCarInfo = async (regNumber: string) => {
+    if (!regNumber.trim()) return;
+    
+    setIsLoadingCarInfo(true);
+    try {
+      const response = await fetch(`https://api.car.info/api/v1/vehicles/${regNumber}`, {
+        headers: {
+          'Accept': 'application/json',
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Auto-populate form fields with data from car.info
+        if (data.brand) {
+          const brandMatch = carBrands.find(brand => 
+            brand.toLowerCase() === data.brand.toLowerCase()
+          );
+          form.setValue('brand', brandMatch || 'Annat');
+          if (!brandMatch && data.brand) {
+            form.setValue('brand_other', data.brand);
+          }
+        }
+        
+        if (data.model) {
+          form.setValue('model', data.model);
+        }
+        
+        if (data.modelYear) {
+          form.setValue('year_model', parseInt(data.modelYear));
+        }
+        
+        if (data.mileage) {
+          form.setValue('mileage', parseInt(data.mileage));
+          setMileageDisplay(formatWithThousands(data.mileage.toString()));
+        }
+        
+        if (data.firstRegistrationDate) {
+          const firstRegDate = new Date(data.firstRegistrationDate);
+          form.setValue('first_registration_date', firstRegDate);
+        }
+        
+        if (data.vin) {
+          form.setValue('chassis_number', data.vin);
+        }
+        
+        toast({
+          title: "Fordonsdata hämtad",
+          description: "Fordonsinformation har hämtats från car.info",
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching car info:', error);
+      // Don't show error toast as car.info might not have data for all vehicles
+    } finally {
+      setIsLoadingCarInfo(false);
+    }
+  };
+
   // Check for duplicate registration numbers
   const checkForDuplicateRegNumber = async (regNumber: string) => {
     if (!user || !regNumber.trim()) {
@@ -253,14 +315,15 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
     }
   };
 
-  // Watch for changes in registration number and check for duplicates
+  // Watch for changes in registration number and check for duplicates + fetch car.info
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
-      // Only check for duplicates when registration_number field changes
+      // Only check for duplicates and fetch car info when registration_number field changes
       if (name === 'registration_number' && value.registration_number) {
         const timeoutId = setTimeout(() => {
           checkForDuplicateRegNumber(value.registration_number as string);
-        }, 500); // Debounce for 500ms
+          fetchCarInfo(value.registration_number as string);
+        }, 1000); // Debounce for 1 second to allow user to finish typing
 
         return () => clearTimeout(timeoutId);
       } else if (name === 'registration_number' && !value.registration_number) {
@@ -562,6 +625,11 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                   {isCheckingRegNumber && (
                     <p className="text-sm text-muted-foreground mt-1">
                       Kontrollerar registreringsnummer...
+                    </p>
+                  )}
+                  {isLoadingCarInfo && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Hämtar fordonsdata från car.info...
                     </p>
                   )}
                   {isDuplicateRegNumber && (
