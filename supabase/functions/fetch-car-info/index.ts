@@ -115,11 +115,41 @@ function extractVehicleData(content: string, regNumber: string) {
       data.equipmentLevel = equipmentMatch[1].trim();
     }
     
-    // Extract registration date (första datum i trafik) from Registrerad box
-    const registrationDateMatch = content.match(/(\d{4}-\d{2}-\d{2})/);
-    if (registrationDateMatch) {
-      data.registrationDate = registrationDateMatch[1].trim();
-      console.log('Extracted registration date:', data.registrationDate);
+    // Extract registration date - prioritize "förregistrerad" date, then "första datum i trafik"
+    // Look for förregistrerad date first
+    const forregistreradMatch = content.match(/Förregistrerad[:\s]*(\d{4}-\d{2}-\d{2})/i);
+    if (forregistreradMatch) {
+      data.registrationDate = forregistreradMatch[1].trim();
+      console.log('Extracted förregistrerad date:', data.registrationDate);
+    } else {
+      // Fallback to första datum i trafik
+      const forstaDateMatch = content.match(/Första datum i trafik[:\s]*(\d{4}-\d{2}-\d{2})/i);
+      if (forstaDateMatch) {
+        data.registrationDate = forstaDateMatch[1].trim();
+        console.log('Extracted första datum i trafik:', data.registrationDate);
+      } else {
+        // Last fallback - any date pattern, but validate against model year
+        const anyDateMatch = content.match(/(\d{4}-\d{2}-\d{2})/);
+        if (anyDateMatch) {
+          const foundDate = anyDateMatch[1].trim();
+          const foundYear = parseInt(foundDate.substring(0, 4));
+          
+          // Validate against model year if available
+          if (data.modelYear) {
+            const modelYear = parseInt(data.modelYear);
+            // Date should typically be same year as model year or within 2 years
+            if (Math.abs(foundYear - modelYear) <= 2) {
+              data.registrationDate = foundDate;
+              console.log('Extracted and validated registration date:', data.registrationDate);
+            } else {
+              console.log(`Date ${foundDate} rejected - too far from model year ${data.modelYear}`);
+            }
+          } else {
+            data.registrationDate = foundDate;
+            console.log('Extracted registration date (no model year validation):', data.registrationDate);
+          }
+        }
+      }
     }
     
     // Extract indicative valuation (Indikativ värdering) for expected selling price
