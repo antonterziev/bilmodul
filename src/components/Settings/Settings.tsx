@@ -17,6 +17,8 @@ interface UserProfile {
   user_id: string;
   email: string;
   full_name: string;
+  first_name: string;
+  last_name: string;
   company_name: string;
 }
 
@@ -31,7 +33,8 @@ export const Settings = () => {
   const { toast } = useToast();
 
   // Profile form state
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [companyName, setCompanyName] = useState("");
 
   // Password form state
@@ -61,7 +64,8 @@ export const Settings = () => {
             .insert({
               user_id: user?.id,
               email: user?.email || '',
-              full_name: '',
+              first_name: '',
+              last_name: '',
               company_name: ''
             })
             .select()
@@ -69,14 +73,16 @@ export const Settings = () => {
 
           if (createError) throw createError;
           setProfile(newProfile);
-          setFullName(newProfile.full_name || '');
+          setFirstName(newProfile.first_name || '');
+          setLastName(newProfile.last_name || '');
           setCompanyName(newProfile.company_name || '');
         } else {
           throw error;
         }
       } else {
         setProfile(data);
-        setFullName(data.full_name || '');
+        setFirstName(data.first_name || '');
+        setLastName(data.last_name || '');
         setCompanyName(data.company_name || '');
       }
     } catch (error) {
@@ -97,7 +103,8 @@ export const Settings = () => {
       const { error } = await supabase
         .from('profiles')
         .update({
-          full_name: fullName,
+          first_name: firstName,
+          last_name: lastName,
           company_name: companyName,
         })
         .eq('user_id', user?.id);
@@ -214,14 +221,25 @@ export const Settings = () => {
                 </p>
               </div>
 
-              <div>
-                <Label htmlFor="fullName">Fullständigt namn</Label>
-                <Input
-                  id="fullName"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Ange ditt fullständiga namn"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="firstName">Förnamn</Label>
+                  <Input
+                    id="firstName"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="Ange förnamn"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="lastName">Efternamn</Label>
+                  <Input
+                    id="lastName"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Ange efternamn"
+                  />
+                </div>
               </div>
 
               <div>
