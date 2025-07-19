@@ -246,13 +246,20 @@ const Index = () => {
 
   const renderMainContent = () => {
     if (showPurchaseForm) {
-      return <PurchaseForm onSuccess={() => {
-        loadStats();
-        setShowPurchaseForm(false);
-        setShowLager(true);
-        setShowLagerExpanded(true);
-        setLagerFilter('på_lager');
-      }} />;
+      return <PurchaseForm 
+        onSuccess={() => {
+          loadStats();
+          setShowPurchaseForm(false);
+          setShowLager(true);
+          setShowLagerExpanded(true);
+          setLagerFilter('på_lager');
+        }}
+        onNavigateToVehicle={(vehicleId) => {
+          setShowPurchaseForm(false);
+          setShowLogistics(true);
+          setSelectedVehicleId(vehicleId);
+        }}
+      />;
     }
 
     if (showLogistics) {

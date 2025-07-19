@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress";
 import { Calendar } from "@/components/ui/calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarIcon, Check, ChevronsUpDown, Upload, X } from "lucide-react";
+import { CalendarIcon, Check, ChevronsUpDown, Upload, X, Truck } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -150,9 +150,10 @@ type PurchaseFormData = z.infer<typeof purchaseSchema>;
 
 interface PurchaseFormProps {
   onSuccess: () => void;
+  onNavigateToVehicle?: (vehicleId: string) => void;
 }
 
-export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
+export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -172,6 +173,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [activeTab, setActiveTab] = useState("fordonsdata");
   const [isDuplicateRegNumber, setIsDuplicateRegNumber] = useState(false);
+  const [duplicateVehicleId, setDuplicateVehicleId] = useState<string | null>(null);
   const [isCheckingRegNumber, setIsCheckingRegNumber] = useState(false);
   const [isLoadingCarInfo, setIsLoadingCarInfo] = useState(false);
   const [showFullForm, setShowFullForm] = useState(false);
@@ -337,6 +339,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
   const checkForDuplicateRegNumber = async (regNumber: string) => {
     if (!user || !regNumber.trim()) {
       setIsDuplicateRegNumber(false);
+      setDuplicateVehicleId(null);
       return;
     }
 
@@ -353,11 +356,12 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
 
       const isDuplicate = data && data.length > 0;
       setIsDuplicateRegNumber(isDuplicate);
+      setDuplicateVehicleId(isDuplicate && data.length > 0 ? data[0].id : null);
       
       if (isDuplicate) {
         toast({
           title: "Registreringsnummer finns redan",
-          description: "Detta registreringsnummer finns redan i systemet. Du kan inte ha fler än ett fordon med samma registreringsnummer.",
+          description: "Detta registreringsnummer finns redan i systemet.",
           variant: "destructive",
         });
       }
@@ -382,6 +386,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
       } else if (name === 'registration_number' && (!value.registration_number || value.registration_number.length < 4)) {
         // Clear states when input is cleared or less than 4 characters
         setIsDuplicateRegNumber(false);
+        setDuplicateVehicleId(null);
         setIsCheckingRegNumber(false);
         setIsLoadingCarInfo(false);
       }
@@ -681,9 +686,23 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                 )}
               </div>
               {isDuplicateRegNumber && (
-                <p className="text-sm text-destructive mt-1">
-                  Detta registreringsnummer finns redan registrerat
-                </p>
+                <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-md">
+                  <p className="text-sm text-orange-800 mb-2">
+                    Detta registreringsnummer finns redan registrerat i systemet.
+                  </p>
+                  {duplicateVehicleId && onNavigateToVehicle && (
+                    <Button 
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onNavigateToVehicle(duplicateVehicleId)}
+                      className="flex items-center gap-2"
+                    >
+                      <Truck className="h-4 w-4" />
+                      Gå till fordonets transport
+                    </Button>
+                  )}
+                </div>
               )}
               {form.formState.errors.registration_number && (
                 <p className="text-sm text-destructive mt-1">
@@ -691,16 +710,18 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                 </p>
               )}
               
-              <div className="mt-4 text-center">
-                <Button 
-                  type="button" 
-                  variant="outline"
-                  onClick={() => setShowFullForm(true)}
-                  disabled={!form.watch("registration_number")?.trim()}
-                >
-                  Fortsätt utan automatisk data
-                </Button>
-              </div>
+              {!isDuplicateRegNumber && (
+                <div className="mt-4 text-center">
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    onClick={() => setShowFullForm(true)}
+                    disabled={!form.watch("registration_number")?.trim()}
+                  >
+                    Fortsätt utan automatisk data
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         ) : (
