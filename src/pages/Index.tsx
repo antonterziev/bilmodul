@@ -472,7 +472,7 @@ const Index = () => {
               <li>
                 <Button 
                   variant={showLogistics ? "default" : "ghost"} 
-                  className={`w-full justify-start ${showLogistics ? "bg-primary text-primary-foreground" : "text-black"}`}
+                  className={`w-full justify-start ${showLogistics ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
                   onClick={() => {
                     setShowPurchaseForm(false);
                     setShowLogistics(true);
