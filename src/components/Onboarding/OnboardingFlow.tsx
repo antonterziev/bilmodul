@@ -17,6 +17,9 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [companySearch, setCompanySearch] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [selectedCompany, setSelectedCompany] = useState<any>(null);
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,13 +58,47 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
     }
   };
 
+  const handleCompanySearch = async () => {
+    if (!companySearch.trim()) return;
+    
+    setIsLoading(true);
+    try {
+      const response = await fetch(`https://foretagsinfo.bolagsverket.se/sok-foretagsinformation-web/foretag?sokord=${encodeURIComponent(companySearch)}`);
+      const html = await response.text();
+      
+      // Simple parsing - in a real app you'd want more robust parsing
+      const companies: any[] = [];
+      const regex = /<div class="hit-item[^"]*"[^>]*>[\s\S]*?<h3[^>]*>(.*?)<\/h3>[\s\S]*?<span[^>]*>(\d{6}-\d{4})<\/span>/g;
+      let match;
+      
+      while ((match = regex.exec(html)) !== null && companies.length < 6) {
+        companies.push({
+          name: match[1].replace(/<[^>]*>/g, '').trim(),
+          orgNumber: match[2]
+        });
+      }
+      
+      setSearchResults(companies);
+    } catch (error) {
+      toast.error("Kunde inte söka företag");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleCompleteOnboarding = async () => {
     setIsLoading(true);
     
     try {
-      // Mark onboarding as completed
+      // Mark onboarding as completed and save company info
+      const userData: any = { onboarding_completed: true };
+      if (selectedCompany) {
+        userData.company_name = selectedCompany.name;
+        userData.org_number = selectedCompany.orgNumber;
+      }
+
       const { error } = await supabase.auth.updateUser({
-        data: { onboarding_completed: true }
+        data: userData
       });
       
       if (error) {
@@ -119,20 +156,74 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
   );
 
   const renderStep2 = () => (
-    <div className="text-center">
-      <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-        Välkommen till Veksla!
+    <div>
+      <h2 className="text-2xl font-semibold text-gray-900 mb-4 text-center">
+        Lägg till ditt företag
       </h2>
-      <p className="text-gray-600 text-sm mb-8">
-        Låt oss komma igång med att konfigurera ditt konto.
+      <p className="text-gray-600 text-sm mb-6 text-center">
+        Vi hämtar dina företagsuppgifter från Bolagsverket.
       </p>
       
-      <Button 
-        onClick={() => setCurrentStep(3)}
-        className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white"
-      >
-        Fortsätt
-      </Button>
+      <div className="space-y-4">
+        <div className="flex gap-2">
+          <Input
+            type="text"
+            placeholder="Organisationsnummer eller företagsnamn"
+            value={companySearch}
+            onChange={(e) => setCompanySearch(e.target.value)}
+            className="flex-1"
+            onKeyPress={(e) => e.key === 'Enter' && handleCompanySearch()}
+          />
+          <Button 
+            onClick={handleCompanySearch}
+            disabled={isLoading || !companySearch.trim()}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+          >
+            {isLoading ? "Söker..." : "Hitta företag"}
+          </Button>
+        </div>
+
+        {searchResults.length > 0 && (
+          <div className="space-y-2 max-h-80 overflow-y-auto">
+            <p className="text-sm text-gray-600">{searchResults.length} hittade</p>
+            {searchResults.map((company, index) => (
+              <div 
+                key={index}
+                onClick={() => setSelectedCompany(company)}
+                className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                  selectedCompany?.orgNumber === company.orgNumber 
+                    ? 'border-blue-500 bg-blue-50' 
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <h3 className="font-medium text-gray-900">{company.name}</h3>
+                <p className="text-sm text-gray-600">{company.orgNumber}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {selectedCompany && (
+          <Button 
+            onClick={() => setCurrentStep(3)}
+            className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white mt-6"
+          >
+            Fortsätt med {selectedCompany.name}
+          </Button>
+        )}
+
+        <div className="text-center mt-4">
+          <button 
+            onClick={() => setCurrentStep(3)}
+            className="text-sm text-gray-500 hover:text-gray-700"
+          >
+            Kunde du inte hitta ditt företag? Inga problem, du kan{" "}
+            <span className="text-blue-600 hover:underline">
+              fortsätta utan att hämta dina uppgifter
+            </span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 
