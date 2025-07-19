@@ -678,11 +678,8 @@ const Index = () => {
             <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col items-center space-y-6 py-4">
-            <div className="flex items-center justify-center w-20 h-20 bg-green-100 rounded-lg">
-              <svg viewBox="0 0 100 100" className="w-12 h-12">
-                <text x="50" y="35" textAnchor="middle" className="text-lg font-bold fill-green-600">💬</text>
-                <text x="50" y="70" textAnchor="middle" className="text-xs fill-green-600">SUPPORT</text>
-              </svg>
+            <div className="flex items-center justify-center w-20 h-20 bg-primary/10 rounded-lg">
+              <MessageCircle className="w-12 h-12 text-primary" />
             </div>
             <div className="text-center space-y-2">
               <p className="text-muted-foreground">
