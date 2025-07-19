@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,16 +14,18 @@ interface EmailVerificationProps {
 }
 
 const EmailVerification = ({ email, firstName, lastName, onBack }: EmailVerificationProps) => {
-  const [verificationCode, setVerificationCode] = useState("");
+  const [verificationCode, setVerificationCode] = useState(["", "", "", "", "", ""]);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [showSetPassword, setShowSetPassword] = useState(false);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!verificationCode.trim()) {
-      toast.error("Ange verifieringskoden");
+    const code = verificationCode.join("");
+    if (code.length !== 6) {
+      toast.error("Ange hela verifieringskoden");
       return;
     }
 
@@ -32,7 +34,7 @@ const EmailVerification = ({ email, firstName, lastName, onBack }: EmailVerifica
     try {
       const { error } = await supabase.auth.verifyOtp({
         email,
-        token: verificationCode,
+        token: code,
         type: 'signup'
       });
 
@@ -69,6 +71,25 @@ const EmailVerification = ({ email, firstName, lastName, onBack }: EmailVerifica
       toast.error("Ett fel uppstod");
     } finally {
       setIsResending(false);
+    }
+  };
+
+  const handleCodeChange = (index: number, value: string) => {
+    if (value.length > 1) return; // Only allow single characters
+    
+    const newCode = [...verificationCode];
+    newCode[index] = value;
+    setVerificationCode(newCode);
+    
+    // Auto-focus next input
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !verificationCode[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
     }
   };
 
@@ -112,26 +133,31 @@ const EmailVerification = ({ email, firstName, lastName, onBack }: EmailVerifica
               </p>
               
               <form onSubmit={handleVerifyCode} className="space-y-4">
-                <div className="flex space-x-2">
-                  <Input
-                    type="text"
-                    placeholder="Kod"
-                    value={verificationCode}
-                    onChange={(e) => setVerificationCode(e.target.value)}
-                    className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-center"
-                    maxLength={6}
-                    autoComplete="one-time-code"
-                    data-1p-ignore="true"
-                    data-dashlane-rid=""
-                  />
-                  <Button 
-                    type="submit" 
-                    disabled={isVerifying}
-                    className="h-12 bg-blue-600 hover:bg-blue-700 text-white px-6"
-                  >
-                    {isVerifying ? "Verifierar..." : "Fortsätt"}
-                  </Button>
+                <div className="flex justify-center space-x-2 mb-4">
+                  {verificationCode.map((digit, index) => (
+                    <Input
+                      key={index}
+                      ref={(el) => inputRefs.current[index] = el}
+                      type="text"
+                      value={digit}
+                      onChange={(e) => handleCodeChange(index, e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(index, e)}
+                      className="w-12 h-12 text-center border-gray-300 focus:border-blue-500 focus:ring-blue-500 font-mono text-lg"
+                      maxLength={1}
+                      autoComplete="one-time-code"
+                      data-1p-ignore="true"
+                      data-dashlane-rid=""
+                    />
+                  ))}
                 </div>
+                
+                <Button 
+                  type="submit" 
+                  disabled={isVerifying || verificationCode.join("").length !== 6}
+                  className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                >
+                  {isVerifying ? "Verifierar..." : "Fortsätt"}
+                </Button>
               </form>
             </div>
             
