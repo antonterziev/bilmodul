@@ -70,6 +70,12 @@ const Index = () => {
   useEffect(() => {
     if (!isLoading && !user) {
       navigate("/auth");
+    } else if (!isLoading && user) {
+      // Check if user has completed onboarding
+      const hasCompletedOnboarding = user.user_metadata?.onboarding_completed;
+      if (!hasCompletedOnboarding) {
+        navigate("/onboarding");
+      }
     }
   }, [user, isLoading, navigate]);
 
