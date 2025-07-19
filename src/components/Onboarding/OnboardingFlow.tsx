@@ -63,24 +63,64 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
     
     setIsLoading(true);
     try {
-      const response = await fetch(`https://foretagsinfo.bolagsverket.se/sok-foretagsinformation-web/foretag?sokord=${encodeURIComponent(companySearch)}`);
+      // Check if input is an organization number (format: XXXXXX-XXXX)
+      const orgNumberRegex = /^\d{6}-?\d{4}$/;
+      const isOrgNumber = orgNumberRegex.test(companySearch.replace('-', ''));
+      
+      const searchTerm = encodeURIComponent(companySearch);
+      const response = await fetch(`https://foretagsinfo.bolagsverket.se/sok-foretagsinformation-web/foretag?sokord=${searchTerm}`, {
+        mode: 'cors',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Search failed');
+      }
+      
       const html = await response.text();
       
-      // Simple parsing - in a real app you'd want more robust parsing
+      // Enhanced parsing for better results
       const companies: any[] = [];
-      const regex = /<div class="hit-item[^"]*"[^>]*>[\s\S]*?<h3[^>]*>(.*?)<\/h3>[\s\S]*?<span[^>]*>(\d{6}-\d{4})<\/span>/g;
-      let match;
       
-      while ((match = regex.exec(html)) !== null && companies.length < 6) {
-        companies.push({
-          name: match[1].replace(/<[^>]*>/g, '').trim(),
-          orgNumber: match[2]
-        });
+      // Try multiple regex patterns to catch different HTML structures
+      const patterns = [
+        /<div[^>]*class="[^"]*hit-item[^"]*"[^>]*>[\s\S]*?<h3[^>]*>(.*?)<\/h3>[\s\S]*?<span[^>]*>(\d{6}-\d{4})<\/span>/g,
+        /<div[^>]*hit[^>]*>[\s\S]*?<.*?>(.*?)<\/.*?>[\s\S]*?(\d{6}-\d{4})/g,
+        /<tr[^>]*>[\s\S]*?<td[^>]*>(.*?)<\/td>[\s\S]*?<td[^>]*>(\d{6}-\d{4})<\/td>/g
+      ];
+      
+      for (const pattern of patterns) {
+        let match;
+        while ((match = pattern.exec(html)) !== null && companies.length < 5) {
+          const name = match[1].replace(/<[^>]*>/g, '').trim();
+          const orgNumber = match[2];
+          
+          if (name && orgNumber && !companies.find(c => c.orgNumber === orgNumber)) {
+            companies.push({ name, orgNumber });
+          }
+        }
+        if (companies.length >= 5) break;
       }
       
       setSearchResults(companies);
+      
+      // If exact organization number is found and there's only one result, auto-select and proceed
+      if (isOrgNumber && companies.length === 1) {
+        setSelectedCompany(companies[0]);
+        toast.success(`Företag hittades: ${companies[0].name}`);
+        setTimeout(() => setCurrentStep(3), 1000);
+        return;
+      }
+      
+      if (companies.length === 0) {
+        toast.error("Inga företag hittades. Försök med ett annat sökord.");
+      }
+      
     } catch (error) {
-      toast.error("Kunde inte söka företag");
+      console.error('Search error:', error);
+      toast.error("Kunde inte söka företag. Försök igen eller kontakta support.");
     } finally {
       setIsLoading(false);
     }
