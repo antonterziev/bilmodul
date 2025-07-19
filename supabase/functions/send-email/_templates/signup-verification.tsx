@@ -65,7 +65,7 @@ export const SignupVerificationEmail = ({
         </div>
 
         <Text style={footerText}>
-          Om du inte försökte registrera dig för Veksla kan du ignorera detta meddelande.
+          Om du inte försökte registrera dig för <Link href="https://lagermodulen.se" style={link}>Veksla</Link> kan du ignorera detta meddelande.
         </Text>
 
         <Text style={footer}>
@@ -183,4 +183,9 @@ const footer = {
   lineHeight: '20px',
   textAlign: 'center' as const,
   margin: '24px 0 0 0',
+}
+
+const link = {
+  color: '#2563eb',
+  textDecoration: 'underline',
 }
