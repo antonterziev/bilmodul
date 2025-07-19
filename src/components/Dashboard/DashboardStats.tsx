@@ -22,11 +22,11 @@ export const DashboardStats = ({ totalStock, averageStorageDays, inventoryValue,
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">
-            Bilar i lager
+            Fordon i lager
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{totalStock}</div>
+          <div className="text-2xl font-bold">{totalStock} st</div>
         </CardContent>
       </Card>
 
