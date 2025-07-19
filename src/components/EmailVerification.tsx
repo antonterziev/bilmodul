@@ -102,7 +102,7 @@ const EmailVerification = ({ email, firstName, lastName, onBack }: EmailVerifica
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">Kolla din mejl!</h2>
               <p className="text-gray-600 text-sm mb-6">
                 Vi har skickat ett mail till <strong>{email}</strong>. Öppna det och 
-                klicka på länken Aktivera konto för att bekräfta din e-post och gå vidare.
+                klicka på länken för att bekräfta din e-post och gå vidare.
               </p>
             </div>
             
