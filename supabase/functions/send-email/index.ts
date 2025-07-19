@@ -89,11 +89,15 @@ Deno.serve(async (req) => {
     })
 
   } catch (error) {
-    console.error('Email sending error:', error)
+    console.error('Error in send-email function:', error)
+    console.error('Error message:', error.message)
+    console.error('Error stack:', error.stack)
+    
     return new Response(
       JSON.stringify({
         error: {
           message: error.message,
+          details: error.toString(),
         },
       }),
       {
