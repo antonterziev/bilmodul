@@ -75,22 +75,8 @@ const Auth = () => {
         return;
       }
 
-      // If email doesn't exist, proceed with signup
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
-          data: {
-            first_name: firstName,
-            last_name: lastName,
-          },
-        },
-      });
-
-      if (error) throw error;
-
-      // Show email verification screen
+      // For now, just show email verification screen without creating the account
+      // The actual signup will happen after email verification with password
       setShowEmailVerification(true);
     } catch (error: any) {
       toast({
@@ -320,18 +306,6 @@ const Auth = () => {
                 </div>
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="signup-password" className="text-sm font-medium">Lösenord</Label>
-                <Input
-                  id="signup-password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                  required
-                  minLength={6}
-                />
-              </div>
               
               <div className="flex items-center space-x-2">
                 <Checkbox
