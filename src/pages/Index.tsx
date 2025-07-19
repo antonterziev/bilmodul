@@ -586,19 +586,6 @@ const Index = () => {
                 <Button 
                   variant="ghost" 
                   className="w-full justify-start text-muted-foreground"
-                  onClick={() => setShowDirektanmalan(true)}
-                >
-                  <FileCheck className="mr-2 h-4 w-4" />
-                  Direktanmälan
-                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                    PRO
-                  </div>
-                </Button>
-              </li>
-              <li>
-                <Button 
-                  variant="ghost" 
-                  className="w-full justify-start text-muted-foreground"
                   onClick={() => setShowAvtal(true)}
                 >
                   <FileText className="mr-2 h-4 w-4" />
