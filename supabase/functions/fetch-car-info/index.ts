@@ -12,26 +12,27 @@ function extractVehicleData(content: string, regNumber: string) {
     
     const data: any = {};
     
-    // First, try to extract from the page title/header which has format:
-    // "KFN193 Mercedes-Benz G 400 d 9G-Tronic, 330hk, 2022"
-    const titlePattern = new RegExp(`${regNumber}\\s+([A-Za-z-]+)\\s+([^,]+),\\s*\\d+hk,\\s*(\\d{4})`, 'i');
-    const titleMatch = content.match(titlePattern);
+    // First, try to extract from breadcrumb navigation: "Hem / Nissan / Qashqai / Qashqai / 2016"
+    const breadcrumbPattern = /Hem\s*\/\s*([A-Za-z-]+)\s*\/\s*([A-Za-z0-9\s]+)\s*\/\s*[^\/]*\/\s*(\d{4})/i;
+    const breadcrumbMatch = content.match(breadcrumbPattern);
     
-    if (titleMatch) {
-      data.brand = titleMatch[1].trim(); // Mercedes-Benz
-      data.model = titleMatch[2].trim(); // G 400 d 9G-Tronic
-      data.modelYear = titleMatch[3].trim(); // 2022
-      console.log('Extracted from title:', { brand: data.brand, model: data.model, year: data.modelYear });
+    if (breadcrumbMatch) {
+      data.brand = breadcrumbMatch[1].trim(); // Nissan
+      data.model = breadcrumbMatch[2].trim(); // Qashqai
+      data.modelYear = breadcrumbMatch[3].trim(); // 2016
+      console.log('Extracted from breadcrumb:', { brand: data.brand, model: data.model, year: data.modelYear });
     }
     
-    // Alternative: Look for the pattern without registration number
+    // Fallback: try to extract from the title/header format
     if (!data.brand) {
-      const altTitleMatch = content.match(/([A-Za-z-]+)\s+([^,]+),\s*\d+hk,\s*(\d{4})/i);
-      if (altTitleMatch) {
-        data.brand = altTitleMatch[1].trim();
-        data.model = altTitleMatch[2].trim();
-        data.modelYear = altTitleMatch[3].trim();
-        console.log('Extracted from alt title:', { brand: data.brand, model: data.model, year: data.modelYear });
+      const titlePattern = new RegExp(`${regNumber}\\s+([A-Za-z-]+)\\s+([^,]+),\\s*\\d+hk,\\s*(\\d{4})`, 'i');
+      const titleMatch = content.match(titlePattern);
+      
+      if (titleMatch) {
+        data.brand = titleMatch[1].trim();
+        data.model = titleMatch[2].trim();
+        data.modelYear = titleMatch[3].trim();
+        console.log('Extracted from title:', { brand: data.brand, model: data.model, year: data.modelYear });
       }
     }
     
