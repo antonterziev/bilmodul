@@ -203,6 +203,7 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
     setCarDataFetched(false);
     setActiveTab("fordonsdata");
     setIsDuplicateRegNumber(false);
+    setDuplicateVehicleId(null);
     setIsCheckingRegNumber(false);
     setIsLoadingCarInfo(false);
     setMileageDisplay("");
@@ -312,7 +313,10 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
         }
         
         setCarDataFetched(true);
-        setShowFullForm(true);
+        // Only show full form if there's no duplicate
+        if (!isDuplicateRegNumber) {
+          setShowFullForm(true);
+        }
         
         toast({
           title: "Fordonsdata hämtad",
@@ -377,9 +381,14 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
     const subscription = form.watch((value, { name }) => {
       // Only check for duplicates and fetch car info when registration_number field changes and has at least 4 characters
       if (name === 'registration_number' && value.registration_number && value.registration_number.length >= 4) {
-        const timeoutId = setTimeout(() => {
-          checkForDuplicateRegNumber(value.registration_number as string);
-          fetchCarInfo(value.registration_number as string);
+        const timeoutId = setTimeout(async () => {
+          // Check for duplicates FIRST
+          await checkForDuplicateRegNumber(value.registration_number as string);
+          
+          // Only fetch car info if no duplicate was found
+          if (!isDuplicateRegNumber) {
+            fetchCarInfo(value.registration_number as string);
+          }
         }, 1000); // Debounce for 1 second to allow user to finish typing
 
         return () => clearTimeout(timeoutId);
@@ -393,7 +402,7 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
     });
 
     return () => subscription.unsubscribe();
-  }, [form, user]);
+  }, [form, user, isDuplicateRegNumber]);
 
   // Format number with thousands separator
   const formatWithThousands = (value: string) => {
@@ -716,7 +725,7 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
                     type="button" 
                     variant="outline"
                     onClick={() => setShowFullForm(true)}
-                    disabled={!form.watch("registration_number")?.trim()}
+                    disabled={!form.watch("registration_number")?.trim() || isDuplicateRegNumber}
                   >
                     Fortsätt utan automatisk data
                   </Button>
