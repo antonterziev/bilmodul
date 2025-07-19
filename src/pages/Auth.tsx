@@ -125,6 +125,24 @@ const Auth = () => {
     setIsResettingPassword(true);
 
     try {
+      // First check if the email exists in the database
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('email', emailToUse)
+        .single();
+
+      if (profileError || !profile) {
+        toast({
+          title: "Användaren kunde inte hittas",
+          description: "E-postadressen finns inte registrerad i systemet.",
+          variant: "destructive",
+        });
+        setIsResettingPassword(false);
+        return;
+      }
+
+      // If user exists, send password reset email
       const { error } = await supabase.auth.resetPasswordForEmail(emailToUse, {
         redirectTo: `${window.location.origin}/auth?reset=true`,
       });
@@ -140,7 +158,7 @@ const Auth = () => {
     } catch (error: any) {
       toast({
         title: "Fel vid återställning",
-        description: error.message,
+        description: "Något gick fel. Försök igen senare.",
         variant: "destructive",
       });
     } finally {
