@@ -3,10 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 interface DashboardStatsProps {
   totalStock: number;
   inventoryValue: number;
-  lastSale: string;
+  unrealizedProfit: number;
 }
 
-export const DashboardStats = ({ totalStock, inventoryValue, lastSale }: DashboardStatsProps) => {
+export const DashboardStats = ({ totalStock, inventoryValue, unrealizedProfit }: DashboardStatsProps) => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('sv-SE', {
       style: 'currency',
@@ -43,11 +43,11 @@ export const DashboardStats = ({ totalStock, inventoryValue, lastSale }: Dashboa
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">
-            Senaste försäljning
+            Estimerad orealiserad vinst
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{lastSale}</div>
+          <div className="text-2xl font-bold">{formatPrice(unrealizedProfit)}</div>
         </CardContent>
       </Card>
     </div>

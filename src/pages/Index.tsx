@@ -44,7 +44,7 @@ const Index = () => {
   const [stats, setStats] = useState({
     totalStock: 0,
     inventoryValue: 0,
-    lastSale: "-"
+    unrealizedProfit: 0
   });
 
   useEffect(() => {
@@ -121,7 +121,7 @@ const Index = () => {
       // Get inventory counts by status
       const { data: inventoryData, error } = await supabase
         .from('inventory_items')
-        .select('status, registration_number, created_at, purchase_price')
+        .select('status, registration_number, created_at, purchase_price, expected_selling_price')
         .eq('user_id', user.id);
 
       if (error) throw error;
@@ -133,13 +133,12 @@ const Index = () => {
         ?.filter(item => item.status === 'på_lager')
         .reduce((sum, item) => sum + (item.purchase_price || 0), 0) || 0;
       
-      // Get last sold item
-      const soldItems = inventoryData?.filter(item => item.status === 'såld').sort((a, b) => 
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      );
-      const lastSale = soldItems?.[0]?.registration_number || "-";
+      // Calculate unrealized profit (sum of expected selling prices for vehicles with status "på_lager")
+      const unrealizedProfit = inventoryData
+        ?.filter(item => item.status === 'på_lager')
+        .reduce((sum, item) => sum + (item.expected_selling_price || 0), 0) || 0;
 
-      setStats({ totalStock, inventoryValue, lastSale });
+      setStats({ totalStock, inventoryValue, unrealizedProfit });
     } catch (error) {
       console.error('Error loading stats:', error);
     }
@@ -204,7 +203,7 @@ const Index = () => {
         onBack={handleBackToStatistics}
         totalStock={stats.totalStock}
         inventoryValue={stats.inventoryValue}
-        lastSale={stats.lastSale}
+        unrealizedProfit={stats.unrealizedProfit}
       />;
     }
 
@@ -214,7 +213,7 @@ const Index = () => {
           <DashboardStats 
             totalStock={stats.totalStock}
             inventoryValue={stats.inventoryValue}
-            lastSale={stats.lastSale}
+            unrealizedProfit={stats.unrealizedProfit}
           />
           <VehicleList />
         </>

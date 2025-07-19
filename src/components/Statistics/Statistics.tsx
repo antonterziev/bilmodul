@@ -13,10 +13,10 @@ interface StatisticsProps {
   onBack: () => void;
   totalStock: number;
   inventoryValue: number;
-  lastSale: string;
+  unrealizedProfit: number;
 }
 
-export const Statistics = ({ onBack, totalStock, inventoryValue, lastSale }: StatisticsProps) => {
+export const Statistics = ({ onBack, totalStock, inventoryValue, unrealizedProfit }: StatisticsProps) => {
   const currentYear = new Date().getFullYear();
   const [startDate, setStartDate] = useState<Date>(new Date(currentYear, 0, 1)); // January 1st of current year
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
@@ -98,7 +98,7 @@ export const Statistics = ({ onBack, totalStock, inventoryValue, lastSale }: Sta
       <DashboardStats 
         totalStock={totalStock}
         inventoryValue={inventoryValue}
-        lastSale={lastSale}
+        unrealizedProfit={unrealizedProfit}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
