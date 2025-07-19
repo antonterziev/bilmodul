@@ -216,7 +216,7 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
-                <h3 className="font-medium text-gray-900">{company.name}</h3>
+                <h3 className="font-medium text-gray-900">{company.name.length > 40 ? `${company.name.substring(0, 40)}...` : company.name}</h3>
                 <p className="text-sm text-gray-600">{company.orgNumber}</p>
               </div>
             ))}

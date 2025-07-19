@@ -93,9 +93,10 @@ Deno.serve(async (req) => {
             .replace(/\s+/g, ' ')
             .trim();
           
-          // Validate this is a real company name, not UI text or "Org.nr"
+          // Validate this is a real company name, not UI text, JavaScript, or other unwanted content
           if (name && 
               name.length > 3 && 
+              name.length < 100 && // Reasonable company name length
               !name.toLowerCase().includes('org.nr') &&
               !name.toLowerCase().includes('org nr') &&
               !name.toLowerCase().includes('synas på') &&
@@ -104,7 +105,23 @@ Deno.serve(async (req) => {
               !name.toLowerCase().includes('bevaka') &&
               !name.toLowerCase().includes('köp') &&
               !name.toLowerCase().includes('lista') &&
+              !name.toLowerCase().includes('window.') &&
+              !name.toLowerCase().includes('googletag') &&
+              !name.toLowerCase().includes('javascript') &&
+              !name.toLowerCase().includes('function') &&
+              !name.toLowerCase().includes('var ') &&
+              !name.toLowerCase().includes('let ') &&
+              !name.toLowerCase().includes('const ') &&
+              !name.toLowerCase().includes('script') &&
+              !name.toLowerCase().includes('displayads') &&
+              !name.includes('{') &&
+              !name.includes('}') &&
+              !name.includes('[') &&
+              !name.includes(']') &&
+              !name.includes('||') &&
+              !name.includes('&&') &&
               !name.match(/^\d/) && // Don't start with numbers
+              !name.match(/^[{}[\]();=]/) && // Don't start with code symbols
               !companies.find(c => c.orgNumber === orgNumber)) {
             companies.push({ name, orgNumber });
             console.log('Found company:', name, orgNumber);
