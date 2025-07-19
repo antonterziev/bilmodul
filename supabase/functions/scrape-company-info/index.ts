@@ -65,18 +65,16 @@ Deno.serve(async (req) => {
     
     // Multiple regex patterns to catch allabolag.se HTML structures
     const patterns = [
-      // Allabolag search result structure
-      /<div[^>]*class="[^"]*search-result[^"]*"[^>]*>[\s\S]*?<h3[^>]*><a[^>]*>(.*?)<\/a><\/h3>[\s\S]*?(\d{6}-\d{4})/gi,
-      // Company listing structure
-      /<tr[^>]*>[\s\S]*?<td[^>]*><a[^>]*>(.*?)<\/a><\/td>[\s\S]*?<td[^>]*>(\d{6}-\d{4})<\/td>/gi,
-      // Alternative div structure with company name and org number
-      /<div[^>]*company[^>]*>[\s\S]*?<h[0-9][^>]*><a[^>]*>(.*?)<\/a><\/h[0-9]>[\s\S]*?(\d{6}-\d{4})/gi,
-      // General pattern for company name in link followed by org number
-      /<a[^>]*>(.*?)<\/a>[\s\S]*?(\d{6}-\d{4})/gi,
-      // Table cell with company name and org number
-      /<td[^>]*>[\s\S]*?<a[^>]*>(.*?)<\/a>[\s\S]*?<\/td>[\s\S]*?<td[^>]*>(\d{6}-\d{4})<\/td>/gi,
-      // Broader pattern for any text followed by org number
-      />(.*?)<[\s\S]*?(\d{6}-\d{4})/gi
+      // Main company listing structure with highlighted company names
+      /<h3[^>]*class="[^"]*highlight[^"]*"[^>]*>(.*?)<\/h3>[\s\S]*?Org\.nr\s*(\d{6}-\d{4})/gi,
+      // Alternative structure for company names in links
+      /<a[^>]*href="[^"]*\/([^\/]+)-(\d{6}-\d{4})"[^>]*>(.*?)<\/a>/gi,
+      // Direct pattern for company name followed by org number
+      /<h3[^>]*>(.*?AB.*?)<\/h3>[\s\S]*?(\d{6}-\d{4})/gi,
+      // Pattern for any company name with AB/AB suffix followed by org number
+      /(.*?(?:AB|aktiebolag))[\s\S]*?Org\.nr\s*(\d{6}-\d{4})/gi,
+      // General pattern for text before org number
+      /([A-ZÅÄÖ][^<>]{10,80})[\s\S]*?Org\.nr\s*(\d{6}-\d{4})/gi
     ];
 
     for (const pattern of patterns) {
@@ -99,10 +97,14 @@ Deno.serve(async (req) => {
             .replace(/\s+/g, ' ') // Normalize whitespace
             .trim();
           
-          // Skip empty names or organization numbers that appear in the name
+          // Filter out unwanted matches and clean up names
           if (name && 
-              name.length > 1 && 
+              name.length > 3 && 
               !name.match(/^\d{6}-\d{4}$/) && 
+              !name.toLowerCase().includes('synas på allabolag') &&
+              !name.toLowerCase().includes('hitta liknande') &&
+              !name.toLowerCase().includes('jämför') &&
+              !name.toLowerCase().includes('bevaka') &&
               !companies.find(c => c.orgNumber === orgNumber)) {
             companies.push({ name, orgNumber });
             console.log('Found company:', name, orgNumber);
