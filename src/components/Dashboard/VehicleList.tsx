@@ -281,7 +281,7 @@ export const VehicleList = () => {
                   
                   {/* Column 6: Expected Selling Price */}
                   <div>
-                    <p className="text-xs text-muted-foreground whitespace-nowrap">Förväntat utpris</p>
+                    <p className="text-xs text-muted-foreground whitespace-nowrap">Utpris</p>
                     <p className="font-medium">
                       {vehicle.expected_selling_price ? formatPrice(vehicle.expected_selling_price) : "-"}
                     </p>
