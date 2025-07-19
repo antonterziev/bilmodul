@@ -1,9 +1,15 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.0'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
+
+// Initialize Supabase client for database operations
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 // Function to extract vehicle data from car.info scraped content
 function extractVehicleData(content: string, regNumber: string) {
@@ -152,6 +158,30 @@ serve(async (req) => {
       )
     }
 
+    // First, check if we have cached data for this registration number
+    console.log('Checking cache for registration number:', registrationNumber);
+    try {
+      const { data: cachedData, error: cacheError } = await supabase
+        .from('scraped_car_cache')
+        .select('scraped_data')
+        .eq('registration_number', registrationNumber.toUpperCase())
+        .single();
+
+      if (cacheError && cacheError.code !== 'PGRST116') {
+        console.error('Cache query error:', cacheError);
+      } else if (cachedData) {
+        console.log('Found cached data for:', registrationNumber);
+        return new Response(
+          JSON.stringify(cachedData.scraped_data),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          }
+        );
+      }
+    } catch (error) {
+      console.log('Cache check failed, proceeding with scraping:', error);
+    }
+
     const firecrawlApiKey = Deno.env.get('FIRECRAWL_API_KEY');
     if (!firecrawlApiKey) {
       console.error('Firecrawl API key not found');
@@ -164,8 +194,8 @@ serve(async (req) => {
       )
     }
 
-    // Try scraping car.info
-    console.log('Attempting to scrape car.info for:', registrationNumber);
+    // No cached data found, proceed with scraping car.info
+    console.log('No cached data found. Attempting to scrape car.info for:', registrationNumber);
     
     try {
       const firecrawlResponse = await fetch('https://api.firecrawl.dev/v0/scrape', {
@@ -193,6 +223,20 @@ serve(async (req) => {
           
           if (Object.keys(extractedData).length > 0) {
             console.log('Successfully extracted vehicle data:', extractedData);
+            
+            // Cache the extracted data for future use
+            try {
+              await supabase
+                .from('scraped_car_cache')
+                .insert({
+                  registration_number: registrationNumber.toUpperCase(),
+                  scraped_data: extractedData
+                });
+              console.log('Cached data for registration number:', registrationNumber);
+            } catch (cacheInsertError) {
+              console.log('Failed to cache data (this is not critical):', cacheInsertError);
+            }
+            
             return new Response(
               JSON.stringify(extractedData),
               { 

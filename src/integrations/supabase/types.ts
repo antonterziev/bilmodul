@@ -185,6 +185,30 @@ export type Database = {
         }
         Relationships: []
       }
+      scraped_car_cache: {
+        Row: {
+          created_at: string
+          id: string
+          registration_number: string
+          scraped_data: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          registration_number: string
+          scraped_data: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          registration_number?: string
+          scraped_data?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
