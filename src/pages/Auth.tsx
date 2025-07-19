@@ -350,7 +350,6 @@ const Auth = () => {
             </div>
             
             <div className="text-center mt-4 text-xs text-gray-500">
-              <p>Du använder Veksla för Sverige 🇸🇪 <button type="button" className="text-blue-600 hover:underline">Välj ett annat land</button></p>
               <button type="button" className="text-blue-600 hover:underline">
                 Integritetspolicy
               </button>
