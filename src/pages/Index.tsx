@@ -552,55 +552,60 @@ const Index = () => {
               </li>
               <li>
                 <Button 
-                  variant="ghost" 
-                  className="w-full justify-start text-muted-foreground"
-                  onClick={() => setShowAvtal(true)}
+                  variant="ghost"
+                  className="w-full justify-between text-muted-foreground"
+                  onClick={() => {
+                    setShowDirektflodenExpanded(!showDirektflodenExpanded);
+                  }}
                 >
-                  <FileText className="mr-2 h-4 w-4" />
-                  Avtal
-                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                    PRO
+                  <div className="flex items-center">
+                    <Zap className="mr-2 h-4 w-4" />
+                    Direktflöden
                   </div>
+                  {showDirektflodenExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                 </Button>
-              </li>
-              <li>
-                <Button 
-                  variant="ghost" 
-                  className="w-full justify-start text-muted-foreground"
-                  onClick={() => setShowFakturor(true)}
-                >
-                  <Receipt className="mr-2 h-4 w-4" />
-                  Fakturor
-                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                    PRO
+                
+                {/* Subcategories */}
+                {showDirektflodenExpanded && (
+                  <div className="ml-0 mt-2 space-y-1">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-muted-foreground pl-10"
+                      onClick={() => {
+                        setShowDirektatkomst(true);
+                      }}
+                    >
+                      Direktåtkomst
+                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
+                        PRO
+                      </div>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-muted-foreground pl-10"
+                      onClick={() => {
+                        setShowDirektanmalan(true);
+                      }}
+                    >
+                      Direktanmälan
+                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
+                        PRO
+                      </div>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-muted-foreground pl-10"
+                      onClick={() => {
+                        setShowDirektbetalningar(true);
+                      }}
+                    >
+                      Direktbetalningar
+                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
+                        PRO
+                      </div>
+                    </Button>
                   </div>
-                </Button>
-              </li>
-              <li>
-                <Button 
-                  variant="ghost" 
-                  className="w-full justify-start text-muted-foreground"
-                  onClick={() => setShowKundregister(true)}
-                >
-                  <Users className="mr-2 h-4 w-4" />
-                  Kundregister
-                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                    PRO
-                  </div>
-                </Button>
-              </li>
-              <li>
-                <Button 
-                  variant="ghost" 
-                  className="w-full justify-start text-muted-foreground"
-                  onClick={() => setShowExportDialog(true)}
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Exportera
-                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                    PRO
-                  </div>
-                </Button>
+                )}
               </li>
               <li>
                 <Button 
@@ -661,60 +666,55 @@ const Index = () => {
               </li>
               <li>
                 <Button 
-                  variant="ghost"
-                  className="w-full justify-between text-muted-foreground"
-                  onClick={() => {
-                    setShowDirektflodenExpanded(!showDirektflodenExpanded);
-                  }}
+                  variant="ghost" 
+                  className="w-full justify-start text-muted-foreground"
+                  onClick={() => setShowAvtal(true)}
                 >
-                  <div className="flex items-center">
-                    <Zap className="mr-2 h-4 w-4" />
-                    Direktflöden
+                  <FileText className="mr-2 h-4 w-4" />
+                  Avtal
+                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
+                    PRO
                   </div>
-                  {showDirektflodenExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                 </Button>
-                
-                {/* Subcategories */}
-                {showDirektflodenExpanded && (
-                  <div className="ml-0 mt-2 space-y-1">
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-muted-foreground pl-10"
-                      onClick={() => {
-                        setShowDirektatkomst(true);
-                      }}
-                    >
-                      Direktåtkomst
-                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                        PRO
-                      </div>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-muted-foreground pl-10"
-                      onClick={() => {
-                        setShowDirektanmalan(true);
-                      }}
-                    >
-                      Direktanmälan
-                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                        PRO
-                      </div>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-muted-foreground pl-10"
-                      onClick={() => {
-                        setShowDirektbetalningar(true);
-                      }}
-                    >
-                      Direktbetalningar
-                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                        PRO
-                      </div>
-                    </Button>
+              </li>
+              <li>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-muted-foreground"
+                  onClick={() => setShowFakturor(true)}
+                >
+                  <Receipt className="mr-2 h-4 w-4" />
+                  Fakturor
+                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
+                    PRO
                   </div>
-                )}
+                </Button>
+              </li>
+              <li>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-muted-foreground"
+                  onClick={() => setShowKundregister(true)}
+                >
+                  <Users className="mr-2 h-4 w-4" />
+                  Kundregister
+                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
+                    PRO
+                  </div>
+                </Button>
+              </li>
+              <li>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-muted-foreground"
+                  onClick={() => setShowExportDialog(true)}
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  Exportera
+                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
+                    PRO
+                  </div>
+                </Button>
               </li>
               <li>
                 <Button 
