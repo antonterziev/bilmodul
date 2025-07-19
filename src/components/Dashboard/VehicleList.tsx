@@ -203,7 +203,7 @@ export const VehicleList = () => {
           <div className="space-y-4">
             {vehicles.map((vehicle) => (
               <div key={vehicle.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors w-full">
-                {/* Car icon or Tesla logo */}
+                {/* Car icon or brand logo */}
                 <div className="flex-shrink-0 w-16 flex justify-center items-center">
                   {vehicle.brand.toLowerCase() === 'tesla' ? (
                      <img 
@@ -215,6 +215,12 @@ export const VehicleList = () => {
                      <img 
                        src="/lovable-uploads/eac64da7-3b14-4cba-8714-fc5441349d8d.png" 
                        alt="Aston Martin logo" 
+                       className="h-12 w-12 object-contain"
+                     />
+                  ) : vehicle.brand.toLowerCase() === 'volvo' ? (
+                     <img 
+                       src="/lovable-uploads/c45d523c-b752-477b-a8a5-467aa3e3641f.png" 
+                       alt="Volvo logo" 
                        className="h-12 w-12 object-contain"
                      />
                    ) : (
