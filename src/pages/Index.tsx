@@ -14,7 +14,7 @@ import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
 import { Statistics } from "@/components/Statistics/Statistics";
 import { supabase } from "@/integrations/supabase/client";
-import { Home, BarChart3, Car, Settings as SettingsIcon, Truck, Download, Phone, MessageCircle, LogOut, CreditCard, Zap, FileCheck, FileText, File, Receipt, CreditCard as DirectPayments, Users, BookOpen, CheckSquare, Paperclip, ChevronDown, ChevronRight, Package, Search } from "lucide-react";
+import { Home, BarChart3, Car, Settings as SettingsIcon, Truck, Download, Phone, MessageCircle, LogOut, CreditCard, Zap, FileCheck, FileText, File, Receipt, CreditCard as DirectPayments, Users, BookOpen, CheckSquare, ChevronDown, ChevronRight, Package, Search } from "lucide-react";
 
 const Index = () => {
   const { user, signOut, isLoading } = useAuth();
