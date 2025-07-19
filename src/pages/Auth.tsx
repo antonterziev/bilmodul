@@ -21,7 +21,7 @@ const Auth = () => {
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [isWordVisible, setIsWordVisible] = useState(true);
   
-  const words = ["ekonomiöversikt", "lagerhantering", "lagerfinansiering", "säljsystem", "direktflöden"];
+  const words = ["ekonomiöversikt", "lagerhantering", "lagerfinansiering", "säljstödsystem", "direktflöden"];
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [showPasswordStep, setShowPasswordStep] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
