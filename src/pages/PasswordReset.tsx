@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 
 const PasswordReset = () => {
@@ -50,48 +50,63 @@ const PasswordReset = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-gray-900">
-            Återställ lösenord
-          </CardTitle>
-          <CardDescription>
-            Ange ditt nya lösenord nedan
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handlePasswordReset} className="space-y-4">
-            <div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div className="w-full max-w-md">
+        {/* Brand Logo */}
+        <div className="text-center mb-8">
+          <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-16 mx-auto mb-8" />
+        </div>
+        
+        <Card className="shadow-lg border-0">
+          <CardContent className="p-8">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Återställ lösenord</h2>
+              <p className="text-gray-600 text-sm">
+                Ange ditt nya lösenord nedan
+              </p>
+            </div>
+            
+            <form onSubmit={handlePasswordReset} className="space-y-4">
               <Input
                 type="password"
                 placeholder="Nytt lösenord"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-center"
                 required
                 minLength={6}
               />
-            </div>
-            <div>
               <Input
                 type="password"
                 placeholder="Bekräfta nytt lösenord"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-center"
                 required
                 minLength={6}
               />
+              <Button 
+                type="submit" 
+                disabled={isLoading}
+                className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium"
+              >
+                {isLoading ? "Uppdaterar..." : "Uppdatera lösenord"}
+              </Button>
+            </form>
+            
+            {/* Back to login */}
+            <div className="text-center mt-6">
+              <button
+                type="button"
+                onClick={() => navigate("/auth")}
+                className="text-blue-600 text-sm hover:underline"
+              >
+                Tillbaka till inloggning
+              </button>
             </div>
-            <Button 
-              type="submit" 
-              className="w-full" 
-              disabled={isLoading}
-            >
-              {isLoading ? "Uppdaterar..." : "Uppdatera lösenord"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
