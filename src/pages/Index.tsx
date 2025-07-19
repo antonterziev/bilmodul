@@ -348,7 +348,7 @@ const Index = () => {
               <li>
                 <Button 
                   variant={!showPurchaseForm && !showLogistics && !showSales && !showSettings && !showStatistics && !showLager ? "default" : "ghost"} 
-                  className={`w-full justify-start ${!showPurchaseForm && !showLogistics && !showSales && !showSettings && !showStatistics && !showLager ? "bg-primary text-primary-foreground" : "text-black"}`}
+                  className={`w-full justify-start ${!showPurchaseForm && !showLogistics && !showSales && !showSettings && !showStatistics && !showLager ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
                   onClick={() => {
                     setShowPurchaseForm(false);
                     setShowLogistics(false);
@@ -367,7 +367,7 @@ const Index = () => {
               <li>
                 <Button 
                   variant={showStatistics ? "default" : "ghost"} 
-                  className={`w-full justify-start ${showStatistics ? "bg-primary text-primary-foreground" : "text-black"}`}
+                  className={`w-full justify-start ${showStatistics ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
                   onClick={() => {
                     setShowPurchaseForm(false);
                     setShowLogistics(false);
@@ -601,7 +601,7 @@ const Index = () => {
               <li>
                 <Button 
                   variant="ghost" 
-                  className="w-full justify-start text-black"
+                  className="w-full justify-start text-muted-foreground"
                   onClick={() => setShowExportDialog(true)}
                 >
                   <Download className="mr-2 h-4 w-4" />
@@ -611,7 +611,7 @@ const Index = () => {
               <li>
                 <Button 
                   variant={showSettings ? "default" : "ghost"} 
-                  className={`w-full justify-start ${showSettings ? "bg-primary text-primary-foreground" : "text-black"}`}
+                  className={`w-full justify-start ${showSettings ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
                   onClick={() => {
                     setShowPurchaseForm(false);
                     setShowLogistics(false);
