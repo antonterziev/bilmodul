@@ -139,14 +139,19 @@ const EmailVerification = ({ email, firstName, lastName, onBack }: EmailVerifica
                       key={index}
                       ref={(el) => inputRefs.current[index] = el}
                       type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                       value={digit}
                       onChange={(e) => handleCodeChange(index, e.target.value)}
                       onKeyDown={(e) => handleKeyDown(index, e)}
                       className="w-12 h-12 text-center border-gray-300 focus:border-blue-500 focus:ring-blue-500 font-mono text-lg"
                       maxLength={1}
-                      autoComplete="one-time-code"
+                      autoComplete="off"
                       data-1p-ignore="true"
                       data-dashlane-rid=""
+                      data-form-type="other"
+                      data-lpignore="true"
+                      data-bitwarden-watching="false"
                     />
                   ))}
                 </div>
