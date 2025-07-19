@@ -17,8 +17,8 @@ const App = () => (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          <Route path="/landing" element={<Landing />} />
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<Landing />} />
+          <Route path="/dashboard" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
