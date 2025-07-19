@@ -305,7 +305,7 @@ const Auth = () => {
             <h2 className="text-2xl font-semibold text-gray-900 mb-2">
               Kom igång med bilbranschens mest innovativa{" "}
               <span 
-                className={`transition-opacity duration-300 ${isWordVisible ? 'opacity-100' : 'opacity-0'}`}
+                className={`inline-block w-44 text-left transition-opacity duration-300 ${isWordVisible ? 'opacity-100' : 'opacity-0'}`}
               >
                 {words[currentWordIndex]}
               </span>
