@@ -116,6 +116,14 @@ function extractVehicleData(content: string, regNumber: string) {
       console.log('Extracted registration date:', data.registrationDate);
     }
     
+    // Extract indicative valuation (Indikativ värdering) for expected selling price
+    const valuationMatch = content.match(/Indikativ värdering[^0-9]*(\d+[\s,]*\d*)\s*SEK/i);
+    if (valuationMatch) {
+      const valuationAmount = valuationMatch[1].replace(/[\s,]/g, '');
+      data.expectedSellingPrice = parseInt(valuationAmount);
+      console.log('Extracted indicative valuation:', data.expectedSellingPrice);
+    }
+    
     console.log('Final extracted data from car.info:', data);
     return data;
   } catch (error) {

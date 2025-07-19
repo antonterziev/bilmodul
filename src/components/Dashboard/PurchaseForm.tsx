@@ -271,6 +271,10 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
           form.setValue('first_registration_date', firstRegDate);
         }
         
+        if (data.expectedSellingPrice) {
+          form.setValue('expected_selling_price', data.expectedSellingPrice);
+          setExpectedPriceDisplay(formatWithThousands(data.expectedSellingPrice.toString()));
+        }
         if (data.vin) {
           form.setValue('chassis_number', data.vin);
         }
