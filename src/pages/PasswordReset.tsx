@@ -40,7 +40,12 @@ const PasswordReset = () => {
       }
 
       toast.success("Lösenordet har uppdaterats!");
-      navigate("/dashboard");
+      
+      // Force a page refresh to ensure clean auth state
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 1000);
+      
     } catch (error: any) {
       console.error("Password reset error:", error);
       toast.error("Ett fel uppstod vid uppdatering av lösenord");
