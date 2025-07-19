@@ -176,7 +176,7 @@ const Auth = () => {
 
       // If user exists, send password reset email
       const { error } = await supabase.auth.resetPasswordForEmail(emailToUse, {
-        redirectTo: `${window.location.origin}/auth?reset=true`,
+        redirectTo: `${window.location.origin}/password-reset`,
       });
 
       if (error) throw error;
