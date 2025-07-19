@@ -189,10 +189,9 @@ const Index = () => {
       // Generate random placeholder text from existing data
       if (data && data.length > 0) {
         const randomItem = data[Math.floor(Math.random() * data.length)];
-        const anotherRandomItem = data[Math.floor(Math.random() * data.length)];
         
         const regNumber = randomItem.registration_number;
-        const brand = anotherRandomItem.brand || randomItem.brand;
+        const brand = randomItem.brand;
         
         if (regNumber && brand) {
           setSearchPlaceholder(`t.ex. ${regNumber} eller ${brand}`);
