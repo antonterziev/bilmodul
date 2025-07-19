@@ -284,7 +284,7 @@ const Auth = () => {
           <div className="text-center mb-8">
             <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-16 mx-auto mb-6" />
             <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-              Skapa konto för att komma igång med bilbranschens mest innovativa ekonomiöversikt
+              Kom igång med bilbranschens mest innovativa ekonomiöversikt
             </h2>
             <p className="text-gray-600 text-sm">Du binder dig inte till något.</p>
           </div>
