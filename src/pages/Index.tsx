@@ -189,12 +189,20 @@ const Index = () => {
       // Generate random placeholder text from existing data
       if (data && data.length > 0) {
         const randomItem = data[Math.floor(Math.random() * data.length)];
-        const options = [randomItem.registration_number];
-        if (randomItem.brand) options.push(randomItem.brand);
-        if (randomItem.model) options.push(randomItem.model);
+        const anotherRandomItem = data[Math.floor(Math.random() * data.length)];
         
-        const randomExample = options[Math.floor(Math.random() * options.length)];
-        setSearchPlaceholder(`t.ex. ${randomExample}`);
+        const regNumber = randomItem.registration_number;
+        const brand = anotherRandomItem.brand || randomItem.brand;
+        
+        if (regNumber && brand) {
+          setSearchPlaceholder(`t.ex. ${regNumber} eller ${brand}`);
+        } else if (regNumber) {
+          setSearchPlaceholder(`t.ex. ${regNumber}`);
+        } else if (brand) {
+          setSearchPlaceholder(`t.ex. ${brand}`);
+        } else {
+          setSearchPlaceholder("Sök fordon...");
+        }
       } else {
         setSearchPlaceholder("Ingen data tillgänglig");
       }
