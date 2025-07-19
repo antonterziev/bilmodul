@@ -63,18 +63,20 @@ Deno.serve(async (req) => {
     // Parse the HTML to extract company information using the exact allabolag structure
     const companies: CompanyResult[] = [];
     
-    // Look for the specific pattern: Company name (often highlighted) followed by "Org.nr" and then the number
+    // Look for company names and org numbers with patterns for both single and multiple results
     const companyPatterns = [
-      // Pattern 1: Company name in link/heading followed by Org.nr and number (most common)
-      /<(?:h\d|a)[^>]*>([^<>]+?(?:AB|aktiebolag|Invest|Spa|Massage|Utveckling)[^<>]*)<\/(?:h\d|a)>[\s\S]*?Org\.nr[^>]*(\d{6}-\d{4})/gi,
-      // Pattern 2: Any company name followed by Org.nr pattern
-      /<(?:h\d|a|div|span)[^>]*>([A-ZÅÄÖ][^<>]{8,60})<\/(?:h\d|a|div|span)>[\s\S]*?Org\.nr[^>]*(\d{6}-\d{4})/gi,
-      // Pattern 3: Company name with specific keywords, more flexible
-      />([^<>]*?(?:AB|Invest|aktiebolag|Spa|Massage|Utveckling)[^<>]*)<[\s\S]*?(\d{6}-\d{4})/gi,
-      // Pattern 4: Simple pattern for any reasonable company name before org number
-      />([A-ZÅÄÖ][A-Za-zÅÄÖåäö\s&-]{5,50})<[\s\S]*?(\d{6}-\d{4})/gi,
-      // Pattern 5: Catch allabolag specific structure
-      /<[^>]*class="[^"]*"[^>]*>([^<>]+)<\/[^>]*>[\s\S]*?(\d{6}-\d{4})/gi
+      // Pattern 1: Single result page - company name in main heading
+      /<h1[^>]*>([^<>]+?(?:AB|aktiebolag|Invest|Förbund|Hälsa)[^<>]*)<\/h1>[\s\S]*?(\d{6}-\d{4})/gi,
+      // Pattern 2: Company name in any heading followed by org number
+      /<h[1-6][^>]*>([^<>]+)<\/h[1-6]>[\s\S]*?Org\.nr[^>]*(\d{6}-\d{4})/gi,
+      // Pattern 3: Company name in link followed by org number  
+      /<a[^>]*>([^<>]+?(?:AB|aktiebolag|Invest|Förbund|Hälsa)[^<>]*)<\/a>[\s\S]*?(\d{6}-\d{4})/gi,
+      // Pattern 4: More flexible - any reasonable company name before org number
+      />([A-ZÅÄÖ][A-Za-zÅÄÖåäö\s&-]{10,80}(?:AB|aktiebolag|Invest|Förbund|Hälsa)[^<>]*)<[\s\S]*?(\d{6}-\d{4})/gi,
+      // Pattern 5: Broader pattern for any company name structure
+      /<[^>]*>([A-ZÅÄÖ][A-Za-zÅÄÖåäö\s&-]{8,60})<\/[^>]*>[\s\S]*?(\d{6}-\d{4})/gi,
+      // Pattern 6: Very broad - any text that could be a company name
+      />([A-ZÅÄÖ][^<>]{15,80})<[\s\S]*?(\d{6}-\d{4})/gi
     ];
 
     for (const pattern of companyPatterns) {
