@@ -111,7 +111,9 @@ const Auth = () => {
 
   const handleCreateNewAccountFromEmailExists = () => {
     setShowEmailExists(false);
-    // Reset form but keep email
+    // Clear entire form
+    setEmail("");
+    setPassword("");
     setFirstName("");
     setLastName("");
     setAcceptedTerms(false);
