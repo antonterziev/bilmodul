@@ -5,51 +5,73 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Function to extract vehicle data from scraped content
+// Function to extract vehicle data from car.info scraped content
 function extractVehicleData(content: string, regNumber: string) {
   try {
-    console.log('Extracting vehicle data from content for:', regNumber);
+    console.log('Extracting vehicle data from car.info content for:', regNumber);
     
-    // Look for common patterns in car.info or similar sites
     const data: any = {};
     
-    // Extract brand/make
-    const brandMatch = content.match(/(?:brand|make|märke|tillverkare)[:\s]+([a-zA-ZÅÄÖåäö\s]+)/i);
-    if (brandMatch) {
-      data.brand = brandMatch[1].trim();
-    }
-    
-    // Extract model
-    const modelMatch = content.match(/(?:model|modell)[:\s]+([a-zA-Z0-9\s\-_]+)/i);
-    if (modelMatch) {
-      data.model = modelMatch[1].trim();
-    }
-    
-    // Extract year
-    const yearMatch = content.match(/(?:year|år|årsmodell|model year)[:\s]+(\d{4})/i);
-    if (yearMatch) {
-      data.modelYear = yearMatch[1];
-    }
-    
-    // Extract mileage/odometer
-    const mileageMatch = content.match(/(?:mileage|miltal|kilometer|km)[:\s]+([0-9,\s]+)/i);
+    // Extract mileage (Mätarställning)
+    const mileageMatch = content.match(/Mätarställning[:\s]*(\d+[\s,]*\d*)\s*mil/i);
     if (mileageMatch) {
-      data.mileage = mileageMatch[1].replace(/[,\s]/g, '');
+      const mileageInMil = mileageMatch[1].replace(/[\s,]/g, '');
+      // Convert from Swedish mil to kilometers (1 mil = 10 km)
+      data.mileage = (parseInt(mileageInMil) * 10).toString();
     }
     
-    // Extract VIN/chassis number
-    const vinMatch = content.match(/(?:vin|chassis|chassinummer)[:\s]+([A-Z0-9]+)/i);
-    if (vinMatch) {
-      data.vin = vinMatch[1];
+    // Extract engine info which often contains brand info
+    const motorMatch = content.match(/Motor[:\s]*([^,\n]+)/i);
+    if (motorMatch) {
+      data.engineInfo = motorMatch[1].trim();
     }
     
-    // Extract first registration date
-    const regDateMatch = content.match(/(?:first registration|första registrering|registreringsdatum)[:\s]+(\d{4}-\d{2}-\d{2}|\d{2}\/\d{2}\/\d{4})/i);
-    if (regDateMatch) {
-      data.firstRegistrationDate = regDateMatch[1];
+    // Extract body type (Kaross)
+    const bodyMatch = content.match(/Kaross[:\s]*([^\n]+)/i);
+    if (bodyMatch) {
+      data.bodyType = bodyMatch[1].trim();
     }
     
-    console.log('Extracted data:', data);
+    // Extract color (Färg)
+    const colorMatch = content.match(/Färg[:\s]*([^\n]+)/i);
+    if (colorMatch) {
+      data.color = colorMatch[1].trim();
+    }
+    
+    // Extract transmission (Växellåda)
+    const transmissionMatch = content.match(/Växellåda[:\s]*([^\n]+)/i);
+    if (transmissionMatch) {
+      data.transmission = transmissionMatch[1].trim();
+    }
+    
+    // Extract drivetrain (Drivlina)
+    const drivetrainMatch = content.match(/Drivlina[:\s]*([^\n]+)/i);
+    if (drivetrainMatch) {
+      data.drivetrain = drivetrainMatch[1].trim();
+    }
+    
+    // Extract generation info which might help identify model
+    const generationMatch = content.match(/Generation[:\s]*([^\n]+)/i);
+    if (generationMatch) {
+      data.generation = generationMatch[1].trim();
+    }
+    
+    // Extract equipment level
+    const equipmentMatch = content.match(/Utrustningsnivå[:\s]*([^\n]+)/i);
+    if (equipmentMatch) {
+      data.equipmentLevel = equipmentMatch[1].trim();
+    }
+    
+    // Try to extract year from generation or other context
+    const yearMatch = content.match(/(\d{4})/);
+    if (yearMatch) {
+      const year = parseInt(yearMatch[1]);
+      if (year >= 1900 && year <= new Date().getFullYear()) {
+        data.modelYear = yearMatch[1];
+      }
+    }
+    
+    console.log('Extracted data from car.info:', data);
     return data;
   } catch (error) {
     console.error('Error extracting vehicle data:', error);
