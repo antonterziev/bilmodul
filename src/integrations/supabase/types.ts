@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      brand_logos: {
+        Row: {
+          brand_name: string
+          created_at: string
+          file_path: string | null
+          id: string
+          logo_url: string
+          updated_at: string
+        }
+        Insert: {
+          brand_name: string
+          created_at?: string
+          file_path?: string | null
+          id?: string
+          logo_url: string
+          updated_at?: string
+        }
+        Update: {
+          brand_name?: string
+          created_at?: string
+          file_path?: string | null
+          id?: string
+          logo_url?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       inventory_items: {
         Row: {
           additional_costs: number | null
