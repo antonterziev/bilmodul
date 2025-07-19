@@ -50,6 +50,15 @@ export const Settings = () => {
 
   const loadProfile = async () => {
     try {
+      // First load data from user metadata (from onboarding)
+      const userMetadata = user?.user_metadata || {};
+      
+      // Set initial values from user metadata
+      setFirstName(userMetadata.first_name || '');
+      setLastName(userMetadata.last_name || '');
+      setCompanyName(userMetadata.company_name || '');
+
+      // Try to load from profiles table
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -57,33 +66,31 @@ export const Settings = () => {
         .single();
 
       if (error) {
-        // If no profile exists, create one
+        // If no profile exists, create one with data from user metadata
         if (error.code === 'PGRST116') {
           const { data: newProfile, error: createError } = await supabase
             .from('profiles')
             .insert({
               user_id: user?.id,
               email: user?.email || '',
-              first_name: '',
-              last_name: '',
-              company_name: ''
+              first_name: userMetadata.first_name || '',
+              last_name: userMetadata.last_name || '',
+              company_name: userMetadata.company_name || ''
             })
             .select()
             .single();
 
           if (createError) throw createError;
           setProfile(newProfile);
-          setFirstName(newProfile.first_name || '');
-          setLastName(newProfile.last_name || '');
-          setCompanyName(newProfile.company_name || '');
         } else {
           throw error;
         }
       } else {
         setProfile(data);
-        setFirstName(data.first_name || '');
-        setLastName(data.last_name || '');
-        setCompanyName(data.company_name || '');
+        // Override with profile data if it exists, but keep user metadata as fallback
+        setFirstName(data.first_name || userMetadata.first_name || '');
+        setLastName(data.last_name || userMetadata.last_name || '');
+        setCompanyName(data.company_name || userMetadata.company_name || '');
       }
     } catch (error) {
       console.error('Error loading profile:', error);
@@ -272,9 +279,13 @@ export const Settings = () => {
                 <Input
                   id="companyName"
                   value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
-                  placeholder="Ange företagsnamn (valfritt)"
+                  disabled
+                  className="bg-muted"
+                  placeholder="Företagsnamn från registrering"
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Företagsnamnet kan inte ändras efter registrering
+                </p>
               </div>
 
 
