@@ -174,6 +174,8 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
   const [isDuplicateRegNumber, setIsDuplicateRegNumber] = useState(false);
   const [isCheckingRegNumber, setIsCheckingRegNumber] = useState(false);
   const [isLoadingCarInfo, setIsLoadingCarInfo] = useState(false);
+  const [showFullForm, setShowFullForm] = useState(false);
+  const [carDataFetched, setCarDataFetched] = useState(false);
   
   // Generate year options (last 50 years)
   const currentYear = new Date().getFullYear();
@@ -278,6 +280,9 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
         if (data.vin) {
           form.setValue('chassis_number', data.vin);
         }
+        
+        setCarDataFetched(true);
+        setShowFullForm(true);
         
         toast({
           title: "Fordonsdata hämtad",
@@ -616,53 +621,98 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
         <CardTitle>Registrera inköp</CardTitle>
       </CardHeader>
       <CardContent>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="fordonsdata">Fordonsinformation</TabsTrigger>
-            <TabsTrigger 
-              value="inkopsinformation" 
-              disabled={!isVehicleDataValid()}
-              className={!isVehicleDataValid() ? "cursor-not-allowed opacity-50" : ""}
-            >
-              Inköpsinformation
-            </TabsTrigger>
-          </TabsList>
+        {!showFullForm ? (
+          <div className="space-y-4">
+            <div className="text-center">
+              <h3 className="text-lg font-medium mb-2">Ange registreringsnummer</h3>
+              <p className="text-muted-foreground mb-6">
+                Börja med att ange fordonets registreringsnummer för att hämta fordonsdata automatiskt
+              </p>
+            </div>
+            
+            <div className="max-w-md mx-auto">
+              <Label htmlFor="registration_number">Registreringsnummer*</Label>
+              <Input
+                id="registration_number"
+                placeholder="t.ex. JSK15L"
+                {...form.register("registration_number")}
+                className={cn(
+                  form.formState.errors.registration_number && "border-destructive",
+                  isDuplicateRegNumber && "border-destructive"
+                )}
+              />
+              {isCheckingRegNumber && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  Kontrollerar registreringsnummer...
+                </p>
+              )}
+              {isLoadingCarInfo && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  Hämtar fordonsdata...
+                </p>
+              )}
+              {isDuplicateRegNumber && (
+                <p className="text-sm text-destructive mt-1">
+                  Detta registreringsnummer finns redan registrerat
+                </p>
+              )}
+              {form.formState.errors.registration_number && (
+                <p className="text-sm text-destructive mt-1">
+                  {form.formState.errors.registration_number.message}
+                </p>
+              )}
+              
+              <div className="mt-4 text-center">
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  onClick={() => setShowFullForm(true)}
+                  disabled={!form.watch("registration_number")?.trim()}
+                >
+                  Fortsätt utan automatisk data
+                </Button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="fordonsdata">Fordonsinformation</TabsTrigger>
+              <TabsTrigger 
+                value="inkopsinformation" 
+                disabled={!isVehicleDataValid()}
+                className={!isVehicleDataValid() ? "cursor-not-allowed opacity-50" : ""}
+              >
+                Inköpsinformation
+              </TabsTrigger>
+            </TabsList>
 
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <TabsContent value="fordonsdata" className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="registration_number">Registreringsnummer*</Label>
-                  <Input
-                    id="registration_number"
-                    placeholder="t.ex. JSK15L"
-                    {...form.register("registration_number")}
-                    className={cn(
-                      form.formState.errors.registration_number && "border-destructive",
-                      isDuplicateRegNumber && "border-destructive"
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <TabsContent value="fordonsdata" className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="registration_number">Registreringsnummer*</Label>
+                    <Input
+                      id="registration_number"
+                      placeholder="t.ex. JSK15L"
+                      {...form.register("registration_number")}
+                      className={cn(
+                        form.formState.errors.registration_number && "border-destructive",
+                        isDuplicateRegNumber && "border-destructive"
+                      )}
+                      readOnly={carDataFetched}
+                    />
+                    {carDataFetched && (
+                      <p className="text-sm text-success mt-1">
+                        Fordonsdata automatiskt hämtad ✓
+                      </p>
                     )}
-                  />
-                  {isCheckingRegNumber && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Kontrollerar registreringsnummer...
-                    </p>
-                  )}
-                  {isLoadingCarInfo && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Hämtar fordonsdata...
-                    </p>
-                  )}
-                  {isDuplicateRegNumber && (
-                    <p className="text-sm text-destructive mt-1">
-                      Detta registreringsnummer finns redan registrerat
-                    </p>
-                  )}
-                  {form.formState.errors.registration_number && (
-                    <p className="text-sm text-destructive mt-1">
-                      {form.formState.errors.registration_number.message}
-                    </p>
-                  )}
-                </div>
+                    {form.formState.errors.registration_number && (
+                      <p className="text-sm text-destructive mt-1">
+                        {form.formState.errors.registration_number.message}
+                      </p>
+                    )}
+                  </div>
 
                 <div>
                   <Label htmlFor="chassis_number">Chassinummer</Label>
@@ -1312,6 +1362,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
             </TabsContent>
           </form>
         </Tabs>
+        )}
       </CardContent>
     </Card>
   );
