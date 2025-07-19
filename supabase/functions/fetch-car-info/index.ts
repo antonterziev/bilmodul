@@ -68,9 +68,9 @@ function extractVehicleData(content: string, regNumber: string) {
     const mileageMatch = content.match(/Mätarställning[:\s]*(\d+[\s,]*\d*)\s*mil/i);
     if (mileageMatch) {
       const mileageInMil = mileageMatch[1].replace(/[\s,]/g, '');
-      // Convert from Swedish mil to kilometers (1 mil = 10 km)
-      data.mileage = (parseInt(mileageInMil) * 10).toString();
-      console.log('Extracted mileage:', data.mileage, 'km');
+      // Keep the value in mil (Swedish miles) instead of converting to km
+      data.mileage = mileageInMil;
+      console.log('Extracted mileage:', data.mileage, 'mil');
     }
     
     // Extract engine info 
