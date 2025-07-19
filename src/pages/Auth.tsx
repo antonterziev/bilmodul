@@ -335,7 +335,7 @@ const Auth = () => {
         <div className="flex-1 relative" style={{
         backgroundImage: `url(/lovable-uploads/76103496-1341-4874-a8be-8132fc35cf5e.png)`,
         backgroundSize: 'cover',
-        backgroundPosition: 'center'
+        backgroundPosition: 'center right'
       }}>
           {/* Light blue overlay */}
           <div className="absolute inset-0 bg-blue-400 opacity-70"></div>
