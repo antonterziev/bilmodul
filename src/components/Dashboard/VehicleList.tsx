@@ -93,7 +93,7 @@ export const VehicleList = () => {
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'på_lager':
-        return 'På lager';
+        return 'I lager';
       case 'på_väg':
         return 'På väg';
       case 'såld':
@@ -198,7 +198,7 @@ export const VehicleList = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Registrerade fordon</CardTitle>
+        <CardTitle>Fordon</CardTitle>
       </CardHeader>
       <CardContent>
         {vehicles.length === 0 ? (
