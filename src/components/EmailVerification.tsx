@@ -4,16 +4,20 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import SetPassword from "./SetPassword";
 
 interface EmailVerificationProps {
   email: string;
+  firstName: string;
+  lastName: string;
   onBack: () => void;
 }
 
-const EmailVerification = ({ email, onBack }: EmailVerificationProps) => {
+const EmailVerification = ({ email, firstName, lastName, onBack }: EmailVerificationProps) => {
   const [verificationCode, setVerificationCode] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
+  const [showSetPassword, setShowSetPassword] = useState(false);
 
   const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,8 +41,8 @@ const EmailVerification = ({ email, onBack }: EmailVerificationProps) => {
         return;
       }
 
-      toast.success("Kontot har aktiverats!");
-      // The auth state change will handle the redirect
+      // Instead of auto-redirecting, show password setup
+      setShowSetPassword(true);
     } catch (error: any) {
       toast.error("Ett fel uppstod vid verifiering");
     } finally {
@@ -67,6 +71,22 @@ const EmailVerification = ({ email, onBack }: EmailVerificationProps) => {
       setIsResending(false);
     }
   };
+
+  const handleBackFromSetPassword = () => {
+    setShowSetPassword(false);
+  };
+
+  // Show password setup after successful verification
+  if (showSetPassword) {
+    return (
+      <SetPassword 
+        email={email}
+        firstName={firstName}
+        lastName={lastName}
+        onBack={handleBackFromSetPassword}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">

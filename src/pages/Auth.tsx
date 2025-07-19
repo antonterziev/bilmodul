@@ -208,7 +208,7 @@ const Auth = () => {
 
   // Email verification screen
   if (showEmailVerification) {
-    return <EmailVerification email={email} onBack={handleBackFromVerification} />;
+    return <EmailVerification email={email} firstName={firstName} lastName={lastName} onBack={handleBackFromVerification} />;
   }
 
   // Email exists confirmation screen
