@@ -387,9 +387,9 @@ const Auth = () => {
                 
                 <Button 
                   type="submit"
-                  disabled={!email.trim()}
+                  disabled={!email.includes('@')}
                   className={`w-full h-12 text-white font-medium transition-colors ${
-                    email.trim() 
+                    email.includes('@') 
                       ? "bg-blue-600 hover:bg-blue-700" 
                       : "bg-gray-300 cursor-not-allowed"
                   }`}
