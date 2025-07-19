@@ -75,8 +75,29 @@ const Auth = () => {
         return;
       }
 
-      // For now, just show email verification screen without creating the account
-      // The actual signup will happen after email verification with password
+      // Create account with email only (no password yet)
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password: crypto.randomUUID(), // Temporary password, will be set later
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth`,
+          data: {
+            first_name: firstName,
+            last_name: lastName,
+            full_name: `${firstName} ${lastName}`,
+          }
+        }
+      });
+
+      if (error) {
+        if (error.message.includes('already registered')) {
+          setShowEmailExists(true);
+        } else {
+          throw error;
+        }
+        return;
+      }
+
       setShowEmailVerification(true);
     } catch (error: any) {
       toast({
