@@ -223,11 +223,16 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
   const fetchCarInfo = async (regNumber: string) => {
     if (!regNumber.trim()) return;
     
+    console.log('fetchCarInfo called with:', regNumber);
     setIsLoadingCarInfo(true);
     try {
+      console.log('Calling Supabase edge function with regNumber:', regNumber.trim());
+      
       const { data, error } = await supabase.functions.invoke('fetch-car-info', {
         body: { registrationNumber: regNumber.trim() }
       });
+      
+      console.log('Edge function response - data:', data, 'error:', error);
       
       if (error) {
         console.error('Edge function error:', error);
@@ -235,6 +240,8 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
       }
       
       if (data && !data.error) {
+        console.log('Auto-populating form with data:', data);
+        
         // Auto-populate form fields with data from car info APIs
         if (data.brand) {
           const brandMatch = carBrands.find(brand => 
@@ -272,10 +279,16 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
           title: "Fordonsdata hämtad",
           description: "Fordonsinformation har hämtats automatiskt",
         });
+      } else {
+        console.log('No data returned or data contains error:', data);
       }
     } catch (error) {
       console.error('Error fetching car info:', error);
-      // Don't show error toast as car info APIs might not have data for all vehicles
+      toast({
+        title: "Fel",
+        description: "Kunde inte hämta fordonsdata: " + error.message,
+        variant: "destructive",
+      });
     } finally {
       setIsLoadingCarInfo(false);
     }
