@@ -60,17 +60,19 @@ Deno.serve(async (req) => {
     const html = await response.text();
     console.log('HTML length received:', html.length);
 
-    // Parse the HTML to extract company information using targeted regex patterns
+    // Parse the HTML to extract company information using the exact allabolag structure
     const companies: CompanyResult[] = [];
     
-    // Look for patterns where company name appears before org number
+    // Look for the specific pattern: Company name (often highlighted) followed by "Org.nr" and then the number
     const companyPatterns = [
-      // Pattern: Company name in link, then org number later (most common on allabolag)
-      /<a[^>]*href="[^"]*"[^>]*>([^<]+)<\/a>[\s\S]{1,300}?(\d{6}-\d{4})/gi,
-      // Pattern: Company name in heading, then org number
-      /<h\d[^>]*>([^<]+)<\/h\d>[\s\S]{1,200}?(\d{6}-\d{4})/gi,
-      // Pattern: Company name with AB/Invest, then org number
-      />([A-ZÅÄÖ][^<>]*(?:AB|Invest|aktiebolag)[^<>]*)<[\s\S]{1,200}?(\d{6}-\d{4})/gi
+      // Pattern: Company name in any element, then "Org.nr" then the actual number
+      />([^<>]+?(?:AB|aktiebolag|Spa|Massage|Utveckling|Invest)[^<>]*)<[^>]*>[\s\S]*?Org\.nr[^>]*>?[^<]*(\d{6}-\d{4})/gi,
+      // Pattern: Any company name before "Org.nr" pattern
+      />([A-ZÅÄÖ][^<>]{5,60})<[^>]*>[\s\S]*?Org\.nr[^>]*>?[^<]*(\d{6}-\d{4})/gi,
+      // Pattern: Company name in link/highlighted text before org number
+      /<[^>]*>([^<>]+?(?:AB|Spa|Massage|Utveckling|Invest|aktiebolag)[^<>]*)<\/[^>]*>[\s\S]*?(\d{6}-\d{4})/gi,
+      // Broader pattern: any text that looks like company name before org number
+      /<[^>]*>([A-ZÅÄÖ][A-Za-zÅÄÖåäö\s&-]{8,50})<\/[^>]*>[\s\S]*?(\d{6}-\d{4})/gi
     ];
 
     for (const pattern of companyPatterns) {
@@ -91,7 +93,7 @@ Deno.serve(async (req) => {
             .replace(/\s+/g, ' ')
             .trim();
           
-          // Validate this is a real company name, not UI text
+          // Validate this is a real company name, not UI text or "Org.nr"
           if (name && 
               name.length > 3 && 
               !name.toLowerCase().includes('org.nr') &&
@@ -102,6 +104,7 @@ Deno.serve(async (req) => {
               !name.toLowerCase().includes('bevaka') &&
               !name.toLowerCase().includes('köp') &&
               !name.toLowerCase().includes('lista') &&
+              !name.match(/^\d/) && // Don't start with numbers
               !companies.find(c => c.orgNumber === orgNumber)) {
             companies.push({ name, orgNumber });
             console.log('Found company:', name, orgNumber);
