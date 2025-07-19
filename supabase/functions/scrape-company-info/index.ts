@@ -158,12 +158,51 @@ Deno.serve(async (req) => {
           const nameMatches = beforeText.match(/>([^<>]{5,100})</g);
           
           if (nameMatches && nameMatches.length > 0) {
-            const name = nameMatches[nameMatches.length - 1]
+            const rawName = nameMatches[nameMatches.length - 1]
               .replace(/>/g, '')
               .replace(/</g, '')
               .trim();
             
-            if (name && !companies.find(c => c.orgNumber === orgNum)) {
+            // Apply the same validation as the main regex patterns
+            const name = rawName
+              .replace(/&nbsp;/g, ' ')
+              .replace(/&amp;/g, '&')
+              .replace(/&lt;/g, '<')
+              .replace(/&gt;/g, '>')
+              .replace(/&quot;/g, '"')
+              .replace(/\s+/g, ' ')
+              .trim();
+            
+            if (name && 
+                name.length > 3 && 
+                name.length < 100 && // Reasonable company name length
+                !name.toLowerCase().includes('org.nr') &&
+                !name.toLowerCase().includes('org nr') &&
+                !name.toLowerCase().includes('organisationsnummer') &&
+                !name.toLowerCase().includes('synas på') &&
+                !name.toLowerCase().includes('hitta') &&
+                !name.toLowerCase().includes('jämför') &&
+                !name.toLowerCase().includes('bevaka') &&
+                !name.toLowerCase().includes('köp') &&
+                !name.toLowerCase().includes('lista') &&
+                !name.toLowerCase().includes('window.') &&
+                !name.toLowerCase().includes('googletag') &&
+                !name.toLowerCase().includes('javascript') &&
+                !name.toLowerCase().includes('function') &&
+                !name.toLowerCase().includes('var ') &&
+                !name.toLowerCase().includes('let ') &&
+                !name.toLowerCase().includes('const ') &&
+                !name.toLowerCase().includes('script') &&
+                !name.toLowerCase().includes('displayads') &&
+                !name.includes('{') &&
+                !name.includes('}') &&
+                !name.includes('[') &&
+                !name.includes(']') &&
+                !name.includes('||') &&
+                !name.includes('&&') &&
+                !name.match(/^\d/) && // Don't start with numbers
+                !name.match(/^[{}[\]();=]/) && // Don't start with code symbols
+                !companies.find(c => c.orgNumber === orgNum)) {
               companies.push({ name, orgNumber: orgNum });
             }
           }
