@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
@@ -20,6 +22,8 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
   const [companySearch, setCompanySearch] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [companyType, setCompanyType] = useState("Aktiebolag");
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,6 +121,8 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
       if (selectedCompany) {
         userData.company_name = selectedCompany.name;
         userData.org_number = selectedCompany.orgNumber;
+        userData.phone_number = phoneNumber;
+        userData.company_type = companyType;
       }
 
       const { error } = await supabase.auth.updateUser({
@@ -250,20 +256,93 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
   );
 
   const renderStep3 = () => (
-    <div className="text-center">
-      <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-        Nästan klar!
+    <div>
+      <h2 className="text-2xl font-semibold text-gray-900 mb-4 text-center">
+        Bra, detta var vad vi hittade
       </h2>
-      <p className="text-gray-600 text-sm mb-8">
-        Du är nu redo att använda Veksla.
+      <p className="text-gray-600 text-sm mb-6 text-center">
+        Du kan alltid ändra detta senare under inställningar.
       </p>
       
-      <Button 
-        onClick={() => setCurrentStep(4)}
-        className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white"
-      >
-        Fortsätt
-      </Button>
+      <div className="space-y-4">
+        <p className="text-red-600 text-sm">* Obligatorisk information</p>
+        
+        <div>
+          <Label htmlFor="orgNumber" className="text-sm text-gray-700">
+            Organisationsnummer *
+          </Label>
+          <Input
+            id="orgNumber"
+            type="text"
+            value={selectedCompany?.orgNumber || ""}
+            disabled
+            className="mt-1 bg-gray-100"
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="companyName" className="text-sm text-gray-700">
+            Företagsnamn *
+          </Label>
+          <Input
+            id="companyName"
+            type="text"
+            value={selectedCompany?.name || ""}
+            disabled
+            className="mt-1 bg-gray-100"
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="companyType" className="text-sm text-gray-700">
+            Företagstyp *
+          </Label>
+          <Select value={companyType} onValueChange={setCompanyType}>
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
+              <SelectItem value="Aktiebolag">Aktiebolag</SelectItem>
+              <SelectItem value="Ekonomisk förening">Ekonomisk förening</SelectItem>
+              <SelectItem value="Kommanditbolag">Kommanditbolag</SelectItem>
+              <SelectItem value="Enskildfirma">Enskildfirma</SelectItem>
+              <SelectItem value="Handelsbolag">Handelsbolag</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label htmlFor="phoneNumber" className="text-sm text-gray-700">
+            Telefon *
+          </Label>
+          <Input
+            id="phoneNumber"
+            type="tel"
+            placeholder="0701234567"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            className="mt-1"
+            required
+          />
+        </div>
+
+        <div className="flex gap-3 pt-4">
+          <Button 
+            variant="outline"
+            onClick={() => setCurrentStep(2)}
+            className="flex-1"
+          >
+            Gå tillbaka
+          </Button>
+          <Button 
+            onClick={() => setCurrentStep(4)}
+            disabled={!phoneNumber.trim()}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            Fortsätt
+          </Button>
+        </div>
+      </div>
     </div>
   );
 
