@@ -66,6 +66,8 @@ Deno.serve(async (req) => {
         html,
       })
 
+      console.log('Resend response:', { error })
+
       if (error) {
         console.error('Resend error:', error)
         throw error
