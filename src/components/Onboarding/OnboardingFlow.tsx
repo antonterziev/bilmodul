@@ -318,11 +318,11 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
             Gå tillbaka
           </Button>
           <Button 
-            onClick={() => setCurrentStep(4)}
-            disabled={false}
+            onClick={handleCompleteOnboarding}
+            disabled={isLoading}
             className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
           >
-            Fortsätt
+            {isLoading ? "Slutför..." : "Klar"}
           </Button>
         </div>
       </div>
@@ -363,7 +363,7 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
       <div className="w-full max-w-md">
         {/* Step indicator */}
         <div className="text-center mb-8">
-          <p className="text-gray-500 text-sm mb-4">Steg {currentStep} av 4</p>
+          <p className="text-gray-500 text-sm mb-4">Steg {currentStep} av 3</p>
           
           {/* Brand Logo */}
           <div className="mb-8">
