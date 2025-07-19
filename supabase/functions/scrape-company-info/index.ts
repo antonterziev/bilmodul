@@ -60,59 +60,36 @@ Deno.serve(async (req) => {
     const html = await response.text();
     console.log('HTML length received:', html.length);
 
-    // Parse the HTML to extract company information
+    // Parse the HTML to extract company information using simpler approach
     const companies: CompanyResult[] = [];
     
-    // Multiple regex patterns to catch allabolag.se HTML structures
-    const patterns = [
-      // Main company listing structure with highlighted company names
-      /<h3[^>]*class="[^"]*highlight[^"]*"[^>]*>(.*?)<\/h3>[\s\S]*?Org\.nr\s*(\d{6}-\d{4})/gi,
-      // Alternative structure for company names in links
-      /<a[^>]*href="[^"]*\/([^\/]+)-(\d{6}-\d{4})"[^>]*>(.*?)<\/a>/gi,
-      // Direct pattern for company name followed by org number
-      /<h3[^>]*>(.*?AB.*?)<\/h3>[\s\S]*?(\d{6}-\d{4})/gi,
-      // Pattern for any company name with AB/AB suffix followed by org number
-      /(.*?(?:AB|aktiebolag))[\s\S]*?Org\.nr\s*(\d{6}-\d{4})/gi,
-      // General pattern for text before org number
-      /([A-ZÅÄÖ][^<>]{10,80})[\s\S]*?Org\.nr\s*(\d{6}-\d{4})/gi
-    ];
-
-    for (const pattern of patterns) {
-      let match;
-      const regex = new RegExp(pattern.source, pattern.flags);
+    // First, find all organization numbers
+    const orgNumbers = html.match(/\d{6}-\d{4}/g) || [];
+    console.log('Found org numbers:', orgNumbers.slice(0, 10));
+    
+    // For each org number, find the nearby company name
+    for (const orgNum of orgNumbers.slice(0, 10)) {
+      if (companies.length >= 5) break;
       
-      while ((match = regex.exec(html)) !== null && companies.length < 5) {
-        const rawName = match[1];
-        const orgNumber = match[2];
+      const index = html.indexOf(orgNum);
+      if (index > -1) {
+        // Look for company name in the 300 characters before the org number
+        const beforeText = html.substring(Math.max(0, index - 300), index);
         
-        if (rawName && orgNumber) {
-          // Clean up the company name - allabolag specific cleanup
-          const name = rawName
-            .replace(/<[^>]*>/g, '') // Remove HTML tags
-            .replace(/&nbsp;/g, ' ') // Replace non-breaking spaces
-            .replace(/&amp;/g, '&') // Replace HTML entities
-            .replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>')
-            .replace(/&quot;/g, '"')
-            .replace(/\s+/g, ' ') // Normalize whitespace
-            .trim();
+        // Find text that looks like a company name (contains "AB" or similar patterns)
+        const namePattern = /([A-ZÅÄÖ][^<>]{5,60}(?:AB|aktiebolag))/gi;
+        const matches = beforeText.match(namePattern);
+        
+        if (matches && matches.length > 0) {
+          const rawName = matches[matches.length - 1];
+          const name = rawName.trim();
           
-          // Filter out unwanted matches and clean up names
-          if (name && 
-              name.length > 3 && 
-              !name.match(/^\d{6}-\d{4}$/) && 
-              !name.toLowerCase().includes('synas på allabolag') &&
-              !name.toLowerCase().includes('hitta liknande') &&
-              !name.toLowerCase().includes('jämför') &&
-              !name.toLowerCase().includes('bevaka') &&
-              !companies.find(c => c.orgNumber === orgNumber)) {
-            companies.push({ name, orgNumber });
-            console.log('Found company:', name, orgNumber);
+          if (!companies.find(c => c.orgNumber === orgNum)) {
+            companies.push({ name, orgNumber: orgNum });
+            console.log('Found company:', name, orgNum);
           }
         }
       }
-      
-      if (companies.length >= 5) break;
     }
 
     // If no companies found with regex, try a simpler approach
