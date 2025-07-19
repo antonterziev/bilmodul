@@ -44,6 +44,9 @@ const Index = () => {
   const [showFinansieringExpanded, setShowFinansieringExpanded] = useState(false);
   const [showEkonomi, setShowEkonomi] = useState(false);
   const [showEkonomiExpanded, setShowEkonomiExpanded] = useState(false);
+  const [showBokforing, setShowBokforing] = useState(false);
+  const [showVerifikationDialog, setShowVerifikationDialog] = useState(false);
+  const [showDokumentDialog, setShowDokumentDialog] = useState(false);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [selectedSaleVehicleId, setSelectedSaleVehicleId] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -691,7 +694,7 @@ const Index = () => {
                       size="sm"
                       className="w-full justify-between text-sm pl-10 text-muted-foreground"
                       onClick={() => {
-                        alert("Bokföring är en premiumfunktion som kommer snart!");
+                        setShowBokforing(true);
                       }}
                     >
                       <div className="flex items-center">
@@ -707,7 +710,7 @@ const Index = () => {
                       size="sm"
                       className="w-full justify-between text-sm pl-10 text-muted-foreground"
                       onClick={() => {
-                        alert("Verifikation är en premiumfunktion som kommer snart!");
+                        setShowVerifikationDialog(true);
                       }}
                     >
                       <div className="flex items-center">
@@ -723,7 +726,7 @@ const Index = () => {
                       size="sm"
                       className="w-full justify-between text-sm pl-10 text-muted-foreground"
                       onClick={() => {
-                        alert("Dokument är en premiumfunktion som kommer snart!");
+                        setShowDokumentDialog(true);
                       }}
                     >
                       <div className="flex items-center">
@@ -1072,6 +1075,80 @@ const Index = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Bokföring Dialog */}
+      <Dialog open={showBokforing} onOpenChange={setShowBokforing}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-6 py-4">
+            <div className="flex items-center justify-center w-20 h-20 bg-red-100 rounded-lg">
+              <FileText className="w-12 h-12 text-red-600" />
+            </div>
+            <div className="text-center space-y-2">
+              <p className="text-muted-foreground">
+                Bokföring är en betalfunktion
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
+              </p>
+            </div>
+            <Button className="w-full" onClick={() => setShowBokforing(false)}>
+              Uppgradera medlemskap
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Verifikation Dialog (Ekonomi) */}
+      <Dialog open={showVerifikationDialog} onOpenChange={setShowVerifikationDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-6 py-4">
+            <div className="flex items-center justify-center w-20 h-20 bg-cyan-100 rounded-lg">
+              <CheckSquare className="w-12 h-12 text-cyan-600" />
+            </div>
+            <div className="text-center space-y-2">
+              <p className="text-muted-foreground">
+                Verifikation är en betalfunktion
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
+              </p>
+            </div>
+            <Button className="w-full" onClick={() => setShowVerifikationDialog(false)}>
+              Uppgradera medlemskap
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dokument Dialog (Ekonomi) */}
+      <Dialog open={showDokumentDialog} onOpenChange={setShowDokumentDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-6 py-4">
+            <div className="flex items-center justify-center w-20 h-20 bg-indigo-100 rounded-lg">
+              <File className="w-12 h-12 text-indigo-600" />
+            </div>
+            <div className="text-center space-y-2">
+              <p className="text-muted-foreground">
+                Dokument är en betalfunktion
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
+              </p>
+            </div>
+            <Button className="w-full" onClick={() => setShowDokumentDialog(false)}>
+              Uppgradera medlemskap
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Kundtjänst Dialog */}
       <Dialog open={showKundtjanst} onOpenChange={setShowKundtjanst}>
