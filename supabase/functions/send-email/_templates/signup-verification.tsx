@@ -47,7 +47,6 @@ export const SignupVerificationEmail = ({
 
         {/* Verification Code Display */}
         <div style={codeContainer}>
-          <Text style={codeLabel}>Verifieringskod:</Text>
           <div style={codeBox}>
             {token.split('').map((digit, index) => (
               <span key={index} style={codeDigit}>{digit}</span>
