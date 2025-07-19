@@ -23,9 +23,10 @@ interface Vehicle {
 interface VehicleListProps {
   filter?: 'all' | 'på_lager' | 'såld' | 'transport';
   onSellVehicle?: (vehicleId: string) => void;
+  onStatsUpdate?: () => void;
 }
 
-export const VehicleList = ({ filter = 'all', onSellVehicle }: VehicleListProps) => {
+export const VehicleList = ({ filter = 'all', onSellVehicle, onStatsUpdate }: VehicleListProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -176,6 +177,8 @@ export const VehicleList = ({ filter = 'all', onSellVehicle }: VehicleListProps)
 
       // Reload the vehicles list
       loadVehicles();
+      // Update stats in parent component
+      onStatsUpdate?.();
     } catch (error) {
       console.error('Error deleting vehicle:', error);
       toast({

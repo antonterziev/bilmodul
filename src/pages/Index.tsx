@@ -254,6 +254,7 @@ const Index = () => {
               setSelectedVehicleId(null);
               setSelectedSaleVehicleId(vehicleId);
             }}
+            onStatsUpdate={loadStats}
           />
         </>
       );
