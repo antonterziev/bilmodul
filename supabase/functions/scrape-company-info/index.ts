@@ -126,8 +126,10 @@ Deno.serve(async (req) => {
       const orgNumbers = html.match(/\d{6}-\d{4}/g) || [];
       console.log('Found org numbers:', orgNumbers.slice(0, 5));
       
-      // For each org number, try to find nearby company name
+      // For each org number, try to find nearby company name (limit to 5)
       for (const orgNum of orgNumbers.slice(0, 5)) {
+        if (companies.length >= 5) break; // Ensure we never exceed 5 companies
+        
         const index = html.indexOf(orgNum);
         if (index > -1) {
           // Look for text before the org number that might be the company name
