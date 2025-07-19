@@ -57,7 +57,7 @@ export const SignupVerificationEmail = ({
         {/* Main CTA Button */}
         <div style={buttonContainer}>
           <Link
-            href={`${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`}
+            href={`${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=https://lagermodulen.se/onboarding`}
             style={button}
           >
             Bekräfta e-post
