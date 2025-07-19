@@ -65,14 +65,16 @@ Deno.serve(async (req) => {
     
     // Look for the specific pattern: Company name (often highlighted) followed by "Org.nr" and then the number
     const companyPatterns = [
-      // Pattern: Company name in any element, then "Org.nr" then the actual number
-      />([^<>]+?(?:AB|aktiebolag|Spa|Massage|Utveckling|Invest)[^<>]*)<[^>]*>[\s\S]*?Org\.nr[^>]*>?[^<]*(\d{6}-\d{4})/gi,
-      // Pattern: Any company name before "Org.nr" pattern
-      />([A-ZÅÄÖ][^<>]{5,60})<[^>]*>[\s\S]*?Org\.nr[^>]*>?[^<]*(\d{6}-\d{4})/gi,
-      // Pattern: Company name in link/highlighted text before org number
-      /<[^>]*>([^<>]+?(?:AB|Spa|Massage|Utveckling|Invest|aktiebolag)[^<>]*)<\/[^>]*>[\s\S]*?(\d{6}-\d{4})/gi,
-      // Broader pattern: any text that looks like company name before org number
-      /<[^>]*>([A-ZÅÄÖ][A-Za-zÅÄÖåäö\s&-]{8,50})<\/[^>]*>[\s\S]*?(\d{6}-\d{4})/gi
+      // Pattern 1: Company name in link/heading followed by Org.nr and number (most common)
+      /<(?:h\d|a)[^>]*>([^<>]+?(?:AB|aktiebolag|Invest|Spa|Massage|Utveckling)[^<>]*)<\/(?:h\d|a)>[\s\S]*?Org\.nr[^>]*(\d{6}-\d{4})/gi,
+      // Pattern 2: Any company name followed by Org.nr pattern
+      /<(?:h\d|a|div|span)[^>]*>([A-ZÅÄÖ][^<>]{8,60})<\/(?:h\d|a|div|span)>[\s\S]*?Org\.nr[^>]*(\d{6}-\d{4})/gi,
+      // Pattern 3: Company name with specific keywords, more flexible
+      />([^<>]*?(?:AB|Invest|aktiebolag|Spa|Massage|Utveckling)[^<>]*)<[\s\S]*?(\d{6}-\d{4})/gi,
+      // Pattern 4: Simple pattern for any reasonable company name before org number
+      />([A-ZÅÄÖ][A-Za-zÅÄÖåäö\s&-]{5,50})<[\s\S]*?(\d{6}-\d{4})/gi,
+      // Pattern 5: Catch allabolag specific structure
+      /<[^>]*class="[^"]*"[^>]*>([^<>]+)<\/[^>]*>[\s\S]*?(\d{6}-\d{4})/gi
     ];
 
     for (const pattern of companyPatterns) {
