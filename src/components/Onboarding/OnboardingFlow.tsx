@@ -311,20 +311,6 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
           </Select>
         </div>
 
-        <div>
-          <Label htmlFor="phoneNumber" className="text-sm text-gray-700">
-            Telefon *
-          </Label>
-          <Input
-            id="phoneNumber"
-            type="tel"
-            placeholder="0701234567"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            className="mt-1"
-            required
-          />
-        </div>
 
         <div className="flex gap-3 pt-4">
           <Button 
@@ -336,7 +322,7 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
           </Button>
           <Button 
             onClick={() => setCurrentStep(4)}
-            disabled={!phoneNumber.trim()}
+            disabled={false}
             className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
           >
             Fortsätt
