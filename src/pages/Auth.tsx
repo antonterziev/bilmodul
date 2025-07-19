@@ -280,7 +280,7 @@ const Auth = () => {
                 {words[currentWordIndex]}
               </span>
             </h2>
-            <p className="text-gray-600 text-sm mx-0 my-[30px]">Du binder dig inte till något.</p>
+            <p className="text-gray-600 text-sm mx-0 my-4">Du binder dig inte till något.</p>
           </div>
           
           <form onSubmit={handleSignUp} className="space-y-4">
