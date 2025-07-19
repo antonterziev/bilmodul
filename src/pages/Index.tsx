@@ -26,7 +26,7 @@ const Index = () => {
   const [showStatistics, setShowStatistics] = useState(false);
   const [showLager, setShowLager] = useState(false);
   const [showLagerExpanded, setShowLagerExpanded] = useState(false);
-  const [lagerFilter, setLagerFilter] = useState<'all' | 'på_lager' | 'såld' | 'transport'>('all');
+  const [lagerFilter, setLagerFilter] = useState<'all' | 'på_lager' | 'såld'>('all');
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showSupportDialog, setShowSupportDialog] = useState(false);
   const [showFinansiering, setShowFinansiering] = useState(false);
@@ -459,7 +459,7 @@ const Index = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={`w-full justify-start text-sm text-muted-foreground pl-8 ${lagerFilter === 'på_lager' ? 'bg-muted' : ''}`}
+                      className={`w-full justify-start text-sm pl-8 ${lagerFilter === 'på_lager' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
                       onClick={() => {
                         setShowPurchaseForm(false);
                         setShowLogistics(false);
@@ -477,7 +477,7 @@ const Index = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={`w-full justify-start text-sm text-muted-foreground pl-8 ${lagerFilter === 'såld' ? 'bg-muted' : ''}`}
+                      className={`w-full justify-start text-sm pl-8 ${lagerFilter === 'såld' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
                       onClick={() => {
                         setShowPurchaseForm(false);
                         setShowLogistics(false);
@@ -491,24 +491,6 @@ const Index = () => {
                       }}
                     >
                       Sålda
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className={`w-full justify-start text-sm text-muted-foreground pl-8 ${lagerFilter === 'transport' ? 'bg-muted' : ''}`}
-                      onClick={() => {
-                        setShowPurchaseForm(false);
-                        setShowLogistics(false);
-                        setShowSales(false);
-                        setShowSettings(false);
-                        setShowStatistics(false);
-                        setShowLager(true);
-                        setSelectedVehicleId(null);
-                        setSelectedSaleVehicleId(null);
-                        setLagerFilter('transport');
-                      }}
-                    >
-                      Transport
                     </Button>
                   </div>
                 )}

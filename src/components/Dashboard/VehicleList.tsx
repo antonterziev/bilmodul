@@ -21,7 +21,7 @@ interface Vehicle {
 }
 
 interface VehicleListProps {
-  filter?: 'all' | 'på_lager' | 'såld' | 'transport';
+  filter?: 'all' | 'på_lager' | 'såld';
   onSellVehicle?: (vehicleId: string) => void;
   onStatsUpdate?: () => void;
   searchTerm?: string;
@@ -77,11 +77,7 @@ export const VehicleList = ({ filter = 'all', onSellVehicle, onStatsUpdate, sear
 
       // Apply status filter if not 'all'
       if (filter !== 'all') {
-        if (filter === 'transport') {
-          query = query.eq('status', 'på_väg');
-        } else {
-          query = query.eq('status', filter);
-        }
+        query = query.eq('status', filter);
       }
 
       const { data, error } = await query.order('purchase_date', { ascending: false });
