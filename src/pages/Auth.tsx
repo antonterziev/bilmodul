@@ -333,7 +333,7 @@ const Auth = () => {
         
         {/* Right side - Car image with blue filter */}
         <div className="flex-1 relative" style={{
-        backgroundImage: `url(/lovable-uploads/f9ec5a89-2d14-4d32-bf67-1ce884d50c0c.png)`,
+        backgroundImage: `url(/lovable-uploads/76103496-1341-4874-a8be-8132fc35cf5e.png)`,
         backgroundSize: 'cover',
         backgroundPosition: 'center'
       }}>
