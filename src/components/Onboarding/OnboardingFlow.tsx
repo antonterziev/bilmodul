@@ -67,42 +67,20 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
       const orgNumberRegex = /^\d{6}-?\d{4}$/;
       const isOrgNumber = orgNumberRegex.test(companySearch.replace('-', ''));
       
-      const searchTerm = encodeURIComponent(companySearch);
-      const response = await fetch(`https://foretagsinfo.bolagsverket.se/sok-foretagsinformation-web/foretag?sokord=${searchTerm}`, {
-        mode: 'cors',
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
+      console.log('Searching for:', companySearch);
+      
+      // Call our edge function to scrape company data
+      const { data, error } = await supabase.functions.invoke('scrape-company-info', {
+        body: { searchTerm: companySearch }
       });
       
-      if (!response.ok) {
-        throw new Error('Search failed');
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error(error.message || 'Failed to search companies');
       }
       
-      const html = await response.text();
-      
-      // Enhanced parsing for better results
-      const companies: any[] = [];
-      
-      // Try multiple regex patterns to catch different HTML structures
-      const patterns = [
-        /<div[^>]*class="[^"]*hit-item[^"]*"[^>]*>[\s\S]*?<h3[^>]*>(.*?)<\/h3>[\s\S]*?<span[^>]*>(\d{6}-\d{4})<\/span>/g,
-        /<div[^>]*hit[^>]*>[\s\S]*?<.*?>(.*?)<\/.*?>[\s\S]*?(\d{6}-\d{4})/g,
-        /<tr[^>]*>[\s\S]*?<td[^>]*>(.*?)<\/td>[\s\S]*?<td[^>]*>(\d{6}-\d{4})<\/td>/g
-      ];
-      
-      for (const pattern of patterns) {
-        let match;
-        while ((match = pattern.exec(html)) !== null && companies.length < 5) {
-          const name = match[1].replace(/<[^>]*>/g, '').trim();
-          const orgNumber = match[2];
-          
-          if (name && orgNumber && !companies.find(c => c.orgNumber === orgNumber)) {
-            companies.push({ name, orgNumber });
-          }
-        }
-        if (companies.length >= 5) break;
-      }
+      const companies = data?.companies || [];
+      console.log('Companies received:', companies);
       
       setSearchResults(companies);
       
@@ -116,6 +94,8 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
       
       if (companies.length === 0) {
         toast.error("Inga företag hittades. Försök med ett annat sökord.");
+      } else {
+        toast.success(`${companies.length} företag hittades`);
       }
       
     } catch (error) {
