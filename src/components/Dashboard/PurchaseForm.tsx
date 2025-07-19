@@ -195,6 +195,34 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
     },
   });
 
+  // Function to reset form to initial state
+  const resetForm = () => {
+    setShowFullForm(false);
+    setCarDataFetched(false);
+    setActiveTab("fordonsdata");
+    setIsDuplicateRegNumber(false);
+    setIsCheckingRegNumber(false);
+    setIsLoadingCarInfo(false);
+    setMileageDisplay("");
+    setPriceDisplay("");
+    setDownPaymentDisplay("");
+    setExpectedPriceDisplay("");
+    setUploadedFile(null);
+    setUploadedPurchaseDoc(null);
+    setSelectedYear(null);
+    setSelectedMonth(null);
+    form.reset({
+      purchase_date: new Date(),
+      down_payment: 0,
+    });
+  };
+
+  // Reset form when component mounts to ensure fresh start
+  useEffect(() => {
+    resetForm();
+  }, []);
+  
+  
   // Fetch user profile and auto-populate purchaser field
   useEffect(() => {
     const fetchUserProfile = async () => {
