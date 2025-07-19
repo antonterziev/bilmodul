@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import EmailVerification from "@/components/EmailVerification";
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,6 +23,7 @@ const Auth = () => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [showEmailExists, setShowEmailExists] = useState(false);
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -78,7 +80,7 @@ const Auth = () => {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/`,
+          emailRedirectTo: `${window.location.origin}/dashboard`,
           data: {
             first_name: firstName,
             last_name: lastName,
@@ -88,10 +90,8 @@ const Auth = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Registrering lyckades!",
-        description: "Kontrollera din e-post för att bekräfta ditt konto.",
-      });
+      // Show email verification screen
+      setShowEmailVerification(true);
     } catch (error: any) {
       toast({
         title: "Fel vid registrering",
@@ -101,6 +101,10 @@ const Auth = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleBackFromVerification = () => {
+    setShowEmailVerification(false);
   };
 
   const handleLoginFromEmailExists = () => {
@@ -216,6 +220,11 @@ const Auth = () => {
     }
   }, [showForgotPassword, email]);
 
+  // Email verification screen
+  if (showEmailVerification) {
+    return <EmailVerification email={email} onBack={handleBackFromVerification} />;
+  }
+
   // Email exists confirmation screen
   if (showEmailExists) {
     return (
@@ -309,6 +318,19 @@ const Auth = () => {
                     required
                   />
                 </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="signup-password" className="text-sm font-medium">Lösenord</Label>
+                <Input
+                  id="signup-password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                  required
+                  minLength={6}
+                />
               </div>
               
               <div className="flex items-center space-x-2">
