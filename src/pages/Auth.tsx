@@ -180,10 +180,10 @@ const Auth = () => {
 
   // Initialize resetEmail when showing forgot password form
   useEffect(() => {
-    if (showForgotPassword && !resetEmail) {
+    if (showForgotPassword) {
       setResetEmail(email);
     }
-  }, [showForgotPassword, email, resetEmail]);
+  }, [showForgotPassword, email]);
 
   if (isSignup) {
     return (
