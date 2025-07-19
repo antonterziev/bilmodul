@@ -80,7 +80,7 @@ const Auth = () => {
         email,
         password: crypto.randomUUID(), // Temporary password, will be set later
         options: {
-          emailRedirectTo: `${window.location.origin}/auth`,
+          emailRedirectTo: `${window.location.origin}/onboarding`,
           data: {
             first_name: firstName,
             last_name: lastName,
