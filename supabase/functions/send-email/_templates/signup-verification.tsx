@@ -139,10 +139,11 @@ const codeBox = {
 }
 
 const codeDigit = {
-  display: 'inline-block',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
   width: '48px',
   height: '48px',
-  lineHeight: '48px',
   backgroundColor: '#f3f4f6',
   border: '2px solid #e5e7eb',
   borderRadius: '8px',
