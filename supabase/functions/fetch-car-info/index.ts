@@ -15,21 +15,25 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey)
 function extractVehicleData(content: string, regNumber: string) {
   try {
     console.log('Extracting vehicle data from car.info content for:', regNumber);
+    console.log('Content sample (first 500 chars):', content.substring(0, 500));
     
     const data: any = {};
     
-    // First, try to extract from breadcrumb navigation: "Hem / Nissan / Qashqai / Qashqai / 2016"
+    // Log more specific patterns we're looking for
+    console.log('Looking for patterns in content...');
+    
+    // Pattern 1: Try to extract from breadcrumb navigation: "Hem / Volvo / V60 / V60 / 2020"
     const breadcrumbPattern = /Hem\s*\/\s*([A-Za-z-]+)\s*\/\s*([A-Za-z0-9\s]+)\s*\/\s*[^\/]*\/\s*(\d{4})/i;
     const breadcrumbMatch = content.match(breadcrumbPattern);
     
     if (breadcrumbMatch) {
-      data.brand = breadcrumbMatch[1].trim(); // Nissan
-      data.model = breadcrumbMatch[2].trim(); // Qashqai
-      data.modelYear = breadcrumbMatch[3].trim(); // 2016
+      data.brand = breadcrumbMatch[1].trim();
+      data.model = breadcrumbMatch[2].trim(); 
+      data.modelYear = breadcrumbMatch[3].trim();
       console.log('Extracted from breadcrumb:', { brand: data.brand, model: data.model, year: data.modelYear });
     }
     
-    // Fallback: try to extract from the title/header format
+    // Pattern 2: Try to extract from title/header format with reg number
     if (!data.brand) {
       const titlePattern = new RegExp(`${regNumber}\\s+([A-Za-z-]+)\\s+([^,]+),\\s*\\d+hk,\\s*(\\d{4})`, 'i');
       const titleMatch = content.match(titlePattern);
@@ -38,24 +42,44 @@ function extractVehicleData(content: string, regNumber: string) {
         data.brand = titleMatch[1].trim();
         data.model = titleMatch[2].trim();
         data.modelYear = titleMatch[3].trim();
-        console.log('Extracted from title:', { brand: data.brand, model: data.model, year: data.modelYear });
+        console.log('Extracted from title with reg:', { brand: data.brand, model: data.model, year: data.modelYear });
       }
     }
     
-    // Third fallback: Look for brand and model in the statistics/similar section
+    // Pattern 3: Look for direct brand model year patterns like "Volvo V60 2020"
     if (!data.brand) {
-      // Look for patterns like "Audi A4 Avant, 2013 - 2015"
+      const directPattern = /([A-Za-z-]+)\s+([A-Za-z0-9\s]+)\s+(\d{4})/g;
+      let match;
+      while ((match = directPattern.exec(content)) !== null) {
+        const potentialBrand = match[1].trim();
+        const potentialModel = match[2].trim();
+        const potentialYear = match[3].trim();
+        
+        // Check if it looks like a car brand (common brands)
+        const knownBrands = ['volvo', 'bmw', 'mercedes', 'audi', 'toyota', 'nissan', 'honda', 'ford', 'volkswagen', 'peugeot', 'citroen', 'renault', 'skoda', 'seat', 'fiat', 'hyundai', 'kia', 'mazda', 'subaru', 'mitsubishi', 'lexus', 'jaguar', 'porsche', 'lamborghini', 'ferrari', 'maserati', 'bentley', 'rolls-royce', 'aston-martin', 'mclaren', 'lotus', 'mini', 'land-rover', 'jeep', 'dodge', 'chrysler', 'cadillac', 'chevrolet', 'buick', 'gmc', 'lincoln', 'acura', 'infiniti', 'genesis', 'alfa-romeo', 'lancia', 'saab'];
+        
+        if (knownBrands.includes(potentialBrand.toLowerCase())) {
+          data.brand = potentialBrand;
+          data.model = potentialModel;
+          data.modelYear = potentialYear;
+          console.log('Extracted from direct pattern:', { brand: data.brand, model: data.model, year: data.modelYear });
+          break;
+        }
+      }
+    }
+    
+    // Pattern 4: Look for patterns in statistics/similar section
+    if (!data.brand) {
       const statsMatch = content.match(/([A-Za-z-]+)\s+([A-Za-z0-9\s]+),\s*(\d{4})\s*-\s*(\d{4})/i);
       if (statsMatch) {
-        data.brand = statsMatch[1].trim(); // Audi
-        data.model = statsMatch[2].trim(); // A4 Avant
-        // Use the end year as the model year
-        data.modelYear = statsMatch[4].trim(); // 2015
+        data.brand = statsMatch[1].trim();
+        data.model = statsMatch[2].trim();
+        data.modelYear = statsMatch[4].trim(); // Use end year
         console.log('Extracted from stats section:', { brand: data.brand, model: data.model, year: data.modelYear });
       }
     }
     
-    // Fourth fallback: Look for specific detailed model info like "Audi A4 Avant 3.0 TDI V6 DPF quattro S Tronic, 245hk, 2015"
+    // Pattern 5: Look for detailed model info with horsepower
     if (!data.brand) {
       const detailMatch = content.match(/([A-Za-z-]+)\s+([A-Za-z0-9\s]+)\s+[0-9.]+\s+[A-Z]+.*?,\s*\d+hk,\s*(\d{4})/i);
       if (detailMatch) {
@@ -64,6 +88,16 @@ function extractVehicleData(content: string, regNumber: string) {
         data.modelYear = detailMatch[3].trim();
         console.log('Extracted from detailed model info:', { brand: data.brand, model: data.model, year: data.modelYear });
       }
+    }
+    
+    // After all brand/model/year extraction attempts, log what we found
+    if (data.brand) {
+      console.log('Successfully found brand info:', { brand: data.brand, model: data.model, year: data.modelYear });
+    } else {
+      console.log('No brand/model/year data found in content');
+      // Log some content snippets to debug
+      const contentLines = content.split('\n').slice(0, 10);
+      console.log('First 10 lines of content:', contentLines);
     }
     const mileageMatch = content.match(/Mätarställning[:\s]*(\d+[\s,]*\d*)\s*mil/i);
     if (mileageMatch) {
