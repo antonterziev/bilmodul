@@ -29,7 +29,7 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
     setIsLoading(true);
     
     try {
-      // Update the user's password
+      // Update the user's password and user metadata
       const { error } = await supabase.auth.updateUser({
         password: password,
         data: {
@@ -46,18 +46,31 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
         return;
       }
 
-      // Move to next step or complete onboarding
-      if (currentStep < 4) {
-        setCurrentStep(currentStep + 1);
-      } else {
-        // Complete onboarding
-        await supabase.auth.updateUser({
-          data: { onboarding_completed: true }
-        });
-        
-        toast.success("Välkommen! Ditt konto är nu klart.");
-        window.location.href = "/dashboard";
+      // Move to next step
+      setCurrentStep(2);
+    } catch (error: any) {
+      toast.error("Ett fel uppstod");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCompleteOnboarding = async () => {
+    setIsLoading(true);
+    
+    try {
+      // Mark onboarding as completed
+      const { error } = await supabase.auth.updateUser({
+        data: { onboarding_completed: true }
+      });
+      
+      if (error) {
+        toast.error("Kunde inte slutföra registrering");
+        return;
       }
+      
+      toast.success("Välkommen! Ditt konto är nu klart.");
+      window.location.href = "/dashboard";
     } catch (error: any) {
       toast.error("Ett fel uppstod");
     } finally {
@@ -151,7 +164,7 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
       </p>
       
       <Button 
-        onClick={handlePasswordSubmit}
+        onClick={handleCompleteOnboarding}
         disabled={isLoading}
         className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white"
       >
