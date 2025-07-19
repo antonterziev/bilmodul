@@ -430,21 +430,20 @@ const Index = () => {
               </li>
               <li>
                 <Button 
-                  variant={showLager ? "default" : "ghost"} 
-                  className={`w-full justify-between ${showLager ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                  variant="ghost"
+                  className="w-full justify-between text-muted-foreground"
                   onClick={() => {
                     setShowLagerExpanded(!showLagerExpanded);
-                    if (!showLager) {
-                      setShowPurchaseForm(false);
-                      setShowLogistics(false);
-                      setShowSales(false);
-                      setShowSettings(false);
-                      setShowStatistics(false);
-                      setShowLager(true);
-                      setSelectedVehicleId(null);
-                      setSelectedSaleVehicleId(null);
-                      setLagerFilter('all');
-                    }
+                    // Always set to "I lager" when opening lagerhantering
+                    setShowPurchaseForm(false);
+                    setShowLogistics(false);
+                    setShowSales(false);
+                    setShowSettings(false);
+                    setShowStatistics(false);
+                    setShowLager(true);
+                    setSelectedVehicleId(null);
+                    setSelectedSaleVehicleId(null);
+                    setLagerFilter('på_lager'); // Always default to "I lager"
                   }}
                 >
                   <div className="flex items-center">
