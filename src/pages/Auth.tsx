@@ -149,17 +149,17 @@ const Auth = () => {
         {/* Left side - Form */}
         <div className="flex-1 flex items-center justify-center bg-white p-8">
           <div className="w-full max-w-md">
-            <div className="text-center mb-8">
-              <h1 className="text-4xl font-bold text-blue-600 mb-6">Lagermodulen</h1>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-                Skapa konto för att komma igång med Sveriges bästa lagerhanteringssystem
-              </h2>
-              <p className="text-gray-600 text-sm">Du binder dig inte till något.</p>
-            </div>
-            
-            <form onSubmit={handleSignUp} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="signup-email" className="text-sm font-medium">E-post *</Label>
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-blue-600 mb-6">Lagermodulen</h1>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+              Skapa konto för att komma igång med Sveriges bästa lagerhanteringssystem
+            </h2>
+            <p className="text-gray-600 text-sm">Du binder dig inte till något.</p>
+          </div>
+          
+          <form onSubmit={handleSignUp} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="signup-email" className="text-sm font-medium">E-post</Label>
                 <Input
                   id="signup-email"
                   type="email"
@@ -172,7 +172,7 @@ const Auth = () => {
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-sm font-medium">Förnamn *</Label>
+                  <Label htmlFor="firstName" className="text-sm font-medium">Förnamn</Label>
                   <Input
                     id="firstName"
                     type="text"
@@ -183,7 +183,7 @@ const Auth = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName" className="text-sm font-medium">Efternamn *</Label>
+                  <Label htmlFor="lastName" className="text-sm font-medium">Efternamn</Label>
                   <Input
                     id="lastName"
                     type="text"
@@ -211,8 +211,12 @@ const Auth = () => {
               
               <Button 
                 type="submit"
-                disabled={isLoading}
-                className="w-full h-12 bg-blue-400 hover:bg-blue-500 text-white font-medium"
+                disabled={isLoading || !email || !firstName || !lastName || !acceptedTerms}
+                className={`w-full h-12 text-white font-medium transition-colors ${
+                  email && firstName && lastName && acceptedTerms 
+                    ? "bg-blue-400 hover:bg-blue-500" 
+                    : "bg-gray-300 cursor-not-allowed"
+                }`}
               >
                 {isLoading ? "Skapar konto..." : "Fortsätt"}
               </Button>
@@ -242,7 +246,7 @@ const Auth = () => {
         <div 
           className="flex-1 relative"
           style={{
-            backgroundImage: `url(/lovable-uploads/bfd7e764-1375-476e-9fe7-ee388d08f430.png)`,
+            backgroundImage: `url(/lovable-uploads/f9ec5a89-2d14-4d32-bf67-1ce884d50c0c.png)`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
