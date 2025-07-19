@@ -63,7 +63,7 @@ const Landing = () => {
     {
       name: "Anna Andersson",
       company: "Byggmaterial Nord AB",
-      text: "Lagermodulen har revolutionerat vår lagerhantering. Vi sparar 15 timmar per vecka!",
+      text: "Veksla har revolutionerat vår lagerhantering. Vi sparar 15 timmar per vecka!",
       rating: 5
     },
     {
@@ -86,8 +86,7 @@ const Landing = () => {
       <header className="border-b bg-white sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Package className="h-8 w-8 text-blue-600" />
-            <span className="text-2xl font-bold text-blue-600">Lagermodulen</span>
+            <img src="/lovable-uploads/b3bc9ec0-207a-4121-b297-01f8ede43eab.png" alt="Veksla" className="h-8" />
           </div>
           
           <nav className="hidden md:flex items-center space-x-8">
@@ -127,7 +126,7 @@ const Landing = () => {
               </h1>
               
               <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                Med Lagermodulen får du tillgång till <strong>automatiserad lagerhantering</strong>, 
+                Med Veksla får du tillgång till <strong>automatiserad lagerhantering</strong>, 
                 <strong> realtidsrapporter</strong>, <strong>integrerad fakturering</strong> och 
                 <strong> avancerad analytics</strong> i en enda plattform.
               </p>
@@ -177,7 +176,7 @@ const Landing = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Fördelarna med att använda <span className="text-blue-600">Lagermodulen</span>
+              Fördelarna med att använda <span className="text-blue-600">Veksla</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Som kund får du tillgång till en komplett verktygslåda som hjälper dig driva ditt företag framåt.
@@ -214,7 +213,7 @@ const Landing = () => {
               Kraftfulla funktioner för moderna företag
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Lagermodulen erbjuder allt du behöver för att hantera ditt lager effektivt och professionellt.
+              Veksla erbjuder allt du behöver för att hantera ditt lager effektivt och professionellt.
             </p>
           </div>
           
@@ -246,7 +245,7 @@ const Landing = () => {
               Vad våra kunder säger
             </h2>
             <p className="text-xl text-gray-600">
-              Över 1,000+ företag litar på Lagermodulen för sin lagerhantering
+              Över 1,000+ företag litar på Veksla för sin lagerhantering
             </p>
           </div>
           
@@ -280,7 +279,7 @@ const Landing = () => {
             Redo att revolutionera din lagerhantering?
           </h2>
           <p className="text-xl mb-8 opacity-90">
-            Gå med i över 1,000+ företag som redan använder Lagermodulen
+            Gå med i över 1,000+ företag som redan använder Veksla
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/auth">
@@ -302,8 +301,7 @@ const Landing = () => {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <Package className="h-8 w-8 text-blue-500" />
-                <span className="text-2xl font-bold">Lagermodulen</span>
+                <img src="/lovable-uploads/b3bc9ec0-207a-4121-b297-01f8ede43eab.png" alt="Veksla" className="h-8" />
               </div>
               <p className="text-gray-400 mb-4">
                 Sveriges mest innovativa lagerhanteringssystem för moderna företag.
@@ -348,7 +346,7 @@ const Landing = () => {
           </div>
           
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 Lagermodulen. Alla rättigheter förbehållna.</p>
+            <p>&copy; 2024 Veksla. Alla rättigheter förbehållna.</p>
           </div>
         </div>
       </footer>

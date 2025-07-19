@@ -337,7 +337,7 @@ const Index = () => {
 
     return (
       <div className="text-center py-12">
-        <h1 className="text-2xl font-bold mb-4">Välkommen till Lagermodulen, {getFirstName()}</h1>
+        <h1 className="text-2xl font-bold mb-4">Välkommen till Veksla, {getFirstName()}</h1>
         <p className="text-muted-foreground">Välj en sektion från menyn för att komma igång.</p>
       </div>
     );
@@ -347,7 +347,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b flex">
         <div className="w-72 p-4 flex items-center justify-center">
-          <h2 className="text-2xl font-bold">Lagermodulen</h2>
+          <img src="/lovable-uploads/b3bc9ec0-207a-4121-b297-01f8ede43eab.png" alt="Veksla" className="h-8" />
         </div>
         <div className="flex-1 px-4 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-3">
