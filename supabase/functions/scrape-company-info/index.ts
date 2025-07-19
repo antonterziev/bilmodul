@@ -31,8 +31,8 @@ Deno.serve(async (req) => {
 
     console.log('Scraping company info for:', searchTerm);
 
-    // Fetch the search results from Bolagsverket
-    const searchUrl = `https://foretagsinfo.bolagsverket.se/sok-foretagsinformation-web/foretag?sokord=${encodeURIComponent(searchTerm)}`;
+    // Fetch the search results from allabolag.se
+    const searchUrl = `https://www.allabolag.se/bransch-s%C3%B6k?q=${encodeURIComponent(searchTerm)}`;
     
     const response = await fetch(searchUrl, {
       headers: {
@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
     });
 
     if (!response.ok) {
-      console.error('Failed to fetch from Bolagsverket:', response.status, response.statusText);
+      console.error('Failed to fetch from allabolag.se:', response.status, response.statusText);
       return new Response(
         JSON.stringify({ error: 'Failed to fetch company data' }),
         { 
@@ -63,16 +63,20 @@ Deno.serve(async (req) => {
     // Parse the HTML to extract company information
     const companies: CompanyResult[] = [];
     
-    // Multiple regex patterns to catch different HTML structures
+    // Multiple regex patterns to catch allabolag.se HTML structures
     const patterns = [
-      // Standard hit-item structure
-      /<div[^>]*class="[^"]*hit-item[^"]*"[^>]*>[\s\S]*?<h3[^>]*>(.*?)<\/h3>[\s\S]*?<span[^>]*>(\d{6}-\d{4})<\/span>/gi,
-      // Table structure
-      /<tr[^>]*>[\s\S]*?<td[^>]*>(.*?)<\/td>[\s\S]*?<td[^>]*>(\d{6}-\d{4})<\/td>/gi,
-      // Alternative div structure
-      /<div[^>]*hit[^>]*>[\s\S]*?<.*?>(.*?)<\/.*?>[\s\S]*?(\d{6}-\d{4})/gi,
-      // More flexible pattern for company name and org number
-      /<[^>]*>(.*?)<\/[^>]*>[\s\S]*?(\d{6}-\d{4})/gi
+      // Allabolag search result structure
+      /<div[^>]*class="[^"]*search-result[^"]*"[^>]*>[\s\S]*?<h3[^>]*><a[^>]*>(.*?)<\/a><\/h3>[\s\S]*?(\d{6}-\d{4})/gi,
+      // Company listing structure
+      /<tr[^>]*>[\s\S]*?<td[^>]*><a[^>]*>(.*?)<\/a><\/td>[\s\S]*?<td[^>]*>(\d{6}-\d{4})<\/td>/gi,
+      // Alternative div structure with company name and org number
+      /<div[^>]*company[^>]*>[\s\S]*?<h[0-9][^>]*><a[^>]*>(.*?)<\/a><\/h[0-9]>[\s\S]*?(\d{6}-\d{4})/gi,
+      // General pattern for company name in link followed by org number
+      /<a[^>]*>(.*?)<\/a>[\s\S]*?(\d{6}-\d{4})/gi,
+      // Table cell with company name and org number
+      /<td[^>]*>[\s\S]*?<a[^>]*>(.*?)<\/a>[\s\S]*?<\/td>[\s\S]*?<td[^>]*>(\d{6}-\d{4})<\/td>/gi,
+      // Broader pattern for any text followed by org number
+      />(.*?)<[\s\S]*?(\d{6}-\d{4})/gi
     ];
 
     for (const pattern of patterns) {
@@ -84,7 +88,7 @@ Deno.serve(async (req) => {
         const orgNumber = match[2];
         
         if (rawName && orgNumber) {
-          // Clean up the company name
+          // Clean up the company name - allabolag specific cleanup
           const name = rawName
             .replace(/<[^>]*>/g, '') // Remove HTML tags
             .replace(/&nbsp;/g, ' ') // Replace non-breaking spaces
@@ -92,6 +96,7 @@ Deno.serve(async (req) => {
             .replace(/&lt;/g, '<')
             .replace(/&gt;/g, '>')
             .replace(/&quot;/g, '"')
+            .replace(/\s+/g, ' ') // Normalize whitespace
             .trim();
           
           // Skip empty names or organization numbers that appear in the name
