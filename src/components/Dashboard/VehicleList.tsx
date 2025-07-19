@@ -15,6 +15,7 @@ interface Vehicle {
   purchase_date: string;
   purchaser: string;
   purchase_price: number;
+  expected_selling_price: number | null;
   status: string;
 }
 
@@ -63,7 +64,7 @@ export const VehicleList = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('inventory_items')
-        .select('id, registration_number, brand, model, purchase_date, purchaser, purchase_price, status')
+        .select('id, registration_number, brand, model, purchase_date, purchaser, purchase_price, expected_selling_price, status')
         .eq('user_id', user.id)
         .order('purchase_date', { ascending: false });
 
@@ -228,7 +229,7 @@ export const VehicleList = () => {
                 </div>
                 
                 {/* Vehicle main info */}
-                <div className="flex-1 grid grid-cols-7 gap-3 items-center text-sm">
+                <div className="flex-1 grid grid-cols-8 gap-3 items-center text-sm">
                   {/* Column 1: Brand & Model + Registration */}
                   <div className="col-span-2">
                     <div className="flex items-center gap-2 mb-1">
@@ -278,7 +279,15 @@ export const VehicleList = () => {
                     <p className="font-medium">{formatPrice(vehicle.purchase_price)}</p>
                   </div>
                   
-                  {/* Column 6: Storage Days */}
+                  {/* Column 6: Expected Selling Price */}
+                  <div>
+                    <p className="text-xs text-muted-foreground whitespace-nowrap">Förväntat utpris</p>
+                    <p className="font-medium">
+                      {vehicle.expected_selling_price ? formatPrice(vehicle.expected_selling_price) : "-"}
+                    </p>
+                  </div>
+                  
+                  {/* Column 7: Storage Days */}
                   <div>
                     <p className="text-xs text-muted-foreground whitespace-nowrap">Lagerdagar</p>
                     <p className="font-medium">{calculateStorageDays(vehicle.purchase_date)} dagar</p>
