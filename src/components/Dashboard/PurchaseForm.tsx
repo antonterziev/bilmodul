@@ -643,7 +643,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                   )}
                   {isLoadingCarInfo && (
                     <p className="text-sm text-muted-foreground mt-1">
-                      Hämtar fordonsdata från car.info...
+                      Hämtar fordonsdata...
                     </p>
                   )}
                   {isDuplicateRegNumber && (
