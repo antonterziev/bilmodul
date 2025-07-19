@@ -680,7 +680,7 @@ const Index = () => {
                   }}
                 >
                   <div className="flex items-center">
-                    <BookOpen className="mr-2 h-4 w-4" />
+                    <FileText className="mr-2 h-4 w-4" />
                     Ekonomi
                   </div>
                   {showEkonomiExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -692,48 +692,39 @@ const Index = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="w-full justify-between text-sm pl-10 text-muted-foreground"
+                      className="w-full justify-start text-sm pl-10 text-muted-foreground"
                       onClick={() => {
                         setShowBokforing(true);
                       }}
                     >
-                      <div className="flex items-center">
-                        <FileText className="mr-2 h-4 w-4" />
-                        Bokföring
-                      </div>
-                      <div className="bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
+                      Bokföring
+                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
                         PRO
                       </div>
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="w-full justify-between text-sm pl-10 text-muted-foreground"
+                      className="w-full justify-start text-sm pl-10 text-muted-foreground"
                       onClick={() => {
                         setShowVerifikationDialog(true);
                       }}
                     >
-                      <div className="flex items-center">
-                        <CheckSquare className="mr-2 h-4 w-4" />
-                        Verifikation
-                      </div>
-                      <div className="bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
+                      Verifikation
+                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
                         PRO
                       </div>
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="w-full justify-between text-sm pl-10 text-muted-foreground"
+                      className="w-full justify-start text-sm pl-10 text-muted-foreground"
                       onClick={() => {
                         setShowDokumentDialog(true);
                       }}
                     >
-                      <div className="flex items-center">
-                        <File className="mr-2 h-4 w-4" />
-                        Dokument
-                      </div>
-                      <div className="bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
+                      Dokument
+                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
                         PRO
                       </div>
                     </Button>
