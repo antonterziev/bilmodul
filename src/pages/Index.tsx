@@ -314,7 +314,7 @@ const Index = () => {
       );
     }
 
-    // Default content for Hem
+    // Default content for Översikt
     const getFirstName = () => {
       if (userProfile?.full_name) {
         return userProfile.full_name.split(' ')[0];
@@ -414,7 +414,7 @@ const Index = () => {
                   }}
                 >
                   <Home className="mr-2 h-4 w-4" />
-                  Hem
+                  Översikt
                 </Button>
               </li>
               <li>
