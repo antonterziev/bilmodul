@@ -47,6 +47,8 @@ const Index = () => {
   const [showBokforing, setShowBokforing] = useState(false);
   const [showDirektfloden, setShowDirektfloden] = useState(false);
   const [showDirektflodenExpanded, setShowDirektflodenExpanded] = useState(false);
+  const [showAffarer, setShowAffarer] = useState(false);
+  const [showAffarerExpanded, setShowAffarerExpanded] = useState(false);
   const [showVerifikationDialog, setShowVerifikationDialog] = useState(false);
   const [showDokumentDialog, setShowDokumentDialog] = useState(false);
   const [showLagerfinansiering, setShowLagerfinansiering] = useState(false);
@@ -666,42 +668,60 @@ const Index = () => {
               </li>
               <li>
                 <Button 
-                  variant="ghost" 
-                  className="w-full justify-start text-muted-foreground"
-                  onClick={() => setShowAvtal(true)}
+                  variant="ghost"
+                  className="w-full justify-between text-muted-foreground"
+                  onClick={() => {
+                    setShowAffarerExpanded(!showAffarerExpanded);
+                  }}
                 >
-                  <FileText className="mr-2 h-4 w-4" />
-                  Avtal
-                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                    PRO
+                  <div className="flex items-center">
+                    <FileText className="mr-2 h-4 w-4" />
+                    Affärer
                   </div>
+                  {showAffarerExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                 </Button>
-              </li>
-              <li>
-                <Button 
-                  variant="ghost" 
-                  className="w-full justify-start text-muted-foreground"
-                  onClick={() => setShowFakturor(true)}
-                >
-                  <Receipt className="mr-2 h-4 w-4" />
-                  Fakturor
-                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                    PRO
+                
+                {/* Subcategories */}
+                {showAffarerExpanded && (
+                  <div className="ml-0 mt-2 space-y-1">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-muted-foreground pl-10"
+                      onClick={() => {
+                        setShowAvtal(true);
+                      }}
+                    >
+                      Avtal
+                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
+                        PRO
+                      </div>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-muted-foreground pl-10"
+                      onClick={() => {
+                        setShowFakturor(true);
+                      }}
+                    >
+                      Fakturor
+                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
+                        PRO
+                      </div>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-muted-foreground pl-10"
+                      onClick={() => {
+                        setShowKundregister(true);
+                      }}
+                    >
+                      Kunder
+                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
+                        PRO
+                      </div>
+                    </Button>
                   </div>
-                </Button>
-              </li>
-              <li>
-                <Button 
-                  variant="ghost" 
-                  className="w-full justify-start text-muted-foreground"
-                  onClick={() => setShowKundregister(true)}
-                >
-                  <Users className="mr-2 h-4 w-4" />
-                  Kundregister
-                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                    PRO
-                  </div>
-                </Button>
+                )}
               </li>
               <li>
                 <Button 
