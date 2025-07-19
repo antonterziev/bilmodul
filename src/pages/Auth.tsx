@@ -20,6 +20,7 @@ const Auth = () => {
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [showPasswordStep, setShowPasswordStep] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -177,6 +178,13 @@ const Auth = () => {
     setPassword("");
   };
 
+  // Initialize resetEmail when showing forgot password form
+  useEffect(() => {
+    if (showForgotPassword && !resetEmail) {
+      setResetEmail(email);
+    }
+  }, [showForgotPassword, email, resetEmail]);
+
   if (isSignup) {
     return (
       <div className="min-h-screen flex">
@@ -294,8 +302,6 @@ const Auth = () => {
 
   // Forgot password step
   if (showForgotPassword) {
-    const [resetEmail, setResetEmail] = useState(email);
-    
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <div className="w-full max-w-md">
