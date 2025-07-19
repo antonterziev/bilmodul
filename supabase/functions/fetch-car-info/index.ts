@@ -117,7 +117,7 @@ function extractVehicleData(content: string, regNumber: string) {
     }
     
     // Extract indicative valuation (Indikativ värdering) for expected selling price
-    const valuationMatch = content.match(/Indikativ värdering[^0-9]*(\d+[\s,]*\d*)\s*SEK/i);
+    const valuationMatch = content.match(/Indikativ värdering \(företag\)\s*(\d+[\s,]*\d*)\s*SEK/i);
     if (valuationMatch) {
       const valuationAmount = valuationMatch[1].replace(/[\s,]/g, '');
       data.expectedSellingPrice = parseInt(valuationAmount);
