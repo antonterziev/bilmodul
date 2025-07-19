@@ -243,7 +243,7 @@ export const VehicleList = () => {
                   </div>
                   
                   {/* Column 2: Status */}
-                  <div className="text-center">
+                  <div className="text-center -ml-4">
                     <p className="text-xs text-muted-foreground whitespace-nowrap">Status</p>
                     <div className="flex justify-center">
                        <Badge 
@@ -264,7 +264,7 @@ export const VehicleList = () => {
                   {/* Column 3: Purchase Date */}
                   <div>
                     <p className="text-xs text-muted-foreground whitespace-nowrap">Inköpsdatum</p>
-                    <p className="font-medium text-sm">{formatDate(vehicle.purchase_date)}</p>
+                    <p className="font-medium text-sm whitespace-nowrap">{formatDate(vehicle.purchase_date)}</p>
                   </div>
                   
                   {/* Column 4: Purchaser */}
