@@ -73,21 +73,38 @@ Deno.serve(async (req) => {
       
       const index = html.indexOf(orgNum);
       if (index > -1) {
-        // Look for company name in the 300 characters before the org number
-        const beforeText = html.substring(Math.max(0, index - 300), index);
+        // Look for company name in the 500 characters before the org number
+        const beforeText = html.substring(Math.max(0, index - 500), index);
         
-        // Find text that looks like a company name (contains "AB" or similar patterns)
-        const namePattern = /([A-ZÅÄÖ][^<>]{5,60}(?:AB|aktiebolag))/gi;
-        const matches = beforeText.match(namePattern);
+        // Try multiple approaches to find company names
+        let name = '';
         
-        if (matches && matches.length > 0) {
-          const rawName = matches[matches.length - 1];
-          const name = rawName.trim();
-          
-          if (!companies.find(c => c.orgNumber === orgNum)) {
-            companies.push({ name, orgNumber: orgNum });
-            console.log('Found company:', name, orgNum);
+        // Method 1: Look for text in links or headings that ends with AB
+        const linkMatch = beforeText.match(/>([^<>]*(?:AB|aktiebolag)[^<>]*)</gi);
+        if (linkMatch && linkMatch.length > 0) {
+          name = linkMatch[linkMatch.length - 1].replace('>', '').trim();
+        }
+        
+        // Method 2: If no AB company found, look for any company-like text
+        if (!name) {
+          const textMatch = beforeText.match(/>([A-ZÅÄÖ][A-Za-zÅÄÖåäö\s&-]{8,50})</g);
+          if (textMatch && textMatch.length > 0) {
+            name = textMatch[textMatch.length - 1].replace('>', '').trim();
           }
+        }
+        
+        // Clean up the name
+        name = name
+          .replace(/&nbsp;/g, ' ')
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .trim();
+        
+        if (name && name.length > 3 && !companies.find(c => c.orgNumber === orgNum)) {
+          companies.push({ name, orgNumber: orgNum });
+          console.log('Found company:', name, orgNum);
         }
       }
     }
