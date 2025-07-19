@@ -19,6 +19,7 @@ const Auth = () => {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [showPasswordStep, setShowPasswordStep] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -110,8 +111,9 @@ const Auth = () => {
     }
   };
 
-  const handleForgotPassword = async () => {
-    if (!email.trim()) {
+  const handleForgotPassword = async (resetEmail?: string) => {
+    const emailToUse = resetEmail || email;
+    if (!emailToUse.trim()) {
       toast({
         title: "E-post krävs",
         description: "Ange din e-postadress för att återställa lösenordet.",
@@ -123,7 +125,7 @@ const Auth = () => {
     setIsResettingPassword(true);
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error } = await supabase.auth.resetPasswordForEmail(emailToUse, {
         redirectTo: `${window.location.origin}/auth?reset=true`,
       });
 
@@ -133,6 +135,8 @@ const Auth = () => {
         title: "E-post skickad!",
         description: "Kontrollera din e-post för instruktioner om hur du återställer ditt lösenord.",
       });
+      
+      setShowForgotPassword(false);
     } catch (error: any) {
       toast({
         title: "Fel vid återställning",
@@ -270,6 +274,63 @@ const Auth = () => {
     );
   }
 
+  // Forgot password step
+  if (showForgotPassword) {
+    const [resetEmail, setResetEmail] = useState(email);
+    
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="w-full max-w-md">
+          {/* Brand Logo */}
+          <div className="text-center mb-8">
+            <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-16 mx-auto mb-8" />
+          </div>
+          
+          <Card className="shadow-lg border-0">
+            <CardContent className="p-8">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">Glömt lösenord?</h2>
+                <p className="text-gray-600 text-sm">
+                  Ingen fara, det händer för alla ibland. Ange din e-post så skickar vi en länk för att återställa.
+                </p>
+              </div>
+              
+              <form onSubmit={(e) => { e.preventDefault(); handleForgotPassword(resetEmail); }} className="space-y-4">
+                <Input
+                  type="email"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-center"
+                  placeholder="din.email@exempel.se"
+                  required
+                />
+                
+                <Button 
+                  type="submit"
+                  disabled={isResettingPassword || !resetEmail.trim()}
+                  className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                >
+                  {isResettingPassword ? "Skickar..." : "Skicka länken"}
+                </Button>
+              </form>
+              
+              {/* Back to login */}
+              <div className="text-center mt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPassword(false)}
+                  className="text-blue-600 text-sm hover:underline"
+                >
+                  Tillbaka till inloggning
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   // Email entry step
   if (!showPasswordStep) {
     return (
@@ -378,11 +439,10 @@ const Auth = () => {
               <div className="text-left">
                 <button
                   type="button"
-                  onClick={handleForgotPassword}
-                  disabled={isResettingPassword}
-                  className="text-blue-600 text-sm hover:underline disabled:opacity-50"
+                  onClick={() => setShowForgotPassword(true)}
+                  className="text-blue-600 text-sm hover:underline"
                 >
-                  {isResettingPassword ? "Skickar e-post..." : "Glömt lösenord?"}
+                  Glömt lösenord?
                 </button>
               </div>
               
