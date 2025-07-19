@@ -738,8 +738,10 @@ const Index = () => {
                     setSelectedSaleVehicleId(null);
                   }}
                 >
-                  <SettingsIcon className="mr-2 h-4 w-4" />
-                  Inställningar
+                  <div className="flex items-center">
+                    <SettingsIcon className="mr-2 h-4 w-4" />
+                    Inställningar
+                  </div>
                 </Button>
               </li>
             </ul>
