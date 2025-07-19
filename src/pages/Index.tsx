@@ -691,8 +691,7 @@ const Index = () => {
                   <div className="ml-0 mt-2 space-y-1">
                     <Button
                       variant="ghost"
-                      size="sm"
-                      className="w-full justify-start text-sm pl-10 text-muted-foreground"
+                      className="w-full justify-start text-muted-foreground pl-10"
                       onClick={() => {
                         setShowBokforing(true);
                       }}
@@ -704,8 +703,7 @@ const Index = () => {
                     </Button>
                     <Button
                       variant="ghost"
-                      size="sm"
-                      className="w-full justify-start text-sm pl-10 text-muted-foreground"
+                      className="w-full justify-start text-muted-foreground pl-10"
                       onClick={() => {
                         setShowVerifikationDialog(true);
                       }}
@@ -717,8 +715,7 @@ const Index = () => {
                     </Button>
                     <Button
                       variant="ghost"
-                      size="sm"
-                      className="w-full justify-start text-sm pl-10 text-muted-foreground"
+                      className="w-full justify-start text-muted-foreground pl-10"
                       onClick={() => {
                         setShowDokumentDialog(true);
                       }}
