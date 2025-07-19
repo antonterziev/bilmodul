@@ -59,24 +59,19 @@ Deno.serve(async (req) => {
         })
       )
 
-      console.log('About to send email to:', user.email)
-      console.log('Email data:', { token, email_action_type })
-
       const { data, error } = await resend.emails.send({
-        from: 'onboarding@lagermodulen.se',
+        from: 'Veksla <onboarding@lagermodulen.se>',
         to: [user.email],
-        subject: 'Test Verification Email',
-        html: `<h1>Your verification code: ${token}</h1>`,
+        subject: 'Välkommen till Veksla - Bekräfta din e-post',
+        html,
       })
 
-      console.log('Resend response:', { data, error })
-
       if (error) {
-        console.error('Resend error details:', JSON.stringify(error))
-        throw new Error(`Resend failed: ${error.message}`)
+        console.error('Resend error:', error)
+        throw error
       }
 
-      console.log('Email sent successfully to:', user.email)
+      console.log('Custom signup email sent successfully to:', user.email)
 
       console.log('Custom signup email sent successfully to:', user.email)
     }
