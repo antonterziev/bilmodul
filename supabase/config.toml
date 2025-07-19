@@ -1,4 +1,7 @@
 project_id = "yztwwehxppldoecwhomg"
 
+[functions.send-email]
+verify_jwt = false
+
 [functions.fetch-car-info]
 verify_jwt = false
