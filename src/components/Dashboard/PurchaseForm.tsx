@@ -1090,7 +1090,7 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
 
                 {/* 2. Inköpsdatum */}
                 <div>
-                  <Label htmlFor="purchase_date">Inköpsdatum *</Label>
+                  <Label htmlFor="purchase_date">Inköpsdatum*</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button variant="outline" className="w-full justify-start text-left font-normal">
