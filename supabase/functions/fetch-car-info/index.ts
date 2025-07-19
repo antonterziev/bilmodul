@@ -12,15 +12,39 @@ function extractVehicleData(content: string, regNumber: string) {
     
     const data: any = {};
     
-    // Extract mileage (Mätarställning)
+    // First, try to extract from the page title/header which has format:
+    // "KFN193 Mercedes-Benz G 400 d 9G-Tronic, 330hk, 2022"
+    const titlePattern = new RegExp(`${regNumber}\\s+([A-Za-z-]+)\\s+([^,]+),\\s*\\d+hk,\\s*(\\d{4})`, 'i');
+    const titleMatch = content.match(titlePattern);
+    
+    if (titleMatch) {
+      data.brand = titleMatch[1].trim(); // Mercedes-Benz
+      data.model = titleMatch[2].trim(); // G 400 d 9G-Tronic
+      data.modelYear = titleMatch[3].trim(); // 2022
+      console.log('Extracted from title:', { brand: data.brand, model: data.model, year: data.modelYear });
+    }
+    
+    // Alternative: Look for the pattern without registration number
+    if (!data.brand) {
+      const altTitleMatch = content.match(/([A-Za-z-]+)\s+([^,]+),\s*\d+hk,\s*(\d{4})/i);
+      if (altTitleMatch) {
+        data.brand = altTitleMatch[1].trim();
+        data.model = altTitleMatch[2].trim();
+        data.modelYear = altTitleMatch[3].trim();
+        console.log('Extracted from alt title:', { brand: data.brand, model: data.model, year: data.modelYear });
+      }
+    }
+    
+    // Extract mileage (Mätarställning) - convert from mil to kilometers
     const mileageMatch = content.match(/Mätarställning[:\s]*(\d+[\s,]*\d*)\s*mil/i);
     if (mileageMatch) {
       const mileageInMil = mileageMatch[1].replace(/[\s,]/g, '');
       // Convert from Swedish mil to kilometers (1 mil = 10 km)
       data.mileage = (parseInt(mileageInMil) * 10).toString();
+      console.log('Extracted mileage:', data.mileage, 'km');
     }
     
-    // Extract engine info which often contains brand info
+    // Extract engine info 
     const motorMatch = content.match(/Motor[:\s]*([^,\n]+)/i);
     if (motorMatch) {
       data.engineInfo = motorMatch[1].trim();
@@ -50,7 +74,7 @@ function extractVehicleData(content: string, regNumber: string) {
       data.drivetrain = drivetrainMatch[1].trim();
     }
     
-    // Extract generation info which might help identify model
+    // Extract generation info
     const generationMatch = content.match(/Generation[:\s]*([^\n]+)/i);
     if (generationMatch) {
       data.generation = generationMatch[1].trim();
@@ -62,16 +86,7 @@ function extractVehicleData(content: string, regNumber: string) {
       data.equipmentLevel = equipmentMatch[1].trim();
     }
     
-    // Try to extract year from generation or other context
-    const yearMatch = content.match(/(\d{4})/);
-    if (yearMatch) {
-      const year = parseInt(yearMatch[1]);
-      if (year >= 1900 && year <= new Date().getFullYear()) {
-        data.modelYear = yearMatch[1];
-      }
-    }
-    
-    console.log('Extracted data from car.info:', data);
+    console.log('Final extracted data from car.info:', data);
     return data;
   } catch (error) {
     console.error('Error extracting vehicle data:', error);
