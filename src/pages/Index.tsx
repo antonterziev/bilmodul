@@ -364,7 +364,7 @@ const Index = () => {
                   }}
                 >
                   <Car className="mr-2 h-4 w-4" />
-                  Lager
+                  Lagerhantering
                 </Button>
               </li>
               <li>
