@@ -459,7 +459,7 @@ const Index = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={`w-full justify-start text-sm pl-8 ${lagerFilter === 'på_lager' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
+                      className={`w-full justify-start text-sm pl-6 ${lagerFilter === 'på_lager' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
                       onClick={() => {
                         setShowPurchaseForm(false);
                         setShowLogistics(false);
@@ -477,7 +477,7 @@ const Index = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={`w-full justify-start text-sm pl-8 ${lagerFilter === 'såld' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
+                      className={`w-full justify-start text-sm pl-6 ${lagerFilter === 'såld' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
                       onClick={() => {
                         setShowPurchaseForm(false);
                         setShowLogistics(false);
