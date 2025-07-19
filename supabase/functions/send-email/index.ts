@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
       )
 
       const { error } = await resend.emails.send({
-        from: 'Veksla <onboarding@resend.dev>',
+        from: 'onboarding@resend.dev',
         to: [user.email],
         subject: 'Välkommen till Veksla - Bekräfta din e-post',
         html,
