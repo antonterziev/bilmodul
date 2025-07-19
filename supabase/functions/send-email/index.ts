@@ -28,6 +28,10 @@ Deno.serve(async (req) => {
   try {
     const payload = await req.text()
     const headers = Object.fromEntries(req.headers)
+    
+    console.log('Received payload:', payload)
+    console.log('Headers:', headers)
+    
     const wh = new Webhook(hookSecret)
     
     const {
@@ -45,6 +49,8 @@ Deno.serve(async (req) => {
         site_url: string
       }
     }
+
+    console.log('Parsed data:', { user, email_action_type, token })
 
     // Only send custom emails for signup verification
     if (email_action_type === 'signup') {
