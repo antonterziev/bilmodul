@@ -192,6 +192,9 @@ const Index = () => {
       return <PurchaseForm onSuccess={() => {
         loadStats();
         setShowPurchaseForm(false);
+        setShowLager(true);
+        setShowLagerExpanded(true);
+        setLagerFilter('på_lager');
       }} />;
     }
 
