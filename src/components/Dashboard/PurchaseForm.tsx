@@ -702,11 +702,6 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                       )}
                       readOnly={carDataFetched}
                     />
-                    {carDataFetched && (
-                      <p className="text-sm text-success mt-1">
-                        Fordonsdata automatiskt hämtad ✓
-                      </p>
-                    )}
                     {form.formState.errors.registration_number && (
                       <p className="text-sm text-destructive mt-1">
                         {form.formState.errors.registration_number.message}
