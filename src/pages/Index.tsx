@@ -674,15 +674,11 @@ const Index = () => {
                   className="w-full justify-between text-muted-foreground"
                   onClick={() => {
                     setShowEkonomiExpanded(!showEkonomiExpanded);
-                    alert("Bokföring, Verifikation och Dokument är premiumfunktioner som kommer snart!");
                   }}
                 >
                   <div className="flex items-center">
                     <BookOpen className="mr-2 h-4 w-4" />
                     Ekonomi
-                    <div className="ml-2 bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                      PRO
-                    </div>
                   </div>
                   {showEkonomiExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                 </Button>
@@ -693,35 +689,50 @@ const Index = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="w-full justify-start text-sm pl-10 text-muted-foreground"
+                      className="w-full justify-between text-sm pl-10 text-muted-foreground"
                       onClick={() => {
                         alert("Bokföring är en premiumfunktion som kommer snart!");
                       }}
                     >
-                      <FileText className="mr-2 h-4 w-4" />
-                      Bokföring
+                      <div className="flex items-center">
+                        <FileText className="mr-2 h-4 w-4" />
+                        Bokföring
+                      </div>
+                      <div className="bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
+                        PRO
+                      </div>
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="w-full justify-start text-sm pl-10 text-muted-foreground"
+                      className="w-full justify-between text-sm pl-10 text-muted-foreground"
                       onClick={() => {
                         alert("Verifikation är en premiumfunktion som kommer snart!");
                       }}
                     >
-                      <CheckSquare className="mr-2 h-4 w-4" />
-                      Verifikation
+                      <div className="flex items-center">
+                        <CheckSquare className="mr-2 h-4 w-4" />
+                        Verifikation
+                      </div>
+                      <div className="bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
+                        PRO
+                      </div>
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="w-full justify-start text-sm pl-10 text-muted-foreground"
+                      className="w-full justify-between text-sm pl-10 text-muted-foreground"
                       onClick={() => {
                         alert("Dokument är en premiumfunktion som kommer snart!");
                       }}
                     >
-                      <File className="mr-2 h-4 w-4" />
-                      Dokument
+                      <div className="flex items-center">
+                        <File className="mr-2 h-4 w-4" />
+                        Dokument
+                      </div>
+                      <div className="bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
+                        PRO
+                      </div>
                     </Button>
                   </div>
                 )}
