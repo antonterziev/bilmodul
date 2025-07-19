@@ -602,7 +602,7 @@ const Index = () => {
                   onClick={() => setShowBokforingsunderlag(true)}
                 >
                   <BookOpen className="mr-2 h-4 w-4" />
-                  Bokföringsunderlag
+                  Bokföring
                   <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
                     PRO
                   </div>
