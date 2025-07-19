@@ -45,6 +45,8 @@ const Index = () => {
   const [selectedSaleVehicleId, setSelectedSaleVehicleId] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [inventoryItems, setInventoryItems] = useState<any[]>([]);
+  const [searchPlaceholder, setSearchPlaceholder] = useState("Laddar...");
   const [stats, setStats] = useState({
     totalStock: 0,
     averageStorageDays: 0,
@@ -62,6 +64,7 @@ const Index = () => {
     if (user) {
       loadStats();
       loadUserProfile();
+      loadInventoryItems();
     }
   }, [user]);
 
@@ -166,6 +169,38 @@ const Index = () => {
       setStats({ totalStock, averageStorageDays, inventoryValue, grossProfit });
     } catch (error) {
       console.error('Error loading stats:', error);
+    }
+  };
+
+  const loadInventoryItems = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('inventory_items')
+        .select('registration_number, brand, model')
+        .eq('user_id', user.id)
+        .limit(100);
+
+      if (error) throw error;
+
+      setInventoryItems(data || []);
+      
+      // Generate random placeholder text from existing data
+      if (data && data.length > 0) {
+        const randomItem = data[Math.floor(Math.random() * data.length)];
+        const options = [randomItem.registration_number];
+        if (randomItem.brand) options.push(randomItem.brand);
+        if (randomItem.model) options.push(randomItem.model);
+        
+        const randomExample = options[Math.floor(Math.random() * options.length)];
+        setSearchPlaceholder(`t.ex. ${randomExample}`);
+      } else {
+        setSearchPlaceholder("Ingen data tillgänglig");
+      }
+    } catch (error) {
+      console.error('Error loading inventory items:', error);
+      setSearchPlaceholder("Fel vid laddning");
     }
   };
 
@@ -335,9 +370,10 @@ const Index = () => {
               <div className="relative">
                 <Input
                   type="text"
-                  placeholder="t.ex. YNO404 eller Volvo"
+                  placeholder={searchPlaceholder}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  disabled={inventoryItems.length === 0}
                   className="pl-9 w-full"
                 />
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
