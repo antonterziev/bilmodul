@@ -347,7 +347,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b flex">
         <div className="w-72 p-4 flex items-center justify-center">
-          <img src="/lovable-uploads/b3bc9ec0-207a-4121-b297-01f8ede43eab.png" alt="Veksla" className="h-8" />
+          <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-8" />
         </div>
         <div className="flex-1 px-4 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-3">

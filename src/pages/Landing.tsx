@@ -86,7 +86,7 @@ const Landing = () => {
       <header className="border-b bg-white sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <img src="/lovable-uploads/b3bc9ec0-207a-4121-b297-01f8ede43eab.png" alt="Veksla" className="h-8" />
+            <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-8" />
           </div>
           
           <nav className="hidden md:flex items-center space-x-8">
@@ -301,7 +301,7 @@ const Landing = () => {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <img src="/lovable-uploads/b3bc9ec0-207a-4121-b297-01f8ede43eab.png" alt="Veksla" className="h-8" />
+                <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-8" />
               </div>
               <p className="text-gray-400 mb-4">
                 Sveriges mest innovativa lagerhanteringssystem för moderna företag.

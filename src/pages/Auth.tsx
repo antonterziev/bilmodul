@@ -150,7 +150,7 @@ const Auth = () => {
         <div className="flex-1 flex items-center justify-center bg-white p-8">
           <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <img src="/lovable-uploads/b3bc9ec0-207a-4121-b297-01f8ede43eab.png" alt="Veksla" className="h-16 mx-auto mb-6" />
+            <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-16 mx-auto mb-6" />
             <h2 className="text-2xl font-semibold text-gray-900 mb-2">
               Skapa konto för att komma igång med Sveriges bästa lagerhanteringssystem
             </h2>
@@ -263,7 +263,7 @@ const Auth = () => {
       <div className="w-full max-w-md">
         {/* Brand Logo */}
         <div className="text-center mb-8">
-          <img src="/lovable-uploads/b3bc9ec0-207a-4121-b297-01f8ede43eab.png" alt="Veksla" className="h-16 mx-auto mb-8" />
+          <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-16 mx-auto mb-8" />
         </div>
         
         <Card className="shadow-lg border-0">
