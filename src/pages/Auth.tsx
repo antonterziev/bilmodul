@@ -337,7 +337,7 @@ const Auth = () => {
                 <Label htmlFor="terms" className="text-sm text-gray-700">
                   Jag har läst och godkänner de{" "}
                   <button type="button" className="text-blue-600 hover:underline">
-                    Allmänna villkoren
+                    allmänna villkoren
                   </button>
                 </Label>
               </div>
