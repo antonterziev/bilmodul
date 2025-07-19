@@ -109,6 +109,13 @@ function extractVehicleData(content: string, regNumber: string) {
       data.equipmentLevel = equipmentMatch[1].trim();
     }
     
+    // Extract registration date (första datum i trafik) from Registrerad box
+    const registrationDateMatch = content.match(/(\d{4}-\d{2}-\d{2})/);
+    if (registrationDateMatch) {
+      data.registrationDate = registrationDateMatch[1].trim();
+      console.log('Extracted registration date:', data.registrationDate);
+    }
+    
     console.log('Final extracted data from car.info:', data);
     return data;
   } catch (error) {
