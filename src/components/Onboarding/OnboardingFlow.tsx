@@ -95,7 +95,9 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
       if (companies.length === 0) {
         toast.error("Inga företag hittades. Försök med ett annat sökord.");
       } else {
-        toast.success(`${companies.length} företag hittades`);
+        // Auto-select the first (top) result
+        setSelectedCompany(companies[0]);
+        toast.success(`${companies.length} företag hittades. ${companies[0].name} valdes automatiskt.`);
       }
       
     } catch (error) {
