@@ -56,7 +56,8 @@ const EmailVerification = ({ email, firstName, lastName, onBack }: EmailVerifica
     setIsResending(true);
     
     try {
-      const { error } = await supabase.auth.resend({
+      // First try the standard resend method
+      const { error: resendError } = await supabase.auth.resend({
         type: 'signup',
         email,
         options: {
@@ -64,16 +65,32 @@ const EmailVerification = ({ email, firstName, lastName, onBack }: EmailVerifica
         }
       });
 
-      if (error) {
-        console.error("Resend error:", error);
-        toast.error("Kunde inte skicka om e-posten");
-        return;
+      if (resendError) {
+        console.error("Standard resend failed:", resendError);
+        
+        // If standard resend fails, try a new signup to trigger the email
+        const { error: signupError } = await supabase.auth.signUp({
+          email,
+          password: crypto.randomUUID(), // Temporary password
+          options: {
+            emailRedirectTo: `https://lagermodulen.se/onboarding`,
+            data: {
+              first_name: firstName,
+              last_name: lastName,
+              full_name: `${firstName} ${lastName}`
+            }
+          }
+        });
+
+        if (signupError && !signupError.message.includes('already registered')) {
+          throw signupError;
+        }
       }
 
       toast.success("E-post skickad igen!");
     } catch (error: any) {
       console.error("Resend catch error:", error);
-      toast.error("Ett fel uppstod");
+      toast.error("Kunde inte skicka om e-posten");
     } finally {
       setIsResending(false);
     }
