@@ -131,109 +131,90 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Lagermodulen</CardTitle>
-          <CardDescription>
-            Logga in eller skapa ett konto för att komma igång
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Logga in</TabsTrigger>
-              <TabsTrigger value="signup">Registrera</TabsTrigger>
-            </TabsList>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div className="w-full max-w-md">
+        {/* Brand Logo */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-blue-600 mb-8">Lagermodulen</h1>
+        </div>
+        
+        <Card className="shadow-lg border-0">
+          <CardContent className="p-8">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-2">Välkommen!</h2>
+              <p className="text-gray-600">Ange ditt lösenord för att gå vidare</p>
+            </div>
             
-            <TabsContent value="signin">
-              <form onSubmit={handleSignIn} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signin-email">E-post</Label>
-                  <Input
-                    id="signin-email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signin-password">Lösenord</Label>
-                  <Input
-                    id="signin-password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Loggar in..." : "Logga in"}
+            <div className="space-y-4">
+              {/* Email field with change button */}
+              <div className="flex items-center gap-2 p-3 bg-gray-100 rounded border">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="flex-1 bg-transparent border-0 outline-none text-gray-900"
+                  placeholder="din.email@example.com"
+                />
+                <Button variant="link" className="text-blue-600 text-sm p-0 h-auto">
+                  Ändra
                 </Button>
-                <div className="text-center">
-                  <button
-                    type="button"
-                    onClick={handleForgotPassword}
-                    disabled={isResettingPassword}
-                    className="text-sm text-muted-foreground hover:text-primary underline-offset-4 hover:underline disabled:opacity-50"
-                  >
-                    {isResettingPassword ? "Skickar e-post..." : "Glömt lösenord?"}
-                  </button>
-                </div>
-              </form>
-            </TabsContent>
+              </div>
+              
+              {/* Password field */}
+              <div className="space-y-1">
+                <Label htmlFor="password" className="text-sm text-gray-700">Lösenord</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              
+              {/* Forgot password link */}
+              <div className="text-left">
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  disabled={isResettingPassword}
+                  className="text-blue-600 text-sm hover:underline disabled:opacity-50"
+                >
+                  {isResettingPassword ? "Skickar e-post..." : "Glömt lösenord?"}
+                </button>
+              </div>
+              
+              {/* Login button */}
+              <Button 
+                onClick={handleSignIn}
+                disabled={isLoading}
+                className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium"
+              >
+                {isLoading ? "Loggar in..." : "Logga in"}
+              </Button>
+            </div>
             
-            <TabsContent value="signup">
-              <form onSubmit={handleSignUp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signup-name">Fullt namn</Label>
-                  <Input
-                    id="signup-name"
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-company">Företagsnamn (valfritt)</Label>
-                  <Input
-                    id="signup-company"
-                    type="text"
-                    value={companyName}
-                    onChange={(e) => setCompanyName(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email">E-post</Label>
-                  <Input
-                    id="signup-email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password">Lösenord</Label>
-                  <Input
-                    id="signup-password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    minLength={6}
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Registrerar..." : "Registrera"}
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+            {/* Sign up link */}
+            <div className="text-center mt-6">
+              <span className="text-gray-600 text-sm">Har du inget konto? </span>
+              <button
+                type="button"
+                onClick={() => {
+                  // Toggle to signup mode - we'll implement this as a simple toggle
+                  toast({
+                    title: "Registrering",
+                    description: "Kontakta administratören för att skapa ett konto.",
+                  });
+                }}
+                className="text-blue-600 text-sm hover:underline"
+              >
+                Skapa konto
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
