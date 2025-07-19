@@ -120,7 +120,7 @@ const purchaseSchema = z.object({
   model: z.string().optional(),
   comment: z.string().optional(),
   year_model: z.number().min(1900, "Modellår måste vara minst 1900").max(new Date().getFullYear() + 1, "Modellår kan inte vara i framtiden").optional(),
-  first_registration_date: z.date().optional(),
+  first_registration_date: z.date().max(new Date(), "Första datum i trafik kan inte vara i framtiden").optional(),
   vat_type: z.string().min(1, "Momsregel krävs"),
   
   // Purchase information
@@ -885,6 +885,11 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                       </div>
                     </PopoverContent>
                   </Popover>
+                  {form.formState.errors.first_registration_date && (
+                    <p className="text-sm text-destructive mt-1">
+                      {form.formState.errors.first_registration_date.message}
+                    </p>
+                  )}
                 </div>
 
                 <div>
