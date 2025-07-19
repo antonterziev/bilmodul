@@ -1167,7 +1167,7 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
                 {/* File upload for down payment documentation */}
                 {form.watch("down_payment") > 0 && (
                   <div>
-                    <Label htmlFor="down_payment_document">Bifoga handpenningsunderlag</Label>
+                    <Label htmlFor="down_payment_document">Handpenningsunderlag</Label>
                     <div className="space-y-2">
                       {!uploadedFile ? (
                         <div>
