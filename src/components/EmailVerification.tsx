@@ -120,6 +120,9 @@ const EmailVerification = ({ email, firstName, lastName, onBack }: EmailVerifica
                     onChange={(e) => setVerificationCode(e.target.value)}
                     className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-center"
                     maxLength={6}
+                    autoComplete="one-time-code"
+                    data-1p-ignore="true"
+                    data-dashlane-rid=""
                   />
                   <Button 
                     type="submit" 
