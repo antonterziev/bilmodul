@@ -11,36 +11,50 @@ const supabaseUrl = Deno.env.get('SUPABASE_URL')!
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-// Function to search for brand logos with transparent background
-async function searchBrandLogo(brandName: string): Promise<string | null> {
+// Function to get brand logo from the car-logos-dataset repository
+async function getBrandLogoFromDataset(brandName: string): Promise<string | null> {
+  console.log(`Getting ${brandName} logo from car-logos-dataset...`);
+  
+  // Normalize brand name to match the dataset naming convention
+  const normalizedName = brandName.toLowerCase()
+    .replace(/\s+/g, '-')           // Replace spaces with hyphens
+    .replace(/[^\w-]/g, '')         // Remove special characters except hyphens
+    .replace(/--+/g, '-');          // Replace multiple hyphens with single hyphen
+
+  // Special cases for brand name mappings to match the dataset
+  const brandMappings: Record<string, string> = {
+    'mercedes-benz': 'mercedes-benz',
+    'mercedes': 'mercedes-benz',
+    'bmw': 'bmw',
+    'volkswagen': 'volkswagen', 
+    'vw': 'volkswagen',
+    'alfa-romeo': 'alfa-romeo',
+    'land-rover': 'land-rover',
+    'aston-martin': 'aston-martin',
+    'rolls-royce': 'rolls-royce',
+    'mclaren': 'mclaren',
+    'land rover': 'land-rover',
+    'aston martin': 'aston-martin',
+    'alfa romeo': 'alfa-romeo'
+  };
+
+  const finalBrandName = brandMappings[normalizedName] || normalizedName;
+  
+  // Try to fetch the logo from the GitHub repository
+  const logoUrl = `https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/optimized/${finalBrandName}.png`;
+  
   try {
-    console.log('Searching for logo for brand:', brandName);
-    
-    // Use a combination of search terms to find high-quality logos
-    const searchQueries = [
-      `${brandName} car brand logo transparent background PNG`,
-      `${brandName} automotive logo vector transparent`,
-      `${brandName} car manufacturer logo PNG transparent`
-    ];
-    
-    for (const query of searchQueries) {
-      try {
-        // Using Google Custom Search API or similar would be ideal here
-        // For now, we'll use a placeholder approach with known logo sources
-        const logoUrl = await findLogoFromKnownSources(brandName);
-        if (logoUrl) {
-          return logoUrl;
-        }
-      } catch (error) {
-        console.log(`Search failed for query "${query}":`, error);
-        continue;
-      }
+    const response = await fetch(logoUrl, { method: 'HEAD' }); // Use HEAD to check if file exists
+    if (response.ok) {
+      console.log(`Found logo for ${brandName} at: ${logoUrl}`);
+      return logoUrl;
+    } else {
+      console.log(`Logo not found for ${brandName} in dataset (${response.status})`);
+      return await findLogoFromKnownSources(brandName); // Fallback to known sources
     }
-    
-    return null;
   } catch (error) {
-    console.error('Error searching for brand logo:', error);
-    return null;
+    console.error(`Error checking logo for ${brandName}:`, error);
+    return await findLogoFromKnownSources(brandName); // Fallback to known sources
   }
 }
 
@@ -179,7 +193,7 @@ serve(async (req) => {
 
     // No existing logo found, search for one
     console.log('No existing logo found. Searching for logo for:', brandName);
-    const logoUrl = await searchBrandLogo(brandName);
+    const logoUrl = await getBrandLogoFromDataset(brandName);
     
     if (!logoUrl) {
       console.log('No logo found for brand:', brandName);
