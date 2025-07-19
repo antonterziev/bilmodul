@@ -14,7 +14,7 @@ import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
 import { Statistics } from "@/components/Statistics/Statistics";
 import { supabase } from "@/integrations/supabase/client";
-import { Home, BarChart3, Car, Settings as SettingsIcon, Truck, Download, Phone, MessageCircle, LogOut, CreditCard, Zap, FileCheck, FileText, File, Receipt, CreditCard as DirectPayments, Users, BookOpen, CheckSquare, ChevronDown, ChevronRight, Package, Search, Landmark } from "lucide-react";
+import { Home, BarChart3, Car, Settings as SettingsIcon, Truck, Download, Phone, MessageCircle, LogOut, CreditCard, Zap, FileCheck, FileText, File, Receipt, CreditCard as DirectPayments, Users, BookOpen, CheckSquare, ChevronDown, ChevronRight, Package, Search, Landmark, Handshake } from "lucide-react";
 
 const Index = () => {
   const { user, signOut, isLoading } = useAuth();
@@ -675,7 +675,7 @@ const Index = () => {
                   }}
                 >
                   <div className="flex items-center">
-                    <FileText className="mr-2 h-4 w-4" />
+                    <Handshake className="mr-2 h-4 w-4" />
                     Affärer
                   </div>
                   {showAffarerExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -722,19 +722,6 @@ const Index = () => {
                     </Button>
                   </div>
                 )}
-              </li>
-              <li>
-                <Button 
-                  variant="ghost" 
-                  className="w-full justify-start text-muted-foreground"
-                  onClick={() => setShowExportDialog(true)}
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Exportera
-                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                    PRO
-                  </div>
-                </Button>
               </li>
               <li>
                 <Button 
