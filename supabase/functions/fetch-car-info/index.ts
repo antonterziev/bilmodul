@@ -131,39 +131,7 @@ serve(async (req) => {
       console.log('Car.info scraping failed:', error);
     }
 
-    // Fallback: Return mock data for known test cases
-    const mockData = {
-      'ABC123': {
-        brand: 'Tesla',
-        model: 'Model Y',
-        modelYear: '2023',
-        mileage: '15000',
-        firstRegistrationDate: '2023-06-15',
-        vin: 'TSLA123456789'
-      },
-      'JFK123': {
-        brand: 'Volvo',
-        model: 'XC60',
-        modelYear: '2021',
-        mileage: '25000', 
-        firstRegistrationDate: '2021-07-19',
-        vin: 'VOLVO987654321'
-      }
-    }
-
-    const mockCarData = mockData[registrationNumber.toUpperCase()];
-    
-    if (mockCarData) {
-      console.log('Returning mock data for:', registrationNumber);
-      return new Response(
-        JSON.stringify(mockCarData),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      )
-    }
-
-    console.log('No data found for:', registrationNumber);
+    console.log('No vehicle data could be extracted from scraped content');
     return new Response(
       JSON.stringify({ error: 'No data found for this registration number' }),
       { 
