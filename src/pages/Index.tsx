@@ -13,7 +13,7 @@ import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
 import { Statistics } from "@/components/Statistics/Statistics";
 import { supabase } from "@/integrations/supabase/client";
-import { Home, BarChart3, Car, Settings as SettingsIcon, Truck, Download, Phone, MessageCircle, LogOut, CreditCard, Zap, FileCheck, FileText, File, Receipt, CreditCard as DirectPayments, Users, BookOpen, CheckSquare, Paperclip } from "lucide-react";
+import { Home, BarChart3, Car, Settings as SettingsIcon, Truck, Download, Phone, MessageCircle, LogOut, CreditCard, Zap, FileCheck, FileText, File, Receipt, CreditCard as DirectPayments, Users, BookOpen, CheckSquare, Paperclip, ChevronDown, ChevronRight, Package } from "lucide-react";
 
 const Index = () => {
   const { user, signOut, isLoading } = useAuth();
@@ -24,6 +24,8 @@ const Index = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showStatistics, setShowStatistics] = useState(false);
   const [showLager, setShowLager] = useState(false);
+  const [showLagerExpanded, setShowLagerExpanded] = useState(false);
+  const [lagerFilter, setLagerFilter] = useState<'all' | 'på_lager' | 'såld' | 'transport'>('all');
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showSupportDialog, setShowSupportDialog] = useState(false);
   const [showFinansiering, setShowFinansiering] = useState(false);
@@ -237,7 +239,7 @@ const Index = () => {
             inventoryValue={stats.inventoryValue}
             grossProfit={stats.grossProfit}
           />
-          <VehicleList />
+          <VehicleList filter={lagerFilter} />
         </>
       );
     }
@@ -372,21 +374,88 @@ const Index = () => {
               <li>
                 <Button 
                   variant={showLager ? "default" : "ghost"} 
-                  className={`w-full justify-start ${showLager ? "bg-primary text-primary-foreground" : "text-black"}`}
+                  className={`w-full justify-between ${showLager ? "bg-primary text-primary-foreground" : "text-black"}`}
                   onClick={() => {
-                    setShowPurchaseForm(false);
-                    setShowLogistics(false);
-                    setShowSales(false);
-                    setShowSettings(false);
-                    setShowStatistics(false);
-                    setShowLager(true);
-                    setSelectedVehicleId(null);
-                    setSelectedSaleVehicleId(null);
+                    setShowLagerExpanded(!showLagerExpanded);
+                    if (!showLager) {
+                      setShowPurchaseForm(false);
+                      setShowLogistics(false);
+                      setShowSales(false);
+                      setShowSettings(false);
+                      setShowStatistics(false);
+                      setShowLager(true);
+                      setSelectedVehicleId(null);
+                      setSelectedSaleVehicleId(null);
+                      setLagerFilter('all');
+                    }
                   }}
                 >
-                  <Car className="mr-2 h-4 w-4" />
-                  Lagerhantering
+                  <div className="flex items-center">
+                    <Package className="mr-2 h-4 w-4" />
+                    Lagerhantering
+                  </div>
+                  {showLagerExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                 </Button>
+                
+                {/* Subcategories */}
+                {showLagerExpanded && (
+                  <div className="ml-6 mt-2 space-y-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={`w-full justify-start text-sm ${lagerFilter === 'på_lager' ? 'bg-muted' : ''}`}
+                      onClick={() => {
+                        setShowPurchaseForm(false);
+                        setShowLogistics(false);
+                        setShowSales(false);
+                        setShowSettings(false);
+                        setShowStatistics(false);
+                        setShowLager(true);
+                        setSelectedVehicleId(null);
+                        setSelectedSaleVehicleId(null);
+                        setLagerFilter('på_lager');
+                      }}
+                    >
+                      I lager
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={`w-full justify-start text-sm ${lagerFilter === 'såld' ? 'bg-muted' : ''}`}
+                      onClick={() => {
+                        setShowPurchaseForm(false);
+                        setShowLogistics(false);
+                        setShowSales(false);
+                        setShowSettings(false);
+                        setShowStatistics(false);
+                        setShowLager(true);
+                        setSelectedVehicleId(null);
+                        setSelectedSaleVehicleId(null);
+                        setLagerFilter('såld');
+                      }}
+                    >
+                      Sålda
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={`w-full justify-start text-sm ${lagerFilter === 'transport' ? 'bg-muted' : ''}`}
+                      onClick={() => {
+                        setShowPurchaseForm(false);
+                        setShowLogistics(false);
+                        setShowSales(false);
+                        setShowSettings(false);
+                        setShowStatistics(false);
+                        setShowLager(true);
+                        setSelectedVehicleId(null);
+                        setSelectedSaleVehicleId(null);
+                        setLagerFilter('transport');
+                      }}
+                    >
+                      Transport
+                    </Button>
+                  </div>
+                )}
               </li>
               <li>
                 <Button 

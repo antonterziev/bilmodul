@@ -19,7 +19,11 @@ interface Vehicle {
   status: string;
 }
 
-export const VehicleList = () => {
+interface VehicleListProps {
+  filter?: 'all' | 'på_lager' | 'såld' | 'transport';
+}
+
+export const VehicleList = ({ filter = 'all' }: VehicleListProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -31,7 +35,7 @@ export const VehicleList = () => {
     if (user) {
       loadVehicles();
     }
-  }, [user]);
+  }, [user, filter]);
 
   // Force re-render at midnight each day to keep lagerdagar current
   useEffect(() => {
@@ -62,11 +66,21 @@ export const VehicleList = () => {
 
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      let query = supabase
         .from('inventory_items')
         .select('id, registration_number, brand, model, purchase_date, purchaser, purchase_price, expected_selling_price, status')
-        .eq('user_id', user.id)
-        .order('purchase_date', { ascending: false });
+        .eq('user_id', user.id);
+
+      // Apply status filter if not 'all'
+      if (filter !== 'all') {
+        if (filter === 'transport') {
+          query = query.eq('status', 'på_väg');
+        } else {
+          query = query.eq('status', filter);
+        }
+      }
+
+      const { data, error } = await query.order('purchase_date', { ascending: false });
 
       if (error) throw error;
       setVehicles(data || []);
