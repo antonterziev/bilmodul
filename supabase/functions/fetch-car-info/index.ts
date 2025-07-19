@@ -172,7 +172,10 @@ serve(async (req) => {
       } else if (cachedData) {
         console.log('Found cached data for:', registrationNumber);
         return new Response(
-          JSON.stringify(cachedData.scraped_data),
+          JSON.stringify({ 
+            ...cachedData.scraped_data, 
+            fromCache: true 
+          }),
           { 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' }
           }

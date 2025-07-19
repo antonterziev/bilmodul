@@ -281,7 +281,9 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
         
         toast({
           title: "Fordonsdata hämtad",
-          description: "Fordonsinformation har hämtats automatiskt",
+          description: data.fromCache 
+            ? "Fordonsinformation hämtad från cachad data (inga tokens användes)"
+            : "Fordonsinformation har hämtats automatiskt",
         });
       } else {
         console.log('No data returned or data contains error:', data);
