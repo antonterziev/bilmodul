@@ -305,7 +305,7 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
               <SelectItem value="Aktiebolag">Aktiebolag</SelectItem>
               <SelectItem value="Ekonomisk förening">Ekonomisk förening</SelectItem>
               <SelectItem value="Kommanditbolag">Kommanditbolag</SelectItem>
-              <SelectItem value="Enskildfirma">Enskildfirma</SelectItem>
+              <SelectItem value="Enskild firma">Enskild firma</SelectItem>
               <SelectItem value="Handelsbolag">Handelsbolag</SelectItem>
             </SelectContent>
           </Select>
