@@ -590,6 +590,70 @@ const Index = () => {
                   variant="ghost"
                   className="w-full justify-between text-muted-foreground"
                   onClick={() => {
+                    const newState = !showAffarerExpanded;
+                    setShowAffarerExpanded(newState);
+                    if (newState) {
+                      setShowLagerExpanded(false);
+                      setShowFinansieringExpanded(false);
+                      setShowDirektflodenExpanded(false);
+                      setShowEkonomiExpanded(false);
+                    }
+                  }}
+                >
+                  <div className="flex items-center">
+                    <Handshake className="mr-2 h-4 w-4" />
+                    Affärer
+                  </div>
+                  {showAffarerExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                </Button>
+                
+                {/* Subcategories */}
+                {showAffarerExpanded && (
+                  <div className="ml-0 mt-2 space-y-1">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-muted-foreground pl-10"
+                      onClick={() => {
+                        setShowAvtal(true);
+                      }}
+                    >
+                      Avtal
+                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
+                        PRO
+                      </div>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-muted-foreground pl-10"
+                      onClick={() => {
+                        setShowFakturor(true);
+                      }}
+                    >
+                      Fakturor
+                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
+                        PRO
+                      </div>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-muted-foreground pl-10"
+                      onClick={() => {
+                        setShowKundregister(true);
+                      }}
+                    >
+                      Kunder
+                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
+                        PRO
+                      </div>
+                    </Button>
+                  </div>
+                )}
+              </li>
+              <li>
+                <Button 
+                  variant="ghost"
+                  className="w-full justify-between text-muted-foreground"
+                  onClick={() => {
                     const newState = !showDirektflodenExpanded;
                     setShowDirektflodenExpanded(newState);
                     if (newState) {
@@ -706,70 +770,6 @@ const Index = () => {
                       }}
                     >
                       Dokument
-                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                        PRO
-                      </div>
-                    </Button>
-                  </div>
-                )}
-              </li>
-              <li>
-                <Button 
-                  variant="ghost"
-                  className="w-full justify-between text-muted-foreground"
-                  onClick={() => {
-                    const newState = !showAffarerExpanded;
-                    setShowAffarerExpanded(newState);
-                    if (newState) {
-                      setShowLagerExpanded(false);
-                      setShowFinansieringExpanded(false);
-                      setShowDirektflodenExpanded(false);
-                      setShowEkonomiExpanded(false);
-                    }
-                  }}
-                >
-                  <div className="flex items-center">
-                    <Handshake className="mr-2 h-4 w-4" />
-                    Affärer
-                  </div>
-                  {showAffarerExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                </Button>
-                
-                {/* Subcategories */}
-                {showAffarerExpanded && (
-                  <div className="ml-0 mt-2 space-y-1">
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-muted-foreground pl-10"
-                      onClick={() => {
-                        setShowAvtal(true);
-                      }}
-                    >
-                      Avtal
-                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                        PRO
-                      </div>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-muted-foreground pl-10"
-                      onClick={() => {
-                        setShowFakturor(true);
-                      }}
-                    >
-                      Fakturor
-                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                        PRO
-                      </div>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-muted-foreground pl-10"
-                      onClick={() => {
-                        setShowKundregister(true);
-                      }}
-                    >
-                      Kunder
                       <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
                         PRO
                       </div>
