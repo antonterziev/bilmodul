@@ -129,21 +129,12 @@ const purchaseSchema = z.object({
   purchase_date: z.date(),
   down_payment: z.number().min(0, "Handpenning kan inte vara negativ").optional(),
   down_payment_document: z.any().optional(),
-  purchase_documentation: z.string().min(1, "Inköpsunderlag krävs"),
+  purchase_documentation: z.string().optional(),
   purchase_channel: z.string().optional(),
   purchase_channel_other: z.string().optional(),
   marketplace_channel: z.string().optional(),
   marketplace_channel_other: z.string().optional(),
   expected_selling_price: z.number().min(0, "Förväntat försäljningspris kan inte vara negativt").optional(),
-}).refine((data) => {
-  // If there's a down payment, file upload is required
-  if (data.down_payment && data.down_payment > 0) {
-    return data.down_payment_document;
-  }
-  return true;
-}, {
-  message: "Handpenningsunderlag krävs när handpenning anges",
-  path: ["down_payment_document"],
 });
 
 type PurchaseFormData = z.infer<typeof purchaseSchema>;
@@ -1176,7 +1167,7 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
                 {/* File upload for down payment documentation */}
                 {form.watch("down_payment") > 0 && (
                   <div>
-                    <Label htmlFor="down_payment_document">Bifoga handpenningsunderlag*</Label>
+                    <Label htmlFor="down_payment_document">Bifoga handpenningsunderlag</Label>
                     <div className="space-y-2">
                       {!uploadedFile ? (
                         <div>
@@ -1336,7 +1327,7 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
               </div>
 
               <div>
-                <Label htmlFor="purchase_documentation">Inköpsunderlag*</Label>
+                <Label htmlFor="purchase_documentation">Inköpsunderlag</Label>
                 <div className="space-y-2">
                   {!uploadedPurchaseDoc ? (
                     <div>
