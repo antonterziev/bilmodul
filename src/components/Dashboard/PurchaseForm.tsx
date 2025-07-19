@@ -266,8 +266,8 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
           setMileageDisplay(formatWithThousands(data.mileage.toString()));
         }
         
-        if (data.firstRegistrationDate) {
-          const firstRegDate = new Date(data.firstRegistrationDate);
+        if (data.registrationDate) {
+          const firstRegDate = new Date(data.registrationDate);
           form.setValue('first_registration_date', firstRegDate);
         }
         
