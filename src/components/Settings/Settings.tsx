@@ -347,21 +347,6 @@ export const Settings = () => {
                 {changingPassword ? "Ändrar..." : "Ändra lösenord"}
               </Button>
 
-              <Separator />
-
-              <div className="space-y-4">
-                <h4 className="font-medium">Kontoinformation</h4>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Konto skapat:</span>
-                    <div>{user?.created_at ? new Date(user.created_at).toLocaleDateString('sv-SE') : 'Okänt'}</div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Senast inloggad:</span>
-                    <div>{user?.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString('sv-SE') : 'Okänt'}</div>
-                  </div>
-                </div>
-              </div>
             </CardContent>
           </Card>
         </TabsContent>
