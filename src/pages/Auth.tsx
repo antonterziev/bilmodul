@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -12,8 +13,10 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [companyName, setCompanyName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [isSignup, setIsSignup] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const navigate = useNavigate();
 
@@ -40,6 +43,16 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!acceptedTerms) {
+      toast({
+        title: "Acceptera villkor",
+        description: "Du måste acceptera villkoren för att fortsätta.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsLoading(true);
 
     try {
@@ -49,8 +62,8 @@ const Auth = () => {
         options: {
           emailRedirectTo: `${window.location.origin}/`,
           data: {
-            full_name: fullName,
-            company_name: companyName,
+            first_name: firstName,
+            last_name: lastName,
           },
         },
       });
@@ -130,6 +143,128 @@ const Auth = () => {
     }
   };
 
+  if (isSignup) {
+    return (
+      <div 
+        className="min-h-screen flex items-center justify-center relative"
+        style={{
+          backgroundImage: `url(/lovable-uploads/bfd7e764-1375-476e-9fe7-ee388d08f430.png)`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        {/* Light blue overlay */}
+        <div className="absolute inset-0 bg-blue-400 opacity-70"></div>
+        
+        <div className="relative z-10 w-full max-w-md p-8">
+          <Card className="shadow-lg border-0 bg-white">
+            <CardContent className="p-8">
+              <div className="text-center mb-8">
+                <h1 className="text-4xl font-bold text-blue-600 mb-6">Lagermodulen</h1>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+                  Skapa konto för att komma igång med Sveriges bästa lagerhanteringssystem
+                </h2>
+                <p className="text-gray-600 text-sm">Du binder dig inte till något.</p>
+              </div>
+              
+              <form onSubmit={handleSignUp} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="signup-email" className="text-sm font-medium">E-post *</Label>
+                  <Input
+                    id="signup-email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName" className="text-sm font-medium">Förnamn *</Label>
+                    <Input
+                      id="firstName"
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName" className="text-sm font-medium">Efternamn *</Label>
+                    <Input
+                      id="lastName"
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="signup-password" className="text-sm font-medium">Lösenord *</Label>
+                  <Input
+                    id="signup-password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                    required
+                    minLength={6}
+                  />
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="terms"
+                    checked={acceptedTerms}
+                    onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)}
+                  />
+                  <Label htmlFor="terms" className="text-sm text-gray-700">
+                    Jag har läst och godkänner de{" "}
+                    <button type="button" className="text-blue-600 hover:underline">
+                      Allmänna villkoren
+                    </button>
+                  </Label>
+                </div>
+                
+                <Button 
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-12 bg-blue-400 hover:bg-blue-500 text-white font-medium"
+                >
+                  {isLoading ? "Skapar konto..." : "Fortsätt"}
+                </Button>
+              </form>
+              
+              <div className="text-center mt-6">
+                <span className="text-gray-600 text-sm">Har du redan ett konto? </span>
+                <button
+                  type="button"
+                  onClick={() => setIsSignup(false)}
+                  className="text-blue-600 text-sm hover:underline"
+                >
+                  Logga in
+                </button>
+              </div>
+              
+              <div className="text-center mt-4 text-xs text-gray-500">
+                <p>Du använder Lagermodulen för Sverige 🇸🇪</p>
+                <button type="button" className="text-blue-600 hover:underline mr-4">
+                  Integritetspolicy
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <div className="w-full max-w-md">
@@ -200,13 +335,7 @@ const Auth = () => {
               <span className="text-gray-600 text-sm">Har du inget konto? </span>
               <button
                 type="button"
-                onClick={() => {
-                  // Toggle to signup mode - we'll implement this as a simple toggle
-                  toast({
-                    title: "Registrering",
-                    description: "Kontakta administratören för att skapa ett konto.",
-                  });
-                }}
+                onClick={() => setIsSignup(true)}
                 className="text-blue-600 text-sm hover:underline"
               >
                 Skapa konto
