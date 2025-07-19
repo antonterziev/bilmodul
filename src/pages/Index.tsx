@@ -449,7 +449,14 @@ const Index = () => {
                   variant="ghost"
                   className="w-full justify-between text-muted-foreground"
                   onClick={() => {
-                    setShowLagerExpanded(!showLagerExpanded);
+                    const newState = !showLagerExpanded;
+                    setShowLagerExpanded(newState);
+                    if (newState) {
+                      setShowFinansieringExpanded(false);
+                      setShowDirektflodenExpanded(false);
+                      setShowEkonomiExpanded(false);
+                      setShowAffarerExpanded(false);
+                    }
                     // Always set to "I lager" when opening lagerhantering
                     setShowPurchaseForm(false);
                     setShowLogistics(false);
@@ -516,7 +523,14 @@ const Index = () => {
                   variant="ghost"
                   className="w-full justify-between text-muted-foreground"
                   onClick={() => {
-                    setShowFinansieringExpanded(!showFinansieringExpanded);
+                    const newState = !showFinansieringExpanded;
+                    setShowFinansieringExpanded(newState);
+                    if (newState) {
+                      setShowLagerExpanded(false);
+                      setShowDirektflodenExpanded(false);
+                      setShowEkonomiExpanded(false);
+                      setShowAffarerExpanded(false);
+                    }
                   }}
                 >
                   <div className="flex items-center">
@@ -561,7 +575,14 @@ const Index = () => {
                   variant="ghost"
                   className="w-full justify-between text-muted-foreground"
                   onClick={() => {
-                    setShowDirektflodenExpanded(!showDirektflodenExpanded);
+                    const newState = !showDirektflodenExpanded;
+                    setShowDirektflodenExpanded(newState);
+                    if (newState) {
+                      setShowLagerExpanded(false);
+                      setShowFinansieringExpanded(false);
+                      setShowEkonomiExpanded(false);
+                      setShowAffarerExpanded(false);
+                    }
                   }}
                 >
                   <div className="flex items-center">
@@ -618,7 +639,14 @@ const Index = () => {
                   variant="ghost"
                   className="w-full justify-between text-muted-foreground"
                   onClick={() => {
-                    setShowEkonomiExpanded(!showEkonomiExpanded);
+                    const newState = !showEkonomiExpanded;
+                    setShowEkonomiExpanded(newState);
+                    if (newState) {
+                      setShowLagerExpanded(false);
+                      setShowFinansieringExpanded(false);
+                      setShowDirektflodenExpanded(false);
+                      setShowAffarerExpanded(false);
+                    }
                   }}
                 >
                   <div className="flex items-center">
@@ -675,7 +703,14 @@ const Index = () => {
                   variant="ghost"
                   className="w-full justify-between text-muted-foreground"
                   onClick={() => {
-                    setShowAffarerExpanded(!showAffarerExpanded);
+                    const newState = !showAffarerExpanded;
+                    setShowAffarerExpanded(newState);
+                    if (newState) {
+                      setShowLagerExpanded(false);
+                      setShowFinansieringExpanded(false);
+                      setShowDirektflodenExpanded(false);
+                      setShowEkonomiExpanded(false);
+                    }
                   }}
                 >
                   <div className="flex items-center">
