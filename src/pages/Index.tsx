@@ -41,6 +41,9 @@ const Index = () => {
   const [showVerifikation, setShowVerifikation] = useState(false);
   
   const [showKundtjanst, setShowKundtjanst] = useState(false);
+  const [showFinansieringExpanded, setShowFinansieringExpanded] = useState(false);
+  const [showEkonomi, setShowEkonomi] = useState(false);
+  const [showEkonomiExpanded, setShowEkonomiExpanded] = useState(false);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [selectedSaleVehicleId, setSelectedSaleVehicleId] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -516,16 +519,55 @@ const Index = () => {
               </li>
               <li>
                 <Button 
-                  variant="ghost" 
-                  className="w-full justify-start text-muted-foreground"
-                  onClick={() => setShowFinansiering(true)}
+                  variant="ghost"
+                  className="w-full justify-between text-muted-foreground"
+                  onClick={() => {
+                    setShowFinansieringExpanded(!showFinansieringExpanded);
+                    setShowPurchaseForm(false);
+                    setShowLogistics(false);
+                    setShowSales(false);
+                    setShowSettings(false);
+                    setShowStatistics(false);
+                    setShowLager(false);
+                    setShowFinansiering(true);
+                    setSelectedVehicleId(null);
+                    setSelectedSaleVehicleId(null);
+                  }}
                 >
-                  <CreditCard className="mr-2 h-4 w-4" />
-                  Finansiering
-                  <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                    PRO
+                  <div className="flex items-center">
+                    <CreditCard className="mr-2 h-4 w-4" />
+                    Finansiering
                   </div>
+                  {showFinansieringExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                 </Button>
+                
+                {/* Subcategories */}
+                {showFinansieringExpanded && (
+                  <div className="ml-0 mt-2 space-y-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start text-sm pl-10 text-muted-foreground"
+                      onClick={() => {
+                        // Add functionality for Lagerfinansiering
+                      }}
+                    >
+                      <Package className="mr-2 h-4 w-4" />
+                      Lagerfinansiering
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start text-sm pl-10 text-muted-foreground"
+                      onClick={() => {
+                        // Add functionality for Slutkundsfinansiering
+                      }}
+                    >
+                      <Users className="mr-2 h-4 w-4" />
+                      Slutkundsfinansiering
+                    </Button>
+                  </div>
+                )}
               </li>
               <li>
                 <Button 
@@ -656,6 +698,69 @@ const Index = () => {
                     PRO
                   </div>
                 </Button>
+              </li>
+              <li>
+                <Button 
+                  variant="ghost"
+                  className="w-full justify-between text-muted-foreground"
+                  onClick={() => {
+                    setShowEkonomiExpanded(!showEkonomiExpanded);
+                    setShowPurchaseForm(false);
+                    setShowLogistics(false);
+                    setShowSales(false);
+                    setShowSettings(false);
+                    setShowStatistics(false);
+                    setShowLager(false);
+                    setShowEkonomi(true);
+                    setSelectedVehicleId(null);
+                    setSelectedSaleVehicleId(null);
+                  }}
+                >
+                  <div className="flex items-center">
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    Ekonomi
+                  </div>
+                  {showEkonomiExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                </Button>
+                
+                {/* Subcategories */}
+                {showEkonomiExpanded && (
+                  <div className="ml-0 mt-2 space-y-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start text-sm pl-10 text-muted-foreground"
+                      onClick={() => {
+                        // Add functionality for Bokföring
+                      }}
+                    >
+                      <FileText className="mr-2 h-4 w-4" />
+                      Bokföring
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start text-sm pl-10 text-muted-foreground"
+                      onClick={() => {
+                        // Add functionality for Verifikation
+                      }}
+                    >
+                      <CheckSquare className="mr-2 h-4 w-4" />
+                      Verifikation
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start text-sm pl-10 text-muted-foreground"
+                      onClick={() => {
+                        // Add functionality for Dokument
+                      }}
+                    >
+                      <File className="mr-2 h-4 w-4" />
+                      Dokument
+                    </Button>
+                  </div>
+                )}
               </li>
               <li>
                 <Button 
