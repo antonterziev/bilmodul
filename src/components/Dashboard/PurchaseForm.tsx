@@ -219,22 +219,23 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
     fetchUserProfile();
   }, [user, form]);
 
-  // Fetch vehicle data from car.info API
+  // Fetch vehicle data from car info APIs via Edge Function
   const fetchCarInfo = async (regNumber: string) => {
     if (!regNumber.trim()) return;
     
     setIsLoadingCarInfo(true);
     try {
-      const response = await fetch(`https://api.car.info/api/v1/vehicles/${regNumber}`, {
-        headers: {
-          'Accept': 'application/json',
-        }
+      const { data, error } = await supabase.functions.invoke('fetch-car-info', {
+        body: { registrationNumber: regNumber.trim() }
       });
       
-      if (response.ok) {
-        const data = await response.json();
-        
-        // Auto-populate form fields with data from car.info
+      if (error) {
+        console.error('Edge function error:', error);
+        return;
+      }
+      
+      if (data && !data.error) {
+        // Auto-populate form fields with data from car info APIs
         if (data.brand) {
           const brandMatch = carBrands.find(brand => 
             brand.toLowerCase() === data.brand.toLowerCase()
@@ -269,12 +270,12 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
         
         toast({
           title: "Fordonsdata hämtad",
-          description: "Fordonsinformation har hämtats från car.info",
+          description: "Fordonsinformation har hämtats automatiskt",
         });
       }
     } catch (error) {
       console.error('Error fetching car info:', error);
-      // Don't show error toast as car.info might not have data for all vehicles
+      // Don't show error toast as car info APIs might not have data for all vehicles
     } finally {
       setIsLoadingCarInfo(false);
     }
