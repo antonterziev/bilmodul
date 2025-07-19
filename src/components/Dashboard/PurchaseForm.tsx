@@ -761,7 +761,7 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
                 </div>
 
                 <div>
-                  <Label htmlFor="mileage">Miltal</Label>
+                  <Label htmlFor="mileage">Miltal (km)</Label>
                   <Input
                     id="mileage"
                     type="text"
