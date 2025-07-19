@@ -108,7 +108,7 @@ const EmailVerification = ({ email, firstName, lastName, onBack }: EmailVerifica
             
             <div className="mb-6">
               <p className="text-gray-600 text-sm text-center mb-4">
-                Alternativt ange den fyrsiffriga koden i samma mail:
+                Alternativt ange den sexsiffriga koden i samma mail:
               </p>
               
               <form onSubmit={handleVerifyCode} className="space-y-4">
