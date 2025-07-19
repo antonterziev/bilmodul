@@ -19,7 +19,7 @@ const Auth = () => {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [isWordVisible, setIsWordVisible] = useState(true);
-  const words = ["ekonomiöversikt", "lagerhantering", "lagerfinansiering", "säljstödsystem", "avtalshantering"];
+  const words = ["ekonomiöversikt", "lagerhantering", "lagerfinansiering", "säljstödsystem", "avtalshantering", "bokföring"];
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [showPasswordStep, setShowPasswordStep] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
