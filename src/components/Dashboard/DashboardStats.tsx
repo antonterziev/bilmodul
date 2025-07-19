@@ -2,11 +2,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface DashboardStatsProps {
   totalStock: number;
+  averageStorageDays: number;
   inventoryValue: number;
   grossProfit: number;
 }
 
-export const DashboardStats = ({ totalStock, inventoryValue, grossProfit }: DashboardStatsProps) => {
+export const DashboardStats = ({ totalStock, averageStorageDays, inventoryValue, grossProfit }: DashboardStatsProps) => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('sv-SE', {
       style: 'currency',
@@ -17,15 +18,26 @@ export const DashboardStats = ({ totalStock, inventoryValue, grossProfit }: Dash
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">
-            Totalt lager
+            Bilar i lager
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{totalStock}</div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-muted-foreground">
+            Lagerdagar
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{averageStorageDays} dagar</div>
         </CardContent>
       </Card>
 

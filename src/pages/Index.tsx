@@ -43,6 +43,7 @@ const Index = () => {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [stats, setStats] = useState({
     totalStock: 0,
+    averageStorageDays: 0,
     inventoryValue: 0,
     grossProfit: 0
   });
@@ -121,24 +122,43 @@ const Index = () => {
       // Get inventory counts by status
       const { data: inventoryData, error } = await supabase
         .from('inventory_items')
-        .select('status, registration_number, created_at, purchase_price, expected_selling_price')
+        .select('status, registration_number, created_at, purchase_price, expected_selling_price, purchase_date')
         .eq('user_id', user.id);
 
       if (error) throw error;
 
-      const totalStock = inventoryData?.filter(item => item.status === 'på_lager').length || 0;
+      const vehiclesInStock = inventoryData?.filter(item => item.status === 'på_lager') || [];
+      const totalStock = vehiclesInStock.length;
       
       // Calculate inventory value (sum of purchase prices for vehicles with status "på_lager")
-      const inventoryValue = inventoryData
-        ?.filter(item => item.status === 'på_lager')
-        .reduce((sum, item) => sum + (item.purchase_price || 0), 0) || 0;
+      const inventoryValue = vehiclesInStock.reduce((sum, item) => sum + (item.purchase_price || 0), 0);
+      
+      // Calculate price-weighted average storage days
+      let averageStorageDays = 0;
+      if (vehiclesInStock.length > 0 && inventoryValue > 0) {
+        const calculateStorageDays = (purchaseDate: string) => {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const purchase = new Date(purchaseDate);
+          purchase.setHours(0, 0, 0, 0);
+          const diffTime = today.getTime() - purchase.getTime();
+          return Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
+        };
+        
+        const weightedSum = vehiclesInStock.reduce((sum, item) => {
+          const storageDays = calculateStorageDays(item.purchase_date);
+          return sum + (storageDays * item.purchase_price);
+        }, 0);
+        
+        averageStorageDays = Math.round(weightedSum / inventoryValue);
+      }
       
       // Calculate gross profit (sum of (expected_selling_price - purchase_price) for vehicles with status "på_lager")
-      const grossProfit = inventoryData
-        ?.filter(item => item.status === 'på_lager' && item.expected_selling_price)
-        .reduce((sum, item) => sum + ((item.expected_selling_price || 0) - item.purchase_price), 0) || 0;
+      const grossProfit = vehiclesInStock
+        .filter(item => item.expected_selling_price)
+        .reduce((sum, item) => sum + ((item.expected_selling_price || 0) - item.purchase_price), 0);
 
-      setStats({ totalStock, inventoryValue, grossProfit });
+      setStats({ totalStock, averageStorageDays, inventoryValue, grossProfit });
     } catch (error) {
       console.error('Error loading stats:', error);
     }
@@ -202,6 +222,7 @@ const Index = () => {
       return <Statistics 
         onBack={handleBackToStatistics}
         totalStock={stats.totalStock}
+        averageStorageDays={stats.averageStorageDays}
         inventoryValue={stats.inventoryValue}
         grossProfit={stats.grossProfit}
       />;
@@ -212,6 +233,7 @@ const Index = () => {
         <>
           <DashboardStats 
             totalStock={stats.totalStock}
+            averageStorageDays={stats.averageStorageDays}
             inventoryValue={stats.inventoryValue}
             grossProfit={stats.grossProfit}
           />

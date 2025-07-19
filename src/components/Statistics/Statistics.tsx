@@ -12,11 +12,12 @@ import { cn } from "@/lib/utils";
 interface StatisticsProps {
   onBack: () => void;
   totalStock: number;
+  averageStorageDays: number;
   inventoryValue: number;
   grossProfit: number;
 }
 
-export const Statistics = ({ onBack, totalStock, inventoryValue, grossProfit }: StatisticsProps) => {
+export const Statistics = ({ onBack, totalStock, averageStorageDays, inventoryValue, grossProfit }: StatisticsProps) => {
   const currentYear = new Date().getFullYear();
   const [startDate, setStartDate] = useState<Date>(new Date(currentYear, 0, 1)); // January 1st of current year
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
@@ -97,6 +98,7 @@ export const Statistics = ({ onBack, totalStock, inventoryValue, grossProfit }: 
       {/* Dashboard Stats */}
       <DashboardStats 
         totalStock={totalStock}
+        averageStorageDays={averageStorageDays}
         inventoryValue={inventoryValue}
         grossProfit={grossProfit}
       />
