@@ -59,15 +59,20 @@ const EmailVerification = ({ email, firstName, lastName, onBack }: EmailVerifica
       const { error } = await supabase.auth.resend({
         type: 'signup',
         email,
+        options: {
+          emailRedirectTo: `https://lagermodulen.se/onboarding`
+        }
       });
 
       if (error) {
+        console.error("Resend error:", error);
         toast.error("Kunde inte skicka om e-posten");
         return;
       }
 
       toast.success("E-post skickad igen!");
     } catch (error: any) {
+      console.error("Resend catch error:", error);
       toast.error("Ett fel uppstod");
     } finally {
       setIsResending(false);
