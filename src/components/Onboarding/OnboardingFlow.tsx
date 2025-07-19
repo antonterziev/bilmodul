@@ -188,7 +188,7 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
         <div className="flex gap-2">
           <Input
             type="text"
-            placeholder="Organisationsnummer eller företagsnamn"
+            placeholder="Org.nr eller företagsnamn"
             value={companySearch}
             onChange={(e) => setCompanySearch(e.target.value)}
             className="flex-1"
