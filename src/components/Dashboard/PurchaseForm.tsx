@@ -1114,7 +1114,7 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
 
                 {/* 3. Inköpspris */}
                 <div>
-                  <Label htmlFor="purchase_price">Inköpspris (SEK) *</Label>
+                  <Label htmlFor="purchase_price">Inköpspris (SEK)*</Label>
                   <Input
                     id="purchase_price"
                     type="text"
