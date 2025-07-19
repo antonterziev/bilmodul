@@ -272,10 +272,10 @@ const Index = () => {
         {/* Sidebar */}
         <aside className="w-64 bg-white border-r border-border flex flex-col">
           <div className="p-4">
-            <div className="flex gap-2">
+            <div className="space-y-2">
               <Button 
                 variant="outline" 
-                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white border-blue-500"
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white border-blue-500"
                 onClick={() => {
                   setShowPurchaseForm(true);
                   setShowLogistics(false);
@@ -287,11 +287,11 @@ const Index = () => {
                   setSelectedSaleVehicleId(null);
                 }}
               >
-                Köp
+                Registrera inköp
               </Button>
               <Button 
                 variant="outline" 
-                className="flex-1 bg-green-500 hover:bg-green-600 text-white border-green-500"
+                className="w-full bg-green-500 hover:bg-green-600 text-white border-green-500"
                 onClick={() => {
                   setShowPurchaseForm(false);
                   setShowLogistics(false);
