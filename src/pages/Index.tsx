@@ -20,6 +20,7 @@ const Index = () => {
   const { user, signOut, isLoading } = useAuth();
   const navigate = useNavigate();
   const [showPurchaseForm, setShowPurchaseForm] = useState(false);
+  const [purchaseFormKey, setPurchaseFormKey] = useState(0);
   const [showLogistics, setShowLogistics] = useState(false);
   const [showSales, setShowSales] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -247,6 +248,7 @@ const Index = () => {
   const renderMainContent = () => {
     if (showPurchaseForm) {
       return <PurchaseForm 
+        key={purchaseFormKey} // Force reset when key changes
         onSuccess={() => {
           loadStats();
           setShowPurchaseForm(false);
@@ -382,6 +384,7 @@ const Index = () => {
                 className="w-full bg-blue-500 hover:bg-blue-600 text-white border-blue-500"
                 onClick={() => {
                   setShowPurchaseForm(true);
+                  setPurchaseFormKey(prev => prev + 1); // Force reset of form
                   setShowLogistics(false);
                   setShowSales(false);
                   setShowSettings(false);
