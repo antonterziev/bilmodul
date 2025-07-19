@@ -229,7 +229,8 @@ const Auth = () => {
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-semibold text-gray-900 mb-4">Försökte du logga in?</h2>
                 <p className="text-gray-600 text-sm">
-                  Vi märkte att du redan har ett konto hos Veksla, försökte du att komma till det?
+                  Vi märkte att du redan har ett konto hos Veksla,<br />
+                  försökte du att komma till det?
                 </p>
               </div>
               
