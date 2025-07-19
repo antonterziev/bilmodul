@@ -36,7 +36,29 @@ function extractVehicleData(content: string, regNumber: string) {
       }
     }
     
-    // Extract mileage (Mätarställning) - convert from mil to kilometers
+    // Third fallback: Look for brand and model in the statistics/similar section
+    if (!data.brand) {
+      // Look for patterns like "Audi A4 Avant, 2013 - 2015"
+      const statsMatch = content.match(/([A-Za-z-]+)\s+([A-Za-z0-9\s]+),\s*(\d{4})\s*-\s*(\d{4})/i);
+      if (statsMatch) {
+        data.brand = statsMatch[1].trim(); // Audi
+        data.model = statsMatch[2].trim(); // A4 Avant
+        // Use the end year as the model year
+        data.modelYear = statsMatch[4].trim(); // 2015
+        console.log('Extracted from stats section:', { brand: data.brand, model: data.model, year: data.modelYear });
+      }
+    }
+    
+    // Fourth fallback: Look for specific detailed model info like "Audi A4 Avant 3.0 TDI V6 DPF quattro S Tronic, 245hk, 2015"
+    if (!data.brand) {
+      const detailMatch = content.match(/([A-Za-z-]+)\s+([A-Za-z0-9\s]+)\s+[0-9.]+\s+[A-Z]+.*?,\s*\d+hk,\s*(\d{4})/i);
+      if (detailMatch) {
+        data.brand = detailMatch[1].trim();
+        data.model = detailMatch[2].trim();
+        data.modelYear = detailMatch[3].trim();
+        console.log('Extracted from detailed model info:', { brand: data.brand, model: data.model, year: data.modelYear });
+      }
+    }
     const mileageMatch = content.match(/Mätarställning[:\s]*(\d+[\s,]*\d*)\s*mil/i);
     if (mileageMatch) {
       const mileageInMil = mileageMatch[1].replace(/[\s,]/g, '');
