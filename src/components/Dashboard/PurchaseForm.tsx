@@ -300,8 +300,13 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
         }
         
         if (data.registrationDate) {
-          const firstRegDate = new Date(data.registrationDate);
-          form.setValue('first_registration_date', firstRegDate);
+          // Validate registration date - reject future dates
+          const regDate = new Date(data.registrationDate);
+          if (regDate <= new Date()) {
+            form.setValue('first_registration_date', regDate);
+          } else {
+            console.log(`Registration date ${data.registrationDate} rejected - future date`);
+          }
         }
         
         if (data.expectedSellingPrice) {
