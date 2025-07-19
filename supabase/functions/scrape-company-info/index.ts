@@ -60,59 +60,59 @@ Deno.serve(async (req) => {
     const html = await response.text();
     console.log('HTML length received:', html.length);
 
-    // Parse the HTML to extract company information using simpler approach
+    // Parse the HTML to extract company information using targeted regex patterns
     const companies: CompanyResult[] = [];
     
-    // First, find all organization numbers
-    const orgNumbers = html.match(/\d{6}-\d{4}/g) || [];
-    console.log('Found org numbers:', orgNumbers.slice(0, 10));
-    
-    // For each org number, find the company name link above it
-    for (const orgNum of orgNumbers.slice(0, 10)) {
-      if (companies.length >= 5) break;
+    // Look for patterns where company name appears before org number
+    const companyPatterns = [
+      // Pattern: Company name in link, then org number later (most common on allabolag)
+      /<a[^>]*href="[^"]*"[^>]*>([^<]+)<\/a>[\s\S]{1,300}?(\d{6}-\d{4})/gi,
+      // Pattern: Company name in heading, then org number
+      /<h\d[^>]*>([^<]+)<\/h\d>[\s\S]{1,200}?(\d{6}-\d{4})/gi,
+      // Pattern: Company name with AB/Invest, then org number
+      />([A-ZÅÄÖ][^<>]*(?:AB|Invest|aktiebolag)[^<>]*)<[\s\S]{1,200}?(\d{6}-\d{4})/gi
+    ];
+
+    for (const pattern of companyPatterns) {
+      let match;
       
-      const index = html.indexOf(orgNum);
-      if (index > -1) {
-        // Look for company name in the 800 characters before the org number
-        const beforeText = html.substring(Math.max(0, index - 800), index);
+      while ((match = pattern.exec(html)) !== null && companies.length < 5) {
+        const rawName = match[1];
+        const orgNumber = match[2];
         
-        // Find all links before the org number, excluding "Org.nr" text
-        const linkMatches = beforeText.match(/<a[^>]*>([^<]+)<\/a>/gi);
-        
-        if (linkMatches && linkMatches.length > 0) {
-          // Look through links from last to first to find the company name
-          for (let i = linkMatches.length - 1; i >= 0; i--) {
-            const link = linkMatches[i];
-            const nameMatch = link.match(/<a[^>]*>([^<]+)<\/a>/i);
-            
-            if (nameMatch && nameMatch[1]) {
-              let name = nameMatch[1]
-                .replace(/&nbsp;/g, ' ')
-                .replace(/&amp;/g, '&')
-                .replace(/&lt;/g, '<')
-                .replace(/&gt;/g, '>')
-                .replace(/&quot;/g, '"')
-                .trim();
-              
-              // Skip if this is "Org.nr" or other UI elements
-              if (name && 
-                  name.length > 3 && 
-                  !name.toLowerCase().includes('org.nr') &&
-                  !name.toLowerCase().includes('org nr') &&
-                  !name.toLowerCase().includes('synas på allabolag') &&
-                  !name.toLowerCase().includes('hitta liknande') &&
-                  !name.toLowerCase().includes('jämför') &&
-                  !name.toLowerCase().includes('bevaka') &&
-                  !name.toLowerCase().includes('köp denna lista') &&
-                  !companies.find(c => c.orgNumber === orgNum)) {
-                companies.push({ name, orgNumber: orgNum });
-                console.log('Found company:', name, orgNum);
-                break; // Found valid company name, stop looking
-              }
-            }
+        if (rawName && orgNumber) {
+          // Clean up the company name
+          const name = rawName
+            .replace(/&nbsp;/g, ' ')
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/\s+/g, ' ')
+            .trim();
+          
+          // Validate this is a real company name, not UI text
+          if (name && 
+              name.length > 3 && 
+              !name.toLowerCase().includes('org.nr') &&
+              !name.toLowerCase().includes('org nr') &&
+              !name.toLowerCase().includes('synas på') &&
+              !name.toLowerCase().includes('hitta') &&
+              !name.toLowerCase().includes('jämför') &&
+              !name.toLowerCase().includes('bevaka') &&
+              !name.toLowerCase().includes('köp') &&
+              !name.toLowerCase().includes('lista') &&
+              !companies.find(c => c.orgNumber === orgNumber)) {
+            companies.push({ name, orgNumber });
+            console.log('Found company:', name, orgNumber);
           }
         }
       }
+      
+      // Reset regex for next iteration
+      pattern.lastIndex = 0;
+      
+      if (companies.length >= 5) break;
     }
 
     // If no companies found with regex, try a simpler approach
