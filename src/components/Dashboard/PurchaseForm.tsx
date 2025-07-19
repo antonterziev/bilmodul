@@ -344,7 +344,7 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
     if (!user || !regNumber.trim()) {
       setIsDuplicateRegNumber(false);
       setDuplicateVehicleId(null);
-      return;
+      return false;
     }
 
     setIsCheckingRegNumber(true);
@@ -369,8 +369,11 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
           variant: "destructive",
         });
       }
+      
+      return isDuplicate;
     } catch (error) {
       console.error('Error checking for duplicate registration number:', error);
+      return false;
     } finally {
       setIsCheckingRegNumber(false);
     }
@@ -382,11 +385,11 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
       // Only check for duplicates and fetch car info when registration_number field changes and has at least 4 characters
       if (name === 'registration_number' && value.registration_number && value.registration_number.length >= 4) {
         const timeoutId = setTimeout(async () => {
-          // Check for duplicates FIRST
-          await checkForDuplicateRegNumber(value.registration_number as string);
+          // Check for duplicates FIRST and get the result
+          const isDuplicate = await checkForDuplicateRegNumber(value.registration_number as string);
           
           // Only fetch car info if no duplicate was found
-          if (!isDuplicateRegNumber) {
+          if (!isDuplicate) {
             fetchCarInfo(value.registration_number as string);
           }
         }, 1000); // Debounce for 1 second to allow user to finish typing
@@ -402,7 +405,7 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
     });
 
     return () => subscription.unsubscribe();
-  }, [form, user, isDuplicateRegNumber]);
+  }, [form, user]);
 
   // Format number with thousands separator
   const formatWithThousands = (value: string) => {
