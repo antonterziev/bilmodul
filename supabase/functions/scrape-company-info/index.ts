@@ -76,34 +76,39 @@ Deno.serve(async (req) => {
         // Look for company name in the 800 characters before the org number
         const beforeText = html.substring(Math.max(0, index - 800), index);
         
-        // Find the last link before the org number (company name is always a link above)
+        // Find all links before the org number, excluding "Org.nr" text
         const linkMatches = beforeText.match(/<a[^>]*>([^<]+)<\/a>/gi);
         
         if (linkMatches && linkMatches.length > 0) {
-          // Get the last link (closest to the org number)
-          const lastLink = linkMatches[linkMatches.length - 1];
-          const nameMatch = lastLink.match(/<a[^>]*>([^<]+)<\/a>/i);
-          
-          if (nameMatch && nameMatch[1]) {
-            let name = nameMatch[1]
-              .replace(/&nbsp;/g, ' ')
-              .replace(/&amp;/g, '&')
-              .replace(/&lt;/g, '<')
-              .replace(/&gt;/g, '>')
-              .replace(/&quot;/g, '"')
-              .trim();
+          // Look through links from last to first to find the company name
+          for (let i = linkMatches.length - 1; i >= 0; i--) {
+            const link = linkMatches[i];
+            const nameMatch = link.match(/<a[^>]*>([^<]+)<\/a>/i);
             
-            // Filter out UI elements and ensure it's a real company name
-            if (name && 
-                name.length > 3 && 
-                !name.toLowerCase().includes('synas på allabolag') &&
-                !name.toLowerCase().includes('hitta liknande') &&
-                !name.toLowerCase().includes('jämför') &&
-                !name.toLowerCase().includes('bevaka') &&
-                !name.toLowerCase().includes('köp denna lista') &&
-                !companies.find(c => c.orgNumber === orgNum)) {
-              companies.push({ name, orgNumber: orgNum });
-              console.log('Found company:', name, orgNum);
+            if (nameMatch && nameMatch[1]) {
+              let name = nameMatch[1]
+                .replace(/&nbsp;/g, ' ')
+                .replace(/&amp;/g, '&')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&quot;/g, '"')
+                .trim();
+              
+              // Skip if this is "Org.nr" or other UI elements
+              if (name && 
+                  name.length > 3 && 
+                  !name.toLowerCase().includes('org.nr') &&
+                  !name.toLowerCase().includes('org nr') &&
+                  !name.toLowerCase().includes('synas på allabolag') &&
+                  !name.toLowerCase().includes('hitta liknande') &&
+                  !name.toLowerCase().includes('jämför') &&
+                  !name.toLowerCase().includes('bevaka') &&
+                  !name.toLowerCase().includes('köp denna lista') &&
+                  !companies.find(c => c.orgNumber === orgNum)) {
+                companies.push({ name, orgNumber: orgNum });
+                console.log('Found company:', name, orgNum);
+                break; // Found valid company name, stop looking
+              }
             }
           }
         }
