@@ -24,9 +24,10 @@ interface VehicleListProps {
   filter?: 'all' | 'på_lager' | 'såld' | 'transport';
   onSellVehicle?: (vehicleId: string) => void;
   onStatsUpdate?: () => void;
+  searchTerm?: string;
 }
 
-export const VehicleList = ({ filter = 'all', onSellVehicle, onStatsUpdate }: VehicleListProps) => {
+export const VehicleList = ({ filter = 'all', onSellVehicle, onStatsUpdate, searchTerm = "" }: VehicleListProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -211,16 +212,30 @@ export const VehicleList = ({ filter = 'all', onSellVehicle, onStatsUpdate }: Ve
     );
   }
 
+  // Filter vehicles based on search term
+  const filteredVehicles = vehicles.filter(vehicle => {
+    if (!searchTerm.trim()) return true;
+    
+    const searchLower = searchTerm.toLowerCase();
+    const registrationMatch = vehicle.registration_number.toLowerCase().includes(searchLower);
+    const brandMatch = vehicle.brand.toLowerCase().includes(searchLower);
+    const modelMatch = vehicle.model?.toLowerCase().includes(searchLower) || false;
+    
+    return registrationMatch || brandMatch || modelMatch;
+  });
+
   return (
     <Card>
       <CardContent className="p-6">
-        {vehicles.length === 0 ? (
+        {filteredVehicles.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-muted-foreground">Inga fordon registrerade än.</p>
+            <p className="text-muted-foreground">
+              {searchTerm.trim() ? `Inga fordon hittades för "${searchTerm}".` : "Inga fordon registrerade än."}
+            </p>
           </div>
         ) : (
           <div className="space-y-4">
-            {vehicles.map((vehicle) => (
+            {filteredVehicles.map((vehicle) => (
               <div key={vehicle.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors w-full">
                 {/* Car icon or brand logo */}
                 <div className="flex-shrink-0 w-16 flex justify-center items-center">

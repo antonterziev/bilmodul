@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { DashboardStats } from "@/components/Dashboard/DashboardStats";
@@ -13,7 +14,7 @@ import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
 import { Statistics } from "@/components/Statistics/Statistics";
 import { supabase } from "@/integrations/supabase/client";
-import { Home, BarChart3, Car, Settings as SettingsIcon, Truck, Download, Phone, MessageCircle, LogOut, CreditCard, Zap, FileCheck, FileText, File, Receipt, CreditCard as DirectPayments, Users, BookOpen, CheckSquare, Paperclip, ChevronDown, ChevronRight, Package } from "lucide-react";
+import { Home, BarChart3, Car, Settings as SettingsIcon, Truck, Download, Phone, MessageCircle, LogOut, CreditCard, Zap, FileCheck, FileText, File, Receipt, CreditCard as DirectPayments, Users, BookOpen, CheckSquare, Paperclip, ChevronDown, ChevronRight, Package, Search } from "lucide-react";
 
 const Index = () => {
   const { user, signOut, isLoading } = useAuth();
@@ -43,6 +44,7 @@ const Index = () => {
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [selectedSaleVehicleId, setSelectedSaleVehicleId] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [stats, setStats] = useState({
     totalStock: 0,
     averageStorageDays: 0,
@@ -245,6 +247,7 @@ const Index = () => {
           />
           <VehicleList 
             filter={lagerFilter} 
+            searchTerm={searchTerm}
             onSellVehicle={(vehicleId) => {
               setShowPurchaseForm(false);
               setShowLogistics(false);
@@ -329,22 +332,16 @@ const Index = () => {
               >
                 Registrera inköp
               </Button>
-              <Button 
-                variant="outline" 
-                className="w-full bg-green-500 hover:bg-green-600 text-white border-green-500"
-                onClick={() => {
-                  setShowPurchaseForm(false);
-                  setShowLogistics(false);
-                  setShowSales(true);
-                  setShowSettings(false);
-                  setShowStatistics(false);
-                  setShowLager(false);
-                  setSelectedVehicleId(null);
-                  setSelectedSaleVehicleId(null);
-                }}
-              >
-                Sälj
-              </Button>
+              <div className="relative">
+                <Input
+                  type="text"
+                  placeholder="t.ex. YNO404 eller Volvo"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-9 w-full"
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              </div>
             </div>
           </div>
           
