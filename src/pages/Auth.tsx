@@ -296,7 +296,7 @@ const Auth = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                    placeholder="din.email@example.com"
+                    placeholder="din.email@exempel.se"
                     required
                   />
                 </div>
