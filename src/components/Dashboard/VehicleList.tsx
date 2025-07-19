@@ -21,9 +21,10 @@ interface Vehicle {
 
 interface VehicleListProps {
   filter?: 'all' | 'på_lager' | 'såld' | 'transport';
+  onSellVehicle?: (vehicleId: string) => void;
 }
 
-export const VehicleList = ({ filter = 'all' }: VehicleListProps) => {
+export const VehicleList = ({ filter = 'all', onSellVehicle }: VehicleListProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -338,7 +339,7 @@ export const VehicleList = ({ filter = 'all' }: VehicleListProps) => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => {/* TODO: Add sell functionality */}}
+                    onClick={() => onSellVehicle?.(vehicle.id)}
                     className="text-green-600 hover:bg-green-600 hover:text-white w-10 h-10 p-0"
                   >
                     <DollarSign className="h-4 w-4" />

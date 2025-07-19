@@ -239,7 +239,19 @@ const Index = () => {
             inventoryValue={stats.inventoryValue}
             grossProfit={stats.grossProfit}
           />
-          <VehicleList filter={lagerFilter} />
+          <VehicleList 
+            filter={lagerFilter} 
+            onSellVehicle={(vehicleId) => {
+              setShowPurchaseForm(false);
+              setShowLogistics(false);
+              setShowSales(true);
+              setShowSettings(false);
+              setShowStatistics(false);
+              setShowLager(false);
+              setSelectedVehicleId(null);
+              setSelectedSaleVehicleId(vehicleId);
+            }}
+          />
         </>
       );
     }
