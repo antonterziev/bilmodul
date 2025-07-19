@@ -371,16 +371,19 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
   // Watch for changes in registration number and check for duplicates + fetch car.info
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
-      // Only check for duplicates and fetch car info when registration_number field changes
-      if (name === 'registration_number' && value.registration_number) {
+      // Only check for duplicates and fetch car info when registration_number field changes and has at least 4 characters
+      if (name === 'registration_number' && value.registration_number && value.registration_number.length >= 4) {
         const timeoutId = setTimeout(() => {
           checkForDuplicateRegNumber(value.registration_number as string);
           fetchCarInfo(value.registration_number as string);
         }, 1000); // Debounce for 1 second to allow user to finish typing
 
         return () => clearTimeout(timeoutId);
-      } else if (name === 'registration_number' && !value.registration_number) {
+      } else if (name === 'registration_number' && (!value.registration_number || value.registration_number.length < 4)) {
+        // Clear states when input is cleared or less than 4 characters
         setIsDuplicateRegNumber(false);
+        setIsCheckingRegNumber(false);
+        setIsLoadingCarInfo(false);
       }
     });
 
@@ -660,25 +663,23 @@ export const PurchaseForm = ({ onSuccess }: PurchaseFormProps) => {
             
             <div className="max-w-md mx-auto">
               <Label htmlFor="registration_number">Registreringsnummer*</Label>
-              <Input
-                id="registration_number"
-                placeholder="t.ex. JSK15L"
-                {...form.register("registration_number")}
-                className={cn(
-                  form.formState.errors.registration_number && "border-destructive",
-                  isDuplicateRegNumber && "border-destructive"
+              <div className="relative">
+                <Input
+                  id="registration_number"
+                  placeholder="t.ex. JSK15L"
+                  {...form.register("registration_number")}
+                  className={cn(
+                    form.formState.errors.registration_number && "border-destructive",
+                    isDuplicateRegNumber && "border-destructive",
+                    (isCheckingRegNumber || isLoadingCarInfo) && "pr-10" // Add padding for spinner
+                  )}
+                />
+                {(isCheckingRegNumber || isLoadingCarInfo) && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full"></div>
+                  </div>
                 )}
-              />
-              {isCheckingRegNumber && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  Kontrollerar registreringsnummer...
-                </p>
-              )}
-              {isLoadingCarInfo && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  Hämtar fordonsdata...
-                </p>
-              )}
+              </div>
               {isDuplicateRegNumber && (
                 <p className="text-sm text-destructive mt-1">
                   Detta registreringsnummer finns redan registrerat
