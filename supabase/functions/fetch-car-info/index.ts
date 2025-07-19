@@ -100,7 +100,7 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          url: `https://car.info/${registrationNumber}`,
+          url: `https://www.car.info/sv-se/license-plate/S/${registrationNumber}`,
           formats: ['markdown', 'text'],
           onlyMainContent: true
         })
