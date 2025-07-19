@@ -18,6 +18,10 @@ const Auth = () => {
   const [lastName, setLastName] = useState("");
   const [isSignup, setIsSignup] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [isWordVisible, setIsWordVisible] = useState(true);
+  
+  const words = ["ekonomiöversikt", "lagermodul", "lagerfinansiering"];
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [showPasswordStep, setShowPasswordStep] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -46,6 +50,21 @@ const Auth = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  // Word cycling animation effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsWordVisible(false);
+      
+      setTimeout(() => {
+        setCurrentWordIndex((prevIndex) => (prevIndex + 1) % words.length);
+        setIsWordVisible(true);
+      }, 300); // Fade out duration
+      
+    }, 2000); // Change word every 2 seconds
+    
+    return () => clearInterval(interval);
+  }, [words.length]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -284,7 +303,12 @@ const Auth = () => {
           <div className="text-center mb-8">
             <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-16 mx-auto mb-6" />
             <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-              Kom igång med bilbranschens mest innovativa ekonomiöversikt
+              Kom igång med bilbranschens mest innovativa{" "}
+              <span 
+                className={`transition-opacity duration-300 ${isWordVisible ? 'opacity-100' : 'opacity-0'}`}
+              >
+                {words[currentWordIndex]}
+              </span>
             </h2>
             <p className="text-gray-600 text-sm">Du binder dig inte till något.</p>
           </div>
