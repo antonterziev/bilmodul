@@ -130,6 +130,15 @@ export const Settings = () => {
   };
 
   const changePassword = async () => {
+    if (!currentPassword) {
+      toast({
+        title: "Fel",
+        description: "Du måste ange ditt nuvarande lösenord",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (newPassword !== confirmPassword) {
       toast({
         title: "Fel",
@@ -150,6 +159,22 @@ export const Settings = () => {
 
     setChangingPassword(true);
     try {
+      // First verify the current password by attempting to sign in
+      const { error: verifyError } = await supabase.auth.signInWithPassword({
+        email: user?.email || '',
+        password: currentPassword,
+      });
+
+      if (verifyError) {
+        toast({
+          title: "Fel",
+          description: "Nuvarande lösenord är felaktigt",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // If verification successful, update the password
       const { error } = await supabase.auth.updateUser({
         password: newPassword
       });
@@ -189,11 +214,11 @@ export const Settings = () => {
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="profile">
             <User className="h-4 w-4 mr-2" />
-            Profil
+            Profilinställningar
           </TabsTrigger>
           <TabsTrigger value="security">
             <Lock className="h-4 w-4 mr-2" />
-            Säkerhet
+            Lösenord
           </TabsTrigger>
           <TabsTrigger value="preferences">
             <SettingsIcon className="h-4 w-4 mr-2" />
@@ -271,6 +296,17 @@ export const Settings = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
+                <Label htmlFor="currentPassword">Nuvarande lösenord</Label>
+                <Input
+                  id="currentPassword"
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder="Ange nuvarande lösenord"
+                />
+              </div>
+
+              <div>
                 <Label htmlFor="newPassword">Nytt lösenord</Label>
                 <Input
                   id="newPassword"
@@ -294,7 +330,7 @@ export const Settings = () => {
 
               <Button 
                 onClick={changePassword} 
-                disabled={changingPassword || !newPassword || !confirmPassword}
+                disabled={changingPassword || !currentPassword || !newPassword || !confirmPassword}
                 className="w-full"
               >
                 {changingPassword ? "Ändrar..." : "Ändra lösenord"}
