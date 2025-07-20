@@ -385,21 +385,34 @@ const Index = () => {
                   </div>
                   <Button 
                     variant="outline" 
-                    onClick={async () => {
-                      try {
-                        const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
-                          body: { action: 'get_auth_url' }
-                        });
+                  onClick={async () => {
+                    console.log('Koppla button clicked - initiating Fortnox connection');
+                    try {
+                      console.log('Calling fortnox-oauth function...');
+                      const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
+                        body: { action: 'get_auth_url' }
+                      });
 
-                        if (error) throw error;
+                      console.log('Fortnox OAuth response:', { data, error });
 
-                        // Redirect to Fortnox OAuth
-                        window.location.href = data.auth_url;
-                        
-                      } catch (error: any) {
-                        console.error('Fortnox connection error:', error);
+                      if (error) {
+                        console.error('Fortnox OAuth error:', error);
+                        throw error;
                       }
-                    }}
+
+                      if (!data?.auth_url) {
+                        throw new Error('No auth URL received from Fortnox OAuth function');
+                      }
+
+                      console.log('Redirecting to Fortnox OAuth URL:', data.auth_url);
+                      // Redirect to Fortnox OAuth
+                      window.location.href = data.auth_url;
+                      
+                    } catch (error: any) {
+                      console.error('Fortnox connection error:', error);
+                      // You could add a toast here if needed
+                    }
+                  }}
                   >
                     <Link className="h-4 w-4 mr-2" />
                     Koppla
