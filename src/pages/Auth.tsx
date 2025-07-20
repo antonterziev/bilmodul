@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import EmailVerification from "@/components/EmailVerification";
+import RecoveryEmailSent from "@/components/RecoveryEmailSent";
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -26,6 +27,7 @@ const Auth = () => {
   const [resetEmail, setResetEmail] = useState("");
   const [showEmailExists, setShowEmailExists] = useState(false);
   const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [showRecoveryEmailSent, setShowRecoveryEmailSent] = useState(false);
   const navigate = useNavigate();
   useEffect(() => {
     // Check if user is already logged in
@@ -182,10 +184,9 @@ const Auth = () => {
         redirectTo: `https://lagermodulen.se/password-reset`
       });
       if (error) throw error;
-      toast({
-        title: "E-post skickad!",
-        description: "Kontrollera din e-post för instruktioner om hur du återställer ditt lösenord."
-      });
+      
+      // Show the recovery email sent screen instead of toast
+      setShowRecoveryEmailSent(true);
       setShowForgotPassword(false);
     } catch (error: any) {
       toast({
@@ -213,6 +214,19 @@ const Auth = () => {
       setResetEmail(email);
     }
   }, [showForgotPassword, email]);
+
+  // Recovery email sent screen
+  if (showRecoveryEmailSent) {
+    return <RecoveryEmailSent 
+      email={resetEmail} 
+      onBack={() => {
+        setShowRecoveryEmailSent(false);
+        setShowForgotPassword(false);
+      }}
+      onResend={() => handleForgotPassword(resetEmail)}
+      isResending={isResettingPassword}
+    />;
+  }
 
   // Email verification screen
   if (showEmailVerification) {
