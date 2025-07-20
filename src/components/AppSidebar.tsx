@@ -122,7 +122,7 @@ export function AppSidebar({
       title: "Ekonomi",
       icon: Calculator,
       children: [
-        { id: "verifikat", title: "Verifikat", icon: FileText, isPro: true },
+        { id: "verifikat", title: "Bokföringsunderlag", icon: FileText, isPro: true },
         { id: "bokforing", title: "Bokföring", icon: BookOpen, isPro: true },
       ]
     },
