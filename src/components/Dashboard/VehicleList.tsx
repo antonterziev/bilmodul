@@ -303,7 +303,7 @@ export const VehicleList = ({
         ) : (
           <div className="space-y-4">
             {sortedVehicles.map((vehicle) => (
-              <div key={vehicle.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors w-full">
+              <div key={vehicle.id} className="flex items-center gap-4 pl-4 pr-4 py-4 border rounded-lg hover:bg-muted/50 transition-colors w-full ml-4">
                 {/* Car icon or brand logo */}
                 <div className="flex-shrink-0 w-16 flex justify-center items-center">
                   <BrandLogo 
