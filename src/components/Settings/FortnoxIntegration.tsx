@@ -31,16 +31,19 @@ export const FortnoxIntegration = () => {
   }, []);
 
   const loadStatus = async () => {
+    console.log('Loading Fortnox status...');
     try {
       const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
         body: { action: 'get_status' }
       });
 
+      console.log('Fortnox status response:', { data, error });
       if (error) throw error;
       setStatus(data);
     } catch (error) {
       console.error('Failed to load Fortnox status:', error);
     } finally {
+      console.log('Setting loading to false');
       setLoading(false);
     }
   };
