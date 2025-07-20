@@ -134,7 +134,7 @@ export function AppSidebar({
         {/* Registrera inköp and Search at top */}
         <SidebarGroup>
           <SidebarGroupContent>
-            <div className="p-4 space-y-3">
+            <div className="p-4 pb-2 space-y-3">
               <Button 
                 className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 font-medium w-full"
                 onClick={() => onViewChange("purchase_form")}
@@ -153,7 +153,7 @@ export function AppSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
         {/* All Navigation - Combined */}
-        <SidebarGroup className="px-4">
+        <SidebarGroup className="px-4 -mt-2">
           <SidebarGroupContent>
             <SidebarMenu>
               {mainMenuItems.map((item) => (
