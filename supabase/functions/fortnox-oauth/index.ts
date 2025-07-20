@@ -47,6 +47,9 @@ Deno.serve(async (req) => {
         `response_type=code&` +
         `access_type=offline`
 
+      console.log('Generated OAuth URL:', authUrl)
+      console.log('Redirect URI:', redirectUri)
+
       // Store state for verification
       await supabase
         .from('fortnox_integrations')
