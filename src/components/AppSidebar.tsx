@@ -90,9 +90,11 @@ export function AppSidebar({
       title: "Lager",
       icon: Car,
       children: [
-        { id: "lager_all", title: "Alla fordon", icon: Car },
+        { id: "purchase_form_sub", title: "Registrera fordon", icon: Car, isButton: true },
+        { id: "lager_all", title: "Lagerlista", icon: Car },
         { id: "lager_stock", title: "I lager", icon: Package },
         { id: "lager_sold", title: "Sålda", icon: CheckSquare },
+        { id: "statistics_header", title: "Statistik", icon: BarChart3, isHeader: true, isPro: true },
         { id: "logistics", title: "Logistik", icon: Truck },
       ]
     },
@@ -192,21 +194,40 @@ export function AppSidebar({
                       <SidebarMenu className="ml-6 mt-1 space-y-1">
                          {section.children.map((child) => (
                            <SidebarMenuItem key={child.id} className="pr-6">
-                             <SidebarMenuButton
-                                onClick={['finansiering', 'affarer', 'direktfloden'].includes(section.id) ? undefined : () => onViewChange(child.id)}
-                                className={['finansiering', 'affarer', 'direktfloden'].includes(section.id)
-                                  ? "cursor-not-allowed pointer-events-none text-muted-foreground hover:bg-muted/50 flex items-center justify-between" 
-                                  : getNavClass(child.id)
-                                }
-                                size="sm"
-                              >
-                                <span className="text-sm">{child.title}</span>
-                                {['finansiering', 'affarer', 'direktfloden'].includes(section.id) && (
-                                  <span className="inline-flex items-center rounded-full bg-yellow-200 px-1.5 py-0 text-[11px] font-medium text-yellow-900">
-                                    PRO
-                                  </span>
-                                )}
-                              </SidebarMenuButton>
+                             {child.isButton ? (
+                               <Button 
+                                 className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 font-medium w-full text-sm h-8"
+                                 onClick={() => onViewChange("purchase_form")}
+                                 size="sm"
+                               >
+                                 {child.title}
+                               </Button>
+                             ) : child.isHeader ? (
+                               <div className="cursor-default pointer-events-none text-muted-foreground hover:bg-muted/50 flex items-center justify-between py-2 px-3 rounded-md">
+                                 <span className="text-sm font-medium">{child.title}</span>
+                                 {child.isPro && (
+                                   <span className="inline-flex items-center rounded-full bg-yellow-200 px-1.5 py-0 text-[11px] font-medium text-yellow-900">
+                                     PRO
+                                   </span>
+                                 )}
+                               </div>
+                             ) : (
+                               <SidebarMenuButton
+                                  onClick={['finansiering', 'affarer', 'direktfloden'].includes(section.id) ? undefined : () => onViewChange(child.id)}
+                                  className={['finansiering', 'affarer', 'direktfloden'].includes(section.id)
+                                    ? "cursor-not-allowed pointer-events-none text-muted-foreground hover:bg-muted/50 flex items-center justify-between" 
+                                    : getNavClass(child.id)
+                                  }
+                                  size="sm"
+                               >
+                                 <span className="text-sm">{child.title}</span>
+                                 {['finansiering', 'affarer', 'direktfloden'].includes(section.id) && (
+                                   <span className="inline-flex items-center rounded-full bg-yellow-200 px-1.5 py-0 text-[11px] font-medium text-yellow-900">
+                                     PRO
+                                   </span>
+                                 )}
+                               </SidebarMenuButton>
+                             )}
                            </SidebarMenuItem>
                          ))}
                       </SidebarMenu>
