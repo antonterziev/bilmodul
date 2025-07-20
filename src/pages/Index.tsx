@@ -413,47 +413,46 @@ const Index = () => {
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen w-full bg-background flex flex-row">
-        <AppSidebar 
-          currentView={currentView}
-          onViewChange={handleViewChange}
-          expandedSections={expandedSections}
-          onSectionToggle={handleSectionToggle}
-        />
-        
-        <div className="flex-1 flex flex-col min-w-0 ml-0">
-          {/* Logo at the very top */}
-          <div className="bg-white border-b px-4 py-3 flex items-center">
+      <div className="min-h-screen w-full bg-background flex flex-col">
+        {/* Top header with logo spanning full width */}
+        <div className="bg-white border-b flex h-16 z-10">
+          <div className="flex items-center px-4 py-3 w-72">
             <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-8" />
           </div>
-
-          {/* Navigation bar with white background */}
-          <header className="bg-white border-b flex flex-col">
-            <div className="flex h-16">
-              <div className="flex-1 px-4 py-4 flex justify-end items-center">
-                <div className="flex items-center gap-4">
-                  <span className="text-sm text-muted-foreground">
-                    Välkommen {getDisplayName()}
-                  </span>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setShowKundtjanst(true)} className="flex items-center gap-2 w-32">
-                      <Phone className="h-4 w-4" />
-                      <span className="text-foreground">Kundtjänst</span>
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => setShowSupportDialog(true)} className="flex items-center gap-2 w-32">
-                      <MessageCircle className="h-4 w-4" />
-                      Supportchatt
-                    </Button>
-                    <Button variant="outline" onClick={handleLogout} size="sm" className="flex items-center gap-2 w-32">
-                      <LogOut className="h-4 w-4" />
-                      Logga ut
-                    </Button>
-                  </div>
-                </div>
+          <div className="flex-1 px-4 py-4 flex justify-end items-center">
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-muted-foreground">
+                Välkommen {getDisplayName()}
+              </span>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => setShowKundtjanst(true)} className="flex items-center gap-2 w-32">
+                  <Phone className="h-4 w-4" />
+                  <span className="text-foreground">Kundtjänst</span>
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setShowSupportDialog(true)} className="flex items-center gap-2 w-32">
+                  <MessageCircle className="h-4 w-4" />
+                  Supportchatt
+                </Button>
+                <Button variant="outline" onClick={handleLogout} size="sm" className="flex items-center gap-2 w-32">
+                  <LogOut className="h-4 w-4" />
+                  Logga ut
+                </Button>
               </div>
             </div>
+          </div>
+        </div>
+        
+        <div className="flex flex-row flex-1">
+          <AppSidebar 
+            currentView={currentView}
+            onViewChange={handleViewChange}
+            expandedSections={expandedSections}
+            onSectionToggle={handleSectionToggle}
+          />
+        
+          <div className="flex-1 flex flex-col min-w-0">
             {/* Second row with registrera inköp and search */}
-            <div className="flex items-center px-4 pb-4 gap-4 bg-white">
+            <div className="flex items-center px-4 py-4 gap-4 bg-white border-b">
               <Button 
                 className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 font-medium"
                 onClick={() => handleViewChange("purchase_form")}
@@ -472,7 +471,6 @@ const Index = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               </div>
             </div>
-          </header>
 
           {/* Main Content Area */}
           <main className="flex-1 p-6 overflow-auto">
@@ -483,6 +481,7 @@ const Index = () => {
               {renderMainContent()}
             </div>
           </main>
+          </div>
         </div>
 
         {/* Dialogs */}

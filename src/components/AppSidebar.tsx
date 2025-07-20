@@ -55,6 +55,17 @@ export function AppSidebar({
       ? "bg-primary text-primary-foreground" 
       : "text-muted-foreground hover:bg-muted/50";
 
+  const handleSectionToggle = (sectionId: string) => {
+    // Close all other sections first
+    Object.keys(expandedSections).forEach(id => {
+      if (id !== sectionId && expandedSections[id]) {
+        onSectionToggle(id);
+      }
+    });
+    // Then toggle the clicked section
+    onSectionToggle(sectionId);
+  };
+
   const mainMenuItems = [
     { id: "overview", title: "Översikt", icon: Home },
     { id: "statistics", title: "Statistik", icon: BarChart3 },
@@ -114,7 +125,7 @@ export function AppSidebar({
   ];
 
   return (
-    <Sidebar className="w-72 bg-white border-r">
+    <Sidebar className="w-72 bg-white border-r" collapsible="none">
       <SidebarContent className="bg-white">
         {/* Main Navigation - No group labels */}
         <SidebarGroup>
@@ -142,7 +153,7 @@ export function AppSidebar({
               {expandableMenuItems.map((section) => (
                 <SidebarMenuItem key={section.id}>
                   <SidebarMenuButton
-                    onClick={() => onSectionToggle(section.id)}
+                    onClick={() => handleSectionToggle(section.id)}
                     className="text-muted-foreground hover:bg-muted/50"
                   >
                     <section.icon className="h-4 w-4" />
@@ -163,7 +174,6 @@ export function AppSidebar({
                             className={getNavClass(child.id)}
                             size="sm"
                           >
-                            <child.icon className="h-3 w-3" />
                             <span className="text-sm">{child.title}</span>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
