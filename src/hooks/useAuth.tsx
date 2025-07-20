@@ -74,6 +74,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // Add a function to manually clear auth state for debugging
+  const clearAuthState = () => {
+    // Remove all Supabase auth keys from localStorage
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+        localStorage.removeItem(key);
+      }
+    });
+    // Remove from sessionStorage if in use
+    Object.keys(sessionStorage || {}).forEach((key) => {
+      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+        sessionStorage.removeItem(key);
+      }
+    });
+    // Clear session state
+    setSession(null);
+    setUser(null);
+    // Reload page
+    window.location.reload();
+  };
+
   const validateUserSession = async (session: any) => {
     if (!session?.user?.id) return false;
     
