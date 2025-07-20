@@ -95,11 +95,52 @@ serve(async (req) => {
 })
 
 async function fetchBrandLogoFromAPI(brand: string): Promise<string | null> {
-  // Placeholder for actual logo fetching logic
-  // This would typically call an external API like Clearbit, Google Images API, etc.
   console.log(`Fetching logo for brand: ${brand}`)
   
-  // For now, return null to maintain existing behavior
-  // Real implementation would go here
-  return null
+  try {
+    // Use a free logo API service
+    const logoApiUrl = `https://logo.clearbit.com/${brand.toLowerCase()}.com`
+    
+    // Test if the logo exists by making a HEAD request
+    const response = await fetch(logoApiUrl, { 
+      method: 'HEAD',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; LogoFetcher/1.0)'
+      }
+    })
+    
+    if (response.ok) {
+      console.log(`Found logo for ${brand} at Clearbit`)
+      return logoApiUrl
+    }
+    
+    // Fallback: Try alternative domain patterns
+    const altDomains = [
+      `${brand.toLowerCase()}.se`,
+      `${brand.toLowerCase()}.com`,
+      `${brand.toLowerCase()}.net`
+    ]
+    
+    for (const domain of altDomains) {
+      const altUrl = `https://logo.clearbit.com/${domain}`
+      const altResponse = await fetch(altUrl, { 
+        method: 'HEAD',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; LogoFetcher/1.0)'
+        }
+      })
+      
+      if (altResponse.ok) {
+        console.log(`Found logo for ${brand} at ${domain}`)
+        return altUrl
+      }
+    }
+    
+    console.log(`No logo found for brand: ${brand}`)
+    return null
+    
+  } catch (error) {
+    console.error(`Error fetching logo for ${brand}:`, error)
+    return null
+  }
 }
