@@ -394,7 +394,7 @@ const Index = () => {
                   </div>
                   <div>
                     <h3 className="font-medium">Automatisk bokföring – Visma</h3>
-                    <p className="text-sm text-muted-foreground">Synkronisera dina fordon och ekonomidata automatiskt med Fortnox.</p>
+                    <p className="text-sm text-muted-foreground">Bokför dina fordonsaffärer smidigt och automatiskt med Visma</p>
                   </div>
                 </div>
                 <Button variant="outline" disabled>
