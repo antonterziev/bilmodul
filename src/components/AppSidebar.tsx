@@ -114,8 +114,8 @@ export function AppSidebar({
   ];
 
   return (
-    <Sidebar className="w-72">
-      <SidebarContent>
+    <Sidebar className="w-72 bg-white border-r">
+      <SidebarContent className="bg-white">
         {/* Main Navigation - No group labels */}
         <SidebarGroup>
           <SidebarGroupContent>

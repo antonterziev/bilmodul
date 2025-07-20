@@ -404,8 +404,8 @@ const Index = () => {
   };
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen w-full flex bg-background">
+    <SidebarProvider defaultOpen={true}>
+      <div className="min-h-screen w-full bg-background flex flex-row">
         <AppSidebar 
           currentView={currentView}
           onViewChange={handleViewChange}
@@ -413,7 +413,7 @@ const Index = () => {
           onSectionToggle={handleSectionToggle}
         />
         
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 flex flex-col min-w-0 ml-0">
           {/* Logo at the very top */}
           <div className="bg-white border-b px-4 py-3 flex items-center">
             <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-8" />
