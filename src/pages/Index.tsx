@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -15,15 +16,15 @@ import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
 import { Statistics } from "@/components/Statistics/Statistics";
 import { AppSidebar } from "@/components/AppSidebar";
+import { useToast } from "@/hooks/use-toast";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Phone, MessageCircle, LogOut, Search, Download, FileText, File, FileCheck, Receipt, BookOpen, CheckSquare, User, ChevronDown, Bell, HelpCircle, Link } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
-  const { user, session, signOut, isLoading } = useAuth();
+  const { user, signOut, isLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -64,62 +65,8 @@ const Index = () => {
     grossProfit: 0
   });
 
-  const handleFortnoxCallback = async () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-    const state = urlParams.get('state');
-
-    if (code && state) {
-      console.log('Fortnox OAuth callback detected', { code, state });
-      
-      try {
-        toast({
-          title: "Ansluter till Fortnox...",
-          description: "Vänta medan vi kopplar ditt konto till Fortnox.",
-        });
-
-        const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
-          body: { 
-            action: 'exchange_code',
-            code: code,
-            state: state
-          }
-        });
-
-        if (error) {
-          console.error('Fortnox OAuth exchange error:', error);
-          throw error;
-        }
-
-        if (data?.success) {
-          toast({
-            title: "Fortnox-anslutning lyckades!",
-            description: `Ditt konto är nu kopplat till ${data.company_name || 'Fortnox'}.`,
-          });
-          
-          // Clean up URL parameters
-          const newUrl = window.location.pathname;
-          window.history.replaceState({}, document.title, newUrl);
-          
-          // Navigate to integrations page to show the connected status
-          setCurrentView('integrationer');
-        } else {
-          throw new Error('OAuth exchange failed');
-        }
-      } catch (error: any) {
-        console.error('Fortnox callback error:', error);
-        toast({
-          title: "Fortnox-anslutning misslyckades",
-          description: error.message || "Ett fel uppstod vid anslutning till Fortnox. Försök igen.",
-          variant: "destructive",
-        });
-        
-        // Clean up URL parameters even on error
-        const newUrl = window.location.pathname;
-        window.history.replaceState({}, document.title, newUrl);
-      }
-    }
-  };
+  // Add OAuth callback processing state
+  const [isProcessingOAuth, setIsProcessingOAuth] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -141,12 +88,69 @@ const Index = () => {
     }
   }, [user, isLoading, navigate]);
 
+  // Add OAuth callback processing
+  useEffect(() => {
+    if (user && !isProcessingOAuth) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      const state = urlParams.get('state');
+      
+      if (code && state) {
+        console.log('OAuth callback detected:', { code, state });
+        processOAuthCallback(code, state);
+      }
+    }
+  }, [user, isProcessingOAuth]);
+
+  const processOAuthCallback = async (code: string, state: string) => {
+    console.log('Processing OAuth callback...');
+    setIsProcessingOAuth(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
+        body: { 
+          action: 'exchange_code', 
+          code, 
+          state 
+        }
+      });
+
+      console.log('OAuth exchange response:', { data, error });
+
+      if (error) {
+        console.error('OAuth exchange error:', error);
+        toast({
+          title: "Fel vid anslutning",
+          description: "Kunde inte ansluta till Fortnox. Försök igen.",
+          variant: "destructive",
+        });
+      } else if (data?.success) {
+        console.log('OAuth success:', data);
+        toast({
+          title: "Ansluten till Fortnox!",
+          description: data.company_name ? `Ansluten till ${data.company_name}` : "Fortnox-integration är nu aktiv",
+        });
+        
+        // Clean up URL parameters
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    } catch (error) {
+      console.error('OAuth callback processing error:', error);
+      toast({
+        title: "Fel vid anslutning",
+        description: "Ett oväntat fel uppstod. Försök igen.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessingOAuth(false);
+    }
+  };
+
   useEffect(() => {
     if (user) {
       loadStats();
       loadUserProfile();
       loadInventoryItems();
-      handleFortnoxCallback();
     }
   }, [user]);
 
@@ -326,28 +330,13 @@ const Index = () => {
     return user?.email || 'Användare';
   };
 
-  const checkFortnoxConnection = async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
-        body: { action: 'get_status' }
-      });
-
-      if (!error && data?.connected) {
-        toast({
-          title: "Fortnox-anslutning lyckades!",
-          description: `Ditt konto är nu kopplat till ${data.company_name || 'Fortnox'}.`,
-        });
-      }
-    } catch (error) {
-      console.error('Error checking Fortnox connection:', error);
-    }
-  };
-
-  if (isLoading) {
+  if (isLoading || isProcessingOAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <p className="text-xl text-muted-foreground">Laddar...</p>
+          <p className="text-xl text-muted-foreground">
+            {isProcessingOAuth ? 'Ansluter till Fortnox...' : 'Laddar...'}
+          </p>
         </div>
       </div>
     );
@@ -462,26 +451,11 @@ const Index = () => {
                   </div>
                   <Button 
                     variant="outline" 
+                    disabled={isProcessingOAuth}
                     onClick={async () => {
-                      console.log('Koppla button clicked - starting Fortnox connection');
-                      
-                      // Prevent any session issues by ensuring we have a valid session
-                      if (!user || !session) {
-                        toast({
-                          title: "Sessionsfel",
-                          description: "Du är inte inloggad. Logga in igen.",
-                          variant: "destructive",
-                        });
-                        return;
-                      }
-                      
+                      console.log('Koppla button clicked - initiating Fortnox connection');
                       try {
-                        toast({
-                          title: "Förbereder anslutning...",
-                          description: "Hämtar Fortnox OAuth-länk.",
-                        });
-
-                        console.log('Getting Fortnox auth URL...');
+                        console.log('Calling fortnox-oauth function...');
                         const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
                           body: { action: 'get_auth_url' }
                         });
@@ -492,82 +466,38 @@ const Index = () => {
                           console.error('Fortnox OAuth error:', error);
                           toast({
                             title: "Fel vid anslutning",
-                            description: `OAuth-fel: ${error.message}`,
+                            description: error.message || "Kunde inte starta OAuth-flödet",
                             variant: "destructive",
                           });
                           return;
                         }
 
                         if (!data?.auth_url) {
-                          console.error('No auth URL received:', data);
+                          console.error('No auth URL received');
                           toast({
                             title: "Fel vid anslutning",
-                            description: "Ingen OAuth-URL mottagen från servern.",
+                            description: "Ingen OAuth-URL erhölls från servern",
                             variant: "destructive",
                           });
                           return;
                         }
 
-                        console.log('Opening Fortnox OAuth popup with URL:', data.auth_url);
-                        
-                        // Try to open popup
-                        const popup = window.open(
-                          data.auth_url, 
-                          'fortnox-oauth',
-                          'width=600,height=700,scrollbars=yes,resizable=yes,menubar=no,toolbar=no,status=no'
-                        );
-
-                        if (!popup || popup.closed) {
-                          console.warn('Popup blocked or failed to open, falling back to same-window redirect');
-                          toast({
-                            title: "Popup blockerad",
-                            description: "Öppnar Fortnox i samma fönster...",
-                          });
-                          
-                          // Fallback: redirect in same window but save session info first
-                          localStorage.setItem('veksla_redirect_reason', 'fortnox_oauth');
-                          window.location.href = data.auth_url;
-                          return;
-                        }
-
-                        toast({
-                          title: "Väntar på auktorisering",
-                          description: "Auktorisera Veksla i Fortnox-fönstret.",
-                        });
-
-                        // Monitor popup
-                        const checkClosed = setInterval(() => {
-                          if (popup.closed) {
-                            clearInterval(checkClosed);
-                            console.log('Popup closed, checking for successful connection...');
-                            
-                            // Give a moment for any redirect to process
-                            setTimeout(() => {
-                              checkFortnoxConnection();
-                            }, 1000);
-                          }
-                        }, 1000);
-
-                        // Set a timeout to clean up
-                        setTimeout(() => {
-                          if (!popup.closed) {
-                            clearInterval(checkClosed);
-                            console.log('OAuth timeout reached');
-                          }
-                        }, 300000); // 5 minutes timeout
+                        console.log('Redirecting to Fortnox OAuth URL:', data.auth_url);
+                        // Redirect to Fortnox OAuth
+                        window.location.href = data.auth_url;
                         
                       } catch (error: any) {
                         console.error('Fortnox connection error:', error);
                         toast({
-                          title: "Anslutningsfel",
-                          description: error.message || "Ett oväntat fel uppstod. Försök igen.",
+                          title: "Fel vid anslutning",
+                          description: "Ett oväntat fel uppstod. Kontrollera konsolen för mer information.",
                           variant: "destructive",
                         });
                       }
                     }}
                   >
                     <Link className="h-4 w-4 mr-2" />
-                    Koppla
+                    {isProcessingOAuth ? 'Ansluter...' : 'Koppla'}
                   </Button>
                 </div>
               </div>
@@ -587,8 +517,6 @@ const Index = () => {
                   Koppla
                 </Button>
               </div>
-
-
             </div>
           </div>
         );
