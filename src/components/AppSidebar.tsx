@@ -135,18 +135,25 @@ export function AppSidebar({
         <SidebarGroup>
           <SidebarGroupContent>
             <div className="p-4 pb-2 space-y-3">
-              <Button 
-                className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 font-medium w-full"
-                onClick={() => {
-                  onViewChange("purchase_form");
-                  // Expand the lager section when registering a vehicle
-                  if (!expandedSections.lager) {
-                    onSectionToggle("lager");
-                  }
-                }}
-              >
-                Registrera fordon
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 font-medium flex-1"
+                  onClick={() => {
+                    onViewChange("purchase_form");
+                    // Expand the lager section when registering a vehicle
+                    if (!expandedSections.lager) {
+                      onSectionToggle("lager");
+                    }
+                  }}
+                >
+                  Registrera fordon
+                </Button>
+                <Button 
+                  className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 font-medium px-4"
+                >
+                  Hämta
+                </Button>
+              </div>
               <div className="relative">
                 <Input
                   type="text"
