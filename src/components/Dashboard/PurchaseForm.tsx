@@ -724,14 +724,13 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
               <div className="text-center mt-4">
                 <p className="text-sm text-muted-foreground">
                   Har du endast VIN-nummer? Inga problem, du kan{" "}
-                  <Button 
-                    type="button" 
-                    variant="outline"
+                  <button 
+                    type="button"
                     onClick={() => setShowFullForm(true)}
-                    size="sm"
+                    className="text-blue-600 hover:text-blue-700 underline"
                   >
                     fortsätta utan automatisk hämtning
-                  </Button>
+                  </button>
                 </p>
               </div>
               {isDuplicateRegNumber && (
