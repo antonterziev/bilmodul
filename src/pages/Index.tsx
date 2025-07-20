@@ -393,7 +393,7 @@ const Index = () => {
                     <span className="text-green-600 font-bold text-sm">FX</span>
                   </div>
                   <div>
-                    <h3 className="font-medium">Fortnox Integration</h3>
+                    <h3 className="font-medium">Visma</h3>
                     <p className="text-sm text-muted-foreground">Synkronisera dina fordon och ekonomidata automatiskt med Fortnox.</p>
                   </div>
                 </div>
