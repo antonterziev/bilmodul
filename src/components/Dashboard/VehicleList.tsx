@@ -367,8 +367,9 @@ export const VehicleList = ({ filter = 'all', onSellVehicle, onStatsUpdate, sear
                   <Button
                     variant="outline"
                     size="sm"
+                    disabled
                     onClick={() => onSellVehicle?.(vehicle.id)}
-                    className="text-green-600 hover:bg-green-600 hover:text-white w-10 h-10 p-0"
+                    className="text-green-600 hover:bg-green-600 hover:text-white w-10 h-10 p-0 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <DollarSign className="h-4 w-4" />
                   </Button>
