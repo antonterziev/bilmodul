@@ -33,6 +33,25 @@ const Auth = () => {
   const [emailSentSuccess, setEmailSentSuccess] = useState(false);
   const [loginError, setLoginError] = useState("");
   const navigate = useNavigate();
+  
+  // Force reset function for debugging
+  const forceReset = () => {
+    // Clear all auth-related storage
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+        localStorage.removeItem(key);
+      }
+    });
+    Object.keys(sessionStorage || {}).forEach((key) => {
+      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+        sessionStorage.removeItem(key);
+      }
+    });
+    // Force sign out
+    supabase.auth.signOut({ scope: 'global' });
+    // Reload page
+    window.location.reload();
+  };
   useEffect(() => {
     // Check if user is already logged in
     const checkUser = async () => {
@@ -571,6 +590,17 @@ const Auth = () => {
               <span className="text-gray-600 text-sm">Har du inget konto? </span>
               <button type="button" onClick={() => setIsSignup(true)} className="text-blue-600 text-sm hover:underline">
                 Skapa konto
+              </button>
+            </div>
+            
+            {/* Temporary debug button */}
+            <div className="text-center mt-4">
+              <button 
+                type="button" 
+                onClick={forceReset}
+                className="text-xs text-gray-400 hover:text-gray-600 underline"
+              >
+                Force Reset Auth State (Debug)
               </button>
             </div>
           </CardContent>
