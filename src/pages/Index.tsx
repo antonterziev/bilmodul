@@ -20,12 +20,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Phone, MessageCircle, LogOut, Search, Download, FileText, File, FileCheck, Receipt, BookOpen, CheckSquare, User, ChevronDown, Bell, HelpCircle, Link } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const { user, signOut, isLoading } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
   
   // Current view state
   const [currentView, setCurrentView] = useState("overview");
@@ -63,60 +61,6 @@ const Index = () => {
     inventoryValue: 0,
     grossProfit: 0
   });
-
-  // Handle OAuth callback
-  useEffect(() => {
-    const handleOAuthCallback = async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const code = urlParams.get('code');
-      const state = urlParams.get('state');
-      
-      if (code && state) {
-        console.log('OAuth callback detected:', { code, state });
-        
-        try {
-          toast({
-            title: "Ansluter till Fortnox...",
-            description: "Vänligen vänta medan vi kopplar ditt konto.",
-          });
-
-          const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
-            body: { action: 'exchange_code', code, state }
-          });
-
-          if (error) {
-            console.error('OAuth callback error:', error);
-            throw error;
-          }
-
-          console.log('OAuth callback success:', data);
-          
-          toast({
-            title: "Fortnox ansluten!",
-            description: data.company_name ? 
-              `Ansluten till ${data.company_name}` : 
-              "Din Fortnox-integration är nu aktiv.",
-          });
-
-          // Clean up URL parameters
-          const newUrl = window.location.pathname;
-          window.history.replaceState({}, document.title, newUrl);
-
-        } catch (error: any) {
-          console.error('OAuth callback failed:', error);
-          toast({
-            title: "Anslutning misslyckades",
-            description: "Kunde inte ansluta till Fortnox. Försök igen.",
-            variant: "destructive",
-          });
-        }
-      }
-    };
-
-    if (user && !isLoading) {
-      handleOAuthCallback();
-    }
-  }, [user, isLoading, toast]);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -335,6 +279,7 @@ const Index = () => {
   if (!user) {
     return null;
   }
+
 
   const renderMainContent = () => {
     switch (currentView) {
