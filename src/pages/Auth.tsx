@@ -202,30 +202,31 @@ const Auth = () => {
     if (email.trim()) {
       setIsLoading(true);
       try {
-        // Check if email exists in profiles table
-        const { data: existingProfile } = await supabase
-          .from('profiles')
-          .select('email')
-          .eq('email', email)
-          .maybeSingle();
+        // Try to sign in with a temporary password to check if user exists
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password: 'temp-check-password-that-will-fail'
+        });
         
-        if (existingProfile) {
-          // Email exists, go to password step for login
+        // If error is "Invalid login credentials", user exists but wrong password
+        // If error is "Invalid login credentials" or similar, user exists
+        if (error && error.message.includes('Invalid login credentials')) {
+          // User exists, go to password step
           setShowPasswordStep(true);
-        } else {
-          // Email doesn't exist, show error message
+        } else if (error && (error.message.includes('Email not confirmed') || error.message.includes('not found'))) {
+          // User doesn't exist or email not confirmed
           toast({
             title: "E-postadressen finns inte",
             description: "Det finns inget konto med denna e-postadress. Skapa ett nytt konto istället.",
             variant: "destructive"
           });
+        } else {
+          // Any other error, assume user exists and go to password step
+          setShowPasswordStep(true);
         }
       } catch (error: any) {
-        toast({
-          title: "Fel",
-          description: "Något gick fel. Försök igen.",
-          variant: "destructive"
-        });
+        // On any network error, just proceed to password step
+        setShowPasswordStep(true);
       } finally {
         setIsLoading(false);
       }
