@@ -19,21 +19,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (session) {
-          // Validate the session before setting state
-          const isValid = await validateUserSession(session);
-          if (!isValid) {
-            console.error('Invalid session detected, signing out');
-            // Force sign out if session validation fails
-            await supabase.auth.signOut({ scope: 'global' });
-            setSession(null);
-            setUser(null);
-            setIsLoading(false);
-            return;
-          }
-        }
-        
+      (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setIsLoading(false);
@@ -41,20 +27,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     );
 
     // Then check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session) {
-        // Validate the existing session
-        const isValid = await validateUserSession(session);
-        if (!isValid) {
-          console.error('Invalid existing session detected, signing out');
-          await supabase.auth.signOut({ scope: 'global' });
-          setSession(null);
-          setUser(null);
-          setIsLoading(false);
-          return;
-        }
-      }
-      
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
