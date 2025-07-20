@@ -90,7 +90,7 @@ export function AppSidebar({
     {
       id: "finansiering",
       title: "Finansiering",
-      icon: CreditCard,
+      icon: Landmark,
       children: [
         { id: "lagerfinansiering", title: "Lagerfinansiering", icon: Landmark },
         { id: "slutkundsfinansiering", title: "Slutkundsfinansiering", icon: Users },
