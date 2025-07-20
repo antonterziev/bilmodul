@@ -364,38 +364,39 @@ const Index = () => {
             <h2 className="text-2xl font-bold">{getHeaderTitle()}</h2>
             
             {/* Filter bar */}
-            <div className="flex items-center justify-between gap-4 p-4 bg-card border rounded-lg">
-              <div className="flex items-center gap-4">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="h-8">
-                      <Filter className="w-4 h-4 mr-1" />
-                      Filter
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-48">
-                    <DropdownMenuItem>
-                      <Checkbox className="mr-2" />
-                      I lager
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Checkbox className="mr-2" />
-                      Såld
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+             <div className="flex items-center justify-between gap-4 p-4 bg-card border rounded-lg">
+               <div className="flex items-center gap-4">
+                 <DropdownMenu>
+                   <DropdownMenuTrigger asChild>
+                     <Button variant="outline" size="sm" className="h-8">
+                       <Filter className="w-4 h-4 mr-1" />
+                       Filter
+                     </Button>
+                   </DropdownMenuTrigger>
+                   <DropdownMenuContent align="start" className="w-48">
+                     <DropdownMenuItem>
+                       <Checkbox className="mr-2" />
+                       I lager
+                     </DropdownMenuItem>
+                     <DropdownMenuItem>
+                       <Checkbox className="mr-2" />
+                       Såld
+                     </DropdownMenuItem>
+                   </DropdownMenuContent>
+                 </DropdownMenu>
+                 
+                 <div className="relative">
+                   <Input
+                     placeholder="Sök"
+                     value={searchTerm}
+                     onChange={(e) => setSearchTerm(e.target.value)}
+                     className="w-64 h-8"
+                   />
+                   <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                 </div>
+               </div>
               
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <Input
-                    placeholder="Sök"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-64 h-8"
-                  />
-                  <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                </div>
+               <div className="flex items-center gap-4">
                 
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">Sortera efter</span>
