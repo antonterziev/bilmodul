@@ -213,8 +213,12 @@ const Auth = () => {
           // Email exists, go to password step for login
           setShowPasswordStep(true);
         } else {
-          // Email doesn't exist, go to signup flow
-          setIsSignup(true);
+          // Email doesn't exist, show error message
+          toast({
+            title: "E-postadressen finns inte",
+            description: "Det finns inget konto med denna e-postadress. Skapa ett nytt konto istället.",
+            variant: "destructive"
+          });
         }
       } catch (error: any) {
         toast({
@@ -432,8 +436,8 @@ const Auth = () => {
                   <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500" required />
                 </div>
                 
-                <Button type="submit" disabled={isLoading || !email.includes('@')} className={`w-full h-12 text-white font-medium transition-colors ${email.includes('@') && !isLoading ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-300 cursor-not-allowed"}`}>
-                  {isLoading ? "Kontrollerar..." : "Fortsätt"}
+                <Button type="submit" disabled={!email.includes('@')} className={`w-full h-12 text-white font-medium transition-colors ${email.includes('@') ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-300 cursor-not-allowed"}`}>
+                  Fortsätt
                 </Button>
               </form>
               
