@@ -353,9 +353,14 @@ const Index = () => {
           </div>
           <div className="flex-1 px-4 py-4 flex justify-end items-center">
             <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">
-                Välkommen {getDisplayName()}
-              </span>
+              <div className="text-right">
+                <div className="text-sm text-muted-foreground">
+                  Välkommen {getDisplayName()}
+                </div>
+                <div className="text-xs text-muted-foreground truncate max-w-48 text-left">
+                  {userProfile?.company_name || ''}
+                </div>
+              </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={() => setShowKundtjanst(true)} className="flex items-center gap-2 w-32">
                   <Phone className="h-4 w-4" />
