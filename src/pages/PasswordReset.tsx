@@ -15,6 +15,7 @@ const PasswordReset = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isValidatingSession, setIsValidatingSession] = useState(true);
+  const [hasValidSession, setHasValidSession] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -31,6 +32,22 @@ const PasswordReset = () => {
 
         console.log("URL tokens:", { accessToken: !!accessToken, refreshToken: !!refreshToken, type });
 
+        // Set up auth state change listener first
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+          console.log("Auth state change:", event, !!session);
+          
+          if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && session)) {
+            console.log("Valid auth state for password reset, session:", !!session);
+            setHasValidSession(true);
+            setIsValidatingSession(false);
+          } else if (event === 'SIGNED_OUT') {
+            console.log("User signed out during password reset");
+            setHasValidSession(false);
+            toast.error("Sessionen har upphört. Begär en ny återställningslänk.");
+            navigate("/login-or-signup");
+          }
+        });
+
         // If we have recovery tokens, set the session
         if (accessToken && refreshToken && type === 'recovery') {
           console.log("Setting session from URL tokens");
@@ -42,28 +59,42 @@ const PasswordReset = () => {
           
           if (error) {
             console.error("Session error:", error);
-            toast.error("Ogiltig återställningslänk");
+            toast.error("Ogiltig eller utgången återställningslänk");
             navigate("/login-or-signup");
             return;
           }
           
           if (data.session) {
-            console.log("Session set successfully");
+            console.log("Session set successfully from URL tokens");
+            setHasValidSession(true);
             setIsValidatingSession(false);
-            return;
+          }
+        } else {
+          // Check if there's already a valid session
+          const { data: { session } } = await supabase.auth.getSession();
+          console.log("Checking existing session:", !!session);
+          
+          if (session) {
+            console.log("Found existing valid session");
+            setHasValidSession(true);
+            setIsValidatingSession(false);
+          } else {
+            // No session and no recovery tokens - redirect to login
+            console.log("No session or recovery tokens found");
+            toast.error("Du måste använda en giltig återställningslänk");
+            navigate("/login-or-signup");
           }
         }
 
-        // Wait for auth state to settle
+        // Cleanup subscription after 30 seconds to prevent memory leaks
         setTimeout(() => {
-          setIsValidatingSession(false);
-        }, 1000);
+          subscription.unsubscribe();
+        }, 30000);
 
       } catch (error) {
         console.error("Session validation error:", error);
-        setTimeout(() => {
-          setIsValidatingSession(false);
-        }, 1000);
+        toast.error("Ett fel uppstod vid validering av återställningslänk");
+        navigate("/login-or-signup");
       }
     };
 
@@ -83,18 +114,38 @@ const PasswordReset = () => {
       return;
     }
 
+    if (!hasValidSession) {
+      toast.error("Sessionen har upphört. Begär en ny återställningslänk.");
+      navigate("/login-or-signup");
+      return;
+    }
+
     setIsLoading(true);
     
     try {
       console.log("Attempting to update password");
       
+      // Verify we still have a valid session before updating
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.error("No active session found");
+        toast.error("Sessionen har upphört. Begär en ny återställningslänk.");
+        navigate("/login-or-signup");
+        return;
+      }
+
       const { error } = await supabase.auth.updateUser({
         password: password
       });
 
       if (error) {
         console.error("Password reset error:", error);
-        toast.error("Ett fel uppstod: " + error.message);
+        if (error.message.includes('session_not_found')) {
+          toast.error("Sessionen har upphört. Begär en ny återställningslänk.");
+          navigate("/login-or-signup");
+        } else {
+          toast.error("Ett fel uppstod: " + error.message);
+        }
         return;
       }
 
@@ -187,7 +238,7 @@ const PasswordReset = () => {
               </div>
               <Button 
                 type="submit" 
-                disabled={isLoading}
+                disabled={isLoading || !hasValidSession}
                 className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium"
               >
                 {isLoading ? "Uppdaterar..." : "Uppdatera lösenord"}
