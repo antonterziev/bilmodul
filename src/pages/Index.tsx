@@ -391,11 +391,14 @@ const Index = () => {
                 </div>
               </div>
               <div className="flex gap-2">
+                <Button variant="outline" size="sm" className="flex items-center justify-center w-10">
+                  <Bell className="h-4 w-4" />
+                </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="flex items-center gap-2 w-32">
                       <HelpCircle className="h-4 w-4 flex-shrink-0" />
-                      <span className="truncate">Help</span>
+                      <span className="truncate">Hjälp</span>
                       <ChevronDown className="h-3 w-3 flex-shrink-0" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -403,8 +406,11 @@ const Index = () => {
                     <DropdownMenuItem onClick={() => setShowSupportDialog(true)}>
                       Kontakta support
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setShowKundtjanst(true)}>
-                      Telefonsupport
+                    <DropdownMenuItem onClick={() => setShowKundtjanst(true)} className="flex items-center justify-between">
+                      <span>Telefonsupport</span>
+                      <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
+                        Kräver PRO
+                      </span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
