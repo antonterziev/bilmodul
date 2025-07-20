@@ -376,10 +376,7 @@ const Index = () => {
 
         return (
           <div className="space-y-6">
-          <div className="text-center py-6">
-            <h1 className="text-2xl font-bold mb-4">Välkommen till Veksla, {getFirstName()}</h1>
-          </div>
-          <Statistics 
+          <Statistics
             onBack={() => {}}
             totalStock={stats.totalStock}
             averageStorageDays={stats.averageStorageDays}
