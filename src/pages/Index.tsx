@@ -391,7 +391,7 @@ const Index = () => {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="flex items-center gap-2 w-10">
+                <Button variant="outline" size="sm" className="flex items-center justify-center w-10 h-10">
                   <Bell className="h-4 w-4" />
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => setShowKundtjanst(true)} className="flex items-center gap-2 w-32">
