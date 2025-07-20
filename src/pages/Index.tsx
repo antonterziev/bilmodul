@@ -242,11 +242,11 @@ const Index = () => {
         const brand = randomItem.brand;
         
         if (regNumber && brand) {
-          setSearchPlaceholder(`Sök fordon (${regNumber} eller ${brand})`);
+          setSearchPlaceholder(`Sök fordon (t.ex. ${regNumber})`);
         } else if (regNumber) {
-          setSearchPlaceholder(`Sök fordon (${regNumber})`);
+          setSearchPlaceholder(`Sök fordon (t.ex. ${regNumber})`);
         } else if (brand) {
-          setSearchPlaceholder(`Sök fordon (${brand})`);
+          setSearchPlaceholder(`Sök fordon (t.ex. ${brand})`);
         } else {
           setSearchPlaceholder("Sök fordon...");
         }
