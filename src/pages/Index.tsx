@@ -372,44 +372,46 @@ const Index = () => {
             <p className="text-muted-foreground mb-6">Här hittar du alla integrationer som för närvarande finns i Veksla.</p>
             
             <div className="space-y-4">
-              <div className="bg-card border rounded-lg p-4 flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-                    <img src="/lovable-uploads/06ce5fbb-cb35-47f9-9b24-5b51bdbe0647.png" alt="Fortnox" className="w-10 h-10 object-contain" />
+              <div className="bg-card border rounded-lg p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
+                      <img src="/lovable-uploads/06ce5fbb-cb35-47f9-9b24-5b51bdbe0647.png" alt="Fortnox" className="w-10 h-10 object-contain" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Automatisk bokföring – Fortnox</h3>
+                      <p className="text-sm text-muted-foreground">Bokför dina fordonsaffärer smidigt och automatiskt med Fortnox</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-medium">Automatisk bokföring – Fortnox</h3>
-                    <p className="text-sm text-muted-foreground">Bokför dina fordonsaffärer smidigt och automatiskt med Fortnox</p>
-                  </div>
+                  <Button 
+                    variant="outline" 
+                    onClick={async () => {
+                      try {
+                        const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
+                          body: { action: 'get_auth_url' }
+                        });
+
+                        if (error) throw error;
+
+                        // Redirect to Fortnox OAuth
+                        window.location.href = data.auth_url;
+                        
+                      } catch (error: any) {
+                        console.error('Fortnox connection error:', error);
+                      }
+                    }}
+                  >
+                    <Link className="h-4 w-4 mr-2" />
+                    Koppla
+                  </Button>
                 </div>
-                <Button 
-                  variant="outline" 
-                  onClick={async () => {
-                    try {
-                      const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
-                        body: { action: 'get_auth_url' }
-                      });
-
-                      if (error) throw error;
-
-                      // Redirect to Fortnox OAuth
-                      window.location.href = data.auth_url;
-                      
-                    } catch (error: any) {
-                      console.error('Fortnox connection error:', error);
-                    }
-                  }}
-                >
-                  <Link className="h-4 w-4 mr-2" />
-                  Koppla
-                </Button>
-              </div>
-
-              <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
-                <p className="text-xs text-blue-800">
-                  <strong>Info:</strong> När du klickar på "Koppla" kommer du att omdirigeras 
-                  till Fortnox för att godkänna integrationen.
-                </p>
+                
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                  <p className="text-xs text-blue-800">
+                    <strong>Info:</strong> När du klickar på "Koppla" kommer du att omdirigeras 
+                    till Fortnox för att godkänna integrationen.
+                  </p>
+                </div>
               </div>
 
               <div className="bg-card border rounded-lg p-4 flex items-center justify-between">
