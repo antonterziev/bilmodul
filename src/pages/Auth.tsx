@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import EmailVerification from "@/components/EmailVerification";
 import RecoveryEmailSent from "@/components/RecoveryEmailSent";
 import { Eye, EyeOff } from "lucide-react";
+
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -217,13 +218,19 @@ const Auth = () => {
     }
     setIsResettingPassword(true);
     try {
-      // Send password reset email - Supabase will handle if email exists or not
-      const {
-        error
-      } = await supabase.auth.resetPasswordForEmail(emailToUse, {
-        redirectTo: `https://lagermodulen.se/password-reset`
+      console.log("Sending password reset email to:", emailToUse);
+      
+      // Send password reset email - Use the correct redirect URL
+      const { error } = await supabase.auth.resetPasswordForEmail(emailToUse, {
+        redirectTo: `${window.location.origin}/password-reset`
       });
-      if (error) throw error;
+      
+      if (error) {
+        console.error("Password reset error:", error);
+        throw error;
+      }
+      
+      console.log("Password reset email sent successfully");
       
       if (isResend) {
         // Show success message for resend
@@ -237,6 +244,7 @@ const Auth = () => {
         setShowForgotPassword(false);
       }
     } catch (error: any) {
+      console.error("Password reset failed:", error);
       toast({
         title: "Fel vid återställning",
         description: "Något gick fel. Försök igen senare.",
@@ -608,4 +616,5 @@ const Auth = () => {
       </div>
     </div>;
 };
+
 export default Auth;

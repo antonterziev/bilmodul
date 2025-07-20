@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,62 +18,77 @@ const PasswordReset = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // Validate session on component mount
   useEffect(() => {
+    console.log("PasswordReset: Component mounted");
+    console.log("URL parameters:", Object.fromEntries(searchParams.entries()));
+
     const validateSession = async () => {
       try {
-        // First, check if we have URL parameters that indicate this is a password reset
+        // Check if we have URL parameters that indicate this is a password reset
         const accessToken = searchParams.get('access_token');
         const refreshToken = searchParams.get('refresh_token');
         const type = searchParams.get('type');
 
-        // If we have URL parameters, try to handle them
-        if (accessToken && refreshToken) {
-          console.log("Found tokens in URL, setting session...");
-          const { error: sessionError } = await supabase.auth.setSession({
+        console.log("URL tokens:", { accessToken: !!accessToken, refreshToken: !!refreshToken, type });
+
+        // If we have recovery tokens, set the session
+        if (accessToken && refreshToken && type === 'recovery') {
+          console.log("Setting session from URL tokens");
+          
+          const { data, error } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken
           });
           
-          if (sessionError) {
-            console.error("Session error:", sessionError);
+          if (error) {
+            console.error("Session error:", error);
+            toast.error("Ogiltig återställningslänk");
+            navigate("/login-or-signup");
+            return;
+          }
+          
+          if (data.session) {
+            console.log("Session set successfully");
+            setIsValidatingSession(false);
+            return;
           }
         }
 
-        // Also listen for auth state changes (Supabase might handle the URL automatically)
+        // Set up auth state change listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-          console.log("Auth state change:", event, session);
-          if (event === 'PASSWORD_RECOVERY') {
-            console.log("Password recovery event detected");
+          console.log("Auth state change:", event, !!session);
+          
+          if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && session)) {
+            console.log("Valid auth state for password reset");
             setIsValidatingSession(false);
+          } else if (event === 'SIGNED_OUT') {
+            console.log("User signed out, redirecting to login");
+            toast.error("Du måste använda en giltig återställningslänk");
+            navigate("/login-or-signup");
           }
         });
 
-        // Check current session
+        // Also check current session
         const { data: { session } } = await supabase.auth.getSession();
-        console.log("Current session:", session);
+        console.log("Current session:", !!session);
         
         if (session) {
-          console.log("Valid session found");
+          console.log("Found existing valid session");
           setIsValidatingSession(false);
-        } else {
-          // Wait a bit for auth state changes, then check again
-          setTimeout(async () => {
-            const { data: { session: laterSession } } = await supabase.auth.getSession();
-            if (laterSession) {
-              setIsValidatingSession(false);
-            } else {
-              toast.error("Du måste komma från en giltig återställningslänk");
-              navigate("/login-or-signup");
-            }
-          }, 2000);
+        } else if (!accessToken) {
+          // No URL tokens and no session - invalid access
+          console.log("No valid session or tokens found");
+          setTimeout(() => {
+            toast.error("Du måste komma från en giltig återställningslänk");
+            navigate("/login-or-signup");
+          }, 1000);
         }
 
         return () => subscription.unsubscribe();
 
       } catch (error) {
         console.error("Session validation error:", error);
-        toast.error("Ett fel uppstod. Försök igen.");
+        toast.error("Ett fel uppstod vid validering av återställningslänk");
         navigate("/login-or-signup");
       }
     };
@@ -96,21 +112,24 @@ const PasswordReset = () => {
     setIsLoading(true);
     
     try {
+      console.log("Attempting to update password");
+      
       const { error } = await supabase.auth.updateUser({
         password: password
       });
 
       if (error) {
         console.error("Password reset error:", error);
-        toast.error(error.message);
+        toast.error("Ett fel uppstod: " + error.message);
         return;
       }
 
+      console.log("Password updated successfully");
       toast.success("Lösenordet har uppdaterats!");
       
       // Navigate to dashboard after successful password update
       setTimeout(() => {
-        navigate("/");
+        navigate("/dashboard");
       }, 1000);
       
     } catch (error: any) {
@@ -128,6 +147,9 @@ const PasswordReset = () => {
         <div className="text-center">
           <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-16 mx-auto mb-4" />
           <p className="text-gray-600">Validerar återställningslänk...</p>
+          <div className="mt-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          </div>
         </div>
       </div>
     );
@@ -146,7 +168,7 @@ const PasswordReset = () => {
             <div className="text-center mb-6">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">Återställ lösenord</h2>
                <p className="text-gray-600 text-sm">
-                 Ange ditt nya lösenord nedan. Minst 8 tecken.
+                 Ange ditt nya lösenord nedan. Minst 6 tecken.
                </p>
             </div>
             
