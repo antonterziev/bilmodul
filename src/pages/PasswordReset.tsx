@@ -54,40 +54,16 @@ const PasswordReset = () => {
           }
         }
 
-        // Set up auth state change listener
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-          console.log("Auth state change:", event, !!session);
-          
-          if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && session)) {
-            console.log("Valid auth state for password reset");
-            setIsValidatingSession(false);
-          } else if (event === 'SIGNED_OUT') {
-            console.log("User signed out, redirecting to login");
-            toast.error("Du måste använda en giltig återställningslänk");
-            navigate("/login-or-signup");
-          }
-        });
-
-        // Also check current session
-        const { data: { session } } = await supabase.auth.getSession();
-        console.log("Current session:", !!session);
-        
-        if (session) {
-          console.log("Found existing valid session");
+        // Wait for auth state to settle
+        setTimeout(() => {
           setIsValidatingSession(false);
-        } else {
-          // Allow some time for auth state to update
-          setTimeout(() => {
-            setIsValidatingSession(false);
-          }, 2000);
-        }
-
-        return () => subscription.unsubscribe();
+        }, 1000);
 
       } catch (error) {
         console.error("Session validation error:", error);
-        toast.error("Ett fel uppstod vid validering av återställningslänk");
-        navigate("/login-or-signup");
+        setTimeout(() => {
+          setIsValidatingSession(false);
+        }, 1000);
       }
     };
 
