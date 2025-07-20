@@ -79,7 +79,7 @@ export function AppSidebar({
     {
       id: "lager",
       title: "Lager",
-      icon: Package,
+      icon: Car,
       children: [
         { id: "lager_all", title: "Alla fordon", icon: Car },
         { id: "lager_stock", title: "På lager", icon: Package },
