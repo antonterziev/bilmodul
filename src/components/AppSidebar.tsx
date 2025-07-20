@@ -73,7 +73,6 @@ export function AppSidebar({
 
   const mainMenuItems = [
     { id: "overview", title: "Översikt", icon: Home },
-    { id: "statistics", title: "Statistik", icon: BarChart3 },
   ];
 
   const expandableMenuItems = [

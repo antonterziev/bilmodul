@@ -322,15 +322,6 @@ const Index = () => {
       case "settings":
         return <Settings />;
 
-      case "statistics":
-        return <Statistics 
-          onBack={() => handleViewChange("overview")}
-          totalStock={stats.totalStock}
-          averageStorageDays={stats.averageStorageDays}
-          inventoryValue={stats.inventoryValue}
-          grossProfit={stats.grossProfit}
-        />;
-
       case "lager_all":
       case "lager_stock":
       case "lager_sold":
@@ -355,7 +346,7 @@ const Index = () => {
         );
 
       default:
-        // Default overview content
+        // Default overview content - includes both dashboard stats and statistics
         const getFirstName = () => {
           if (userProfile?.first_name) {
             return userProfile.first_name;
@@ -364,9 +355,24 @@ const Index = () => {
         };
 
         return (
-          <div className="text-center py-12">
-            <h1 className="text-2xl font-bold mb-4">Välkommen till Veksla, {getFirstName()}</h1>
-            <p className="text-muted-foreground">Välj en sektion från menyn för att komma igång.</p>
+          <div className="space-y-6">
+            <div className="text-center py-6">
+              <h1 className="text-2xl font-bold mb-4">Välkommen till Veksla, {getFirstName()}</h1>
+              <p className="text-muted-foreground">Här är en översikt av ditt lager och statistik.</p>
+            </div>
+            <DashboardStats 
+              totalStock={stats.totalStock}
+              averageStorageDays={stats.averageStorageDays}
+              inventoryValue={stats.inventoryValue}
+              grossProfit={stats.grossProfit}
+            />
+            <Statistics 
+              onBack={() => {}}
+              totalStock={stats.totalStock}
+              averageStorageDays={stats.averageStorageDays}
+              inventoryValue={stats.inventoryValue}
+              grossProfit={stats.grossProfit}
+            />
           </div>
         );
     }
