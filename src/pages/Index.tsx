@@ -408,8 +408,8 @@ const Index = () => {
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setShowKundtjanst(true)} className="flex items-center justify-between">
                       <span>Telefonsupport</span>
-                      <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
-                        Kräver PRO
+                      <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-500">
+                        PRO
                       </span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
