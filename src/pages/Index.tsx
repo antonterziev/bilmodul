@@ -380,7 +380,7 @@ const Index = () => {
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                       <Checkbox className="mr-2" />
-                      Inkomst
+                      Såld
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                       <Checkbox className="mr-2" />
