@@ -93,11 +93,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
       
       // Force page reload for a clean state
-      window.location.href = "/auth";
+      window.location.href = "/login-or-signup";
     } catch (error) {
       console.error('Logout error:', error);
       // Force redirect even if logout fails
-      window.location.href = "/auth";
+      window.location.href = "/login-or-signup";
     }
   };
 

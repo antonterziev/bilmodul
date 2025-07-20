@@ -22,7 +22,7 @@ const App = () => (
           <Route path="/landing" element={<Landing />} />
           <Route path="/" element={<Auth />} />
           <Route path="/dashboard" element={<Index />} />
-          <Route path="/auth" element={<Auth />} />
+          <Route path="/login-or-signup" element={<Auth />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/password-reset" element={<PasswordReset />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
