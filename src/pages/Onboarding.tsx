@@ -40,6 +40,14 @@ const Onboarding = () => {
         } else {
           // User is already authenticated, get their info
           const user = session.user;
+          
+          // Check if email is verified
+          if (!user.email_confirmed_at) {
+            toast.error("Du måste verifiera din e-post innan du kan fortsätta");
+            window.location.href = "/login-or-signup";
+            return;
+          }
+          
           const email = user.email || '';
           const firstName = user.user_metadata?.first_name || '';
           const lastName = user.user_metadata?.last_name || '';
