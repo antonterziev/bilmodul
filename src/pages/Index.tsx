@@ -193,9 +193,9 @@ const Index = () => {
       // Calculate inventory value (sum of purchase prices for vehicles with status "på_lager")
       const inventoryValue = vehiclesInStock.reduce((sum, item) => sum + (item.purchase_price || 0), 0);
       
-      // Calculate price-weighted average storage days
+      // Calculate simple average of storage days
       let averageStorageDays = 0;
-      if (vehiclesInStock.length > 0 && inventoryValue > 0) {
+      if (vehiclesInStock.length > 0) {
         const calculateStorageDays = (purchaseDate: string) => {
           const today = new Date();
           today.setHours(0, 0, 0, 0);
@@ -206,12 +206,12 @@ const Index = () => {
           return Math.max(1, diffDays + 1); // Ensure minimum 1 day, add 1 to show day 1 when purchased today
         };
         
-        const weightedSum = vehiclesInStock.reduce((sum, item) => {
+        const totalStorageDays = vehiclesInStock.reduce((sum, item) => {
           const storageDays = calculateStorageDays(item.purchase_date);
-          return sum + (storageDays * item.purchase_price);
+          return sum + storageDays;
         }, 0);
         
-        averageStorageDays = Math.round(weightedSum / inventoryValue);
+        averageStorageDays = Math.round(totalStorageDays / vehiclesInStock.length);
       }
       
       // Calculate gross profit (sum of (expected_selling_price - purchase_price) for vehicles with status "på_lager")
