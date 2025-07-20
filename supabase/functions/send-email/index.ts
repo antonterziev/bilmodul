@@ -1,3 +1,4 @@
+
 import React from 'npm:react@18.3.1'
 import { Webhook } from 'https://esm.sh/standardwebhooks@1.0.0'
 import { Resend } from 'npm:resend@4.0.0'
@@ -44,7 +45,7 @@ Deno.serve(async (req) => {
     
     const { token, token_hash, redirect_to, email_action_type } = email_data;
     
-    console.log('Parsed data:', { user, email_action_type, token })
+    console.log('Parsed data:', { user, email_action_type, token, redirect_to })
 
     // Handle different email types
     if (email_action_type === 'signup') {
@@ -73,22 +74,39 @@ Deno.serve(async (req) => {
 
       console.log('Custom signup email sent successfully to:', user.email)
     } else if (email_action_type === 'recovery') {
-      // Send password recovery email
-      const resetUrl = `${redirect_to}?token_hash=${token_hash}&type=recovery`;
+      // Ensure we're using the correct domain - force lagermodulen.se
+      const correctDomain = 'https://lagermodulen.se';
+      let resetUrl = '';
+      
+      // Always use the correct domain regardless of what redirect_to contains
+      if (redirect_to && redirect_to.includes('lagermodulen.se')) {
+        resetUrl = `${redirect_to}?token_hash=${token_hash}&type=recovery`;
+      } else {
+        // Force correct domain if redirect_to is wrong
+        resetUrl = `${correctDomain}/password-reset?token_hash=${token_hash}&type=recovery`;
+        console.log('Forced correct domain. Original redirect_to:', redirect_to, 'Using:', resetUrl);
+      }
+      
+      console.log('Final reset URL being sent:', resetUrl);
       
       const html = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #333;">Återställ ditt lösenord</h1>
-          <p>Hej!</p>
-          <p>Du har begärt att återställa ditt lösenord för Veksla. Klicka på länken nedan för att skapa ett nytt lösenord:</p>
-          <p style="margin: 30px 0;">
-            <a href="${resetUrl}" style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <img src="https://lagermodulen.se/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" style="height: 60px;" />
+          </div>
+          <h1 style="color: #333; text-align: center; margin-bottom: 30px;">Återställ ditt lösenord</h1>
+          <p style="color: #555; font-size: 16px; line-height: 1.6;">Hej!</p>
+          <p style="color: #555; font-size: 16px; line-height: 1.6;">Du har begärt att återställa ditt lösenord för Veksla. Klicka på knappen nedan för att skapa ett nytt lösenord:</p>
+          <div style="text-align: center; margin: 40px 0;">
+            <a href="${resetUrl}" style="background-color: #3b82f6; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; font-size: 16px;">
               Återställ lösenord
             </a>
-          </p>
-          <p>Om du inte begärt denna återställning kan du ignorera detta e-postmeddelande.</p>
-          <p>Länken är giltig i 1 timme.</p>
-          <p>Med vänlig hälsning,<br>Veksla-teamet</p>
+          </div>
+          <p style="color: #555; font-size: 16px; line-height: 1.6;">Om du inte begärt denna återställning kan du ignorera detta e-postmeddelande.</p>
+          <p style="color: #555; font-size: 16px; line-height: 1.6;">Länken är giltig i 1 timme.</p>
+          <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee;">
+            <p style="color: #888; font-size: 14px; text-align: center;">Med vänlig hälsning,<br>Veksla-teamet</p>
+          </div>
         </div>
       `;
 
@@ -104,7 +122,7 @@ Deno.serve(async (req) => {
         throw error
       }
 
-      console.log('Password recovery email sent successfully to:', user.email)
+      console.log('Password recovery email sent successfully to:', user.email, 'with URL:', resetUrl)
     } else {
       console.log(`Email type ${email_action_type} not handled, skipping custom email`)
     }

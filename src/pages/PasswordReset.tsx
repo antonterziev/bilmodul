@@ -25,19 +25,25 @@ const PasswordReset = () => {
 
     const validateSession = async () => {
       try {
-        // Check if we have URL parameters that indicate this is a password reset
+        // Get URL parameters
+        const tokenHash = searchParams.get('token_hash');
+        const type = searchParams.get('type');
         const accessToken = searchParams.get('access_token');
         const refreshToken = searchParams.get('refresh_token');
-        const type = searchParams.get('type');
 
-        console.log("URL tokens:", { accessToken: !!accessToken, refreshToken: !!refreshToken, type });
+        console.log("URL tokens:", { 
+          tokenHash: !!tokenHash, 
+          type, 
+          accessToken: !!accessToken, 
+          refreshToken: !!refreshToken 
+        });
 
-        // Set up auth state change listener first
+        // Set up auth state change listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
           console.log("Auth state change:", event, !!session);
           
-          if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && session)) {
-            console.log("Valid auth state for password reset, session:", !!session);
+          if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && session && type === 'recovery')) {
+            console.log("Valid auth state for password reset");
             setHasValidSession(true);
             setIsValidatingSession(false);
           } else if (event === 'SIGNED_OUT') {
@@ -48,8 +54,29 @@ const PasswordReset = () => {
           }
         });
 
-        // If we have recovery tokens, set the session
-        if (accessToken && refreshToken && type === 'recovery') {
+        // Handle different token scenarios
+        if (tokenHash && type === 'recovery') {
+          console.log("Processing recovery token from URL");
+          
+          // Try to exchange the token for a session
+          const { data, error } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: 'recovery'
+          });
+          
+          if (error) {
+            console.error("Token verification error:", error);
+            toast.error("Ogiltig eller utgången återställningslänk");
+            navigate("/login-or-signup");
+            return;
+          }
+          
+          if (data.session) {
+            console.log("Session established from recovery token");
+            setHasValidSession(true);
+            setIsValidatingSession(false);
+          }
+        } else if (accessToken && refreshToken && type === 'recovery') {
           console.log("Setting session from URL tokens");
           
           const { data, error } = await supabase.auth.setSession({
