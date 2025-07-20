@@ -174,7 +174,7 @@ export function AppSidebar({
         {/* Expandable Sections */}
         <SidebarGroup className="px-4">
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-4">
+            <SidebarMenu>
               {expandableMenuItems.map((section) => (
                 <SidebarMenuItem key={section.id}>
                   <SidebarMenuButton
