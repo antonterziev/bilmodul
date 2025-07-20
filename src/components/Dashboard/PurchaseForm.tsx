@@ -674,22 +674,30 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
             
             <div className="max-w-md mx-auto">
               <Label htmlFor="registration_number"></Label>
-              <div className="relative">
-                <Input
-                  id="registration_number"
-                  placeholder="t.ex. JSK15L"
-                  {...form.register("registration_number")}
-                  className={cn(
-                    form.formState.errors.registration_number && "border-destructive",
-                    isDuplicateRegNumber && "border-destructive",
-                    (isCheckingRegNumber || isLoadingCarInfo) && "pr-10" // Add padding for spinner
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Input
+                    id="registration_number"
+                    placeholder="t.ex. JSK15L"
+                    {...form.register("registration_number")}
+                    className={cn(
+                      form.formState.errors.registration_number && "border-destructive",
+                      isDuplicateRegNumber && "border-destructive",
+                      (isCheckingRegNumber || isLoadingCarInfo) && "pr-10" // Add padding for spinner
+                    )}
+                  />
+                  {(isCheckingRegNumber || isLoadingCarInfo) && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full"></div>
+                    </div>
                   )}
-                />
-                {(isCheckingRegNumber || isLoadingCarInfo) && (
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full"></div>
-                  </div>
-                )}
+                </div>
+                <Button 
+                  type="button" 
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Hämta
+                </Button>
               </div>
               {isDuplicateRegNumber && (
                 <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-md">
