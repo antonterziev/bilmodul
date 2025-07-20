@@ -56,7 +56,7 @@ export const DashboardStats = ({ totalStock, averageStorageDays, inventoryValue,
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">
-            Förväntad bruttovinst
+            Bruttovinst
           </CardTitle>
         </CardHeader>
         <CardContent>
