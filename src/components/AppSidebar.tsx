@@ -172,7 +172,7 @@ export function AppSidebar({
         </SidebarGroup>
 
         {/* Expandable Sections */}
-        <SidebarGroup className="px-4 mt-4">
+        <SidebarGroup className="px-4">
           <SidebarGroupContent>
             <SidebarMenu className="space-y-4">
               {expandableMenuItems.map((section) => (
@@ -212,7 +212,7 @@ export function AppSidebar({
         </SidebarGroup>
 
         {/* Settings */}
-        <SidebarGroup className="px-4 mt-4">
+        <SidebarGroup className="px-4">
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
