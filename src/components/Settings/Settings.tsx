@@ -245,7 +245,7 @@ export const Settings = () => {
       <h2 className="text-2xl font-bold">Inställningar</h2>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="profile">
             <User className="h-4 w-4 mr-2" />
             Profilinställningar
@@ -253,10 +253,6 @@ export const Settings = () => {
           <TabsTrigger value="security">
             <Lock className="h-4 w-4 mr-2" />
             Lösenord
-          </TabsTrigger>
-          <TabsTrigger value="integrations">
-            <ExternalLink className="h-4 w-4 mr-2" />
-            Integrationer
           </TabsTrigger>
           <TabsTrigger value="preferences">
             <SettingsIcon className="h-4 w-4 mr-2" />
@@ -382,11 +378,6 @@ export const Settings = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="integrations">
-          <div className="space-y-6">
-            <FortnoxIntegration />
-          </div>
-        </TabsContent>
 
         <TabsContent value="preferences">
           <Card>
