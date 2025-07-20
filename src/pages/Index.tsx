@@ -374,7 +374,7 @@ const Index = () => {
             <div className="space-y-4">
               <div className="bg-card border rounded-lg p-4 flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center border">
+                  <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
                     <img src="/lovable-uploads/06ce5fbb-cb35-47f9-9b24-5b51bdbe0647.png" alt="Fortnox" className="w-10 h-10 object-contain" />
                   </div>
                   <div>
