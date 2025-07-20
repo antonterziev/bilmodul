@@ -365,10 +365,7 @@ const Index = () => {
           </div>
         );
 
-      case 'integration_fortnox':
-      case 'integration_visma':
-      case 'integration_zettle':
-      case 'integration_api':
+      case 'integrationer':
         return (
           <div className="p-6">
             <h1 className="text-2xl font-bold mb-2">Integrationer</h1>

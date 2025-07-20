@@ -128,17 +128,6 @@ export function AppSidebar({
         { id: "verifikation", title: "Verifikation", icon: CheckSquare },
       ]
     },
-    {
-      id: "integrationer",
-      title: "Integrationer",
-      icon: Plug,
-      children: [
-        { id: "integration_fortnox", title: "Fortnox", icon: Link },
-        { id: "integration_visma", title: "Visma", icon: Link },
-        { id: "integration_zettle", title: "Zettle", icon: Link },
-        { id: "integration_api", title: "API", icon: Link },
-      ]
-    }
   ];
 
   return (
@@ -205,15 +194,15 @@ export function AppSidebar({
                          {section.children.map((child) => (
                            <SidebarMenuItem key={child.id} className="pr-6">
                              <SidebarMenuButton
-                                onClick={['finansiering', 'affarer', 'direktfloden', 'integrationer'].includes(section.id) ? undefined : () => onViewChange(child.id)}
-                                className={['finansiering', 'affarer', 'direktfloden', 'integrationer'].includes(section.id)
+                                onClick={['finansiering', 'affarer', 'direktfloden'].includes(section.id) ? undefined : () => onViewChange(child.id)}
+                                className={['finansiering', 'affarer', 'direktfloden'].includes(section.id)
                                   ? "cursor-not-allowed pointer-events-none text-muted-foreground hover:bg-muted/50 flex items-center justify-between" 
                                   : getNavClass(child.id)
                                 }
                                 size="sm"
                               >
                                 <span className="text-sm">{child.title}</span>
-                                {['finansiering', 'affarer', 'direktfloden', 'integrationer'].includes(section.id) && (
+                                {['finansiering', 'affarer', 'direktfloden'].includes(section.id) && (
                                   <span className="inline-flex items-center rounded-full bg-yellow-200 px-1.5 py-0 text-[11px] font-medium text-yellow-900">
                                     PRO
                                   </span>
@@ -225,6 +214,17 @@ export function AppSidebar({
                     )}
                   </SidebarMenuItem>
                 ))}
+                
+                {/* Integrationer */}
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => onViewChange("integrationer")}
+                    className={getNavClass("integrationer")}
+                  >
+                    <Plug className="h-4 w-4" />
+                    <span>Integrationer</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
                 
                 {/* Settings */}
                 <SidebarMenuItem>
