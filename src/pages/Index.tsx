@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -16,7 +15,6 @@ import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
 import { Statistics } from "@/components/Statistics/Statistics";
 import { AppSidebar } from "@/components/AppSidebar";
-import { useToast } from "@/hooks/use-toast";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Phone, MessageCircle, LogOut, Search, Download, FileText, File, FileCheck, Receipt, BookOpen, CheckSquare, User, ChevronDown, Bell, HelpCircle, Link } from "lucide-react";
@@ -26,7 +24,6 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 const Index = () => {
   const { user, signOut, isLoading } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
   
   // Current view state
   const [currentView, setCurrentView] = useState("overview");
@@ -65,9 +62,6 @@ const Index = () => {
     grossProfit: 0
   });
 
-  // Add OAuth callback processing state
-  const [isProcessingOAuth, setIsProcessingOAuth] = useState(false);
-
   useEffect(() => {
     if (!isLoading && !user) {
       navigate("/login-or-signup");
@@ -87,64 +81,6 @@ const Index = () => {
       }
     }
   }, [user, isLoading, navigate]);
-
-  // Add OAuth callback processing
-  useEffect(() => {
-    if (user && !isProcessingOAuth) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const code = urlParams.get('code');
-      const state = urlParams.get('state');
-      
-      if (code && state) {
-        console.log('OAuth callback detected:', { code, state });
-        processOAuthCallback(code, state);
-      }
-    }
-  }, [user, isProcessingOAuth]);
-
-  const processOAuthCallback = async (code: string, state: string) => {
-    console.log('Processing OAuth callback...');
-    setIsProcessingOAuth(true);
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
-        body: { 
-          action: 'exchange_code', 
-          code, 
-          state 
-        }
-      });
-
-      console.log('OAuth exchange response:', { data, error });
-
-      if (error) {
-        console.error('OAuth exchange error:', error);
-        toast({
-          title: "Fel vid anslutning",
-          description: "Kunde inte ansluta till Fortnox. Försök igen.",
-          variant: "destructive",
-        });
-      } else if (data?.success) {
-        console.log('OAuth success:', data);
-        toast({
-          title: "Ansluten till Fortnox!",
-          description: data.company_name ? `Ansluten till ${data.company_name}` : "Fortnox-integration är nu aktiv",
-        });
-        
-        // Clean up URL parameters
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-    } catch (error) {
-      console.error('OAuth callback processing error:', error);
-      toast({
-        title: "Fel vid anslutning",
-        description: "Ett oväntat fel uppstod. Försök igen.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsProcessingOAuth(false);
-    }
-  };
 
   useEffect(() => {
     if (user) {
@@ -330,13 +266,11 @@ const Index = () => {
     return user?.email || 'Användare';
   };
 
-  if (isLoading || isProcessingOAuth) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <p className="text-xl text-muted-foreground">
-            {isProcessingOAuth ? 'Ansluter till Fortnox...' : 'Laddar...'}
-          </p>
+          <p className="text-xl text-muted-foreground">Laddar...</p>
         </div>
       </div>
     );
@@ -451,91 +385,37 @@ const Index = () => {
                   </div>
                   <Button 
                     variant="outline" 
-                    disabled={isProcessingOAuth}
-                    onClick={async () => {
-                      console.log('Koppla button clicked - initiating Fortnox connection');
-                      try {
-                        console.log('Calling fortnox-oauth function...');
-                        const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
-                          body: { action: 'get_auth_url' }
-                        });
+                  onClick={async () => {
+                    console.log('Koppla button clicked - initiating Fortnox connection');
+                    try {
+                      console.log('Calling fortnox-oauth function...');
+                      const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
+                        body: { action: 'get_auth_url' }
+                      });
 
-                        console.log('Fortnox OAuth response:', { data, error });
+                      console.log('Fortnox OAuth response:', { data, error });
 
-                        if (error) {
-                          console.error('Fortnox OAuth error:', error);
-                          toast({
-                            title: "Fel vid anslutning",
-                            description: error.message || "Kunde inte starta OAuth-flödet",
-                            variant: "destructive",
-                          });
-                          return;
-                        }
-
-                        if (!data?.auth_url) {
-                          console.error('No auth URL received');
-                          toast({
-                            title: "Fel vid anslutning",
-                            description: "Ingen OAuth-URL erhölls från servern",
-                            variant: "destructive",
-                          });
-                          return;
-                        }
-
-                        console.log('Opening Fortnox OAuth in popup:', data.auth_url);
-                        
-                        // Open OAuth in popup to preserve session
-                        const popup = window.open(
-                          data.auth_url, 
-                          'fortnoxOAuth', 
-                          'width=600,height=700,scrollbars=yes,resizable=yes'
-                        );
-
-                        if (!popup) {
-                          console.warn('Popup blocked, falling back to same window');
-                          window.location.assign(data.auth_url);
-                          return;
-                        }
-
-                        // Monitor popup for completion
-                        const checkClosed = setInterval(() => {
-                          if (popup.closed) {
-                            clearInterval(checkClosed);
-                            console.log('OAuth popup closed, refreshing status');
-                            // Small delay to allow any callbacks to process
-                            setTimeout(() => {
-                              window.location.reload();
-                            }, 1000);
-                          }
-                        }, 1000);
-
-                        // Handle popup navigation to our domain (OAuth callback)
-                        try {
-                          popup.addEventListener('beforeunload', () => {
-                            setTimeout(() => {
-                              if (popup.closed) {
-                                clearInterval(checkClosed);
-                                window.location.reload();
-                              }
-                            }, 1000);
-                          });
-                        } catch (e) {
-                          // Cross-origin restrictions prevent this, but that's ok
-                          console.log('Cannot monitor popup navigation due to CORS');
-                        }
-                        
-                      } catch (error: any) {
-                        console.error('Fortnox connection error:', error);
-                        toast({
-                          title: "Fel vid anslutning",
-                          description: "Ett oväntat fel uppstod. Kontrollera konsolen för mer information.",
-                          variant: "destructive",
-                        });
+                      if (error) {
+                        console.error('Fortnox OAuth error:', error);
+                        throw error;
                       }
-                    }}
+
+                      if (!data?.auth_url) {
+                        throw new Error('No auth URL received from Fortnox OAuth function');
+                      }
+
+                      console.log('Redirecting to Fortnox OAuth URL:', data.auth_url);
+                      // Redirect to Fortnox OAuth
+                      window.location.href = data.auth_url;
+                      
+                    } catch (error: any) {
+                      console.error('Fortnox connection error:', error);
+                      // You could add a toast here if needed
+                    }
+                  }}
                   >
                     <Link className="h-4 w-4 mr-2" />
-                    {isProcessingOAuth ? 'Ansluter...' : 'Koppla'}
+                    Koppla
                   </Button>
                 </div>
               </div>
@@ -555,6 +435,8 @@ const Index = () => {
                   Koppla
                 </Button>
               </div>
+
+
             </div>
           </div>
         );

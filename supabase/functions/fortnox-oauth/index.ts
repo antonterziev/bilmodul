@@ -1,4 +1,3 @@
-
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -7,8 +6,6 @@ const corsHeaders = {
 }
 
 Deno.serve(async (req) => {
-  console.log('Fortnox OAuth function called:', req.method, req.url);
-
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -20,15 +17,11 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    console.log('Supabase client created successfully');
-
     const { action, code, state } = await req.json()
-    console.log('Request data:', { action, code: code ? 'present' : 'missing', state: state ? 'present' : 'missing' });
     
     // Get user from the authorization header
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
-      console.error('Missing authorization header');
       throw new Error('Missing authorization header')
     }
 
@@ -36,43 +29,14 @@ Deno.serve(async (req) => {
     const { data: { user }, error: userError } = await supabase.auth.getUser(token)
     
     if (userError || !user) {
-      console.error('Invalid user token:', userError);
       throw new Error('Invalid user token')
     }
 
-    console.log('User authenticated:', user.id);
-
     if (action === 'get_auth_url') {
-      console.log('Getting auth URL...');
-      
-      // Check if required environment variables are set
-      const clientId = Deno.env.get('FORTNOX_CLIENT_ID')
-      const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET')
-      
-      console.log('Environment check:', {
-        clientId: clientId ? 'present' : 'MISSING',
-        clientSecret: clientSecret ? 'present' : 'MISSING'
-      });
-      
-      if (!clientId) {
-        console.error('FORTNOX_CLIENT_ID is not set');
-        throw new Error('Fortnox client ID is not configured')
-      }
-      
-      if (!clientSecret) {
-        console.error('FORTNOX_CLIENT_SECRET is not set');
-        throw new Error('Fortnox client secret is not configured')
-      }
-      
       // Generate OAuth URL for Fortnox
+      const clientId = Deno.env.get('FORTNOX_CLIENT_ID')
       const redirectUri = `${req.headers.get('origin')}/dashboard`
       const stateParam = crypto.randomUUID()
-      
-      console.log('OAuth parameters:', {
-        clientId,
-        redirectUri,
-        stateParam
-      });
       
       const authUrl = `https://apps.fortnox.se/oauth-v1/auth?` +
         `client_id=${clientId}&` +
@@ -82,23 +46,14 @@ Deno.serve(async (req) => {
         `response_type=code&` +
         `access_type=offline`
 
-      console.log('Generated auth URL:', authUrl);
-
       // Store state for verification
-      const { error: upsertError } = await supabase
+      await supabase
         .from('fortnox_integrations')
         .upsert({
           user_id: user.id,
           access_token: stateParam, // Temporarily store state here
           is_active: false
         })
-
-      if (upsertError) {
-        console.error('Database upsert error:', upsertError);
-        throw new Error('Failed to store OAuth state')
-      }
-
-      console.log('OAuth state stored successfully');
 
       return new Response(
         JSON.stringify({ auth_url: authUrl, state: stateParam }),
@@ -110,19 +65,10 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'exchange_code') {
-      console.log('Exchanging code for token...');
-      
       // Exchange authorization code for access token
       const clientId = Deno.env.get('FORTNOX_CLIENT_ID')
       const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET')
       const redirectUri = `${req.headers.get('origin')}/dashboard`
-
-      console.log('Token exchange parameters:', {
-        clientId: clientId ? 'present' : 'missing',
-        clientSecret: clientSecret ? 'present' : 'missing',
-        redirectUri,
-        code: code ? 'present' : 'missing'
-      });
 
       const tokenResponse = await fetch('https://apps.fortnox.se/oauth-v1/token', {
         method: 'POST',
@@ -137,8 +83,6 @@ Deno.serve(async (req) => {
         })
       })
 
-      console.log('Token response status:', tokenResponse.status);
-
       if (!tokenResponse.ok) {
         const errorText = await tokenResponse.text()
         console.error('Fortnox token exchange failed:', errorText)
@@ -146,14 +90,8 @@ Deno.serve(async (req) => {
       }
 
       const tokenData = await tokenResponse.json()
-      console.log('Token data received:', { 
-        access_token: tokenData.access_token ? 'present' : 'missing',
-        refresh_token: tokenData.refresh_token ? 'present' : 'missing',
-        expires_in: tokenData.expires_in 
-      });
       
       // Get company info from Fortnox
-      console.log('Getting company info...');
       const companyResponse = await fetch('https://api.fortnox.se/3/companyinformation/', {
         headers: {
           'Authorization': `Bearer ${tokenData.access_token}`,
@@ -165,13 +103,9 @@ Deno.serve(async (req) => {
       if (companyResponse.ok) {
         const companyData = await companyResponse.json()
         companyName = companyData.CompanyInformation?.CompanyName
-        console.log('Company name retrieved:', companyName);
-      } else {
-        console.warn('Failed to get company info:', companyResponse.status);
       }
 
       // Store tokens in database
-      console.log('Storing tokens in database...');
       const { error: updateError } = await supabase
         .from('fortnox_integrations')
         .upsert({
@@ -188,8 +122,6 @@ Deno.serve(async (req) => {
         throw new Error('Failed to store integration data')
       }
 
-      console.log('Integration stored successfully');
-
       return new Response(
         JSON.stringify({ success: true, company_name: companyName }),
         { 
@@ -200,8 +132,6 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'disconnect') {
-      console.log('Disconnecting integration...');
-      
       // Disconnect integration
       const { error } = await supabase
         .from('fortnox_integrations')
@@ -209,11 +139,8 @@ Deno.serve(async (req) => {
         .eq('user_id', user.id)
 
       if (error) {
-        console.error('Disconnect error:', error);
         throw new Error('Failed to disconnect integration')
       }
-
-      console.log('Integration disconnected successfully');
 
       return new Response(
         JSON.stringify({ success: true }),
@@ -225,8 +152,6 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'get_status') {
-      console.log('Getting integration status...');
-      
       // Get integration status
       const { data, error } = await supabase
         .from('fortnox_integrations')
@@ -236,14 +161,8 @@ Deno.serve(async (req) => {
         .maybeSingle()
 
       if (error) {
-        console.error('Status check error:', error);
         throw new Error('Failed to get integration status')
       }
-
-      console.log('Integration status:', { 
-        connected: !!data,
-        company_name: data?.company_name 
-      });
 
       return new Response(
         JSON.stringify({ 
@@ -258,7 +177,6 @@ Deno.serve(async (req) => {
       )
     }
 
-    console.error('Invalid action:', action);
     throw new Error('Invalid action')
 
   } catch (error) {
