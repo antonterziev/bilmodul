@@ -212,11 +212,6 @@ export function AppSidebar({
                                    size="sm"
                                 >
                                   <span className="text-sm">{child.title}</span>
-                                  {(['finansiering', 'affarer', 'direktfloden'].includes(section.id) || child.isPro) && (
-                                    <span className="inline-flex items-center rounded-full bg-yellow-200 px-1.5 py-0 text-[11px] font-medium text-yellow-900">
-                                      PRO
-                                    </span>
-                                  )}
                                 </SidebarMenuButton>
                              )}
                            </SidebarMenuItem>
