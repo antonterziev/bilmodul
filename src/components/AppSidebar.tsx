@@ -94,6 +94,7 @@ export function AppSidebar({
         { id: "lager_all", title: "Lagerlista", icon: Car },
         { id: "lager_stock", title: "I lager", icon: Package },
         { id: "lager_sold", title: "Sålda", icon: CheckSquare },
+        { id: "statistics", title: "Statistik", icon: BarChart3, isPro: true },
         { id: "logistics", title: "Logistik", icon: Truck },
       ]
     },
@@ -202,21 +203,21 @@ export function AppSidebar({
                                  <span className="text-sm">{child.title}</span>
                                </SidebarMenuButton>
                              ) : (
-                               <SidebarMenuButton
-                                  onClick={['finansiering', 'affarer', 'direktfloden'].includes(section.id) ? undefined : () => onViewChange(child.id)}
-                                  className={['finansiering', 'affarer', 'direktfloden'].includes(section.id)
-                                    ? "cursor-not-allowed pointer-events-none text-muted-foreground hover:bg-muted/50 flex items-center justify-between" 
-                                    : getNavClass(child.id)
-                                  }
-                                  size="sm"
-                               >
-                                 <span className="text-sm">{child.title}</span>
-                                 {['finansiering', 'affarer', 'direktfloden'].includes(section.id) && (
-                                   <span className="inline-flex items-center rounded-full bg-yellow-200 px-1.5 py-0 text-[11px] font-medium text-yellow-900">
-                                     PRO
-                                   </span>
-                                 )}
-                               </SidebarMenuButton>
+                                <SidebarMenuButton
+                                   onClick={['finansiering', 'affarer', 'direktfloden'].includes(section.id) || child.isPro ? undefined : () => onViewChange(child.id)}
+                                   className={['finansiering', 'affarer', 'direktfloden'].includes(section.id) || child.isPro
+                                     ? "cursor-not-allowed pointer-events-none text-muted-foreground hover:bg-muted/50 flex items-center justify-between" 
+                                     : getNavClass(child.id)
+                                   }
+                                   size="sm"
+                                >
+                                  <span className="text-sm">{child.title}</span>
+                                  {(['finansiering', 'affarer', 'direktfloden'].includes(section.id) || child.isPro) && (
+                                    <span className="inline-flex items-center rounded-full bg-yellow-200 px-1.5 py-0 text-[11px] font-medium text-yellow-900">
+                                      PRO
+                                    </span>
+                                  )}
+                                </SidebarMenuButton>
                              )}
                            </SidebarMenuItem>
                          ))}
