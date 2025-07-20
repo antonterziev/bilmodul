@@ -245,7 +245,7 @@ export const Settings = () => {
       <h2 className="text-2xl font-bold">Inställningar</h2>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="profile">
             <User className="h-4 w-4 mr-2" />
             Profilinställningar
@@ -253,10 +253,6 @@ export const Settings = () => {
           <TabsTrigger value="security">
             <Lock className="h-4 w-4 mr-2" />
             Lösenord
-          </TabsTrigger>
-          <TabsTrigger value="preferences">
-            <SettingsIcon className="h-4 w-4 mr-2" />
-            Preferenser
           </TabsTrigger>
         </TabsList>
 
@@ -379,82 +375,6 @@ export const Settings = () => {
         </TabsContent>
 
 
-        <TabsContent value="preferences">
-          <Card>
-            <CardHeader>
-              <CardTitle>Applikationspreferenser</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label>Språk</Label>
-                <Select defaultValue="sv">
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="sv">Svenska</SelectItem>
-                    <SelectItem value="en">English</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label>Tema</Label>
-                <Select defaultValue="system">
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="light">Ljust</SelectItem>
-                    <SelectItem value="dark">Mörkt</SelectItem>
-                    <SelectItem value="system">Systemstandard</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label>Standardvaluta</Label>
-                <Select defaultValue="SEK">
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="SEK">SEK (Svenska kronor)</SelectItem>
-                    <SelectItem value="EUR">EUR (Euro)</SelectItem>
-                    <SelectItem value="USD">USD (US Dollar)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-4">
-                <h4 className="font-medium">Notifieringar</h4>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">E-postnotifieringar för nya inköp</span>
-                    <Button variant="outline" size="sm">Av</Button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">E-postnotifieringar för försäljningar</span>
-                    <Button variant="outline" size="sm">Av</Button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Veckorapporter</span>
-                    <Button variant="outline" size="sm">På</Button>
-                  </div>
-                </div>
-              </div>
-
-              <Button className="w-full" disabled>
-                Spara preferenser
-              </Button>
-              <p className="text-xs text-muted-foreground text-center">
-                Preferenser sparas automatiskt
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
     </div>
   );
