@@ -303,7 +303,12 @@ const Index = () => {
             onBack={() => setSelectedVehicleId(null)} 
           />;
         }
-        return <LogisticsList onViewVehicle={(vehicleId) => setSelectedVehicleId(vehicleId)} />;
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold">Logistik</h2>
+            <LogisticsList onViewVehicle={(vehicleId) => setSelectedVehicleId(vehicleId)} />
+          </div>
+        );
 
       case "sales":
         if (selectedSaleVehicleId) {
@@ -317,7 +322,12 @@ const Index = () => {
             }}
           />;
         }
-        return <SalesList onSellVehicle={(vehicleId) => setSelectedSaleVehicleId(vehicleId)} />;
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold">Försäljning</h2>
+            <SalesList onSellVehicle={(vehicleId) => setSelectedSaleVehicleId(vehicleId)} />
+          </div>
+        );
 
       case "settings":
         return <Settings />;
@@ -325,8 +335,18 @@ const Index = () => {
       case "lager_all":
       case "lager_stock":
       case "lager_sold":
+        const getHeaderTitle = () => {
+          switch (currentView) {
+            case "lager_all": return "Alla fordon";
+            case "lager_stock": return "I lager";
+            case "lager_sold": return "Sålda";
+            default: return "Lager";
+          }
+        };
+        
         return (
-          <>
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold">{getHeaderTitle()}</h2>
             <DashboardStats 
               totalStock={stats.totalStock}
               averageStorageDays={stats.averageStorageDays}
@@ -342,7 +362,7 @@ const Index = () => {
               }}
               onStatsUpdate={loadStats}
             />
-          </>
+          </div>
         );
 
       default:
