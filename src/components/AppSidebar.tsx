@@ -137,7 +137,13 @@ export function AppSidebar({
             <div className="p-4 pb-2 space-y-3">
               <Button 
                 className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 font-medium w-full"
-                onClick={() => onViewChange("purchase_form")}
+                onClick={() => {
+                  onViewChange("purchase_form");
+                  // Expand the lager section when registering a vehicle
+                  if (!expandedSections.lager) {
+                    onSectionToggle("lager");
+                  }
+                }}
               >
                 Registrera fordon
               </Button>
