@@ -378,7 +378,7 @@ const Index = () => {
                     <img src="/lovable-uploads/06ce5fbb-cb35-47f9-9b24-5b51bdbe0647.png" alt="Fortnox" className="w-10 h-10 object-contain" />
                   </div>
                   <div>
-                    <h3 className="font-medium">Fortnox Integration</h3>
+                    <h3 className="font-medium">Automatisk bokföring – Fortnox</h3>
                     <p className="text-sm text-muted-foreground">Synkronisera dina fordon och ekonomidata automatiskt med Fortnox.</p>
                   </div>
                 </div>
