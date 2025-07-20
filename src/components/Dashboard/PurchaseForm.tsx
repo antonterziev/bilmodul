@@ -662,7 +662,6 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
   return (
     <Card className="max-w-4xl mx-auto">
       <CardHeader>
-        <CardTitle>Registrera inköp</CardTitle>
       </CardHeader>
       <CardContent>
         {!showFullForm ? (
