@@ -428,7 +428,7 @@ const Index = () => {
                       className="h-8 w-8 p-0"
                       onClick={() => setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')}
                     >
-                      <Triangle className={`w-4 h-4 transition-transform ${sortOrder === 'desc' ? '' : 'rotate-180'}`} />
+                      <Triangle className={`w-4 h-4 transition-transform ${sortOrder === 'asc' ? '' : 'rotate-180'}`} />
                    </Button>
                  </div>
               </div>
