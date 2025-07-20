@@ -152,8 +152,8 @@ export function AppSidebar({
             </div>
           </SidebarGroupContent>
         </SidebarGroup>
-        {/* Main Navigation - No group labels */}
-        <SidebarGroup>
+        {/* Main Navigation */}
+        <SidebarGroup className="px-4">
           <SidebarGroupContent>
             <SidebarMenu>
               {mainMenuItems.map((item) => (
@@ -171,10 +171,10 @@ export function AppSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Expandable Sections - No group labels */}
-        <SidebarGroup>
+        {/* Expandable Sections */}
+        <SidebarGroup className="px-4 mt-4">
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-4">
               {expandableMenuItems.map((section) => (
                 <SidebarMenuItem key={section.id}>
                   <SidebarMenuButton
@@ -191,7 +191,7 @@ export function AppSidebar({
                   </SidebarMenuButton>
                   
                   {expandedSections[section.id] && (
-                    <SidebarMenu className="ml-4 mt-1">
+                    <SidebarMenu className="ml-6 mt-1 space-y-1">
                       {section.children.map((child) => (
                         <SidebarMenuItem key={child.id}>
                           <SidebarMenuButton
@@ -212,7 +212,7 @@ export function AppSidebar({
         </SidebarGroup>
 
         {/* Settings */}
-        <SidebarGroup>
+        <SidebarGroup className="px-4 mt-4">
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
