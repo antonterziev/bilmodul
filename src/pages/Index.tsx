@@ -414,12 +414,16 @@ const Index = () => {
         />
         
         <div className="flex-1 flex flex-col">
-          {/* Header with logo in top left */}
-          <header className="border-b flex flex-col">
+          {/* Logo at the very top */}
+          <div className="bg-white border-b px-4 py-3 flex items-center">
+            <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-8" />
+          </div>
+
+          {/* Navigation bar with white background */}
+          <header className="bg-white border-b flex flex-col">
             <div className="flex h-16">
               <div className="flex items-center px-4">
                 <SidebarTrigger />
-                <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-8 ml-4" />
               </div>
               <div className="flex-1 px-4 py-4 flex justify-end items-center">
                 <div className="flex items-center gap-4">
@@ -444,7 +448,7 @@ const Index = () => {
               </div>
             </div>
             {/* Second row with registrera inköp and search */}
-            <div className="flex items-center px-4 pb-4 gap-4">
+            <div className="flex items-center px-4 pb-4 gap-4 bg-white">
               <Button 
                 className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 font-medium"
                 onClick={() => handleViewChange("purchase_form")}
