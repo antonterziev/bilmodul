@@ -374,8 +374,8 @@ const Index = () => {
             <div className="space-y-4">
               <div className="bg-card border rounded-lg p-4 flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <span className="text-green-600 font-bold text-sm">FX</span>
+                  <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center border">
+                    <img src="/lovable-uploads/06ce5fbb-cb35-47f9-9b24-5b51bdbe0647.png" alt="Fortnox" className="w-10 h-10 object-contain" />
                   </div>
                   <div>
                     <h3 className="font-medium">Fortnox Integration</h3>
