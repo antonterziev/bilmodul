@@ -157,11 +157,20 @@ const Auth = () => {
       if (error) throw error;
       navigate("/dashboard");
     } catch (error: any) {
-      toast({
-        title: "Fel vid inloggning",
-        description: error.message,
-        variant: "destructive"
-      });
+      if (error.message.includes('Invalid login credentials')) {
+        // Show specific Swedish error message for incorrect password
+        toast({
+          title: "Felaktigt lösenord",
+          description: "Kontrollera ditt lösenord och försök igen.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Fel vid inloggning",
+          description: error.message,
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsLoading(false);
     }
