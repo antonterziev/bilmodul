@@ -134,7 +134,10 @@ const Index = () => {
         .single();
 
       if (!error && data) {
+        console.log('Profile data loaded:', data);
         setUserProfile(data);
+      } else if (error) {
+        console.error('Profile loading error:', error);
       }
     } catch (error) {
       console.error('Error loading user profile:', error);
