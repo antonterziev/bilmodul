@@ -510,15 +510,17 @@ const Auth = () => {
                 {isLoading ? "Loggar in..." : "Logga in"}
               </Button>
               
-              {/* Error message */}
-              {loginError && (
-                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-md">
-                  <div className="w-5 h-5 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-red-600 text-sm font-bold">!</span>
+              {/* Error message space - fixed height to prevent layout shift */}
+              <div className="h-16 flex items-start">
+                {loginError && (
+                  <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-md w-full">
+                    <div className="w-5 h-5 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-red-600 text-sm font-bold">!</span>
+                    </div>
+                    <span className="text-red-700 text-sm">{loginError}</span>
                   </div>
-                  <span className="text-red-700 text-sm">{loginError}</span>
-                </div>
-              )}
+                )}
+              </div>
             </div>
             
             {/* Sign up link */}
