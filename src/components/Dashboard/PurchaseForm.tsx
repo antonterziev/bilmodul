@@ -660,7 +660,7 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
   };
 
   return (
-    <Card className="max-w-4xl mx-auto">
+    <Card className="border-0">
       <CardHeader>
       </CardHeader>
       <CardContent>
