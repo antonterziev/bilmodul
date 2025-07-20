@@ -482,9 +482,47 @@ const Index = () => {
                           return;
                         }
 
-                        console.log('Redirecting to Fortnox OAuth URL:', data.auth_url);
-                        // Open OAuth in the same window but preserve session
-                        window.location.assign(data.auth_url);
+                        console.log('Opening Fortnox OAuth in popup:', data.auth_url);
+                        
+                        // Open OAuth in popup to preserve session
+                        const popup = window.open(
+                          data.auth_url, 
+                          'fortnoxOAuth', 
+                          'width=600,height=700,scrollbars=yes,resizable=yes'
+                        );
+
+                        if (!popup) {
+                          console.warn('Popup blocked, falling back to same window');
+                          window.location.assign(data.auth_url);
+                          return;
+                        }
+
+                        // Monitor popup for completion
+                        const checkClosed = setInterval(() => {
+                          if (popup.closed) {
+                            clearInterval(checkClosed);
+                            console.log('OAuth popup closed, refreshing status');
+                            // Small delay to allow any callbacks to process
+                            setTimeout(() => {
+                              window.location.reload();
+                            }, 1000);
+                          }
+                        }, 1000);
+
+                        // Handle popup navigation to our domain (OAuth callback)
+                        try {
+                          popup.addEventListener('beforeunload', () => {
+                            setTimeout(() => {
+                              if (popup.closed) {
+                                clearInterval(checkClosed);
+                                window.location.reload();
+                              }
+                            }, 1000);
+                          });
+                        } catch (e) {
+                          // Cross-origin restrictions prevent this, but that's ok
+                          console.log('Cannot monitor popup navigation due to CORS');
+                        }
                         
                       } catch (error: any) {
                         console.error('Fortnox connection error:', error);
