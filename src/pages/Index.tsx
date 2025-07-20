@@ -17,7 +17,7 @@ import { Statistics } from "@/components/Statistics/Statistics";
 import { AppSidebar } from "@/components/AppSidebar";
 
 import { supabase } from "@/integrations/supabase/client";
-import { Phone, MessageCircle, LogOut, Search, Download, FileText, File, FileCheck, Receipt, BookOpen, CheckSquare, User, ChevronDown, Bell, HelpCircle, Link, Filter, RotateCcw, ArrowUpDown, ArrowUp, ArrowDown, AlignJustify } from "lucide-react";
+import { Phone, MessageCircle, LogOut, Search, Download, FileText, File, FileCheck, Receipt, BookOpen, CheckSquare, User, ChevronDown, Bell, HelpCircle, Link, Filter, RotateCcw, ArrowUpDown, ArrowUp, ArrowDown, Triangle } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -428,7 +428,7 @@ const Index = () => {
                       className="h-8 w-8 p-0"
                       onClick={() => setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')}
                     >
-                      <AlignJustify className="w-4 h-4" />
+                      <Triangle className="w-4 h-4" />
                    </Button>
                  </div>
               </div>
