@@ -131,7 +131,7 @@ export function AppSidebar({
                 className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 font-medium w-full"
                 onClick={() => onViewChange("purchase_form")}
               >
-                Registrera inköp
+                Registrera fordon
               </Button>
               <div className="relative">
                 <Input
