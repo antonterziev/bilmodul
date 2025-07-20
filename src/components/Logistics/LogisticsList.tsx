@@ -127,7 +127,7 @@ export const LogisticsList = ({ onViewVehicle }: LogisticsListProps) => {
 
       {vehicles.length === 0 && (
         <Card>
-          <CardContent className="p-6 text-center">
+          <CardContent className="pt-0 p-6 text-center">
             <p className="text-muted-foreground">Inga fordon registrerade än.</p>
           </CardContent>
         </Card>
