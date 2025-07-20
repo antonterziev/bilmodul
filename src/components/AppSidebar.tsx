@@ -17,8 +17,12 @@ import {
   BookOpen,
   CheckSquare,
   File,
-  Landmark
+  Landmark,
+  Search
 } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 import {
   Sidebar,
@@ -127,6 +131,27 @@ export function AppSidebar({
   return (
     <Sidebar className="w-72 bg-white border-r" collapsible="none">
       <SidebarContent className="bg-white">
+        {/* Registrera inköp and Search at top */}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <div className="p-4 space-y-3">
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 font-medium w-full"
+                onClick={() => onViewChange("purchase_form")}
+              >
+                Registrera inköp
+              </Button>
+              <div className="relative">
+                <Input
+                  type="text"
+                  placeholder="Sök fordon..."
+                  className="pl-9 w-full"
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              </div>
+            </div>
+          </SidebarGroupContent>
+        </SidebarGroup>
         {/* Main Navigation - No group labels */}
         <SidebarGroup>
           <SidebarGroupContent>

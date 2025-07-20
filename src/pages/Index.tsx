@@ -451,29 +451,8 @@ const Index = () => {
           />
         
           <div className="flex-1 flex flex-col min-w-0">
-            {/* Second row with registrera inköp and search */}
-            <div className="flex items-center px-4 py-4 gap-4 bg-white border-b">
-              <Button 
-                className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 font-medium"
-                onClick={() => handleViewChange("purchase_form")}
-              >
-                Registrera inköp
-              </Button>
-              <div className="relative max-w-md">
-                <Input
-                  type="text"
-                  placeholder={searchPlaceholder}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  disabled={inventoryItems.length === 0}
-                  className="pl-9 w-full"
-                />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              </div>
-            </div>
-
-          {/* Main Content Area */}
-          <main className="flex-1 p-6 overflow-auto">
+            {/* Main Content Area */}
+            <main className="flex-1 p-6 overflow-auto">
             <div className="max-w-7xl mx-auto">
               <Breadcrumbs items={getBreadcrumbs()} />
               
