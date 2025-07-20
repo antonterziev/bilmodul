@@ -17,7 +17,9 @@ import { Statistics } from "@/components/Statistics/Statistics";
 import { AppSidebar } from "@/components/AppSidebar";
 
 import { supabase } from "@/integrations/supabase/client";
-import { Phone, MessageCircle, LogOut, Search, Download, FileText, File, FileCheck, Receipt, BookOpen, CheckSquare } from "lucide-react";
+import { Phone, MessageCircle, LogOut, Search, Download, FileText, File, FileCheck, Receipt, BookOpen, CheckSquare, User } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const Index = () => {
   const { user, signOut, isLoading } = useAuth();
@@ -363,10 +365,30 @@ const Index = () => {
                   <MessageCircle className="h-4 w-4" />
                   Supportchatt
                 </Button>
-                <Button variant="outline" onClick={handleLogout} size="sm" className="flex items-center gap-2 w-32">
-                  <LogOut className="h-4 w-4" />
-                  Logga ut
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="flex items-center gap-2 w-32">
+                      <User className="h-4 w-4" />
+                      {userProfile?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Profil'}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <div className="px-3 py-2 border-b">
+                      <p className="font-medium">{userProfile?.full_name || 'Användare'}</p>
+                      <p className="text-sm text-muted-foreground">{user?.email}</p>
+                    </div>
+                    <DropdownMenuItem onClick={() => setCurrentView('personliga-installningar')}>
+                      Personliga inställningar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setCurrentView('radera-kontot')}>
+                      Radera kontot
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logga ut
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </div>
