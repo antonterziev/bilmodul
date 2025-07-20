@@ -601,16 +601,6 @@ const Auth = () => {
               </button>
             </div>
             
-            {/* Temporary debug button */}
-            <div className="text-center mt-4">
-              <button 
-                type="button" 
-                onClick={forceReset}
-                className="text-xs text-gray-400 hover:text-gray-600 underline"
-              >
-                Force Reset Auth State (Debug)
-              </button>
-            </div>
           </CardContent>
         </Card>
       </div>
