@@ -37,6 +37,10 @@ export const Settings = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [companyName, setCompanyName] = useState("");
+  
+  // Track original values to detect changes
+  const [originalFirstName, setOriginalFirstName] = useState("");
+  const [originalLastName, setOriginalLastName] = useState("");
 
   // Password form state
   const [currentPassword, setCurrentPassword] = useState("");
@@ -55,9 +59,15 @@ export const Settings = () => {
       const userMetadata = user?.user_metadata || {};
       
       // Set initial values from user metadata
-      setFirstName(userMetadata.first_name || '');
-      setLastName(userMetadata.last_name || '');
-      setCompanyName(userMetadata.company_name || '');
+      const firstNameValue = userMetadata.first_name || '';
+      const lastNameValue = userMetadata.last_name || '';
+      const companyNameValue = userMetadata.company_name || '';
+      
+      setFirstName(firstNameValue);
+      setLastName(lastNameValue);
+      setCompanyName(companyNameValue);
+      setOriginalFirstName(firstNameValue);
+      setOriginalLastName(lastNameValue);
 
       // Try to load from profiles table
       const { data, error } = await supabase
@@ -89,9 +99,15 @@ export const Settings = () => {
       } else {
         setProfile(data);
         // Override with profile data if it exists, but keep user metadata as fallback
-        setFirstName(data.first_name || userMetadata.first_name || '');
-        setLastName(data.last_name || userMetadata.last_name || '');
-        setCompanyName(data.company_name || userMetadata.company_name || '');
+        const firstNameValue = data.first_name || userMetadata.first_name || '';
+        const lastNameValue = data.last_name || userMetadata.last_name || '';
+        const companyNameValue = data.company_name || userMetadata.company_name || '';
+        
+        setFirstName(firstNameValue);
+        setLastName(lastNameValue);
+        setCompanyName(companyNameValue);
+        setOriginalFirstName(firstNameValue);
+        setOriginalLastName(lastNameValue);
       }
     } catch (error) {
       console.error('Error loading profile:', error);
@@ -108,16 +124,23 @@ export const Settings = () => {
   const saveProfile = async () => {
     setSaving(true);
     try {
+      const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
+      
       const { error } = await supabase
         .from('profiles')
         .update({
           first_name: firstName,
           last_name: lastName,
+          full_name: fullName,
           company_name: companyName,
         })
         .eq('user_id', user?.id);
 
       if (error) throw error;
+
+      // Update original values to reflect saved state
+      setOriginalFirstName(firstName);
+      setOriginalLastName(lastName);
 
       toast({
         title: "Sparat",
@@ -210,6 +233,9 @@ export const Settings = () => {
     }
   };
 
+  // Check if there are unsaved changes
+  const hasChanges = firstName !== originalFirstName || lastName !== originalLastName;
+  
   if (loading) {
     return <div>Laddar inställningar...</div>;
   }
@@ -296,10 +322,10 @@ export const Settings = () => {
 
               <Button 
                 onClick={saveProfile} 
-                disabled={saving}
-                className="w-full"
+                disabled={saving || !hasChanges}
+                className={`w-full ${!hasChanges ? 'opacity-50' : ''}`}
               >
-                {saving ? "Sparar..." : "Spara profil"}
+                {saving ? "Sparar..." : "Uppdatera profil"}
               </Button>
             </CardContent>
           </Card>
