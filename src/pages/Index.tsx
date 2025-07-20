@@ -378,7 +378,7 @@ const Index = () => {
                       <p className="font-medium">{userProfile?.full_name || 'Användare'}</p>
                       <p className="text-sm text-muted-foreground">{user?.email}</p>
                     </div>
-                    <DropdownMenuItem onClick={() => setCurrentView('personliga-installningar')}>
+                    <DropdownMenuItem onClick={() => setCurrentView('settings')}>
                       Personliga inställningar
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setCurrentView('radera-kontot')}>
