@@ -195,13 +195,13 @@ export function AppSidebar({
                          {section.children.map((child) => (
                            <SidebarMenuItem key={child.id} className="pr-6">
                              {child.isButton ? (
-                               <Button 
-                                 className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 font-medium w-full text-sm h-8"
+                               <SidebarMenuButton
                                  onClick={() => onViewChange("purchase_form")}
+                                 className={getNavClass(child.id)}
                                  size="sm"
                                >
-                                 {child.title}
-                               </Button>
+                                 <span className="text-sm">{child.title}</span>
+                               </SidebarMenuButton>
                              ) : child.isHeader ? (
                                <div className="cursor-default pointer-events-none text-muted-foreground hover:bg-muted/50 flex items-center justify-between py-2 px-3 rounded-md">
                                  <span className="text-sm font-medium">{child.title}</span>
