@@ -403,20 +403,6 @@ const Index = () => {
               </div>
 
 
-              <div className="bg-card border rounded-lg p-4 flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <span className="text-purple-600 font-bold text-sm">API</span>
-                  </div>
-                  <div>
-                    <h3 className="font-medium">API Integration</h3>
-                    <p className="text-sm text-muted-foreground">Anslut din egen applikation eller tjänst via vårt utvecklar-API.</p>
-                  </div>
-                </div>
-                <Button variant="outline" disabled>
-                  Koppla
-                </Button>
-              </div>
             </div>
           </div>
         );
