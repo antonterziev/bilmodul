@@ -19,7 +19,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
+        if (session) {
+          // Validate the session before setting state
+          const isValid = await validateUserSession(session);
+          if (!isValid) {
+            console.error('Invalid session detected, signing out');
+            // Force sign out if session validation fails
+            await supabase.auth.signOut({ scope: 'global' });
+            setSession(null);
+            setUser(null);
+            setIsLoading(false);
+            return;
+          }
+        }
+        
         setSession(session);
         setUser(session?.user ?? null);
         setIsLoading(false);
@@ -27,7 +41,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     );
 
     // Then check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session) {
+        // Validate the existing session
+        const isValid = await validateUserSession(session);
+        if (!isValid) {
+          console.error('Invalid existing session detected, signing out');
+          await supabase.auth.signOut({ scope: 'global' });
+          setSession(null);
+          setUser(null);
+          setIsLoading(false);
+          return;
+        }
+      }
+      
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
@@ -71,6 +98,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error('Logout error:', error);
       // Force redirect even if logout fails
       window.location.href = "/auth";
+    }
+  };
+
+  const validateUserSession = async (session: any) => {
+    if (!session?.user?.id) return false;
+    
+    try {
+      // Verify the user exists in our profiles table and matches
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('user_id, email, full_name')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+        
+      if (error || !profile) {
+        console.error('Profile validation failed:', error);
+        return false;
+      }
+      
+      // Check if email matches
+      if (profile.email !== session.user.email) {
+        console.error('Email mismatch detected:', {
+          sessionEmail: session.user.email,
+          profileEmail: profile.email
+        });
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Session validation error:', error);
+      return false;
     }
   };
 
