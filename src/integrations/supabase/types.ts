@@ -41,6 +41,45 @@ export type Database = {
         }
         Relationships: []
       }
+      fortnox_integrations: {
+        Row: {
+          access_token: string
+          company_name: string | null
+          created_at: string
+          fortnox_company_id: string | null
+          id: string
+          is_active: boolean
+          refresh_token: string | null
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          company_name?: string | null
+          created_at?: string
+          fortnox_company_id?: string | null
+          id?: string
+          is_active?: boolean
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          company_name?: string | null
+          created_at?: string
+          fortnox_company_id?: string | null
+          id?: string
+          is_active?: boolean
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       inventory_items: {
         Row: {
           additional_costs: number | null

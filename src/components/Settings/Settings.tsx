@@ -10,7 +10,8 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { User, Lock, Settings as SettingsIcon } from "lucide-react";
+import { User, Lock, Settings as SettingsIcon, Link } from "lucide-react";
+import FortnoxIntegration from "@/components/Integrations/FortnoxIntegration";
 
 interface UserProfile {
   id: string;
@@ -218,14 +219,18 @@ export const Settings = () => {
       <h2 className="text-2xl font-bold">Inställningar</h2>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="profile">
             <User className="h-4 w-4 mr-2" />
-            Profilinställningar
+            Profil
           </TabsTrigger>
           <TabsTrigger value="security">
             <Lock className="h-4 w-4 mr-2" />
             Lösenord
+          </TabsTrigger>
+          <TabsTrigger value="integrations">
+            <Link className="h-4 w-4 mr-2" />
+            Integrationer
           </TabsTrigger>
           <TabsTrigger value="preferences">
             <SettingsIcon className="h-4 w-4 mr-2" />
@@ -349,6 +354,10 @@ export const Settings = () => {
 
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="integrations">
+          <FortnoxIntegration />
         </TabsContent>
 
         <TabsContent value="preferences">
