@@ -10,10 +10,12 @@ import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import EmailVerification from "@/components/EmailVerification";
 import RecoveryEmailSent from "@/components/RecoveryEmailSent";
+import { Eye, EyeOff } from "lucide-react";
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [isSignup, setIsSignup] = useState(false);
@@ -519,15 +521,24 @@ const Auth = () => {
               {/* Password field */}
               <div className="space-y-1">
                 <Label htmlFor="password" className="text-sm text-gray-700">Lösenord</Label>
-                <Input 
-                  id="password" 
-                  type="password" 
-                  value={password} 
-                  onChange={e => setPassword(e.target.value)} 
-                  onKeyDown={e => e.key === 'Enter' && !isLoading && handleSignIn(e)}
-                  className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500" 
-                  required 
-                />
+                <div className="relative">
+                  <Input 
+                    id="password" 
+                    type={showPassword ? "text" : "password"}
+                    value={password} 
+                    onChange={e => setPassword(e.target.value)} 
+                    onKeyDown={e => e.key === 'Enter' && !isLoading && handleSignIn(e)}
+                    className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 pr-10" 
+                    required 
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
               </div>
               
               {/* Forgot password link */}

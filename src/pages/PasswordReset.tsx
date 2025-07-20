@@ -5,10 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
 
 const PasswordReset = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isValidatingSession, setIsValidatingSession] = useState(true);
   const navigate = useNavigate();
@@ -148,24 +151,42 @@ const PasswordReset = () => {
             </div>
             
             <form onSubmit={handlePasswordReset} className="space-y-4">
-              <Input
-                type="password"
-                placeholder="Nytt lösenord"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-center"
-                required
-                minLength={6}
-              />
-              <Input
-                type="password"
-                placeholder="Bekräfta nytt lösenord"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-center"
-                required
-                minLength={6}
-              />
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Nytt lösenord"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-center pr-10"
+                  required
+                  minLength={6}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+              <div className="relative">
+                <Input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Bekräfta nytt lösenord"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-center pr-10"
+                  required
+                  minLength={6}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
               <Button 
                 type="submit" 
                 disabled={isLoading}
