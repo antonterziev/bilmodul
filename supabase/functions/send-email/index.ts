@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
     
     console.log('Parsed data:', { user, email_action_type, token })
 
-    // Only send custom emails for signup verification
+    // Handle different email types
     if (email_action_type === 'signup') {
       const html = await renderAsync(
         React.createElement(SignupVerificationEmail, {
@@ -72,8 +72,41 @@ Deno.serve(async (req) => {
       }
 
       console.log('Custom signup email sent successfully to:', user.email)
+    } else if (email_action_type === 'recovery') {
+      // Send password recovery email
+      const resetUrl = `${redirect_to}?token_hash=${token_hash}&type=recovery`;
+      
+      const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h1 style="color: #333;">Återställ ditt lösenord</h1>
+          <p>Hej!</p>
+          <p>Du har begärt att återställa ditt lösenord för Veksla. Klicka på länken nedan för att skapa ett nytt lösenord:</p>
+          <p style="margin: 30px 0;">
+            <a href="${resetUrl}" style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+              Återställ lösenord
+            </a>
+          </p>
+          <p>Om du inte begärt denna återställning kan du ignorera detta e-postmeddelande.</p>
+          <p>Länken är giltig i 1 timme.</p>
+          <p>Med vänlig hälsning,<br>Veksla-teamet</p>
+        </div>
+      `;
 
-      console.log('Custom signup email sent successfully to:', user.email)
+      const { data, error } = await resend.emails.send({
+        from: 'Veksla <onboarding@lagermodulen.se>',
+        to: [user.email],
+        subject: 'Återställ ditt lösenord - Veksla',
+        html,
+      })
+
+      if (error) {
+        console.error('Resend error:', error)
+        throw error
+      }
+
+      console.log('Password recovery email sent successfully to:', user.email)
+    } else {
+      console.log(`Email type ${email_action_type} not handled, skipping custom email`)
     }
 
     return new Response(JSON.stringify({ success: true }), {
