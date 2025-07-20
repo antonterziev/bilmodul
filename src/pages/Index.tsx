@@ -376,7 +376,7 @@ const Index = () => {
                   <DropdownMenuContent align="start" className="w-48">
                     <DropdownMenuItem>
                       <Checkbox className="mr-2" />
-                      Kvitto eller utgift
+                      I lager
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                       <Checkbox className="mr-2" />
