@@ -64,6 +64,63 @@ const Index = () => {
     grossProfit: 0
   });
 
+  const handleFortnoxCallback = async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
+
+    if (code && state) {
+      console.log('Fortnox OAuth callback detected', { code, state });
+      
+      try {
+        toast({
+          title: "Ansluter till Fortnox...",
+          description: "Vänta medan vi kopplar ditt konto till Fortnox.",
+        });
+
+        const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
+          body: { 
+            action: 'exchange_code',
+            code: code,
+            state: state
+          }
+        });
+
+        if (error) {
+          console.error('Fortnox OAuth exchange error:', error);
+          throw error;
+        }
+
+        if (data?.success) {
+          toast({
+            title: "Fortnox-anslutning lyckades!",
+            description: `Ditt konto är nu kopplat till ${data.company_name || 'Fortnox'}.`,
+          });
+          
+          // Clean up URL parameters
+          const newUrl = window.location.pathname;
+          window.history.replaceState({}, document.title, newUrl);
+          
+          // Navigate to integrations page to show the connected status
+          setCurrentView('integrationer');
+        } else {
+          throw new Error('OAuth exchange failed');
+        }
+      } catch (error: any) {
+        console.error('Fortnox callback error:', error);
+        toast({
+          title: "Fortnox-anslutning misslyckades",
+          description: error.message || "Ett fel uppstod vid anslutning till Fortnox. Försök igen.",
+          variant: "destructive",
+        });
+        
+        // Clean up URL parameters even on error
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+      }
+    }
+  };
+
   useEffect(() => {
     if (!isLoading && !user) {
       navigate("/login-or-signup");
@@ -267,63 +324,6 @@ const Index = () => {
       return userProfile.full_name;
     }
     return user?.email || 'Användare';
-  };
-
-  const handleFortnoxCallback = async () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-    const state = urlParams.get('state');
-
-    if (code && state) {
-      console.log('Fortnox OAuth callback detected', { code, state });
-      
-      try {
-        toast({
-          title: "Ansluter till Fortnox...",
-          description: "Vänta medan vi kopplar ditt konto till Fortnox.",
-        });
-
-        const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
-          body: { 
-            action: 'exchange_code',
-            code: code,
-            state: state
-          }
-        });
-
-        if (error) {
-          console.error('Fortnox OAuth exchange error:', error);
-          throw error;
-        }
-
-        if (data?.success) {
-          toast({
-            title: "Fortnox-anslutning lyckades!",
-            description: `Ditt konto är nu kopplat till ${data.company_name || 'Fortnox'}.`,
-          });
-          
-          // Clean up URL parameters
-          const newUrl = window.location.pathname;
-          window.history.replaceState({}, document.title, newUrl);
-          
-          // Navigate to integrations page to show the connected status
-          setCurrentView('integrationer');
-        } else {
-          throw new Error('OAuth exchange failed');
-        }
-      } catch (error: any) {
-        console.error('Fortnox callback error:', error);
-        toast({
-          title: "Fortnox-anslutning misslyckades",
-          description: error.message || "Ett fel uppstod vid anslutning till Fortnox. Försök igen.",
-          variant: "destructive",
-        });
-        
-        // Clean up URL parameters even on error
-        const newUrl = window.location.pathname;
-        window.history.replaceState({}, document.title, newUrl);
-      }
-    }
   };
 
   if (isLoading) {
