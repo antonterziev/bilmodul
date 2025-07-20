@@ -56,7 +56,7 @@ export function AppSidebar({
   
   const getNavClass = (view: string) =>
     isActive(view) 
-      ? "bg-primary text-primary-foreground" 
+      ? "bg-primary text-primary-foreground hover:bg-primary" 
       : "text-muted-foreground hover:bg-muted/50";
 
   const handleSectionToggle = (sectionId: string) => {
