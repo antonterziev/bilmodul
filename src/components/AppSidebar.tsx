@@ -181,21 +181,21 @@ export function AppSidebar({
                       <SidebarMenu className="ml-6 mt-1 space-y-1">
                          {section.children.map((child) => (
                            <SidebarMenuItem key={child.id} className="pr-6">
-                             <SidebarMenuButton
-                               onClick={section.id === 'finansiering' ? undefined : () => onViewChange(child.id)}
-                               className={section.id === 'finansiering' 
-                                 ? "cursor-not-allowed pointer-events-none text-muted-foreground hover:bg-muted/50 flex items-center justify-between" 
-                                 : getNavClass(child.id)
-                               }
-                               size="sm"
-                             >
-                               <span className="text-sm">{child.title}</span>
-                               {section.id === 'finansiering' && (
-                                 <span className="inline-flex items-center rounded-full bg-yellow-200 px-1.5 py-0 text-[11px] font-medium text-yellow-900">
-                                   PRO
-                                 </span>
-                               )}
-                             </SidebarMenuButton>
+                            <SidebarMenuButton
+                                onClick={['finansiering', 'affarer', 'direktfloden'].includes(section.id) ? undefined : () => onViewChange(child.id)}
+                                className={['finansiering', 'affarer', 'direktfloden'].includes(section.id)
+                                  ? "cursor-not-allowed pointer-events-none text-muted-foreground hover:bg-muted/50 flex items-center justify-between" 
+                                  : getNavClass(child.id)
+                                }
+                                size="sm"
+                              >
+                                <span className="text-sm">{child.title}</span>
+                                {['finansiering', 'affarer', 'direktfloden'].includes(section.id) && (
+                                  <span className="inline-flex items-center rounded-full bg-yellow-200 px-1.5 py-0 text-[11px] font-medium text-yellow-900">
+                                    PRO
+                                  </span>
+                                )}
+                              </SidebarMenuButton>
                            </SidebarMenuItem>
                          ))}
                       </SidebarMenu>
