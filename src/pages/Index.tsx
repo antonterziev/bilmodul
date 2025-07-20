@@ -389,7 +389,7 @@ const Index = () => {
 
               <div className="bg-card border rounded-lg p-4 flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center border">
+                  <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
                     <img src="/lovable-uploads/7b240d76-c798-4b46-828d-0bb9b4250b35.png" alt="Visma" className="w-10 h-10 object-contain" />
                   </div>
                   <div>
