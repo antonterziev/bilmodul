@@ -1,61 +1,101 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { ExternalLink, Unlink } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface FortnoxStatus {
+  connected: boolean;
+  company_name?: string;
+  connected_since?: string;
+}
 
 export const FortnoxIntegration = () => {
-  const [isConnected, setIsConnected] = useState(false);
+  const [status, setStatus] = useState<FortnoxStatus>({ connected: false });
   const [connecting, setConnecting] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+
+  useEffect(() => {
+    loadStatus();
+    
+    // Check for OAuth callback
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    if (code) {
+      handleOAuthCallback(code);
+    }
+  }, []);
+
+  const loadStatus = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
+        body: { action: 'get_status' }
+      });
+
+      if (error) throw error;
+      setStatus(data);
+    } catch (error) {
+      console.error('Failed to load Fortnox status:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOAuthCallback = async (code: string) => {
+    setConnecting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
+        body: { action: 'exchange_code', code }
+      });
+
+      if (error) throw error;
+
+      setStatus({ 
+        connected: true, 
+        company_name: data.company_name,
+        connected_since: new Date().toISOString()
+      });
+
+      toast({
+        title: "Ansluten!",
+        description: `Fortnox-integration har aktiverats${data.company_name ? ` för ${data.company_name}` : ''}`,
+      });
+
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } catch (error: any) {
+      toast({
+        title: "Anslutningsfel",
+        description: error.message || "Kunde inte slutföra anslutningen till Fortnox",
+        variant: "destructive",
+      });
+    } finally {
+      setConnecting(false);
+    }
+  };
 
   const connectFortnox = async () => {
     setConnecting(true);
     try {
-      // Simulate the authorization error that the user is experiencing
-      const response = await fetch('/api/fortnox/connect', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // Missing Authorization header - this is the issue!
-          // 'Authorization': `Bearer ${userToken}`, // This should be included
-        },
-        body: JSON.stringify({ action: 'connect' })
+      const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
+        body: { action: 'get_auth_url' }
       });
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          const error = await response.json();
-          throw new Error(error.message || 'Missing authorization header');
-        }
-        throw new Error('Failed to connect');
-      }
+      if (error) throw error;
 
-      setIsConnected(true);
-      toast({
-        title: "Ansluten!",
-        description: "Fortnox-integration har aktiverats",
-      });
-    } catch (error: any) {
-      console.error('Error connecting to Fortnox:', error);
+      // Redirect to Fortnox OAuth
+      window.location.href = data.auth_url;
       
-      // Handle the specific authorization error
-      if (error.message?.includes('Missing authorization header') || error.message?.includes('401')) {
-        toast({
-          title: "Autentiseringsfel",
-          description: "Det saknas behörighetstoken. Du behöver logga in igen för att ansluta till Fortnox.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Anslutningsfel",
-          description: "Kunde inte ansluta till Fortnox. Försök igen senare.",
-          variant: "destructive",
-        });
-      }
-    } finally {
+    } catch (error: any) {
+      toast({
+        title: "Anslutningsfel",
+        description: error.message || "Kunde inte ansluta till Fortnox",
+        variant: "destructive",
+      });
       setConnecting(false);
     }
   };
@@ -63,19 +103,21 @@ export const FortnoxIntegration = () => {
   const disconnectFortnox = async () => {
     setDisconnecting(true);
     try {
-      // Simulate disconnection
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setIsConnected(false);
+      const { error } = await supabase.functions.invoke('fortnox-oauth', {
+        body: { action: 'disconnect' }
+      });
+
+      if (error) throw error;
+
+      setStatus({ connected: false });
       toast({
         title: "Frånkopplad",
         description: "Fortnox-integration har inaktiverats",
       });
-    } catch (error) {
-      console.error('Error disconnecting from Fortnox:', error);
+    } catch (error: any) {
       toast({
         title: "Fel",
-        description: "Kunde inte koppla från Fortnox",
+        description: error.message || "Kunde inte koppla från Fortnox",
         variant: "destructive",
       });
     } finally {
@@ -96,31 +138,36 @@ export const FortnoxIntegration = () => {
           <div>
             <h4 className="font-medium">Status</h4>
             <p className="text-sm text-muted-foreground">
-              {isConnected ? "Ansluten till Fortnox" : "Inte ansluten"}
+              {loading ? "Laddar..." : status.connected ? "Ansluten till Fortnox" : "Inte ansluten"}
             </p>
           </div>
-          <Badge variant={isConnected ? "default" : "secondary"}>
-            {isConnected ? "Aktiv" : "Inaktiv"}
+          <Badge variant={status.connected ? "default" : "secondary"}>
+            {status.connected ? "Aktiv" : "Inaktiv"}
           </Badge>
         </div>
 
-        {isConnected && (
+        {status.connected && (
           <div className="space-y-2">
             <div>
               <p className="text-sm font-medium">Företag:</p>
-              <p className="text-sm text-muted-foreground">Test Företag AB</p>
+              <p className="text-sm text-muted-foreground">
+                {status.company_name || "Okänt företag"}
+              </p>
             </div>
             <div>
               <p className="text-sm font-medium">Ansluten:</p>
               <p className="text-sm text-muted-foreground">
-                {new Date().toLocaleDateString('sv-SE')}
+                {status.connected_since ? 
+                  new Date(status.connected_since).toLocaleDateString('sv-SE') : 
+                  new Date().toLocaleDateString('sv-SE')
+                }
               </p>
             </div>
           </div>
         )}
 
         <div className="flex flex-col gap-2">
-          {isConnected ? (
+          {status.connected ? (
             <Button
               variant="outline"
               onClick={disconnectFortnox}
@@ -133,7 +180,7 @@ export const FortnoxIntegration = () => {
           ) : (
             <Button
               onClick={connectFortnox}
-              disabled={connecting}
+              disabled={connecting || loading}
               className="w-full"
             >
               <ExternalLink className="h-4 w-4 mr-2" />
@@ -142,10 +189,10 @@ export const FortnoxIntegration = () => {
           )}
         </div>
 
-        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-          <p className="text-xs text-yellow-800">
-            <strong>Felsökning:</strong> Om du får felmeddelandet "Missing authorization header", 
-            betyder det att din session har gått ut. Logga ut och in igen för att lösa problemet.
+        <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+          <p className="text-xs text-blue-800">
+            <strong>Info:</strong> När du klickar på "Anslut till Fortnox" kommer du att omdirigeras 
+            till Fortnox för att godkänna integrationen.
           </p>
         </div>
 
