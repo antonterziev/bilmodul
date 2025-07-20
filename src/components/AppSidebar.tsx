@@ -189,7 +189,7 @@ export function AppSidebar({
                         <SidebarMenuItem key={child.id}>
                           <SidebarMenuButton
                             onClick={() => onViewChange(child.id)}
-                            className={getNavClass(child.id)}
+                            className={`${getNavClass(child.id)} mr-6`}
                             size="sm"
                           >
                             <span className="text-sm">{child.title}</span>
