@@ -152,7 +152,7 @@ const Auth = () => {
         password
       });
       if (error) throw error;
-      navigate("/");
+      navigate("/dashboard");
     } catch (error: any) {
       toast({
         title: "Fel vid inloggning",
