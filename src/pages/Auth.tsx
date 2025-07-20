@@ -29,6 +29,7 @@ const Auth = () => {
   const [showEmailVerification, setShowEmailVerification] = useState(false);
   const [showRecoveryEmailSent, setShowRecoveryEmailSent] = useState(false);
   const [emailSentSuccess, setEmailSentSuccess] = useState(false);
+  const [loginError, setLoginError] = useState("");
   const navigate = useNavigate();
   useEffect(() => {
     // Check if user is already logged in
@@ -147,6 +148,7 @@ const Auth = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setLoginError(""); // Clear previous errors
     try {
       const {
         error
@@ -158,18 +160,9 @@ const Auth = () => {
       navigate("/dashboard");
     } catch (error: any) {
       if (error.message.includes('Invalid login credentials')) {
-        // Show specific Swedish error message for incorrect password
-        toast({
-          title: "Felaktigt lösenord",
-          description: "Kontrollera ditt lösenord och försök igen.",
-          variant: "destructive"
-        });
+        setLoginError("Felaktigt lösenord");
       } else {
-        toast({
-          title: "Fel vid inloggning",
-          description: error.message,
-          variant: "destructive"
-        });
+        setLoginError("Ett fel uppstod vid inloggning");
       }
     } finally {
       setIsLoading(false);
@@ -253,6 +246,7 @@ const Auth = () => {
   const handleBackToEmail = () => {
     setShowPasswordStep(false);
     setPassword("");
+    setLoginError(""); // Clear error when going back
   };
 
   // Initialize resetEmail when showing forgot password form
@@ -515,6 +509,16 @@ const Auth = () => {
               <Button onClick={handleSignIn} disabled={isLoading} className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium">
                 {isLoading ? "Loggar in..." : "Logga in"}
               </Button>
+              
+              {/* Error message */}
+              {loginError && (
+                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-md">
+                  <div className="w-5 h-5 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-red-600 text-sm font-bold">!</span>
+                  </div>
+                  <span className="text-red-700 text-sm">{loginError}</span>
+                </div>
+              )}
             </div>
             
             {/* Sign up link */}
