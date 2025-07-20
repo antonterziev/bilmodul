@@ -7,8 +7,6 @@ import {
   Handshake, 
   Zap,
   Settings as SettingsIcon,
-  ChevronDown,
-  ChevronRight,
   Car,
   Truck,
   FileCheck,
@@ -127,7 +125,6 @@ export function AppSidebar({
                     className={getNavClass(item.id)}
                   >
                     <item.icon className="h-4 w-4" />
-                    <span>{item.title}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -146,12 +143,6 @@ export function AppSidebar({
                     className="text-muted-foreground hover:bg-muted/50"
                   >
                     <section.icon className="h-4 w-4" />
-                    <span>{section.title}</span>
-                    {expandedSections[section.id] ? (
-                      <ChevronDown className="ml-auto h-4 w-4" />
-                    ) : (
-                      <ChevronRight className="ml-auto h-4 w-4" />
-                    )}
                   </SidebarMenuButton>
                   
                   {expandedSections[section.id] && (
@@ -164,7 +155,6 @@ export function AppSidebar({
                             size="sm"
                           >
                             <child.icon className="h-3 w-3" />
-                            <span className="text-sm">{child.title}</span>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
                       ))}
@@ -186,7 +176,6 @@ export function AppSidebar({
                   className={getNavClass("settings")}
                 >
                   <SettingsIcon className="h-4 w-4" />
-                  <span>Inställningar</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
