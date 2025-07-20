@@ -145,9 +145,9 @@ const PasswordReset = () => {
           <CardContent className="p-8">
             <div className="text-center mb-6">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">Återställ lösenord</h2>
-              <p className="text-gray-600 text-sm">
-                Ange ditt nya lösenord nedan
-              </p>
+               <p className="text-gray-600 text-sm">
+                 Ange ditt nya lösenord nedan. Minst 8 tecken.
+               </p>
             </div>
             
             <form onSubmit={handlePasswordReset} className="space-y-4">
