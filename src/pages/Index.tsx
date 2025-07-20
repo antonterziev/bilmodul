@@ -382,18 +382,6 @@ const Index = () => {
                       <Checkbox className="mr-2" />
                       Såld
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Checkbox className="mr-2" />
-                      Leverantörsfaktura
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Checkbox className="mr-2" />
-                      Annat
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Checkbox className="mr-2" />
-                      Okategoriserad
-                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
