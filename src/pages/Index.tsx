@@ -71,8 +71,10 @@ const Index = () => {
       }
       
       // Check if user has completed onboarding
+      // Skip onboarding check if user is on password reset flow
       const hasCompletedOnboarding = user.user_metadata?.onboarding_completed;
-      if (!hasCompletedOnboarding) {
+      const isPasswordReset = window.location.pathname === '/password-reset';
+      if (!hasCompletedOnboarding && !isPasswordReset) {
         navigate("/onboarding");
       }
     }
