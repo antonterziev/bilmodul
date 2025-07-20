@@ -13,6 +13,25 @@ const Onboarding = () => {
     lastName: string;
   } | null>(null);
 
+  // Force reset function for debugging
+  const forceReset = () => {
+    // Clear all auth-related storage
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+        localStorage.removeItem(key);
+      }
+    });
+    Object.keys(sessionStorage || {}).forEach((key) => {
+      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+        sessionStorage.removeItem(key);
+      }
+    });
+    // Force sign out
+    supabase.auth.signOut({ scope: 'global' });
+    // Redirect to login page
+    window.location.href = "/login-or-signup";
+  };
+
   useEffect(() => {
     const handleEmailVerification = async () => {
       try {
@@ -88,11 +107,23 @@ const Onboarding = () => {
   }
 
   return (
-    <OnboardingFlow 
-      email={userInfo.email}
-      firstName={userInfo.firstName}
-      lastName={userInfo.lastName}
-    />
+    <div className="relative">
+      <OnboardingFlow 
+        email={userInfo.email}
+        firstName={userInfo.firstName}
+        lastName={userInfo.lastName}
+      />
+      {/* Temporary debug button */}
+      <div className="fixed bottom-4 right-4">
+        <button 
+          type="button" 
+          onClick={forceReset}
+          className="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 rounded opacity-50 hover:opacity-100"
+        >
+          Force Reset Auth (Debug)
+        </button>
+      </div>
+    </div>
   );
 };
 
