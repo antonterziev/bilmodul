@@ -405,6 +405,13 @@ const Index = () => {
                 </Button>
               </div>
 
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                <p className="text-xs text-blue-800">
+                  <strong>Info:</strong> När du klickar på "Koppla" kommer du att omdirigeras 
+                  till Fortnox för att godkänna integrationen.
+                </p>
+              </div>
+
               <div className="bg-card border rounded-lg p-4 flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
