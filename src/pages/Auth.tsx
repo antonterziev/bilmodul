@@ -252,7 +252,7 @@ const Auth = () => {
         setShowRecoveryEmailSent(false);
         setShowForgotPassword(false);
       }}
-      onResend={() => handleForgotPassword(resetEmail)}
+      onResend={() => handleForgotPassword(resetEmail || email)}
       isResending={isResettingPassword}
     />;
   }
