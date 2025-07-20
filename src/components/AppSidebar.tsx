@@ -121,6 +121,7 @@ export function AppSidebar({
       <SidebarContent>
         {/* Main Navigation */}
         <SidebarGroup>
+          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {mainMenuItems.map((item) => (
@@ -140,6 +141,7 @@ export function AppSidebar({
 
         {/* Expandable Sections */}
         <SidebarGroup>
+          <SidebarGroupLabel>Funktioner</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {expandableMenuItems.map((section) => (
