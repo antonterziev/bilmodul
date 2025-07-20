@@ -393,7 +393,7 @@ const Index = () => {
                     <img src="/lovable-uploads/7b240d76-c798-4b46-828d-0bb9b4250b35.png" alt="Visma" className="w-10 h-10 object-contain" />
                   </div>
                   <div>
-                    <h3 className="font-medium">Visma</h3>
+                    <h3 className="font-medium">Automatisk bokföring – Visma</h3>
                     <p className="text-sm text-muted-foreground">Synkronisera dina fordon och ekonomidata automatiskt med Fortnox.</p>
                   </div>
                 </div>
