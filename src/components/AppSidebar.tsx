@@ -94,7 +94,6 @@ export function AppSidebar({
         { id: "lager_all", title: "Lagerlista", icon: Car },
         { id: "lager_stock", title: "I lager", icon: Package },
         { id: "lager_sold", title: "Sålda", icon: CheckSquare },
-        { id: "statistics_header", title: "Statistik", icon: BarChart3, isHeader: true, isPro: true },
         { id: "logistics", title: "Logistik", icon: Truck },
       ]
     },
@@ -202,15 +201,6 @@ export function AppSidebar({
                                >
                                  <span className="text-sm">{child.title}</span>
                                </SidebarMenuButton>
-                             ) : child.isHeader ? (
-                               <div className="cursor-default pointer-events-none text-muted-foreground hover:bg-muted/50 flex items-center justify-between py-2 px-3 rounded-md">
-                                 <span className="text-sm font-medium">{child.title}</span>
-                                 {child.isPro && (
-                                   <span className="inline-flex items-center rounded-full bg-yellow-200 px-1.5 py-0 text-[11px] font-medium text-yellow-900">
-                                     PRO
-                                   </span>
-                                 )}
-                               </div>
                              ) : (
                                <SidebarMenuButton
                                   onClick={['finansiering', 'affarer', 'direktfloden'].includes(section.id) ? undefined : () => onViewChange(child.id)}
