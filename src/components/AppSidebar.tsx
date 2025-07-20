@@ -20,7 +20,9 @@ import {
   File,
   Landmark,
   Search,
-  Link
+  Link,
+  Calculator,
+  FileText
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -116,6 +118,15 @@ export function AppSidebar({
       ]
     },
     {
+      id: "ekonomi",
+      title: "Ekonomi",
+      icon: Calculator,
+      children: [
+        { id: "verifikat", title: "Verifikat", icon: FileText, isPro: true },
+        { id: "bokforing", title: "Bokföring", icon: BookOpen, isPro: true },
+      ]
+    },
+    {
       id: "direktfloden",
       title: "Direktflöden",
       icon: Zap,
@@ -207,15 +218,15 @@ export function AppSidebar({
                                 </SidebarMenuButton>
                              ) : (
                                 <SidebarMenuButton
-                                   onClick={['finansiering', 'affarer', 'direktfloden'].includes(section.id) || child.isPro ? undefined : () => onViewChange(child.id)}
-                                   className={['finansiering', 'affarer', 'direktfloden'].includes(section.id) || child.isPro
+                                   onClick={['finansiering', 'affarer', 'direktfloden', 'ekonomi'].includes(section.id) || child.isPro ? undefined : () => onViewChange(child.id)}
+                                   className={['finansiering', 'affarer', 'direktfloden', 'ekonomi'].includes(section.id) || child.isPro
                                      ? "cursor-not-allowed pointer-events-none text-muted-foreground hover:bg-muted/50 flex items-center justify-between" 
                                      : getNavClass(child.id)
                                    }
                                    size="sm"
                                 >
                                   <span className="text-sm">{child.title}</span>
-                                  {(['finansiering', 'affarer', 'direktfloden'].includes(section.id) || child.isPro) && (
+                                  {(['finansiering', 'affarer', 'direktfloden', 'ekonomi'].includes(section.id) || child.isPro) && (
                                     <span className="inline-flex items-center rounded-full bg-yellow-200 px-1.5 py-0 text-[11px] font-medium text-yellow-900">
                                       PRO
                                     </span>
