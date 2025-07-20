@@ -314,7 +314,7 @@ export const VehicleList = ({
                 </div>
                 
                 {/* Vehicle main info */}
-                <div className="flex-1 grid grid-cols-9 gap-3 items-center text-sm">
+                <div className="flex-1 grid grid-cols-8 gap-3 items-center text-sm">
                   {/* Column 1: Brand & Model + Registration */}
                   <div className="col-span-2">
                     <div className="flex items-center gap-2 mb-1">
@@ -346,10 +346,10 @@ export const VehicleList = ({
                     </div>
                   </div>
                   
-                  {/* Column 3: Purchase Date */}
+                  {/* Column 3: Storage Days */}
                   <div>
-                    <p className="text-xs text-muted-foreground whitespace-nowrap">Inköpsdatum</p>
-                    <p className="font-medium text-sm whitespace-nowrap">{formatDate(vehicle.purchase_date)}</p>
+                    <p className="text-xs text-muted-foreground whitespace-nowrap">Lagerdagar</p>
+                    <p className="font-medium text-sm whitespace-nowrap">{calculateStorageDays(vehicle.purchase_date)} dagar</p>
                   </div>
                   
                   {/* Column 4: Purchaser */}
@@ -386,12 +386,6 @@ export const VehicleList = ({
                         ? formatPrice(vehicle.expected_selling_price - vehicle.purchase_price)
                         : "-"}
                     </p>
-                  </div>
-                  
-                  {/* Column 8: Storage Days */}
-                  <div>
-                    <p className="text-xs text-muted-foreground whitespace-nowrap">Lagerdagar</p>
-                    <p className="font-medium">{calculateStorageDays(vehicle.purchase_date)} dagar</p>
                   </div>
                 </div>
                 
