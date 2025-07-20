@@ -152,7 +152,7 @@ export function AppSidebar({
             </div>
           </SidebarGroupContent>
         </SidebarGroup>
-        {/* Main Navigation and Expandable Sections - Combined */}
+        {/* All Navigation - Combined */}
         <SidebarGroup className="px-4">
           <SidebarGroupContent>
             <SidebarMenu>
@@ -200,14 +200,8 @@ export function AppSidebar({
                   )}
                 </SidebarMenuItem>
               ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Settings */}
-        <SidebarGroup className="px-4">
-          <SidebarGroupContent>
-            <SidebarMenu>
+              
+              {/* Settings */}
               <SidebarMenuItem>
                 <SidebarMenuButton
                   onClick={() => onViewChange("settings")}
