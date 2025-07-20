@@ -380,14 +380,7 @@ const Index = () => {
                     </div>
                     <div className="flex-1">
                       <h3 className="font-medium">Automatisk bokföring – Fortnox</h3>
-                      <p className="text-sm text-muted-foreground mb-3">Bokför dina fordonsaffärer smidigt och automatiskt med Fortnox</p>
-                      
-                      <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
-                        <p className="text-xs text-blue-800">
-                          <strong>Info:</strong> När du klickar på "Koppla" kommer du att omdirigeras 
-                          till Fortnox för att godkänna integrationen.
-                        </p>
-                      </div>
+                      <p className="text-sm text-muted-foreground">Bokför dina fordonsaffärer smidigt och automatiskt med Fortnox</p>
                     </div>
                   </div>
                   <Button 
