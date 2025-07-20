@@ -449,94 +449,70 @@ const Index = () => {
                       <p className="text-sm text-muted-foreground">Bokför dina fordonsaffärer smidigt och automatiskt med Fortnox</p>
                     </div>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    disabled={isProcessingOAuth}
-                    onClick={async () => {
-                      console.log('🔵 Koppla button clicked - initiating Fortnox connection');
-                      try {
-                        console.log('🔵 Calling fortnox-oauth function...');
-                        const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
-                          body: { action: 'get_auth_url' }
-                        });
-
-                        console.log('🔵 Fortnox OAuth response:', { data, error });
-
-                        if (error) {
-                          console.error('🔴 Fortnox OAuth error:', error);
-                          toast({
-                            title: "Fel vid anslutning",
-                            description: error.message || "Kunde inte starta OAuth-flödet",
-                            variant: "destructive",
-                          });
-                          return;
-                        }
-
-                        if (!data?.auth_url) {
-                          console.error('🔴 No auth URL received, data:', data);
-                          toast({
-                            title: "Fel vid anslutning",
-                            description: "Ingen OAuth-URL erhölls från servern",
-                            variant: "destructive",
-                          });
-                          return;
-                        }
-
-                        console.log('🔵 Redirecting to Fortnox OAuth URL:', data.auth_url);
-                        
-                        // Try redirect and provide fallback
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      disabled={isProcessingOAuth}
+                      onClick={async () => {
+                        console.log('🔵 Koppla button clicked - initiating Fortnox connection');
                         try {
-                          console.log('🔵 Attempting window.location.href redirect...');
+                          console.log('🔵 Calling fortnox-oauth function...');
+                          const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
+                            body: { action: 'get_auth_url' }
+                          });
+
+                          console.log('🔵 Fortnox OAuth response:', { data, error });
+
+                          if (error) {
+                            console.error('🔴 Fortnox OAuth error:', error);
+                            toast({
+                              title: "Fel vid anslutning",
+                              description: error.message || "Kunde inte starta OAuth-flödet",
+                              variant: "destructive",
+                            });
+                            return;
+                          }
+
+                          if (!data?.auth_url) {
+                            console.error('🔴 No auth URL received, data:', data);
+                            toast({
+                              title: "Fel vid anslutning",
+                              description: "Ingen OAuth-URL erhölls från servern",
+                              variant: "destructive",
+                            });
+                            return;
+                          }
+
+                          console.log('🔵 Redirecting to Fortnox OAuth URL:', data.auth_url);
                           window.location.href = data.auth_url;
                           
-                          // Fallback: if redirect doesn't work, show manual link
-                          setTimeout(() => {
-                            console.log('🟡 Redirect may have been blocked, showing manual option');
-                            toast({
-                              title: "Anslutning till Fortnox",
-                              description: "Om omdirigering blockerades, klicka här för att fortsätta",
-                              action: (
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  onClick={() => window.open(data.auth_url, '_blank')}
-                                >
-                                  Öppna Fortnox
-                                </Button>
-                              ),
-                            });
-                          }, 2000);
-                        } catch (redirectError) {
-                          console.error('🔴 Redirect failed:', redirectError);
-                          // Manual fallback
+                        } catch (error: any) {
+                          console.error('🔴 Fortnox connection error:', error);
                           toast({
-                            title: "Manuell anslutning krävs",
-                            description: "Automatisk omdirigering blockerades",
-                            action: (
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => window.open(data.auth_url, '_blank')}
-                              >
-                                Öppna Fortnox
-                              </Button>
-                            ),
+                            title: "Fel vid anslutning",
+                            description: "Ett oväntat fel uppstod. Kontrollera konsolen för mer information.",
+                            variant: "destructive",
                           });
                         }
-                        
-                      } catch (error: any) {
-                        console.error('🔴 Fortnox connection error:', error);
-                        toast({
-                          title: "Fel vid anslutning",
-                          description: "Ett oväntat fel uppstod. Kontrollera konsolen för mer information.",
-                          variant: "destructive",
-                        });
-                      }
-                    }}
-                  >
-                    <Link className="h-4 w-4 mr-2" />
-                    {isProcessingOAuth ? 'Ansluter...' : 'Koppla'}
-                  </Button>
+                      }}
+                    >
+                      <Link className="h-4 w-4 mr-2" />
+                      {isProcessingOAuth ? 'Ansluter...' : 'Koppla'}
+                    </Button>
+                    
+                    <Button 
+                      variant="secondary" 
+                      size="sm"
+                      onClick={async () => {
+                        // Generate the same URL manually for testing
+                        const authUrl = `https://apps.fortnox.se/oauth-v1/auth?client_id=BlpvBfg8tbdG&redirect_uri=${encodeURIComponent('https://lagermodulen.se/dashboard')}&scope=article customer invoice&state=test-manual&response_type=code&access_type=offline`;
+                        console.log('🧪 Manual test URL:', authUrl);
+                        window.open(authUrl, '_blank');
+                      }}
+                    >
+                      🧪 Test manuellt
+                    </Button>
+                  </div>
                 </div>
               </div>
 
