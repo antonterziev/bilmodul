@@ -7,9 +7,10 @@ interface RecoveryEmailSentProps {
   onBack: () => void;
   onResend: () => void;
   isResending?: boolean;
+  emailSentSuccess?: boolean;
 }
 
-const RecoveryEmailSent = ({ email, onBack, onResend, isResending = false }: RecoveryEmailSentProps) => {
+const RecoveryEmailSent = ({ email, onBack, onResend, isResending = false, emailSentSuccess = false }: RecoveryEmailSentProps) => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <div className="w-full max-w-md">
@@ -40,10 +41,10 @@ const RecoveryEmailSent = ({ email, onBack, onResend, isResending = false }: Rec
                 <button
                   type="button"
                   onClick={onResend}
-                  disabled={isResending}
+                  disabled={isResending || emailSentSuccess}
                   className="text-blue-600 text-sm hover:underline font-medium"
                 >
-                  {isResending ? "Skickar igen..." : "Skicka igen"}
+                  {emailSentSuccess ? "Mejl skickat!" : (isResending ? "Skickar igen..." : "Skicka igen")}
                 </button>
               </div>
               

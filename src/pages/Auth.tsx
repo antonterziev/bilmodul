@@ -28,6 +28,7 @@ const Auth = () => {
   const [showEmailExists, setShowEmailExists] = useState(false);
   const [showEmailVerification, setShowEmailVerification] = useState(false);
   const [showRecoveryEmailSent, setShowRecoveryEmailSent] = useState(false);
+  const [emailSentSuccess, setEmailSentSuccess] = useState(false);
   const navigate = useNavigate();
   useEffect(() => {
     // Check if user is already logged in
@@ -165,7 +166,7 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
-  const handleForgotPassword = async (resetEmail?: string) => {
+  const handleForgotPassword = async (resetEmail?: string, isResend = false) => {
     const emailToUse = resetEmail || email;
     if (!emailToUse.trim()) {
       toast({
@@ -185,9 +186,17 @@ const Auth = () => {
       });
       if (error) throw error;
       
-      // Show the recovery email sent screen instead of toast
-      setShowRecoveryEmailSent(true);
-      setShowForgotPassword(false);
+      if (isResend) {
+        // Show success message for resend
+        setEmailSentSuccess(true);
+        setTimeout(() => {
+          setEmailSentSuccess(false);
+        }, 2000); // Show success for 2 seconds
+      } else {
+        // Show the recovery email sent screen for first time
+        setShowRecoveryEmailSent(true);
+        setShowForgotPassword(false);
+      }
     } catch (error: any) {
       toast({
         title: "Fel vid återställning",
@@ -252,8 +261,9 @@ const Auth = () => {
         setShowRecoveryEmailSent(false);
         setShowForgotPassword(false);
       }}
-      onResend={() => handleForgotPassword(resetEmail || email)}
+      onResend={() => handleForgotPassword(resetEmail || email, true)}
       isResending={isResettingPassword}
+      emailSentSuccess={emailSentSuccess}
     />;
   }
 
