@@ -420,8 +420,31 @@ const Index = () => {
               <SidebarTrigger />
             </div>
             <div className="flex-1 px-4 py-4 flex justify-between items-center">
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-6">
                 <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-8" />
+                
+                {/* Quick Action Button for Purchase - always visible */}
+                <Button 
+                  className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 font-medium"
+                  onClick={() => handleViewChange("purchase_form")}
+                >
+                  Registrera inköp
+                </Button>
+
+                {/* Search Bar - show for lager views or when there's inventory data */}
+                {(currentView.startsWith("lager") || inventoryItems.length > 0) && (
+                  <div className="relative max-w-md">
+                    <Input
+                      type="text"
+                      placeholder={searchPlaceholder}
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      disabled={inventoryItems.length === 0}
+                      className="pl-9 w-full"
+                    />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  </div>
+                )}
               </div>
               <div className="flex items-center gap-4">
                 <span className="text-sm text-muted-foreground">
@@ -450,35 +473,6 @@ const Index = () => {
             <div className="max-w-7xl mx-auto">
               <Breadcrumbs items={getBreadcrumbs()} />
               
-              {/* Search Bar for Lager views */}
-              {currentView.startsWith("lager") && (
-                <div className="mb-6">
-                  <div className="relative max-w-md">
-                    <Input
-                      type="text"
-                      placeholder={searchPlaceholder}
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      disabled={inventoryItems.length === 0}
-                      className="pl-9 w-full"
-                    />
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  </div>
-                </div>
-              )}
-              
-              {/* Quick Action Button for Purchase */}
-              {currentView === "overview" && (
-                <div className="mb-6">
-                  <Button 
-                    className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 font-medium"
-                    onClick={() => handleViewChange("purchase_form")}
-                  >
-                    Registrera inköp
-                  </Button>
-                </div>
-              )}
-
               {renderMainContent()}
             </div>
           </main>
