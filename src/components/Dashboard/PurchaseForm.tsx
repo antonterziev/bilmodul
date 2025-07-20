@@ -660,7 +660,7 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
   };
 
   return (
-    <Card className="border-0 bg-transparent">
+    <Card className="bg-card border rounded-lg">
       <CardHeader>
       </CardHeader>
       <CardContent>
