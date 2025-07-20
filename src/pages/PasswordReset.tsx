@@ -29,21 +29,13 @@ const PasswordReset = () => {
     setIsLoading(true);
     
     try {
-      // First, verify the session from URL params if available
-      const accessToken = searchParams.get('access_token');
-      const refreshToken = searchParams.get('refresh_token');
+      // Get the current session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
-      if (accessToken && refreshToken) {
-        const { error: sessionError } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken
-        });
-        
-        if (sessionError) {
-          console.error("Session error:", sessionError);
-          toast.error("Ogiltiga återställningsuppgifter");
-          return;
-        }
+      if (sessionError || !session) {
+        console.error("Session error:", sessionError);
+        toast.error("Du måste komma från en giltig återställningslänk");
+        return;
       }
 
       const { error } = await supabase.auth.updateUser({
@@ -56,20 +48,11 @@ const PasswordReset = () => {
         return;
       }
 
-      // Get the current session after password update
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        console.error("No session after password update");
-        toast.error("Session saknas efter lösenordsuppdatering");
-        return;
-      }
-
       toast.success("Lösenordet har uppdaterats!");
       
-      // Force a page refresh to ensure clean auth state
+      // Navigate to dashboard after successful password update
       setTimeout(() => {
-        window.location.href = "/";
+        navigate("/");
       }, 1000);
       
     } catch (error: any) {
@@ -129,7 +112,7 @@ const PasswordReset = () => {
             <div className="text-center mt-6">
               <button
                 type="button"
-                onClick={() => navigate("/auth")}
+                onClick={() => navigate("/login-or-signup")}
                 className="text-blue-600 text-sm hover:underline"
               >
                 Tillbaka till inloggning
