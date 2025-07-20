@@ -11,7 +11,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { User, Lock, Settings as SettingsIcon, ExternalLink } from "lucide-react";
-import { FortnoxIntegration } from "./FortnoxIntegration";
 
 interface UserProfile {
   id: string;

@@ -5,6 +5,3 @@ verify_jwt = false
 
 [functions.fetch-car-info]
 verify_jwt = false
-
-[functions.fortnox-oauth]
-verify_jwt = true
