@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -10,8 +10,54 @@ const PasswordReset = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isValidatingSession, setIsValidatingSession] = useState(true);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  // Validate session on component mount
+  useEffect(() => {
+    const validateSession = async () => {
+      try {
+        // Check for tokens in URL parameters (from email link)
+        const accessToken = searchParams.get('access_token');
+        const refreshToken = searchParams.get('refresh_token');
+        const type = searchParams.get('type');
+
+        if (accessToken && refreshToken && type === 'recovery') {
+          // Set session from URL tokens
+          const { error: sessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          
+          if (sessionError) {
+            console.error("Session error:", sessionError);
+            toast.error("Ogiltiga återställningsuppgifter");
+            navigate("/login-or-signup");
+            return;
+          }
+        }
+
+        // Verify we have a valid session
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session) {
+          toast.error("Du måste komma från en giltig återställningslänk");
+          navigate("/login-or-signup");
+          return;
+        }
+
+      } catch (error) {
+        console.error("Session validation error:", error);
+        toast.error("Ett fel uppstod. Försök igen.");
+        navigate("/login-or-signup");
+      } finally {
+        setIsValidatingSession(false);
+      }
+    };
+
+    validateSession();
+  }, [searchParams, navigate]);
 
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,15 +75,6 @@ const PasswordReset = () => {
     setIsLoading(true);
     
     try {
-      // Get the current session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !session) {
-        console.error("Session error:", sessionError);
-        toast.error("Du måste komma från en giltig återställningslänk");
-        return;
-      }
-
       const { error } = await supabase.auth.updateUser({
         password: password
       });
@@ -62,6 +99,18 @@ const PasswordReset = () => {
       setIsLoading(false);
     }
   };
+
+  // Show loading while validating session
+  if (isValidatingSession) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="text-center">
+          <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-16 mx-auto mb-4" />
+          <p className="text-gray-600">Validerar återställningslänk...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
