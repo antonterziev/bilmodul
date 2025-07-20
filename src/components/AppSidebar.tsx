@@ -177,17 +177,25 @@ export function AppSidebar({
                   
                   {expandedSections[section.id] && (
                     <SidebarMenu className="ml-6 mt-1 space-y-1">
-                      {section.children.map((child) => (
-                        <SidebarMenuItem key={child.id} className="pr-6">
-                          <SidebarMenuButton
-                            onClick={() => onViewChange(child.id)}
-                            className={getNavClass(child.id)}
-                            size="sm"
-                          >
-                            <span className="text-sm">{child.title}</span>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      ))}
+                       {section.children.map((child) => (
+                         <SidebarMenuItem key={child.id} className="pr-6">
+                           <SidebarMenuButton
+                             onClick={section.id === 'finansiering' ? undefined : () => onViewChange(child.id)}
+                             className={section.id === 'finansiering' 
+                               ? "cursor-not-allowed pointer-events-none text-muted-foreground hover:bg-muted/50 flex items-center justify-between" 
+                               : getNavClass(child.id)
+                             }
+                             size="sm"
+                           >
+                             <span className="text-sm">{child.title}</span>
+                             {section.id === 'finansiering' && (
+                               <span className="inline-flex items-center rounded-full bg-yellow-200 px-2 py-0.5 text-xs font-medium text-yellow-900">
+                                 PRO
+                               </span>
+                             )}
+                           </SidebarMenuButton>
+                         </SidebarMenuItem>
+                       ))}
                     </SidebarMenu>
                   )}
                 </SidebarMenuItem>
