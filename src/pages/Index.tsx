@@ -383,19 +383,8 @@ const Index = () => {
                        Såld
                      </DropdownMenuItem>
                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  
-                  <div className="relative">
-                    <Input
-                      placeholder={inventoryItems.length > 0 ? searchPlaceholder : "Lägg till fordon först..."}
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      disabled={inventoryItems.length === 0}
-                      className="w-64 h-8 disabled:opacity-50 disabled:cursor-not-allowed"
-                    />
-                    <Search className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${inventoryItems.length > 0 ? 'text-muted-foreground' : 'text-muted-foreground/50'}`} />
-                  </div>
-                </div>
+                 </DropdownMenu>
+               </div>
               
                <div className="flex items-center gap-4">
                 
