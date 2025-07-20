@@ -394,6 +394,7 @@ const Index = () => {
                   </div>
                   <Button 
                     variant="outline" 
+                    disabled
                   onClick={async () => {
                     console.log('Koppla button clicked - initiating Fortnox connection');
                     try {
