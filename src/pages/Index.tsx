@@ -405,17 +405,17 @@ const Index = () => {
                 
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">Sortera efter</span>
-                  <Select defaultValue="newest">
-                    <SelectTrigger className="w-48 h-8">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="newest">Skapandedatum (nyast till äldst)</SelectItem>
-                      <SelectItem value="oldest">Skapandedatum (äldst till nyast)</SelectItem>
-                      <SelectItem value="price-high">Pris (högst till lägst)</SelectItem>
-                      <SelectItem value="price-low">Pris (lägst till högst)</SelectItem>
-                    </SelectContent>
-                  </Select>
+                   <Select defaultValue="storage-days-high">
+                     <SelectTrigger className="w-48 h-8">
+                       <SelectValue />
+                     </SelectTrigger>
+                     <SelectContent>
+                       <SelectItem value="storage-days-high">Lagerdagar (högst till lägst)</SelectItem>
+                       <SelectItem value="storage-days-low">Lagerdagar (lägst till högst)</SelectItem>
+                       <SelectItem value="price-high">Inköpspris (högst till lägst)</SelectItem>
+                       <SelectItem value="price-low">Inköpspris (lägst till högst)</SelectItem>
+                     </SelectContent>
+                   </Select>
                 </div>
               </div>
             </div>
