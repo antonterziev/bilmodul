@@ -1,3 +1,4 @@
+
 import { useLocation } from "react-router-dom";
 import { 
   Home, 
@@ -145,73 +146,75 @@ export function AppSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
         {/* All Navigation - Combined */}
-        <SidebarGroup className="px-4 -mt-2">
+        <SidebarGroup className="-mt-2">
           <SidebarGroupContent>
-            <SidebarMenu>
-              {mainMenuItems.map((item) => (
-                <SidebarMenuItem key={item.id}>
-                  <SidebarMenuButton 
-                    onClick={() => onViewChange(item.id)}
-                    className={getNavClass(item.id)}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.title}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-              
-              {expandableMenuItems.map((section) => (
-                <SidebarMenuItem key={section.id}>
-                  <SidebarMenuButton
-                    onClick={() => handleSectionToggle(section.id)}
-                    className="text-muted-foreground hover:bg-muted/50"
-                  >
-                    <section.icon className="h-4 w-4" />
-                    <span>{section.title}</span>
-                    {expandedSections[section.id] ? (
-                      <ChevronDown className="ml-auto h-4 w-4" />
-                    ) : (
-                      <ChevronRight className="ml-auto h-4 w-4" />
+            <div className="px-4">
+              <SidebarMenu>
+                {mainMenuItems.map((item) => (
+                  <SidebarMenuItem key={item.id}>
+                    <SidebarMenuButton 
+                      onClick={() => onViewChange(item.id)}
+                      className={getNavClass(item.id)}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+                
+                {expandableMenuItems.map((section) => (
+                  <SidebarMenuItem key={section.id}>
+                    <SidebarMenuButton
+                      onClick={() => handleSectionToggle(section.id)}
+                      className="text-muted-foreground hover:bg-muted/50"
+                    >
+                      <section.icon className="h-4 w-4" />
+                      <span>{section.title}</span>
+                      {expandedSections[section.id] ? (
+                        <ChevronDown className="ml-auto h-4 w-4" />
+                      ) : (
+                        <ChevronRight className="ml-auto h-4 w-4" />
+                      )}
+                    </SidebarMenuButton>
+                    
+                    {expandedSections[section.id] && (
+                      <SidebarMenu className="ml-6 mt-1 space-y-1">
+                         {section.children.map((child) => (
+                           <SidebarMenuItem key={child.id} className="pr-6">
+                             <SidebarMenuButton
+                               onClick={section.id === 'finansiering' ? undefined : () => onViewChange(child.id)}
+                               className={section.id === 'finansiering' 
+                                 ? "cursor-not-allowed pointer-events-none text-muted-foreground hover:bg-muted/50 flex items-center justify-between" 
+                                 : getNavClass(child.id)
+                               }
+                               size="sm"
+                             >
+                               <span className="text-sm">{child.title}</span>
+                               {section.id === 'finansiering' && (
+                                 <span className="inline-flex items-center rounded-full bg-yellow-200 px-1.5 py-0 text-[11px] font-medium text-yellow-900">
+                                   PRO
+                                 </span>
+                               )}
+                             </SidebarMenuButton>
+                           </SidebarMenuItem>
+                         ))}
+                      </SidebarMenu>
                     )}
+                  </SidebarMenuItem>
+                ))}
+                
+                {/* Settings */}
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => onViewChange("settings")}
+                    className={getNavClass("settings")}
+                  >
+                    <SettingsIcon className="h-4 w-4" />
+                    <span>Inställningar</span>
                   </SidebarMenuButton>
-                  
-                  {expandedSections[section.id] && (
-                    <SidebarMenu className="ml-6 mt-1 space-y-1">
-                       {section.children.map((child) => (
-                         <SidebarMenuItem key={child.id} className="pr-6">
-                           <SidebarMenuButton
-                             onClick={section.id === 'finansiering' ? undefined : () => onViewChange(child.id)}
-                             className={section.id === 'finansiering' 
-                               ? "cursor-not-allowed pointer-events-none text-muted-foreground hover:bg-muted/50 flex items-center justify-between" 
-                               : getNavClass(child.id)
-                             }
-                             size="sm"
-                           >
-                             <span className="text-sm">{child.title}</span>
-                             {section.id === 'finansiering' && (
-                               <span className="inline-flex items-center rounded-full bg-yellow-200 px-1.5 py-0 text-[11px] font-medium text-yellow-900">
-                                 PRO
-                               </span>
-                             )}
-                           </SidebarMenuButton>
-                         </SidebarMenuItem>
-                       ))}
-                    </SidebarMenu>
-                  )}
                 </SidebarMenuItem>
-              ))}
-              
-              {/* Settings */}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => onViewChange("settings")}
-                  className={getNavClass("settings")}
-                >
-                  <SettingsIcon className="h-4 w-4" />
-                  <span>Inställningar</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
+              </SidebarMenu>
+            </div>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
