@@ -720,6 +720,20 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
                   Hämta
                 </Button>
               </div>
+              
+              <div className="text-center mt-4">
+                <p className="text-sm text-muted-foreground">
+                  Kunde du inte hitta ditt företag? Inga problem, du kan{" "}
+                  <button 
+                    type="button"
+                    onClick={() => setShowFullForm(true)}
+                    className="text-blue-600 hover:text-blue-700 underline"
+                  >
+                    fortsätta
+                  </button>
+                  {" "}utan att hämta dina uppgifter
+                </p>
+              </div>
               {isDuplicateRegNumber && (
                 <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-md">
                   <p className="text-sm text-orange-800 mb-2">
