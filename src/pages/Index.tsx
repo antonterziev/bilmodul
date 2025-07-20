@@ -17,7 +17,7 @@ import { Statistics } from "@/components/Statistics/Statistics";
 import { AppSidebar } from "@/components/AppSidebar";
 
 import { supabase } from "@/integrations/supabase/client";
-import { Phone, MessageCircle, LogOut, Search, Download, FileText, File, FileCheck, Receipt, BookOpen, CheckSquare, User, ChevronDown, Bell, HelpCircle } from "lucide-react";
+import { Phone, MessageCircle, LogOut, Search, Download, FileText, File, FileCheck, Receipt, BookOpen, CheckSquare, User, ChevronDown, Bell, HelpCircle, Link } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
@@ -383,6 +383,7 @@ const Index = () => {
                   </div>
                 </div>
                 <Button variant="outline" disabled>
+                  <Link className="h-4 w-4 mr-2" />
                   Koppla
                 </Button>
               </div>
@@ -398,6 +399,7 @@ const Index = () => {
                   </div>
                 </div>
                 <Button variant="outline" disabled>
+                  <Link className="h-4 w-4 mr-2" />
                   Koppla
                 </Button>
               </div>
