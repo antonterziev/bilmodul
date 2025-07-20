@@ -17,7 +17,7 @@ import { Statistics } from "@/components/Statistics/Statistics";
 import { AppSidebar } from "@/components/AppSidebar";
 
 import { supabase } from "@/integrations/supabase/client";
-import { Phone, MessageCircle, LogOut, Search, Download, FileText, File, FileCheck, Receipt, BookOpen, CheckSquare, User, ChevronDown, Bell } from "lucide-react";
+import { Phone, MessageCircle, LogOut, Search, Download, FileText, File, FileCheck, Receipt, BookOpen, CheckSquare, User, ChevronDown, Bell, HelpCircle } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
@@ -391,17 +391,23 @@ const Index = () => {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="flex items-center justify-center w-10">
-                  <Bell className="h-4 w-4" />
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setShowKundtjanst(true)} className="flex items-center gap-2 w-32">
-                  <Phone className="h-4 w-4" />
-                  <span className="text-foreground">Kundtjänst</span>
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setShowSupportDialog(true)} className="flex items-center gap-2 w-32">
-                  <MessageCircle className="h-4 w-4" />
-                  Supportchatt
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="flex items-center gap-2 w-32">
+                      <HelpCircle className="h-4 w-4 flex-shrink-0" />
+                      <span className="truncate">Help</span>
+                      <ChevronDown className="h-3 w-3 flex-shrink-0" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem onClick={() => setShowSupportDialog(true)}>
+                      Kontakta support
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setShowKundtjanst(true)}>
+                      Telefonsupport
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="flex items-center gap-2 w-32">
