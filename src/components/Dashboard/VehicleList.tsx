@@ -292,7 +292,7 @@ export const VehicleList = ({
   });
 
   return (
-    <Card>
+    <Card className="border-0">
       <CardContent>
         {sortedVehicles.length === 0 ? (
           <div className="text-center py-8">
