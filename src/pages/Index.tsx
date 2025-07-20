@@ -64,6 +64,12 @@ const Index = () => {
     if (!isLoading && !user) {
       navigate("/login-or-signup");
     } else if (!isLoading && user) {
+      // Check if email is verified first
+      if (!user.email_confirmed_at) {
+        navigate("/login-or-signup");
+        return;
+      }
+      
       // Check if user has completed onboarding
       const hasCompletedOnboarding = user.user_metadata?.onboarding_completed;
       if (!hasCompletedOnboarding) {
