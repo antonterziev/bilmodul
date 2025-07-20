@@ -347,7 +347,7 @@ const Index = () => {
       case "lager_sold":
         const getHeaderTitle = () => {
           switch (currentView) {
-            case "lager_all": return "Alla fordon";
+            case "lager_all": return "Lagerlista";
             case "lager_stock": return "I lager";
             case "lager_sold": return "Sålda";
             default: return "Lager";
