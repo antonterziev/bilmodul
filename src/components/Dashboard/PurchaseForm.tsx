@@ -757,19 +757,6 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
                   {form.formState.errors.registration_number.message}
                 </p>
               )}
-              
-              {!isDuplicateRegNumber && (
-                <div className="mt-4 text-center">
-                  <Button 
-                    type="button" 
-                    variant="outline"
-                    onClick={() => setShowFullForm(true)}
-                    disabled={!form.watch("registration_number")?.trim() || isDuplicateRegNumber}
-                  >
-                    Fortsätt utan automatisk data
-                  </Button>
-                </div>
-              )}
             </div>
           </div>
         ) : (
