@@ -184,12 +184,12 @@ export function AppSidebar({
                   </SidebarMenuButton>
                   
                   {expandedSections[section.id] && (
-                    <SidebarMenu className="ml-6 mt-1 space-y-1">
+                    <SidebarMenu className="ml-6 mr-6 mt-1 space-y-1">
                       {section.children.map((child) => (
                         <SidebarMenuItem key={child.id}>
                           <SidebarMenuButton
                             onClick={() => onViewChange(child.id)}
-                            className={`${getNavClass(child.id)} mr-6`}
+                            className={getNavClass(child.id)}
                             size="sm"
                           >
                             <span className="text-sm">{child.title}</span>
