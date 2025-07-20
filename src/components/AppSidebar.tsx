@@ -93,7 +93,6 @@ export function AppSidebar({
         { id: "purchase_form_sub", title: "Registrera fordon", icon: Car, isButton: true },
         { id: "lager_all", title: "Lagerlista", icon: Car },
         { id: "statistics", title: "Statistik", icon: BarChart3, isPro: true },
-        { id: "logistics", title: "Logistik", icon: Truck },
       ]
     },
     {
