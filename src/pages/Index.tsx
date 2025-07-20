@@ -369,7 +369,7 @@ const Index = () => {
         return (
           <div className="p-6">
             <h1 className="text-2xl font-bold mb-2">Integrationer</h1>
-            <p className="text-muted-foreground mb-6">Här hittar du alla integrationer som finns i Bokio.</p>
+            <p className="text-muted-foreground mb-6">Här hittar du alla integrationer som för närvarande finns i Veksla.</p>
             
             <div className="space-y-4">
               <div className="bg-card border rounded-lg p-4 flex items-center justify-between">
