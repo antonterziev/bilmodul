@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +34,10 @@ export const VehicleList = ({ filter = 'all', onSellVehicle, onStatsUpdate, sear
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [forceUpdate, setForceUpdate] = useState(0);
+  
+  // Use ref to track mounted state and cleanup timers
+  const mountedRef = useRef(true);
+  const timersRef = useRef<{ timeout?: NodeJS.Timeout; interval?: NodeJS.Timeout }>({});
 
   useEffect(() => {
     if (user) {
@@ -41,28 +45,53 @@ export const VehicleList = ({ filter = 'all', onSellVehicle, onStatsUpdate, sear
     }
   }, [user, filter]);
 
-  // Force re-render at midnight each day to keep lagerdagar current
+  // Fixed midnight update logic with proper cleanup
   useEffect(() => {
     const now = new Date();
     const tomorrow = new Date(now);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0); // Set to midnight
+    tomorrow.setHours(0, 0, 0, 0);
     
     const msUntilMidnight = tomorrow.getTime() - now.getTime();
     
-    // Set timeout for midnight, then interval for every 24 hours
-    const midnightTimeout = setTimeout(() => {
-      setForceUpdate(prev => prev + 1);
-      
-      // Set interval for every 24 hours after the first midnight update
-      const dailyInterval = setInterval(() => {
+    // Clear any existing timers
+    if (timersRef.current.timeout) {
+      clearTimeout(timersRef.current.timeout);
+    }
+    if (timersRef.current.interval) {
+      clearInterval(timersRef.current.interval);
+    }
+    
+    // Set timeout for midnight
+    timersRef.current.timeout = setTimeout(() => {
+      if (mountedRef.current) {
         setForceUpdate(prev => prev + 1);
-      }, 24 * 60 * 60 * 1000); // 24 hours
-      
-      return () => clearInterval(dailyInterval);
+        
+        // Set interval for every 24 hours after the first midnight
+        timersRef.current.interval = setInterval(() => {
+          if (mountedRef.current) {
+            setForceUpdate(prev => prev + 1);
+          }
+        }, 24 * 60 * 60 * 1000);
+      }
     }, msUntilMidnight);
 
-    return () => clearTimeout(midnightTimeout);
+    // Cleanup function
+    return () => {
+      if (timersRef.current.timeout) {
+        clearTimeout(timersRef.current.timeout);
+      }
+      if (timersRef.current.interval) {
+        clearInterval(timersRef.current.interval);
+      }
+    };
+  }, []);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 
   const loadVehicles = async () => {

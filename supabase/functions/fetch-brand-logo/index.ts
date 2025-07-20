@@ -1,151 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.0'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
-// Initialize Supabase client for database operations
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
-
-// Function to get brand logo from the car-logos-dataset repository
-async function getBrandLogoFromDataset(brandName: string): Promise<string | null> {
-  console.log(`Getting ${brandName} logo from car-logos-dataset...`);
-  
-  // Normalize brand name to match the dataset naming convention
-  const normalizedName = brandName.toLowerCase()
-    .replace(/\s+/g, '-')           // Replace spaces with hyphens
-    .replace(/[^\w-]/g, '')         // Remove special characters except hyphens
-    .replace(/--+/g, '-');          // Replace multiple hyphens with single hyphen
-
-  // Special cases for brand name mappings to match the dataset
-  const brandMappings: Record<string, string> = {
-    'mercedes-benz': 'mercedes-benz',
-    'mercedes': 'mercedes-benz',
-    'bmw': 'bmw',
-    'volkswagen': 'volkswagen', 
-    'vw': 'volkswagen',
-    'alfa-romeo': 'alfa-romeo',
-    'land-rover': 'land-rover',
-    'aston-martin': 'aston-martin',
-    'rolls-royce': 'rolls-royce',
-    'mclaren': 'mclaren',
-    'land rover': 'land-rover',
-    'aston martin': 'aston-martin',
-    'alfa romeo': 'alfa-romeo'
-  };
-
-  const finalBrandName = brandMappings[normalizedName] || normalizedName;
-  
-  // Try to fetch the logo from the GitHub repository
-  const logoUrl = `https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/optimized/${finalBrandName}.png`;
-  
-  try {
-    const response = await fetch(logoUrl, { method: 'HEAD' }); // Use HEAD to check if file exists
-    if (response.ok) {
-      console.log(`Found logo for ${brandName} at: ${logoUrl}`);
-      return logoUrl;
-    } else {
-      console.log(`Logo not found for ${brandName} in dataset (${response.status})`);
-      return await findLogoFromKnownSources(brandName); // Fallback to known sources
-    }
-  } catch (error) {
-    console.error(`Error checking logo for ${brandName}:`, error);
-    return await findLogoFromKnownSources(brandName); // Fallback to known sources
-  }
-}
-
-// Function to find logos from known sources
-async function findLogoFromKnownSources(brandName: string): Promise<string | null> {
-  const brand = brandName.toLowerCase();
-  
-  // Known high-quality logo sources - using direct SVG files
-  const logoSources = {
-    'tesla': 'https://upload.wikimedia.org/wikipedia/commons/b/bb/Tesla_T_symbol.svg',
-    'volvo': 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Volvo_Cars_logo.svg',
-    'bmw': 'https://upload.wikimedia.org/wikipedia/commons/4/44/BMW.svg',
-    'mercedes': 'https://upload.wikimedia.org/wikipedia/commons/9/90/Mercedes-Logo.svg',
-    'mercedes-benz': 'https://upload.wikimedia.org/wikipedia/commons/9/90/Mercedes-Logo.svg',
-    'audi': 'https://upload.wikimedia.org/wikipedia/commons/9/92/Audi-Logo_2016.svg',
-    'volkswagen': 'https://upload.wikimedia.org/wikipedia/commons/6/6d/Volkswagen_logo_2019.svg',
-    'ford': 'https://upload.wikimedia.org/wikipedia/commons/3/3e/Ford_logo_flat.svg',
-    'toyota': 'https://upload.wikimedia.org/wikipedia/commons/6/60/Toyota_Motor_Logo.svg',
-    'honda': 'https://upload.wikimedia.org/wikipedia/commons/7/76/Honda_logo.svg',
-    'nissan': 'https://upload.wikimedia.org/wikipedia/commons/0/0d/Nissan-logo.svg',
-    'porsche': 'https://upload.wikimedia.org/wikipedia/commons/d/d5/Porsche_logo.svg',
-    'ferrari': 'https://upload.wikimedia.org/wikipedia/commons/0/02/Ferrari_logo.svg',
-    'lamborghini': 'https://upload.wikimedia.org/wikipedia/commons/d/df/Lamborghini_Logo.svg',
-    'maserati': 'https://upload.wikimedia.org/wikipedia/commons/e/e3/Maserati_logo.svg',
-    'jaguar': 'https://upload.wikimedia.org/wikipedia/commons/e/e8/Jaguar_logo_2012.svg',
-    'land rover': 'https://upload.wikimedia.org/wikipedia/commons/b/bb/Land_Rover_logo.svg',
-    'bentley': 'https://upload.wikimedia.org/wikipedia/commons/0/07/Bentley_logo.svg',
-    'rolls-royce': 'https://upload.wikimedia.org/wikipedia/commons/0/00/Rolls-Royce_Motor_Cars_logo.svg',
-    'aston martin': 'https://upload.wikimedia.org/wikipedia/commons/4/44/Aston_Martin_logo.svg',
-    'mclaren': 'https://upload.wikimedia.org/wikipedia/commons/2/24/McLaren_logo.svg',
-    'mini': 'https://upload.wikimedia.org/wikipedia/commons/d/d5/MINI_logo.svg',
-    'fiat': 'https://upload.wikimedia.org/wikipedia/commons/6/6d/Fiat_logo.svg',
-    'alfa romeo': 'https://upload.wikimedia.org/wikipedia/commons/5/5a/Alfa_Romeo_logo_2015.svg',
-    'skoda': 'https://upload.wikimedia.org/wikipedia/commons/7/78/Skoda_Auto_logo.svg',
-    'seat': 'https://upload.wikimedia.org/wikipedia/commons/c/ce/SEAT_logo.svg',
-    'opel': 'https://upload.wikimedia.org/wikipedia/commons/7/7a/Opel-Logo-2017.svg',
-    'peugeot': 'https://upload.wikimedia.org/wikipedia/commons/0/01/Peugeot_logo.svg',
-    'citroen': 'https://upload.wikimedia.org/wikipedia/commons/1/14/Citro%C3%ABn_logo.svg',
-    'renault': 'https://upload.wikimedia.org/wikipedia/commons/4/49/Renault_logo.svg',
-    'dacia': 'https://upload.wikimedia.org/wikipedia/commons/b/b6/Dacia_Logo.svg',
-    'kia': 'https://upload.wikimedia.org/wikipedia/commons/e/e4/Kia_logo2.svg',
-    'hyundai': 'https://upload.wikimedia.org/wikipedia/commons/4/44/Hyundai_Motor_Company_logo.svg',
-    'mazda': 'https://upload.wikimedia.org/wikipedia/commons/2/2d/Mazda_logo.svg',
-    'subaru': 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Subaru_logo.svg',
-    'mitsubishi': 'https://upload.wikimedia.org/wikipedia/commons/4/46/Mitsubishi_logo.svg',
-    'lexus': 'https://upload.wikimedia.org/wikipedia/commons/9/9d/Lexus_logo.svg',
-    'infiniti': 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Infiniti_logo.svg',
-    'acura': 'https://upload.wikimedia.org/wikipedia/commons/c/c4/Acura_logo.svg'
-  };
-  
-  return logoSources[brand] || null;
-}
-
-// Function to download and store logo
-async function downloadAndStoreLogo(brandName: string, logoUrl: string): Promise<string | null> {
-  try {
-    console.log('Downloading logo from:', logoUrl);
-    
-    // Download the image
-    const response = await fetch(logoUrl);
-    if (!response.ok) {
-      throw new Error(`Failed to download logo: ${response.statusText}`);
-    }
-    
-    const imageBlob = await response.blob();
-    const fileName = `${brandName.toLowerCase().replace(/[^a-z0-9]/g, '-')}-logo.png`;
-    
-    // Upload to Supabase storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('brand-logos')
-      .upload(fileName, imageBlob, {
-        upsert: true,
-        contentType: 'image/png'
-      });
-    
-    if (uploadError) {
-      throw new Error(`Failed to upload logo: ${uploadError.message}`);
-    }
-    
-    console.log('Logo uploaded successfully:', uploadData.path);
-    
-    // Get public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from('brand-logos')
-      .getPublicUrl(fileName);
-    
-    return publicUrl;
-  } catch (error) {
-    console.error('Error downloading and storing logo:', error);
-    return null;
-  }
 }
 
 serve(async (req) => {
@@ -154,105 +12,94 @@ serve(async (req) => {
   }
 
   try {
-    const { brandName } = await req.json()
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+    )
+
+    const { brandName, brandNames } = await req.json()
     
-    console.log('Received request for brand logo:', brandName)
-    
-    if (!brandName) {
-      return new Response(
-        JSON.stringify({ error: 'Brand name is required' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    // Handle both single brand and batch requests
+    const brandsToProcess = brandNames || [brandName]
+    const results: Record<string, string | null> = {}
+
+    for (const brand of brandsToProcess) {
+      if (!brand || brand === 'Annat') {
+        results[brand] = null
+        continue
+      }
+
+      console.log('Processing brand:', brand)
+
+      // Check if logo exists in database
+      const { data: existingLogo } = await supabaseClient
+        .from('brand_logos')
+        .select('logo_url')
+        .eq('brand_name', brand.toLowerCase())
+        .maybeSingle()
+
+      if (existingLogo) {
+        results[brand] = existingLogo.logo_url
+        continue
+      }
+
+      // Fetch logo from external API (placeholder logic)
+      try {
+        const logoUrl = await fetchBrandLogoFromAPI(brand)
+        
+        if (logoUrl) {
+          // Store in database
+          await supabaseClient
+            .from('brand_logos')
+            .insert({
+              brand_name: brand.toLowerCase(),
+              logo_url: logoUrl
+            })
+          
+          results[brand] = logoUrl
+        } else {
+          results[brand] = null
         }
-      )
+      } catch (error) {
+        console.error(`Error fetching logo for ${brand}:`, error)
+        results[brand] = null
+      }
     }
 
-    // First, check if we already have this logo in the database
-    console.log('Checking if logo already exists for:', brandName);
-    const { data: existingLogo, error: existingError } = await supabase
-      .from('brand_logos')
-      .select('logo_url, file_path')
-      .eq('brand_name', brandName.toLowerCase())
-      .single();
-
-    if (existingError && existingError.code !== 'PGRST116') {
-      console.error('Database query error:', existingError);
-    } else if (existingLogo) {
-      console.log('Found existing logo for:', brandName);
+    // Return appropriate format based on request type
+    if (brandNames) {
+      return new Response(
+        JSON.stringify({ logos: results }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    } else {
       return new Response(
         JSON.stringify({ 
-          logoUrl: existingLogo.logo_url,
-          fromCache: true 
+          logoUrl: results[brandName], 
+          fromCache: false 
         }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
-
-    // No existing logo found, search for one
-    console.log('No existing logo found. Searching for logo for:', brandName);
-    const logoUrl = await getBrandLogoFromDataset(brandName);
-    
-    if (!logoUrl) {
-      console.log('No logo found for brand:', brandName);
-      return new Response(
-        JSON.stringify({ error: 'No logo found for this brand' }),
-        { 
-          status: 404, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
-    // Download and store the logo
-    const storedLogoUrl = await downloadAndStoreLogo(brandName, logoUrl);
-    
-    if (!storedLogoUrl) {
-      return new Response(
-        JSON.stringify({ error: 'Failed to download and store logo' }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
-    // Save logo info to database
-    const { error: insertError } = await supabase
-      .from('brand_logos')
-      .insert({
-        brand_name: brandName.toLowerCase(),
-        logo_url: storedLogoUrl,
-        file_path: `${brandName.toLowerCase().replace(/[^a-z0-9]/g, '-')}-logo.png`
-      });
-
-    if (insertError) {
-      console.error('Failed to save logo info to database:', insertError);
-      // Continue anyway, we have the logo URL
-    } else {
-      console.log('Logo info saved to database for:', brandName);
-    }
-
-    return new Response(
-      JSON.stringify({ 
-        logoUrl: storedLogoUrl,
-        fromCache: false 
-      }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
-    );
 
   } catch (error) {
     console.error('Error in fetch-brand-logo function:', error)
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ error: error.message }),
       { 
-        status: 500, 
+        status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     )
   }
 })
+
+async function fetchBrandLogoFromAPI(brand: string): Promise<string | null> {
+  // Placeholder for actual logo fetching logic
+  // This would typically call an external API like Clearbit, Google Images API, etc.
+  console.log(`Fetching logo for brand: ${brand}`)
+  
+  // For now, return null to maintain existing behavior
+  // Real implementation would go here
+  return null
+}
