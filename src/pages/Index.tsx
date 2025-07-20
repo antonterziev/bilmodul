@@ -483,8 +483,46 @@ const Index = () => {
                         }
 
                         console.log('🔵 Redirecting to Fortnox OAuth URL:', data.auth_url);
-                        // Redirect to Fortnox OAuth
-                        window.location.href = data.auth_url;
+                        
+                        // Try redirect and provide fallback
+                        try {
+                          console.log('🔵 Attempting window.location.href redirect...');
+                          window.location.href = data.auth_url;
+                          
+                          // Fallback: if redirect doesn't work, show manual link
+                          setTimeout(() => {
+                            console.log('🟡 Redirect may have been blocked, showing manual option');
+                            toast({
+                              title: "Anslutning till Fortnox",
+                              description: "Om omdirigering blockerades, klicka här för att fortsätta",
+                              action: (
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => window.open(data.auth_url, '_blank')}
+                                >
+                                  Öppna Fortnox
+                                </Button>
+                              ),
+                            });
+                          }, 2000);
+                        } catch (redirectError) {
+                          console.error('🔴 Redirect failed:', redirectError);
+                          // Manual fallback
+                          toast({
+                            title: "Manuell anslutning krävs",
+                            description: "Automatisk omdirigering blockerades",
+                            action: (
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => window.open(data.auth_url, '_blank')}
+                              >
+                                Öppna Fortnox
+                              </Button>
+                            ),
+                          });
+                        }
                         
                       } catch (error: any) {
                         console.error('🔴 Fortnox connection error:', error);
