@@ -119,9 +119,8 @@ export function AppSidebar({
   return (
     <Sidebar className={isCollapsed ? "w-14" : "w-72"} collapsible="icon">
       <SidebarContent>
-        {/* Main Navigation */}
+        {/* Main Navigation - No group labels */}
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {mainMenuItems.map((item) => (
@@ -139,9 +138,8 @@ export function AppSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Expandable Sections */}
+        {/* Expandable Sections - No group labels */}
         <SidebarGroup>
-          <SidebarGroupLabel>Funktioner</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {expandableMenuItems.map((section) => (

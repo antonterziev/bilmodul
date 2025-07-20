@@ -414,50 +414,53 @@ const Index = () => {
         />
         
         <div className="flex-1 flex flex-col">
-          {/* Header */}
-          <header className="border-b flex h-16">
-            <div className="flex items-center px-4">
-              <SidebarTrigger />
-            </div>
-            <div className="flex-1 px-4 py-4 flex justify-between items-center">
-              <div className="flex items-center space-x-6">
-                <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-8" />
-                <Button 
-                  className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 font-medium"
-                  onClick={() => handleViewChange("purchase_form")}
-                >
-                  Registrera inköp
-                </Button>
-                <div className="relative max-w-md">
-                  <Input
-                    type="text"
-                    placeholder={searchPlaceholder}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    disabled={inventoryItems.length === 0}
-                    className="pl-9 w-full"
-                  />
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          {/* Header with logo in top left */}
+          <header className="border-b flex flex-col">
+            <div className="flex h-16">
+              <div className="flex items-center px-4">
+                <SidebarTrigger />
+                <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-8 ml-4" />
+              </div>
+              <div className="flex-1 px-4 py-4 flex justify-end items-center">
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-muted-foreground">
+                    Välkommen {getDisplayName()}
+                  </span>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setShowKundtjanst(true)} className="flex items-center gap-2 w-32">
+                      <Phone className="h-4 w-4" />
+                      <span className="text-foreground">Kundtjänst</span>
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => setShowSupportDialog(true)} className="flex items-center gap-2 w-32">
+                      <MessageCircle className="h-4 w-4" />
+                      Supportchatt
+                    </Button>
+                    <Button variant="outline" onClick={handleLogout} size="sm" className="flex items-center gap-2 w-32">
+                      <LogOut className="h-4 w-4" />
+                      Logga ut
+                    </Button>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-muted-foreground">
-                  Välkommen {getDisplayName()}
-                </span>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => setShowKundtjanst(true)} className="flex items-center gap-2 w-32">
-                    <Phone className="h-4 w-4" />
-                    <span className="text-foreground">Kundtjänst</span>
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => setShowSupportDialog(true)} className="flex items-center gap-2 w-32">
-                    <MessageCircle className="h-4 w-4" />
-                    Supportchatt
-                  </Button>
-                  <Button variant="outline" onClick={handleLogout} size="sm" className="flex items-center gap-2 w-32">
-                    <LogOut className="h-4 w-4" />
-                    Logga ut
-                  </Button>
-                </div>
+            </div>
+            {/* Second row with registrera inköp and search */}
+            <div className="flex items-center px-4 pb-4 gap-4">
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 font-medium"
+                onClick={() => handleViewChange("purchase_form")}
+              >
+                Registrera inköp
+              </Button>
+              <div className="relative max-w-md">
+                <Input
+                  type="text"
+                  placeholder={searchPlaceholder}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  disabled={inventoryItems.length === 0}
+                  className="pl-9 w-full"
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               </div>
             </div>
           </header>
@@ -467,22 +470,6 @@ const Index = () => {
             <div className="max-w-7xl mx-auto">
               <Breadcrumbs items={getBreadcrumbs()} />
               
-              {/* Search Bar for Lager views - moved from header */}
-              {currentView.startsWith("lager") && (
-                <div className="mb-6">
-                  <div className="relative max-w-md">
-                    <Input
-                      type="text"
-                      placeholder={searchPlaceholder}
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      disabled={inventoryItems.length === 0}
-                      className="pl-9 w-full"
-                    />
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  </div>
-                </div>
-              )}
 
               {renderMainContent()}
             </div>
