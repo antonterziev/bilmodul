@@ -17,7 +17,7 @@ import { Statistics } from "@/components/Statistics/Statistics";
 import { AppSidebar } from "@/components/AppSidebar";
 
 import { supabase } from "@/integrations/supabase/client";
-import { Phone, MessageCircle, LogOut, Search, Download, FileText, File, FileCheck, Receipt, BookOpen, CheckSquare, User, ChevronDown, Bell, HelpCircle, Link, Filter } from "lucide-react";
+import { Phone, MessageCircle, LogOut, Search, Download, FileText, File, FileCheck, Receipt, BookOpen, CheckSquare, User, ChevronDown, Bell, HelpCircle, Link, Filter, RotateCcw } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -366,24 +366,28 @@ const Index = () => {
             {/* Filter bar */}
              <div className="flex items-center justify-between gap-4 p-4 bg-card border rounded-lg">
                <div className="flex items-center gap-4">
-                 <DropdownMenu>
-                   <DropdownMenuTrigger asChild>
-                     <Button variant="outline" size="sm" className="h-8">
-                       <Filter className="w-4 h-4 mr-1" />
-                       Filter
-                     </Button>
-                   </DropdownMenuTrigger>
-                   <DropdownMenuContent align="start" className="w-48">
-                     <DropdownMenuItem>
-                       <Checkbox className="mr-2" />
-                       I lager
-                     </DropdownMenuItem>
-                     <DropdownMenuItem>
-                       <Checkbox className="mr-2" />
-                       Såld
-                     </DropdownMenuItem>
-                   </DropdownMenuContent>
-                  </DropdownMenu>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="h-8">
+                        <Filter className="w-4 h-4 mr-1" />
+                        Filter
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-48">
+                      <DropdownMenuItem>
+                        <Checkbox className="mr-2" />
+                        I lager
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Checkbox className="mr-2" />
+                        Såld
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                   </DropdownMenu>
+                   
+                   <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                     <RotateCcw className="w-4 h-4" />
+                   </Button>
                   
                   <div className="relative">
                     <Input
