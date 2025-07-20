@@ -406,9 +406,9 @@ const Index = () => {
                     <DropdownMenuItem onClick={() => setShowSupportDialog(true)}>
                       Kontakta support
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setShowKundtjanst(true)} className="flex items-center justify-between">
+                    <DropdownMenuItem className="flex items-center justify-between opacity-50 cursor-not-allowed pointer-events-none">
                       <span>Telefonsupport</span>
-                      <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-500">
+                      <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
                         PRO
                       </span>
                     </DropdownMenuItem>
