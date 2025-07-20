@@ -326,6 +326,23 @@ const Index = () => {
     return user?.email || 'Användare';
   };
 
+  const checkFortnoxConnection = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
+        body: { action: 'get_status' }
+      });
+
+      if (!error && data?.connected) {
+        toast({
+          title: "Fortnox-anslutning lyckades!",
+          description: `Ditt konto är nu kopplat till ${data.company_name || 'Fortnox'}.`,
+        });
+      }
+    } catch (error) {
+      console.error('Error checking Fortnox connection:', error);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -457,20 +474,79 @@ const Index = () => {
 
                       if (error) {
                         console.error('Fortnox OAuth error:', error);
-                        throw error;
+                        toast({
+                          title: "Fel vid anslutning",
+                          description: "Kunde inte initiera Fortnox-anslutning. Försök igen.",
+                          variant: "destructive",
+                        });
+                        return;
                       }
 
                       if (!data?.auth_url) {
-                        throw new Error('No auth URL received from Fortnox OAuth function');
+                        toast({
+                          title: "Fel vid anslutning",
+                          description: "Ingen OAuth-URL mottagen. Försök igen.",
+                          variant: "destructive",
+                        });
+                        return;
                       }
 
-                      console.log('Redirecting to Fortnox OAuth URL:', data.auth_url);
-                      // Redirect to Fortnox OAuth
-                      window.location.href = data.auth_url;
+                      console.log('Opening Fortnox OAuth popup:', data.auth_url);
+                      
+                      // Open OAuth in popup to preserve session
+                      const popup = window.open(
+                        data.auth_url, 
+                        'fortnox-oauth',
+                        'width=600,height=700,scrollbars=yes,resizable=yes'
+                      );
+
+                      if (!popup) {
+                        toast({
+                          title: "Popup blockerad",
+                          description: "Tillåt popup-fönster för att ansluta till Fortnox.",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+
+                      // Listen for popup close or callback
+                      const checkClosed = setInterval(() => {
+                        if (popup.closed) {
+                          clearInterval(checkClosed);
+                          // Check if we got a successful callback
+                          setTimeout(() => {
+                            // Try to get connection status to see if it worked
+                            checkFortnoxConnection();
+                          }, 1000);
+                        }
+                      }, 1000);
+
+                      // Also listen for message from popup (if Fortnox redirects to our domain)
+                      const messageListener = (event: MessageEvent) => {
+                        if (event.origin === window.location.origin && event.data?.type === 'fortnox-oauth-success') {
+                          clearInterval(checkClosed);
+                          window.removeEventListener('message', messageListener);
+                          popup.close();
+                          
+                          toast({
+                            title: "Fortnox-anslutning lyckades!",
+                            description: `Ditt konto är nu kopplat till ${event.data.company_name || 'Fortnox'}.`,
+                          });
+                          
+                          // Refresh to show connected status
+                          setCurrentView('integrationer');
+                        }
+                      };
+                      
+                      window.addEventListener('message', messageListener);
                       
                     } catch (error: any) {
                       console.error('Fortnox connection error:', error);
-                      // You could add a toast here if needed
+                      toast({
+                        title: "Fel vid anslutning",
+                        description: error.message || "Ett fel uppstod vid anslutning till Fortnox. Försök igen.",
+                        variant: "destructive",
+                      });
                     }
                   }}
                   >
