@@ -396,7 +396,7 @@ export const VehicleList = ({
                 </div>
                 
                 {/* Action buttons */}
-                <div className="flex-shrink-0 flex gap-2">
+                <div className="flex-shrink-0 flex gap-2 pr-4">
                   <Button
                     variant="outline"
                     size="sm"
