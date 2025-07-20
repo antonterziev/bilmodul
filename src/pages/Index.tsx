@@ -430,13 +430,6 @@ const Index = () => {
               </div>
             </div>
             
-            <DashboardStats
-              totalStock={stats.totalStock}
-              averageStorageDays={stats.averageStorageDays}
-              inventoryValue={stats.inventoryValue}
-              grossProfit={stats.grossProfit}
-              grossMargin={stats.grossMargin}
-            />
             <VehicleList 
               filter={lagerFilter} 
               searchTerm={searchTerm}
