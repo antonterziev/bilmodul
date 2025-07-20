@@ -408,7 +408,7 @@ const Index = () => {
                     </DropdownMenuItem>
                     <DropdownMenuItem className="flex items-center justify-between cursor-not-allowed pointer-events-none">
                       <span>Telefonsupport</span>
-                      <span className="inline-flex items-center rounded-full bg-yellow-200 px-2 py-1 text-xs font-medium text-yellow-900">
+                      <span className="inline-flex items-center rounded-full bg-yellow-200 px-2 py-0.5 text-xs font-medium text-yellow-900">
                         PRO
                       </span>
                     </DropdownMenuItem>
