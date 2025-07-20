@@ -17,7 +17,7 @@ import { Statistics } from "@/components/Statistics/Statistics";
 import { AppSidebar } from "@/components/AppSidebar";
 
 import { supabase } from "@/integrations/supabase/client";
-import { Phone, MessageCircle, LogOut, Search, Download, FileText, File, FileCheck, Receipt, BookOpen, CheckSquare, User, ChevronDown, Bell, HelpCircle, Link, Filter, RotateCcw } from "lucide-react";
+import { Phone, MessageCircle, LogOut, Search, Download, FileText, File, FileCheck, Receipt, BookOpen, CheckSquare, User, ChevronDown, Bell, HelpCircle, Link, Filter, RotateCcw, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -48,6 +48,7 @@ const Index = () => {
   const [inventoryItems, setInventoryItems] = useState<any[]>([]);
   const [searchPlaceholder, setSearchPlaceholder] = useState("Laddar...");
   const [lagerFilter, setLagerFilter] = useState<'all' | 'på_lager' | 'såld'>('all');
+  const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc'); // högst till lägst = desc, lägst till högst = asc
   
   // Dialog states
   const [showExportDialog, setShowExportDialog] = useState(false);
@@ -384,6 +385,15 @@ const Index = () => {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                    </DropdownMenu>
+                   
+                   <Button 
+                     variant="outline" 
+                     size="sm" 
+                     className="h-8 w-8 p-0"
+                     onClick={() => setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')}
+                   >
+                     {sortOrder === 'desc' ? <ArrowDown className="w-4 h-4" /> : <ArrowUp className="w-4 h-4" />}
+                   </Button>
                    
                    <Button variant="outline" size="sm" className="h-8 w-8 p-0">
                      <RotateCcw className="w-4 h-4" />
