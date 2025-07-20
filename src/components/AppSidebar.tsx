@@ -43,13 +43,21 @@ interface AppSidebarProps {
   onViewChange: (view: string) => void;
   expandedSections: Record<string, boolean>;
   onSectionToggle: (section: string) => void;
+  searchTerm: string;
+  onSearchChange: (term: string) => void;
+  searchPlaceholder: string;
+  hasVehicles: boolean;
 }
 
 export function AppSidebar({ 
   currentView, 
   onViewChange, 
   expandedSections, 
-  onSectionToggle 
+  onSectionToggle,
+  searchTerm,
+  onSearchChange,
+  searchPlaceholder,
+  hasVehicles
 }: AppSidebarProps) {
   const location = useLocation();
 
@@ -136,10 +144,13 @@ export function AppSidebar({
               <div className="relative">
                 <Input
                   type="text"
-                  placeholder="Sök fordon..."
-                  className="pl-9 w-full"
+                  placeholder={hasVehicles ? searchPlaceholder : "Lägg till fordon först..."}
+                  value={searchTerm}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  disabled={!hasVehicles}
+                  className="pl-9 w-full disabled:opacity-50 disabled:cursor-not-allowed"
                 />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${hasVehicles ? 'text-muted-foreground' : 'text-muted-foreground/50'}`} />
               </div>
             </div>
           </SidebarGroupContent>

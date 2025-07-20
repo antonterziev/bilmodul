@@ -467,6 +467,10 @@ const Index = () => {
             onViewChange={handleViewChange}
             expandedSections={expandedSections}
             onSectionToggle={handleSectionToggle}
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            searchPlaceholder={searchPlaceholder}
+            hasVehicles={inventoryItems.length > 0}
           />
         
           <div className="flex-1 flex flex-col min-w-0">
