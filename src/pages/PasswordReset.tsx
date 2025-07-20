@@ -29,6 +29,23 @@ const PasswordReset = () => {
     setIsLoading(true);
     
     try {
+      // First, verify the session from URL params if available
+      const accessToken = searchParams.get('access_token');
+      const refreshToken = searchParams.get('refresh_token');
+      
+      if (accessToken && refreshToken) {
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken
+        });
+        
+        if (sessionError) {
+          console.error("Session error:", sessionError);
+          toast.error("Ogiltiga återställningsuppgifter");
+          return;
+        }
+      }
+
       const { error } = await supabase.auth.updateUser({
         password: password
       });
@@ -39,11 +56,20 @@ const PasswordReset = () => {
         return;
       }
 
+      // Get the current session after password update
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        console.error("No session after password update");
+        toast.error("Session saknas efter lösenordsuppdatering");
+        return;
+      }
+
       toast.success("Lösenordet har uppdaterats!");
       
       // Force a page refresh to ensure clean auth state
       setTimeout(() => {
-        window.location.href = "/dashboard";
+        window.location.href = "/";
       }, 1000);
       
     } catch (error: any) {
