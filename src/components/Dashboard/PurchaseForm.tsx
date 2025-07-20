@@ -375,19 +375,15 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
     }
   };
 
-  // Watch for changes in registration number and check for duplicates + fetch car.info
+  // Watch for changes in registration number and check for duplicates only (no auto-fetch)
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
-      // Only check for duplicates and fetch car info when registration_number field changes and has at least 4 characters
+      // Only check for duplicates when registration_number field changes and has at least 4 characters
+      // NO LONGER auto-fetch car info - wait for user to press Enter or click "Hämta"
       if (name === 'registration_number' && value.registration_number && value.registration_number.length >= 4) {
         const timeoutId = setTimeout(async () => {
-          // Check for duplicates FIRST and get the result
-          const isDuplicate = await checkForDuplicateRegNumber(value.registration_number as string);
-          
-          // Only fetch car info if no duplicate was found
-          if (!isDuplicate) {
-            fetchCarInfo(value.registration_number as string);
-          }
+          // Only check for duplicates (not fetch car info automatically)
+          await checkForDuplicateRegNumber(value.registration_number as string);
         }, 1000); // Debounce for 1 second to allow user to finish typing
 
         return () => clearTimeout(timeoutId);
@@ -402,6 +398,28 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
 
     return () => subscription.unsubscribe();
   }, [form, user]);
+
+  // Handle manual fetch trigger (Enter key or button click)
+  const handleManualFetch = async () => {
+    const regNumber = form.getValues("registration_number");
+    if (!regNumber?.trim() || regNumber.length < 4) return;
+    
+    // Check for duplicates first
+    const isDuplicate = await checkForDuplicateRegNumber(regNumber);
+    
+    // Only fetch car info if no duplicate was found
+    if (!isDuplicate) {
+      fetchCarInfo(regNumber);
+    }
+  };
+
+  // Handle Enter key press in registration number input
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleManualFetch();
+    }
+  };
 
   // Format number with thousands separator
   const formatWithThousands = (value: string) => {
@@ -680,6 +698,7 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
                     id="registration_number"
                     placeholder="t.ex. JSK15L"
                     {...form.register("registration_number")}
+                    onKeyPress={handleKeyPress}
                     className={cn(
                       form.formState.errors.registration_number && "border-destructive",
                       isDuplicateRegNumber && "border-destructive",
@@ -694,7 +713,9 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
                 </div>
                 <Button 
                   type="button" 
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={handleManualFetch}
+                  disabled={isCheckingRegNumber || isLoadingCarInfo}
+                  className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
                 >
                   Hämta
                 </Button>
