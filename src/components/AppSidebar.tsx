@@ -123,7 +123,7 @@ export function AppSidebar({
       icon: Calculator,
       children: [
         { id: "verifikat", title: "Bokföringsunderlag", icon: FileText, isPro: true },
-        { id: "bokforing", title: "Bokföring", icon: BookOpen, isPro: true },
+        { id: "bokforing", title: "Verifikation", icon: BookOpen, isPro: true },
       ]
     },
     {
