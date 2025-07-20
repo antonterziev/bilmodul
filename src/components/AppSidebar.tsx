@@ -82,7 +82,7 @@ export function AppSidebar({
       icon: Car,
       children: [
         { id: "lager_all", title: "Alla fordon", icon: Car },
-        { id: "lager_stock", title: "På lager", icon: Package },
+        { id: "lager_stock", title: "I lager", icon: Package },
         { id: "lager_sold", title: "Sålda", icon: CheckSquare },
         { id: "logistics", title: "Logistik", icon: Truck },
       ]
