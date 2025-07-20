@@ -90,6 +90,32 @@ const Index = () => {
     }
   }, [user]);
 
+  // Listen for profile updates to refresh welcome message
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const channel = supabase
+      .channel('profile-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `user_id=eq.${user.id}`
+        },
+        () => {
+          console.log('Profile updated, refreshing...');
+          loadUserProfile();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
+
   // Navigation handlers
   const handleViewChange = (view: string) => {
     setCurrentView(view);
@@ -331,8 +357,8 @@ const Index = () => {
       default:
         // Default overview content
         const getFirstName = () => {
-          if (userProfile?.full_name) {
-            return userProfile.full_name.split(' ')[0];
+          if (userProfile?.first_name) {
+            return userProfile.first_name;
           }
           return user?.email?.split('@')[0] || 'Användare';
         };
