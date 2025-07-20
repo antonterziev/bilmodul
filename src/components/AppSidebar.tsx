@@ -192,13 +192,13 @@ export function AppSidebar({
                          {section.children.map((child) => (
                            <SidebarMenuItem key={child.id} className="pr-6">
                              {child.isButton ? (
-                               <SidebarMenuButton
-                                 onClick={() => onViewChange("purchase_form")}
-                                 className={getNavClass(child.id)}
-                                 size="sm"
-                               >
-                                 <span className="text-sm">{child.title}</span>
-                               </SidebarMenuButton>
+                                <SidebarMenuButton
+                                  onClick={() => onViewChange("purchase_form")}
+                                  className={isActive("purchase_form") ? "bg-black text-white hover:bg-black hover:text-white" : "text-muted-foreground hover:bg-muted/50"}
+                                  size="sm"
+                                >
+                                  <span className="text-sm">{child.title}</span>
+                                </SidebarMenuButton>
                              ) : (
                                 <SidebarMenuButton
                                    onClick={['finansiering', 'affarer', 'direktfloden'].includes(section.id) || child.isPro ? undefined : () => onViewChange(child.id)}
