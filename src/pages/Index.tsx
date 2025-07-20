@@ -379,7 +379,7 @@ const Index = () => {
                   </div>
                   <div>
                     <h3 className="font-medium">Automatisk bokföring – Fortnox</h3>
-                    <p className="text-sm text-muted-foreground">Synkronisera dina fordon och ekonomidata automatiskt med Fortnox.</p>
+                    <p className="text-sm text-muted-foreground">Bokför dina fordonsaffärer smidigt och automatiskt med Fortnox</p>
                   </div>
                 </div>
                 <Button variant="outline" disabled>
