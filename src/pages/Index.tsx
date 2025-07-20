@@ -358,7 +358,7 @@ const Index = () => {
             <div className="flex items-center gap-4">
               <div className="text-right">
                 <div className="text-xs text-muted-foreground">
-                  Välkommen {getDisplayName()}
+                  Välkommen {userProfile?.first_name || user?.email?.split('@')[0] || 'Användare'}
                 </div>
                 <div className="text-xs text-muted-foreground truncate max-w-48 text-left">
                   {userProfile?.company_name || ''}
