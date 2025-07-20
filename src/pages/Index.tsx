@@ -373,14 +373,21 @@ const Index = () => {
             
             <div className="space-y-4">
               <div className="bg-card border rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
                       <img src="/lovable-uploads/06ce5fbb-cb35-47f9-9b24-5b51bdbe0647.png" alt="Fortnox" className="w-10 h-10 object-contain" />
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <h3 className="font-medium">Automatisk bokföring – Fortnox</h3>
-                      <p className="text-sm text-muted-foreground">Bokför dina fordonsaffärer smidigt och automatiskt med Fortnox</p>
+                      <p className="text-sm text-muted-foreground mb-3">Bokför dina fordonsaffärer smidigt och automatiskt med Fortnox</p>
+                      
+                      <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                        <p className="text-xs text-blue-800">
+                          <strong>Info:</strong> När du klickar på "Koppla" kommer du att omdirigeras 
+                          till Fortnox för att godkänna integrationen.
+                        </p>
+                      </div>
                     </div>
                   </div>
                   <Button 
@@ -404,13 +411,6 @@ const Index = () => {
                     <Link className="h-4 w-4 mr-2" />
                     Koppla
                   </Button>
-                </div>
-                
-                <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
-                  <p className="text-xs text-blue-800">
-                    <strong>Info:</strong> När du klickar på "Koppla" kommer du att omdirigeras 
-                    till Fortnox för att godkänna integrationen.
-                  </p>
                 </div>
               </div>
 
