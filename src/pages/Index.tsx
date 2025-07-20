@@ -376,6 +376,7 @@ const Index = () => {
 
         return (
           <div className="space-y-6">
+            <h2 className="text-2xl font-bold">Översikt</h2>
           <Statistics
             onBack={() => {}}
             totalStock={stats.totalStock}
