@@ -192,20 +192,20 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
         Vi hämtar dina företagsuppgifter från Bolagsverket.
       </p>
       
-      <div className="space-y-4">
-        <div className="flex gap-2">
+      <div className="space-y-6">
+        <div className="space-y-4">
           <Input
             type="text"
-            placeholder="Org.nr eller företagsnamn"
+            placeholder="sveriges förbund"
             value={companySearch}
             onChange={(e) => setCompanySearch(e.target.value)}
-            className="flex-1"
+            className="w-full h-12 text-base"
             onKeyPress={(e) => e.key === 'Enter' && handleCompanySearch()}
           />
           <Button 
             onClick={handleCompanySearch}
             disabled={isLoading || !companySearch.trim()}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+            className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white text-base font-medium"
           >
             {isLoading ? "Söker..." : "Hitta företag"}
           </Button>
