@@ -294,17 +294,22 @@ const Index = () => {
   const renderMainContent = () => {
     switch (currentView) {
       case "purchase_form":
-        return <PurchaseForm 
-          key={purchaseFormKey}
-          onSuccess={() => {
-            loadStats();
-            handleViewChange("lager_stock");
-          }}
-          onNavigateToVehicle={(vehicleId) => {
-            setSelectedVehicleId(vehicleId);
-            handleViewChange("logistics");
-          }}
-        />;
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold">Registrera fordon</h2>
+            <PurchaseForm 
+              key={purchaseFormKey}
+              onSuccess={() => {
+                loadStats();
+                handleViewChange("lager_stock");
+              }}
+              onNavigateToVehicle={(vehicleId) => {
+                setSelectedVehicleId(vehicleId);
+                handleViewChange("logistics");
+              }}
+            />
+          </div>
+        );
 
       case "logistics":
         if (selectedVehicleId) {
