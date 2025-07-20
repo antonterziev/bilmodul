@@ -19,7 +19,9 @@ import {
   CheckSquare,
   File,
   Landmark,
-  Search
+  Search,
+  Plug,
+  Link
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -125,6 +127,17 @@ export function AppSidebar({
         { id: "bokforingsunderlag", title: "Bokföringsunderlag", icon: BookOpen },
         { id: "verifikation", title: "Verifikation", icon: CheckSquare },
       ]
+    },
+    {
+      id: "integrationer",
+      title: "Integrationer",
+      icon: Plug,
+      children: [
+        { id: "integration_fortnox", title: "Fortnox", icon: Link },
+        { id: "integration_visma", title: "Visma", icon: Link },
+        { id: "integration_zettle", title: "Zettle", icon: Link },
+        { id: "integration_api", title: "API", icon: Link },
+      ]
     }
   ];
 
@@ -191,16 +204,16 @@ export function AppSidebar({
                       <SidebarMenu className="ml-6 mt-1 space-y-1">
                          {section.children.map((child) => (
                            <SidebarMenuItem key={child.id} className="pr-6">
-                            <SidebarMenuButton
-                                onClick={['finansiering', 'affarer', 'direktfloden'].includes(section.id) ? undefined : () => onViewChange(child.id)}
-                                className={['finansiering', 'affarer', 'direktfloden'].includes(section.id)
+                             <SidebarMenuButton
+                                onClick={['finansiering', 'affarer', 'direktfloden', 'integrationer'].includes(section.id) ? undefined : () => onViewChange(child.id)}
+                                className={['finansiering', 'affarer', 'direktfloden', 'integrationer'].includes(section.id)
                                   ? "cursor-not-allowed pointer-events-none text-muted-foreground hover:bg-muted/50 flex items-center justify-between" 
                                   : getNavClass(child.id)
                                 }
                                 size="sm"
                               >
                                 <span className="text-sm">{child.title}</span>
-                                {['finansiering', 'affarer', 'direktfloden'].includes(section.id) && (
+                                {['finansiering', 'affarer', 'direktfloden', 'integrationer'].includes(section.id) && (
                                   <span className="inline-flex items-center rounded-full bg-yellow-200 px-1.5 py-0 text-[11px] font-medium text-yellow-900">
                                     PRO
                                   </span>

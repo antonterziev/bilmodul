@@ -365,6 +365,80 @@ const Index = () => {
           </div>
         );
 
+      case 'integration_fortnox':
+      case 'integration_visma':
+      case 'integration_zettle':
+      case 'integration_api':
+        return (
+          <div className="p-6">
+            <h1 className="text-2xl font-bold mb-2">Integrationer</h1>
+            <p className="text-muted-foreground mb-6">Här hittar du alla integrationer som finns i Bokio.</p>
+            
+            <div className="space-y-4">
+              <div className="bg-card border rounded-lg p-4 flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <span className="text-blue-600 font-bold text-lg">fg</span>
+                  </div>
+                  <div>
+                    <h3 className="font-medium">Fakturaköp - Factoringgruppen</h3>
+                    <p className="text-sm text-muted-foreground">Fakturera dina kunder och få betalt snabbare. Med Fakturaköp ökar du snabbt ditt företags likviditet.</p>
+                    <p className="text-xs text-muted-foreground mt-1">2,75% av finansierat belopp</p>
+                  </div>
+                </div>
+                <Button variant="outline" disabled>
+                  Koppla
+                </Button>
+              </div>
+
+              <div className="bg-card border rounded-lg p-4 flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <span className="text-gray-600 font-bold text-sm">Zettle</span>
+                  </div>
+                  <div>
+                    <h3 className="font-medium">Bokför försäljning automatiskt - Zettle</h3>
+                    <p className="text-sm text-muted-foreground">Koppla ihop ditt Bokio konto med Zettle och bokför automatiskt dina Zettle händelser.</p>
+                  </div>
+                </div>
+                <Button variant="outline" disabled>
+                  Koppla
+                </Button>
+              </div>
+
+              <div className="bg-card border rounded-lg p-4 flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <span className="text-green-600 font-bold text-sm">FX</span>
+                  </div>
+                  <div>
+                    <h3 className="font-medium">Fortnox Integration</h3>
+                    <p className="text-sm text-muted-foreground">Synkronisera dina fordon och ekonomidata automatiskt med Fortnox.</p>
+                  </div>
+                </div>
+                <Button variant="outline" disabled>
+                  Koppla
+                </Button>
+              </div>
+
+              <div className="bg-card border rounded-lg p-4 flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <span className="text-purple-600 font-bold text-sm">API</span>
+                  </div>
+                  <div>
+                    <h3 className="font-medium">API Integration</h3>
+                    <p className="text-sm text-muted-foreground">Anslut din egen applikation eller tjänst via vårt utvecklar-API.</p>
+                  </div>
+                </div>
+                <Button variant="outline" disabled>
+                  Koppla
+                </Button>
+              </div>
+            </div>
+          </div>
+        );
+
       default:
         // Default overview content - includes both dashboard stats and statistics
         const getFirstName = () => {
