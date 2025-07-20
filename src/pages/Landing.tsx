@@ -97,12 +97,12 @@ const Landing = () => {
           </nav>
           
           <div className="flex items-center space-x-4">
-            <Link to="/auth">
+            <Link to="/login-or-signup">
               <Button variant="ghost" className="text-gray-600">
                 Logga in
               </Button>
             </Link>
-            <Link to="/auth">
+            <Link to="/login-or-signup">
               <Button className="bg-blue-600 hover:bg-blue-700">
                 Kom igång gratis
               </Button>
@@ -132,7 +132,7 @@ const Landing = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <Link to="/auth">
+                <Link to="/login-or-signup">
                   <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-3">
                     Starta gratis testperiod
                     <ArrowRight className="ml-2 h-5 w-5" />
@@ -193,7 +193,7 @@ const Landing = () => {
           </div>
           
           <div className="flex justify-center space-x-4">
-            <Link to="/auth">
+            <Link to="/login-or-signup">
               <Button size="lg" className="bg-gray-900 hover:bg-gray-800">
                 Kom igång idag
               </Button>
@@ -282,7 +282,7 @@ const Landing = () => {
             Gå med i över 1,000+ företag som redan använder Veksla
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/auth">
+            <Link to="/login-or-signup">
               <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
                 Starta gratis testperiod
                 <ArrowRight className="ml-2 h-5 w-5" />
