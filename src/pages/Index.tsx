@@ -382,7 +382,24 @@ const Index = () => {
                     <p className="text-sm text-muted-foreground">Bokför dina fordonsaffärer smidigt och automatiskt med Fortnox</p>
                   </div>
                 </div>
-                <Button variant="outline" disabled>
+                <Button 
+                  variant="outline" 
+                  onClick={async () => {
+                    try {
+                      const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
+                        body: { action: 'get_auth_url' }
+                      });
+
+                      if (error) throw error;
+
+                      // Redirect to Fortnox OAuth
+                      window.location.href = data.auth_url;
+                      
+                    } catch (error: any) {
+                      console.error('Fortnox connection error:', error);
+                    }
+                  }}
+                >
                   <Link className="h-4 w-4 mr-2" />
                   Koppla
                 </Button>
