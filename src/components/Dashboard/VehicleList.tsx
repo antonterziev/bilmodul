@@ -305,7 +305,7 @@ export const VehicleList = ({
             {sortedVehicles.map((vehicle) => (
               <div key={vehicle.id} className="flex items-center gap-4 py-4 border rounded-lg hover:bg-muted/50 transition-colors w-full">
                 {/* Car icon or brand logo */}
-                <div className="flex-shrink-0 w-16 flex justify-center items-center">
+                <div className="flex-shrink-0 w-16 flex justify-start items-center pl-4">
                   <BrandLogo 
                     brandName={vehicle.brand} 
                     className="h-12 w-12" 
