@@ -20,7 +20,6 @@ import {
   File,
   Landmark,
   Search,
-  Plug,
   Link
 } from "lucide-react";
 
@@ -221,7 +220,7 @@ export function AppSidebar({
                     onClick={() => onViewChange("integrationer")}
                     className={getNavClass("integrationer")}
                   >
-                    <Plug className="h-4 w-4" />
+                    <Link className="h-4 w-4" />
                     <span>Integrationer</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
