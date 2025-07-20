@@ -35,9 +35,7 @@ export const DashboardStats = ({
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            Snitt lagerdagar
-          </CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">Lagerdagar (snitt)</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{averageStorageDays} dagar</div>
@@ -46,9 +44,7 @@ export const DashboardStats = ({
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            Totalt lagervärde
-          </CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">Lagervärde</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{formatPrice(inventoryValue)}</div>
