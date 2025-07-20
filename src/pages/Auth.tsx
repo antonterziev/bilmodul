@@ -34,25 +34,41 @@ const Auth = () => {
   useEffect(() => {
     // Check if user is already logged in
     const checkUser = async () => {
-      const {
-        data: {
-          session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        // Check if email is verified
+        if (!session.user.email_confirmed_at) {
+          // Email not verified, stay on auth page
+          return;
         }
-      } = await supabase.auth.getSession();
-      if (session) {
-        navigate("/dashboard");
+        
+        // Check if onboarding is completed
+        const hasCompletedOnboarding = session.user.user_metadata?.onboarding_completed;
+        if (!hasCompletedOnboarding) {
+          navigate("/onboarding");
+        } else {
+          navigate("/dashboard");
+        }
       }
     };
     checkUser();
 
     // Listen for auth changes
-    const {
-      data: {
-        subscription
-      }
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        navigate("/dashboard");
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        // Check if email is verified
+        if (!session.user.email_confirmed_at) {
+          // Email not verified, stay on auth page
+          return;
+        }
+        
+        // Check if onboarding is completed
+        const hasCompletedOnboarding = session.user.user_metadata?.onboarding_completed;
+        if (!hasCompletedOnboarding) {
+          navigate("/onboarding");
+        } else {
+          navigate("/dashboard");
+        }
       }
     });
     return () => subscription.unsubscribe();
