@@ -108,7 +108,6 @@ export const Statistics = ({ onBack, totalStock, averageStorageDays, inventoryVa
         <div className="lg:col-span-2">
           <Card className="bg-slate-800 text-white">
             <CardHeader>
-              <CardTitle className="text-lg">Statisk över lagerfordon</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
