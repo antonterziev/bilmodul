@@ -384,16 +384,6 @@ const Index = () => {
                      </DropdownMenuItem>
                    </DropdownMenuContent>
                  </DropdownMenu>
-                 
-                 <div className="relative">
-                   <Input
-                     placeholder="Sök"
-                     value={searchTerm}
-                     onChange={(e) => setSearchTerm(e.target.value)}
-                     className="w-64 h-8"
-                   />
-                   <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                 </div>
                </div>
               
                <div className="flex items-center gap-4">
