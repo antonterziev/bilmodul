@@ -84,14 +84,6 @@ export function AppSidebar({
         { id: "lager_all", title: "Alla fordon", icon: Car },
         { id: "lager_stock", title: "På lager", icon: Package },
         { id: "lager_sold", title: "Sålda", icon: CheckSquare },
-      ]
-    },
-    {
-      id: "inkop",
-      title: "Inköp",
-      icon: Car,
-      children: [
-        { id: "purchase_form", title: "Registrera inköp", icon: FileCheck },
         { id: "logistics", title: "Logistik", icon: Truck },
       ]
     },
