@@ -439,7 +439,19 @@ const Auth = () => {
               {/* Password field */}
               <div className="space-y-1">
                 <Label htmlFor="password" className="text-sm text-gray-700">Lösenord</Label>
-                <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500" required />
+                <Input 
+                  id="password" 
+                  type="password" 
+                  value={password} 
+                  onChange={e => setPassword(e.target.value)} 
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !isLoading) {
+                      handleSignIn(e);
+                    }
+                  }}
+                  className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500" 
+                  required 
+                />
               </div>
               
               {/* Forgot password link */}
