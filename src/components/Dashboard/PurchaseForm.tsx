@@ -685,9 +685,9 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
         {!showFullForm ? (
           <div className="space-y-4">
             <div className="text-center">
-               <p className="text-foreground mb-6">
-                 Ange fordonets registreringsnummer för att hämta fordonsdata automatiskt
-               </p>
+              <p className="text-foreground mb-6">
+                Ange fordonets registreringsnummer för att hämta fordonsdata
+              </p>
             </div>
             
             <div className="max-w-md mx-auto">
