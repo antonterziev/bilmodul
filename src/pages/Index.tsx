@@ -15,7 +15,7 @@ import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
 import { Statistics } from "@/components/Statistics/Statistics";
 import { AppSidebar } from "@/components/AppSidebar";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
+
 import { supabase } from "@/integrations/supabase/client";
 import { Phone, MessageCircle, LogOut, Search, Download, FileText, File, FileCheck, Receipt, BookOpen, CheckSquare } from "lucide-react";
 
@@ -249,76 +249,6 @@ const Index = () => {
     return null;
   }
 
-  const getBreadcrumbs = () => {
-    const breadcrumbs = [];
-    
-    switch (currentView) {
-      case "overview":
-        breadcrumbs.push({ label: "Översikt" });
-        break;
-      case "statistics":
-        breadcrumbs.push({ label: "Statistik" });
-        break;
-      case "purchase_form":
-        breadcrumbs.push({ 
-          label: "Inköp", 
-          onClick: () => handleSectionToggle("inkop") 
-        });
-        breadcrumbs.push({ label: "Registrera inköp" });
-        break;
-      case "logistics":
-        breadcrumbs.push({ 
-          label: "Inköp", 
-          onClick: () => handleSectionToggle("inkop") 
-        });
-        if (selectedVehicleId) {
-          breadcrumbs.push({ 
-            label: "Logistik", 
-            onClick: () => setSelectedVehicleId(null) 
-          });
-          breadcrumbs.push({ label: "Fordonsdetaljer" });
-        } else {
-          breadcrumbs.push({ label: "Logistik" });
-        }
-        break;
-      case "sales":
-        breadcrumbs.push({ 
-          label: "Affärer", 
-          onClick: () => handleSectionToggle("affarer") 
-        });
-        if (selectedSaleVehicleId) {
-          breadcrumbs.push({ 
-            label: "Försäljning", 
-            onClick: () => setSelectedSaleVehicleId(null) 
-          });
-          breadcrumbs.push({ label: "Säljformulär" });
-        } else {
-          breadcrumbs.push({ label: "Försäljning" });
-        }
-        break;
-      case "lager_all":
-      case "lager_stock":
-      case "lager_sold":
-        breadcrumbs.push({ 
-          label: "Lager", 
-          onClick: () => handleSectionToggle("lager") 
-        });
-        const lagerLabels = {
-          'lager_all': 'Alla fordon',
-          'lager_stock': 'På lager',
-          'lager_sold': 'Sålda'
-        };
-        breadcrumbs.push({ label: lagerLabels[currentView as keyof typeof lagerLabels] });
-        break;
-      case "settings":
-        breadcrumbs.push({ label: "Inställningar" });
-        break;
-      default:
-        breadcrumbs.push({ label: "Dashboard" });
-    }
-    
-    return breadcrumbs;
-  };
 
   const renderMainContent = () => {
     switch (currentView) {
@@ -454,9 +384,6 @@ const Index = () => {
             {/* Main Content Area */}
             <main className="flex-1 p-6 overflow-auto">
             <div className="max-w-7xl mx-auto">
-              <Breadcrumbs items={getBreadcrumbs()} />
-              
-
               {renderMainContent()}
             </div>
           </main>
