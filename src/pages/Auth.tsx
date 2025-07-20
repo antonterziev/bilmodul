@@ -415,7 +415,7 @@ const Auth = () => {
               
               {/* Back to login */}
               <div className="text-center mt-6">
-                <button type="button" onClick={() => setShowForgotPassword(false)} className="text-blue-600 text-sm hover:underline">
+                <button type="button" onClick={() => { setShowForgotPassword(false); setLoginError(""); }} className="text-blue-600 text-sm hover:underline">
                   Tillbaka till inloggning
                 </button>
               </div>
