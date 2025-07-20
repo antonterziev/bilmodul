@@ -14,6 +14,7 @@ import { SalesList } from "@/components/Sales/SalesList";
 import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
 import { Statistics } from "@/components/Statistics/Statistics";
+import { FortnoxIntegration } from "@/components/Settings/FortnoxIntegration";
 import { AppSidebar } from "@/components/AppSidebar";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -367,45 +368,12 @@ const Index = () => {
 
       case 'integrationer':
         return (
-          <div className="p-6">
-            <h1 className="text-2xl font-bold mb-2">Integrationer</h1>
-            <p className="text-muted-foreground mb-6">Här hittar du alla integrationer som för närvarande finns i Veksla.</p>
-            
-            <div className="space-y-4">
-              <div className="bg-card border rounded-lg p-4 flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-                    <img src="/lovable-uploads/06ce5fbb-cb35-47f9-9b24-5b51bdbe0647.png" alt="Fortnox" className="w-10 h-10 object-contain" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">Automatisk bokföring – Fortnox</h3>
-                    <p className="text-sm text-muted-foreground">Bokför dina fordonsaffärer smidigt och automatiskt med Fortnox</p>
-                  </div>
-                </div>
-                <Button variant="outline" disabled>
-                  <Link className="h-4 w-4 mr-2" />
-                  Koppla
-                </Button>
-              </div>
-
-              <div className="bg-card border rounded-lg p-4 flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-                    <img src="/lovable-uploads/7b240d76-c798-4b46-828d-0bb9b4250b35.png" alt="Visma" className="w-10 h-10 object-contain" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">Automatisk bokföring – Visma</h3>
-                    <p className="text-sm text-muted-foreground">Bokför dina fordonsaffärer smidigt och automatiskt med Visma</p>
-                  </div>
-                </div>
-                <Button variant="outline" disabled>
-                  <Link className="h-4 w-4 mr-2" />
-                  Koppla
-                </Button>
-              </div>
-
-
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-2xl font-bold mb-2">Integrationer</h1>
+              <p className="text-muted-foreground mb-6">Anslut ditt Fortnox-konto för att automatiskt synkronisera fakturor och bokföring.</p>
             </div>
+            <FortnoxIntegration />
           </div>
         );
 
