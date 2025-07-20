@@ -131,10 +131,9 @@ export function AppSidebar({
       title: "Direktflöden",
       icon: Zap,
       children: [
+        { id: "direktatkomst", title: "Direktåtkomst", icon: Zap },
+        { id: "direktanmalan", title: "Direktanmälan", icon: FileCheck },
         { id: "direktbetalningar", title: "Direktbetalningar", icon: CreditCard },
-        { id: "kundregister", title: "Kundregister", icon: Users },
-        { id: "bokforingsunderlag", title: "Bokföringsunderlag", icon: BookOpen },
-        { id: "verifikation", title: "Verifikation", icon: CheckSquare },
       ]
     },
   ];
