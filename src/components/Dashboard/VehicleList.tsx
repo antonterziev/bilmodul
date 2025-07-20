@@ -25,9 +25,18 @@ interface VehicleListProps {
   onSellVehicle?: (vehicleId: string) => void;
   onStatsUpdate?: () => void;
   searchTerm?: string;
+  sortField?: 'storage-days' | 'purchase-price' | 'selling-price' | 'gross-profit';
+  sortOrder?: 'desc' | 'asc';
 }
 
-export const VehicleList = ({ filter = 'all', onSellVehicle, onStatsUpdate, searchTerm = "" }: VehicleListProps) => {
+export const VehicleList = ({ 
+  filter = 'all', 
+  onSellVehicle, 
+  onStatsUpdate, 
+  searchTerm = "", 
+  sortField = 'storage-days',
+  sortOrder = 'desc'
+}: VehicleListProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -249,10 +258,43 @@ export const VehicleList = ({ filter = 'all', onSellVehicle, onStatsUpdate, sear
     return registrationMatch || brandMatch || modelMatch;
   });
 
+  // Sort vehicles based on sortField and sortOrder
+  const sortedVehicles = [...filteredVehicles].sort((a, b) => {
+    let valueA: number;
+    let valueB: number;
+    
+    switch (sortField) {
+      case 'storage-days':
+        valueA = calculateStorageDays(a.purchase_date);
+        valueB = calculateStorageDays(b.purchase_date);
+        break;
+      case 'purchase-price':
+        valueA = a.purchase_price;
+        valueB = b.purchase_price;
+        break;
+      case 'selling-price':
+        valueA = a.expected_selling_price || 0;
+        valueB = b.expected_selling_price || 0;
+        break;
+      case 'gross-profit':
+        valueA = (a.expected_selling_price || 0) - a.purchase_price;
+        valueB = (b.expected_selling_price || 0) - b.purchase_price;
+        break;
+      default:
+        return 0;
+    }
+    
+    if (sortOrder === 'desc') {
+      return valueB - valueA; // Descending (högst till lägst)
+    } else {
+      return valueA - valueB; // Ascending (lägst till högst)
+    }
+  });
+
   return (
     <Card>
       <CardContent className="p-6">
-        {filteredVehicles.length === 0 ? (
+        {sortedVehicles.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-muted-foreground">
               {searchTerm.trim() ? `Inga fordon hittades för "${searchTerm}".` : "Inga fordon registrerade än."}
@@ -260,7 +302,7 @@ export const VehicleList = ({ filter = 'all', onSellVehicle, onStatsUpdate, sear
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredVehicles.map((vehicle) => (
+            {sortedVehicles.map((vehicle) => (
               <div key={vehicle.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors w-full">
                 {/* Car icon or brand logo */}
                 <div className="flex-shrink-0 w-16 flex justify-center items-center">

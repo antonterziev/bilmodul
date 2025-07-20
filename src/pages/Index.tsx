@@ -49,6 +49,7 @@ const Index = () => {
   const [searchPlaceholder, setSearchPlaceholder] = useState("Laddar...");
   const [lagerFilter, setLagerFilter] = useState<'all' | 'på_lager' | 'såld'>('all');
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc'); // högst till lägst = desc, lägst till högst = asc
+  const [sortField, setSortField] = useState<'storage-days' | 'purchase-price' | 'selling-price' | 'gross-profit'>('storage-days');
   
   // Dialog states
   const [showExportDialog, setShowExportDialog] = useState(false);
@@ -406,7 +407,10 @@ const Index = () => {
                 
                  <div className="flex items-center gap-2">
                    <span className="text-sm text-muted-foreground">Sortera efter</span>
-                   <Select defaultValue="storage-days">
+                   <Select 
+                     defaultValue="storage-days" 
+                     onValueChange={(value) => setSortField(value as 'storage-days' | 'purchase-price' | 'selling-price' | 'gross-profit')}
+                   >
                      <SelectTrigger className="w-48 h-8">
                        <SelectValue />
                      </SelectTrigger>
@@ -433,13 +437,15 @@ const Index = () => {
             <VehicleList 
               filter={lagerFilter} 
               searchTerm={searchTerm}
+              sortField={sortField}
+              sortOrder={sortOrder}
               onSellVehicle={(vehicleId) => {
                 setSelectedSaleVehicleId(vehicleId);
                 handleViewChange("sales");
               }}
               onStatsUpdate={loadStats}
             />
-          </div>
+           </div>
         );
 
       case 'integrationer':
