@@ -723,7 +723,8 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
               
               <div className="text-center mt-4">
                 <p className="text-sm text-muted-foreground">
-                  Har du endast VIN-kod? Inga problem, du kan{" "}
+                  Har du endast VIN-kod? Inga problem,<br />
+                  du kan{" "}
                   <button 
                     type="button"
                     onClick={() => setShowFullForm(true)}
