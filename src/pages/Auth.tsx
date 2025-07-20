@@ -222,7 +222,7 @@ const Auth = () => {
       
       // Send password reset email - Use the correct redirect URL
       const { error } = await supabase.auth.resetPasswordForEmail(emailToUse, {
-        redirectTo: `${window.location.origin}/password-reset`
+        redirectTo: "https://lagermodulen.se/password-reset"
       });
       
       if (error) {

@@ -75,13 +75,11 @@ const PasswordReset = () => {
         if (session) {
           console.log("Found existing valid session");
           setIsValidatingSession(false);
-        } else if (!accessToken) {
-          // No URL tokens and no session - invalid access
-          console.log("No valid session or tokens found");
+        } else {
+          // Allow some time for auth state to update
           setTimeout(() => {
-            toast.error("Du måste komma från en giltig återställningslänk");
-            navigate("/login-or-signup");
-          }, 1000);
+            setIsValidatingSession(false);
+          }, 2000);
         }
 
         return () => subscription.unsubscribe();
