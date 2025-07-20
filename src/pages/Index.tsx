@@ -357,7 +357,7 @@ const Index = () => {
           <div className="flex-1 px-4 py-4 flex justify-end items-center">
             <div className="flex items-center gap-4">
               <div className="text-right">
-                <div className="text-sm text-muted-foreground">
+                <div className="text-xs text-muted-foreground">
                   Välkommen {getDisplayName()}
                 </div>
                 <div className="text-xs text-muted-foreground truncate max-w-48 text-left">
