@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 interface DashboardStatsProps {
   totalStock: number;
   averageStorageDays: number;
@@ -7,19 +6,22 @@ interface DashboardStatsProps {
   grossProfit: number;
   grossMargin: number;
 }
-
-export const DashboardStats = ({ totalStock, averageStorageDays, inventoryValue, grossProfit, grossMargin }: DashboardStatsProps) => {
+export const DashboardStats = ({
+  totalStock,
+  averageStorageDays,
+  inventoryValue,
+  grossProfit,
+  grossMargin
+}: DashboardStatsProps) => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('sv-SE', {
       style: 'currency',
       currency: 'SEK',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
+      maximumFractionDigits: 0
     }).format(price);
   };
-
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+  return <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -68,9 +70,7 @@ export const DashboardStats = ({ totalStock, averageStorageDays, inventoryValue,
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            Förväntad bruttomarginal
-          </CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">Bruttomarginal</CardTitle>
         </CardHeader>
         <CardContent>
           <div className={`text-2xl font-bold ${grossMargin < 0 ? 'text-red-600' : grossMargin > 0 ? 'text-green-600' : ''}`}>
@@ -78,6 +78,5 @@ export const DashboardStats = ({ totalStock, averageStorageDays, inventoryValue,
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 };
