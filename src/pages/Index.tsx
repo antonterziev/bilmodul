@@ -386,15 +386,6 @@ const Index = () => {
                     </DropdownMenuContent>
                    </DropdownMenu>
                    
-                   <Button 
-                     variant="outline" 
-                     size="sm" 
-                     className="h-8 w-8 p-0"
-                     onClick={() => setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')}
-                   >
-                     {sortOrder === 'desc' ? <ArrowDown className="w-4 h-4" /> : <ArrowUp className="w-4 h-4" />}
-                   </Button>
-                   
                    <Button variant="outline" size="sm" className="h-8 w-8 p-0">
                      <RotateCcw className="w-4 h-4" />
                    </Button>
@@ -413,8 +404,8 @@ const Index = () => {
               
                <div className="flex items-center gap-4">
                 
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Sortera efter</span>
+                 <div className="flex items-center gap-2">
+                   <span className="text-sm text-muted-foreground">Sortera efter</span>
                    <Select defaultValue="storage-days-high">
                      <SelectTrigger className="w-48 h-8">
                        <SelectValue />
@@ -426,7 +417,16 @@ const Index = () => {
                        <SelectItem value="price-low">Inköpspris (lägst till högst)</SelectItem>
                      </SelectContent>
                    </Select>
-                </div>
+                   
+                   <Button 
+                     variant="outline" 
+                     size="sm" 
+                     className="h-8 w-8 p-0"
+                     onClick={() => setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')}
+                   >
+                     {sortOrder === 'desc' ? <ArrowDown className="w-4 h-4" /> : <ArrowUp className="w-4 h-4" />}
+                   </Button>
+                 </div>
               </div>
             </div>
             
