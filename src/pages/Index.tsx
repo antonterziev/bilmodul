@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
 import { DashboardStats } from "@/components/Dashboard/DashboardStats";
 import { VehicleList } from "@/components/Dashboard/VehicleList";
@@ -13,53 +14,45 @@ import { SalesList } from "@/components/Sales/SalesList";
 import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
 import { Statistics } from "@/components/Statistics/Statistics";
+import { AppSidebar } from "@/components/AppSidebar";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { supabase } from "@/integrations/supabase/client";
-import { Home, BarChart3, Car, Settings as SettingsIcon, Truck, Download, Phone, MessageCircle, LogOut, CreditCard, Zap, FileCheck, FileText, File, Receipt, CreditCard as DirectPayments, Users, BookOpen, CheckSquare, ChevronDown, ChevronRight, Package, Search, Landmark, Handshake } from "lucide-react";
+import { Phone, MessageCircle, LogOut, Search, Download, FileText, File, FileCheck, Receipt, BookOpen, CheckSquare } from "lucide-react";
 
 const Index = () => {
   const { user, signOut, isLoading } = useAuth();
   const navigate = useNavigate();
-  const [showPurchaseForm, setShowPurchaseForm] = useState(false);
-  const [purchaseFormKey, setPurchaseFormKey] = useState(0);
-  const [showLogistics, setShowLogistics] = useState(false);
-  const [showSales, setShowSales] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [showStatistics, setShowStatistics] = useState(false);
-  const [showLager, setShowLager] = useState(false);
-  const [showLagerExpanded, setShowLagerExpanded] = useState(false);
-  const [lagerFilter, setLagerFilter] = useState<'all' | 'på_lager' | 'såld'>('all');
-  const [showExportDialog, setShowExportDialog] = useState(false);
-  const [showSupportDialog, setShowSupportDialog] = useState(false);
-  const [showFinansiering, setShowFinansiering] = useState(false);
-  const [showDirektatkomst, setShowDirektatkomst] = useState(false);
-  const [showDirektanmalan, setShowDirektanmalan] = useState(false);
-  const [showAvtal, setShowAvtal] = useState(false);
-  const [showDokument, setShowDokument] = useState(false);
-  const [showFakturor, setShowFakturor] = useState(false);
-  const [showDirektbetalningar, setShowDirektbetalningar] = useState(false);
-  const [showKundregister, setShowKundregister] = useState(false);
-  const [showBokforingsunderlag, setShowBokforingsunderlag] = useState(false);
-  const [showVerifikation, setShowVerifikation] = useState(false);
   
-  const [showKundtjanst, setShowKundtjanst] = useState(false);
-  const [showFinansieringExpanded, setShowFinansieringExpanded] = useState(false);
-  const [showEkonomi, setShowEkonomi] = useState(false);
-  const [showEkonomiExpanded, setShowEkonomiExpanded] = useState(false);
-  const [showBokforing, setShowBokforing] = useState(false);
-  const [showDirektfloden, setShowDirektfloden] = useState(false);
-  const [showDirektflodenExpanded, setShowDirektflodenExpanded] = useState(false);
-  const [showAffarer, setShowAffarer] = useState(false);
-  const [showAffarerExpanded, setShowAffarerExpanded] = useState(false);
-  const [showVerifikationDialog, setShowVerifikationDialog] = useState(false);
-  const [showDokumentDialog, setShowDokumentDialog] = useState(false);
-  const [showLagerfinansiering, setShowLagerfinansiering] = useState(false);
-  const [showSlutkundsfinansiering, setShowSlutkundsfinansiering] = useState(false);
+  // Current view state
+  const [currentView, setCurrentView] = useState("overview");
+  
+  // Expanded sections state
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    lager: false,
+    inkop: false,
+    finansiering: false,
+    affarer: false,
+    direktfloden: false,
+  });
+
+  // Form and data states
+  const [purchaseFormKey, setPurchaseFormKey] = useState(0);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [selectedSaleVehicleId, setSelectedSaleVehicleId] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [inventoryItems, setInventoryItems] = useState<any[]>([]);
   const [searchPlaceholder, setSearchPlaceholder] = useState("Laddar...");
+  const [lagerFilter, setLagerFilter] = useState<'all' | 'på_lager' | 'såld'>('all');
+  
+  // Dialog states
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [showSupportDialog, setShowSupportDialog] = useState(false);
+  const [showKundtjanst, setShowKundtjanst] = useState(false);
+  const [showVerifikationDialog, setShowVerifikationDialog] = useState(false);
+  const [showDokumentDialog, setShowDokumentDialog] = useState(false);
+  
+  // Stats state
   const [stats, setStats] = useState({
     totalStock: 0,
     averageStorageDays: 0,
@@ -69,7 +62,7 @@ const Index = () => {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      navigate("/auth");
+      navigate("/login-or-signup");
     } else if (!isLoading && user) {
       // Check if user has completed onboarding
       const hasCompletedOnboarding = user.user_metadata?.onboarding_completed;
@@ -87,34 +80,31 @@ const Index = () => {
     }
   }, [user]);
 
-  const handleViewVehicle = (vehicleId: string) => {
-    setSelectedVehicleId(vehicleId);
-  };
-
-  const handleBackToLogistics = () => {
+  // Navigation handlers
+  const handleViewChange = (view: string) => {
+    setCurrentView(view);
     setSelectedVehicleId(null);
-  };
-
-  const handleSellVehicle = (vehicleId: string) => {
-    setSelectedSaleVehicleId(vehicleId);
-  };
-
-  const handleBackToSales = () => {
     setSelectedSaleVehicleId(null);
+    
+    // Handle special cases
+    if (view === "purchase_form") {
+      setPurchaseFormKey(prev => prev + 1);
+    }
+    if (view.startsWith("lager")) {
+      const filterMap: Record<string, 'all' | 'på_lager' | 'såld'> = {
+        'lager_all': 'all',
+        'lager_stock': 'på_lager', 
+        'lager_sold': 'såld'
+      };
+      setLagerFilter(filterMap[view] || 'all');
+    }
   };
 
-  const handleSalesSuccess = () => {
-    setSelectedSaleVehicleId(null);
-    setShowSales(false);
-    loadStats(); // Refresh stats after successful sale
-  };
-
-  const handleBackToSettings = () => {
-    setShowSettings(false);
-  };
-
-  const handleBackToStatistics = () => {
-    setShowStatistics(false);
+  const handleSectionToggle = (section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
   };
 
   const handleLogout = () => {
@@ -251,1018 +241,358 @@ const Index = () => {
     return null;
   }
 
+  const getBreadcrumbs = () => {
+    const breadcrumbs = [];
+    
+    switch (currentView) {
+      case "overview":
+        breadcrumbs.push({ label: "Översikt" });
+        break;
+      case "statistics":
+        breadcrumbs.push({ label: "Statistik" });
+        break;
+      case "purchase_form":
+        breadcrumbs.push({ 
+          label: "Inköp", 
+          onClick: () => handleSectionToggle("inkop") 
+        });
+        breadcrumbs.push({ label: "Registrera inköp" });
+        break;
+      case "logistics":
+        breadcrumbs.push({ 
+          label: "Inköp", 
+          onClick: () => handleSectionToggle("inkop") 
+        });
+        if (selectedVehicleId) {
+          breadcrumbs.push({ 
+            label: "Logistik", 
+            onClick: () => setSelectedVehicleId(null) 
+          });
+          breadcrumbs.push({ label: "Fordonsdetaljer" });
+        } else {
+          breadcrumbs.push({ label: "Logistik" });
+        }
+        break;
+      case "sales":
+        breadcrumbs.push({ 
+          label: "Affärer", 
+          onClick: () => handleSectionToggle("affarer") 
+        });
+        if (selectedSaleVehicleId) {
+          breadcrumbs.push({ 
+            label: "Försäljning", 
+            onClick: () => setSelectedSaleVehicleId(null) 
+          });
+          breadcrumbs.push({ label: "Säljformulär" });
+        } else {
+          breadcrumbs.push({ label: "Försäljning" });
+        }
+        break;
+      case "lager_all":
+      case "lager_stock":
+      case "lager_sold":
+        breadcrumbs.push({ 
+          label: "Lager", 
+          onClick: () => handleSectionToggle("lager") 
+        });
+        const lagerLabels = {
+          'lager_all': 'Alla fordon',
+          'lager_stock': 'På lager',
+          'lager_sold': 'Sålda'
+        };
+        breadcrumbs.push({ label: lagerLabels[currentView as keyof typeof lagerLabels] });
+        break;
+      case "settings":
+        breadcrumbs.push({ label: "Inställningar" });
+        break;
+      default:
+        breadcrumbs.push({ label: "Dashboard" });
+    }
+    
+    return breadcrumbs;
+  };
+
   const renderMainContent = () => {
-    if (showPurchaseForm) {
-      return <PurchaseForm 
-        key={purchaseFormKey} // Force reset when key changes
-        onSuccess={() => {
-          loadStats();
-          setShowPurchaseForm(false);
-          setShowLager(true);
-          setShowLagerExpanded(true);
-          setLagerFilter('på_lager');
-        }}
-        onNavigateToVehicle={(vehicleId) => {
-          setShowPurchaseForm(false);
-          setShowLogistics(true);
-          setSelectedVehicleId(vehicleId);
-        }}
-      />;
-    }
-
-    if (showLogistics) {
-      if (selectedVehicleId) {
-        return <LogisticsDetail 
-          vehicleId={selectedVehicleId} 
-          onBack={handleBackToLogistics} 
+    switch (currentView) {
+      case "purchase_form":
+        return <PurchaseForm 
+          key={purchaseFormKey}
+          onSuccess={() => {
+            loadStats();
+            handleViewChange("lager_stock");
+          }}
+          onNavigateToVehicle={(vehicleId) => {
+            setSelectedVehicleId(vehicleId);
+            handleViewChange("logistics");
+          }}
         />;
-      }
-      return <LogisticsList onViewVehicle={handleViewVehicle} />;
-    }
 
-    if (showSales) {
-      if (selectedSaleVehicleId) {
-        return <SalesForm 
-          vehicleId={selectedSaleVehicleId} 
-          onBack={handleBackToSales}
-          onSuccess={handleSalesSuccess}
-        />;
-      }
-      return <SalesList onSellVehicle={handleSellVehicle} />;
-    }
+      case "logistics":
+        if (selectedVehicleId) {
+          return <LogisticsDetail 
+            vehicleId={selectedVehicleId} 
+            onBack={() => setSelectedVehicleId(null)} 
+          />;
+        }
+        return <LogisticsList onViewVehicle={(vehicleId) => setSelectedVehicleId(vehicleId)} />;
 
-    if (showSettings) {
-      return <Settings />;
-    }
-
-    if (showStatistics) {
-      return <Statistics 
-        onBack={handleBackToStatistics}
-        totalStock={stats.totalStock}
-        averageStorageDays={stats.averageStorageDays}
-        inventoryValue={stats.inventoryValue}
-        grossProfit={stats.grossProfit}
-      />;
-    }
-
-    if (showLager) {
-      return (
-        <>
-          <DashboardStats 
-            totalStock={stats.totalStock}
-            averageStorageDays={stats.averageStorageDays}
-            inventoryValue={stats.inventoryValue}
-            grossProfit={stats.grossProfit}
-          />
-          <VehicleList 
-            filter={lagerFilter} 
-            searchTerm={searchTerm}
-            onSellVehicle={(vehicleId) => {
-              setShowPurchaseForm(false);
-              setShowLogistics(false);
-              setShowSales(true);
-              setShowSettings(false);
-              setShowStatistics(false);
-              setShowLager(false);
-              setSelectedVehicleId(null);
-              setSelectedSaleVehicleId(vehicleId);
+      case "sales":
+        if (selectedSaleVehicleId) {
+          return <SalesForm 
+            vehicleId={selectedSaleVehicleId} 
+            onBack={() => setSelectedSaleVehicleId(null)}
+            onSuccess={() => {
+              setSelectedSaleVehicleId(null);
+              handleViewChange("overview");
+              loadStats();
             }}
-            onStatsUpdate={loadStats}
-          />
-        </>
-      );
+          />;
+        }
+        return <SalesList onSellVehicle={(vehicleId) => setSelectedSaleVehicleId(vehicleId)} />;
+
+      case "settings":
+        return <Settings />;
+
+      case "statistics":
+        return <Statistics 
+          onBack={() => handleViewChange("overview")}
+          totalStock={stats.totalStock}
+          averageStorageDays={stats.averageStorageDays}
+          inventoryValue={stats.inventoryValue}
+          grossProfit={stats.grossProfit}
+        />;
+
+      case "lager_all":
+      case "lager_stock":
+      case "lager_sold":
+        return (
+          <>
+            <DashboardStats 
+              totalStock={stats.totalStock}
+              averageStorageDays={stats.averageStorageDays}
+              inventoryValue={stats.inventoryValue}
+              grossProfit={stats.grossProfit}
+            />
+            <VehicleList 
+              filter={lagerFilter} 
+              searchTerm={searchTerm}
+              onSellVehicle={(vehicleId) => {
+                setSelectedSaleVehicleId(vehicleId);
+                handleViewChange("sales");
+              }}
+              onStatsUpdate={loadStats}
+            />
+          </>
+        );
+
+      default:
+        // Default overview content
+        const getFirstName = () => {
+          if (userProfile?.full_name) {
+            return userProfile.full_name.split(' ')[0];
+          }
+          return user?.email?.split('@')[0] || 'Användare';
+        };
+
+        return (
+          <div className="text-center py-12">
+            <h1 className="text-2xl font-bold mb-4">Välkommen till Veksla, {getFirstName()}</h1>
+            <p className="text-muted-foreground">Välj en sektion från menyn för att komma igång.</p>
+          </div>
+        );
     }
-
-    // Default content for Översikt
-    const getFirstName = () => {
-      if (userProfile?.full_name) {
-        return userProfile.full_name.split(' ')[0];
-      }
-      return user?.email?.split('@')[0] || 'Användare';
-    };
-
-    return (
-      <div className="text-center py-12">
-        <h1 className="text-2xl font-bold mb-4">Välkommen till Veksla, {getFirstName()}</h1>
-        <p className="text-muted-foreground">Välj en sektion från menyn för att komma igång.</p>
-      </div>
-    );
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b flex">
-        <div className="w-72 p-4 flex items-center justify-center">
-          <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-8" />
-        </div>
-        <div className="flex-1 px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">
-              Välkommen {getDisplayName()}
-            </span>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => setShowKundtjanst(true)} className="flex items-center gap-2 w-32">
-                  <Phone className="h-4 w-4" />
-                  <span className="text-foreground">Kundtjänst</span>
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setShowSupportDialog(true)} className="flex items-center gap-2 w-32">
-                  <MessageCircle className="h-4 w-4" />
-                  Supportchatt
-                </Button>
-                <Button variant="outline" onClick={handleLogout} size="sm" className="flex items-center gap-2 w-32">
-                  <LogOut className="h-4 w-4" />
-                  Logga ut
-                </Button>
+    <SidebarProvider>
+      <div className="min-h-screen w-full flex bg-background">
+        <AppSidebar 
+          currentView={currentView}
+          onViewChange={handleViewChange}
+          expandedSections={expandedSections}
+          onSectionToggle={handleSectionToggle}
+        />
+        
+        <div className="flex-1 flex flex-col">
+          {/* Header */}
+          <header className="border-b flex h-16">
+            <div className="flex items-center px-4">
+              <SidebarTrigger />
+            </div>
+            <div className="flex-1 px-4 py-4 flex justify-between items-center">
+              <div className="flex items-center space-x-3">
+                <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-8" />
               </div>
-          </div>
-        </div>
-      </header>
-      
-      <div className="flex">
-        {/* Sidebar */}
-        <aside className="w-72 bg-white border-r border-border flex flex-col">
-          <div className="p-4">
-            <div className="space-y-2">
-              <Button 
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 font-medium"
-                onClick={() => {
-                  setShowPurchaseForm(true);
-                  setPurchaseFormKey(prev => prev + 1); // Force reset of form
-                  setShowLogistics(false);
-                  setShowSales(false);
-                  setShowSettings(false);
-                  setShowStatistics(false);
-                  setShowLager(false);
-                  setSelectedVehicleId(null);
-                  setSelectedSaleVehicleId(null);
-                }}
-              >
-                Registrera inköp
-              </Button>
-              <div className="relative">
-                <Input
-                  type="text"
-                  placeholder={searchPlaceholder}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  disabled={inventoryItems.length === 0}
-                  className="pl-9 w-full truncate"
-                />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-muted-foreground">
+                  Välkommen {getDisplayName()}
+                </span>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setShowKundtjanst(true)} className="flex items-center gap-2 w-32">
+                    <Phone className="h-4 w-4" />
+                    <span className="text-foreground">Kundtjänst</span>
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setShowSupportDialog(true)} className="flex items-center gap-2 w-32">
+                    <MessageCircle className="h-4 w-4" />
+                    Supportchatt
+                  </Button>
+                  <Button variant="outline" onClick={handleLogout} size="sm" className="flex items-center gap-2 w-32">
+                    <LogOut className="h-4 w-4" />
+                    Logga ut
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-          
-          <nav className="flex-1 p-4">
-            <ul className="space-y-2">
-              <li>
-                <Button 
-                  variant={!showPurchaseForm && !showLogistics && !showSales && !showSettings && !showStatistics && !showLager ? "default" : "ghost"} 
-                  className={`w-full justify-start ${!showPurchaseForm && !showLogistics && !showSales && !showSettings && !showStatistics && !showLager ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
-                  onClick={() => {
-                    setShowPurchaseForm(false);
-                    setShowLogistics(false);
-                    setShowSales(false);
-                    setShowSettings(false);
-                    setShowStatistics(false);
-                    setShowLager(false);
-                    setSelectedVehicleId(null);
-                    setSelectedSaleVehicleId(null);
-                  }}
-                >
-                  <div className="flex items-center">
-                    <Home className="mr-2 h-4 w-4" />
-                    Översikt
-                  </div>
-                </Button>
-              </li>
-              <li>
-                <Button 
-                  variant={showStatistics ? "default" : "ghost"} 
-                  className={`w-full justify-start ${showStatistics ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
-                  onClick={() => {
-                    setShowPurchaseForm(false);
-                    setShowLogistics(false);
-                    setShowSales(false);
-                    setShowSettings(false);
-                    setShowStatistics(true);
-                    setShowLager(false);
-                    setSelectedVehicleId(null);
-                    setSelectedSaleVehicleId(null);
-                  }}
-                >
-                  <div className="flex items-center">
-                    <BarChart3 className="mr-2 h-4 w-4" />
-                    Statistik
-                  </div>
-                </Button>
-              </li>
-              <li>
-                <Button 
-                  variant="ghost"
-                  className="w-full justify-between text-muted-foreground"
-                  onClick={() => {
-                    const newState = !showLagerExpanded;
-                    setShowLagerExpanded(newState);
-                    if (newState) {
-                      setShowFinansieringExpanded(false);
-                      setShowDirektflodenExpanded(false);
-                      setShowEkonomiExpanded(false);
-                      setShowAffarerExpanded(false);
-                    }
-                    // Always set to "I lager" when opening lagerhantering
-                    setShowPurchaseForm(false);
-                    setShowLogistics(false);
-                    setShowSales(false);
-                    setShowSettings(false);
-                    setShowStatistics(false);
-                    setShowLager(true);
-                    setSelectedVehicleId(null);
-                    setSelectedSaleVehicleId(null);
-                    setLagerFilter('på_lager'); // Always default to "I lager"
-                  }}
-                >
-                  <div className="flex items-center">
-                    <Car className="mr-2 h-4 w-4" />
-                    Lagerhantering
-                  </div>
-                  {showLagerExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                </Button>
-                
-                {/* Subcategories */}
-                {showLagerExpanded && (
-                  <div className="ml-0 mt-2 space-y-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className={`w-full justify-start text-sm pl-10 ${showLager && lagerFilter === 'på_lager' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
-                      onClick={() => {
-                        setShowPurchaseForm(false);
-                        setShowLogistics(false);
-                        setShowSales(false);
-                        setShowSettings(false);
-                        setShowStatistics(false);
-                        setShowLager(true);
-                        setSelectedVehicleId(null);
-                        setSelectedSaleVehicleId(null);
-                        setLagerFilter('på_lager');
-                      }}
-                    >
-                      I lager
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className={`w-full justify-start text-sm pl-10 ${showLager && lagerFilter === 'såld' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
-                      onClick={() => {
-                        setShowPurchaseForm(false);
-                        setShowLogistics(false);
-                        setShowSales(false);
-                        setShowSettings(false);
-                        setShowStatistics(false);
-                        setShowLager(true);
-                        setSelectedVehicleId(null);
-                        setSelectedSaleVehicleId(null);
-                        setLagerFilter('såld');
-                      }}
-                    >
-                      Sålda
-                    </Button>
-                  </div>
-                )}
-              </li>
-              <li>
-                <Button 
-                  variant="ghost"
-                  className="w-full justify-between text-muted-foreground"
-                  onClick={() => {
-                    const newState = !showFinansieringExpanded;
-                    setShowFinansieringExpanded(newState);
-                    if (newState) {
-                      setShowLagerExpanded(false);
-                      setShowDirektflodenExpanded(false);
-                      setShowEkonomiExpanded(false);
-                      setShowAffarerExpanded(false);
-                    }
-                  }}
-                >
-                  <div className="flex items-center">
-                    <Landmark className="mr-2 h-4 w-4" />
-                    Finansiering
-                  </div>
-                  {showFinansieringExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                </Button>
-                
-                {/* Subcategories */}
-                {showFinansieringExpanded && (
-                  <div className="ml-0 mt-2 space-y-1">
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-muted-foreground pl-10"
-                      onClick={() => {
-                        setShowLagerfinansiering(true);
-                      }}
-                    >
-                      Lagerfinansiering
-                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                        PRO
-                      </div>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-muted-foreground pl-10"
-                      onClick={() => {
-                        setShowSlutkundsfinansiering(true);
-                      }}
-                    >
-                      Slutkundsfinansiering
-                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                        PRO
-                      </div>
-                    </Button>
-                  </div>
-                )}
-              </li>
-              <li>
-                <Button 
-                  variant="ghost"
-                  className="w-full justify-between text-muted-foreground"
-                  onClick={() => {
-                    const newState = !showAffarerExpanded;
-                    setShowAffarerExpanded(newState);
-                    if (newState) {
-                      setShowLagerExpanded(false);
-                      setShowFinansieringExpanded(false);
-                      setShowDirektflodenExpanded(false);
-                      setShowEkonomiExpanded(false);
-                    }
-                  }}
-                >
-                  <div className="flex items-center">
-                    <Handshake className="mr-2 h-4 w-4" />
-                    Affärer
-                  </div>
-                  {showAffarerExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                </Button>
-                
-                {/* Subcategories */}
-                {showAffarerExpanded && (
-                  <div className="ml-0 mt-2 space-y-1">
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-muted-foreground pl-10"
-                      onClick={() => {
-                        setShowAvtal(true);
-                      }}
-                    >
-                      Avtal
-                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                        PRO
-                      </div>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-muted-foreground pl-10"
-                      onClick={() => {
-                        setShowFakturor(true);
-                      }}
-                    >
-                      Fakturor
-                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                        PRO
-                      </div>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-muted-foreground pl-10"
-                      onClick={() => {
-                        setShowKundregister(true);
-                      }}
-                    >
-                      Kunder
-                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                        PRO
-                      </div>
-                    </Button>
-                  </div>
-                )}
-              </li>
-              <li>
-                <Button 
-                  variant="ghost"
-                  className="w-full justify-between text-muted-foreground"
-                  onClick={() => {
-                    const newState = !showDirektflodenExpanded;
-                    setShowDirektflodenExpanded(newState);
-                    if (newState) {
-                      setShowLagerExpanded(false);
-                      setShowFinansieringExpanded(false);
-                      setShowEkonomiExpanded(false);
-                      setShowAffarerExpanded(false);
-                    }
-                  }}
-                >
-                  <div className="flex items-center">
-                    <Zap className="mr-2 h-4 w-4" />
-                    Direktflöden
-                  </div>
-                  {showDirektflodenExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                </Button>
-                
-                {/* Subcategories */}
-                {showDirektflodenExpanded && (
-                  <div className="ml-0 mt-2 space-y-1">
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-muted-foreground pl-10"
-                      onClick={() => {
-                        setShowDirektatkomst(true);
-                      }}
-                    >
-                      Direktåtkomst
-                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                        PRO
-                      </div>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-muted-foreground pl-10"
-                      onClick={() => {
-                        setShowDirektanmalan(true);
-                      }}
-                    >
-                      Direktanmälan
-                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                        PRO
-                      </div>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-muted-foreground pl-10"
-                      onClick={() => {
-                        setShowDirektbetalningar(true);
-                      }}
-                    >
-                      Direktbetalningar
-                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                        PRO
-                      </div>
-                    </Button>
-                  </div>
-                )}
-              </li>
-              <li>
-                <Button 
-                  variant="ghost"
-                  className="w-full justify-between text-muted-foreground"
-                  onClick={() => {
-                    const newState = !showEkonomiExpanded;
-                    setShowEkonomiExpanded(newState);
-                    if (newState) {
-                      setShowLagerExpanded(false);
-                      setShowFinansieringExpanded(false);
-                      setShowDirektflodenExpanded(false);
-                      setShowAffarerExpanded(false);
-                    }
-                  }}
-                >
-                  <div className="flex items-center">
-                    <FileText className="mr-2 h-4 w-4" />
-                    Ekonomi
-                  </div>
-                  {showEkonomiExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                </Button>
-                
-                {/* Subcategories */}
-                {showEkonomiExpanded && (
-                  <div className="ml-0 mt-2 space-y-1">
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-muted-foreground pl-10"
-                      onClick={() => {
-                        setShowBokforing(true);
-                      }}
-                    >
-                      Bokföring
-                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                        PRO
-                      </div>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-muted-foreground pl-10"
-                      onClick={() => {
-                        setShowVerifikationDialog(true);
-                      }}
-                    >
-                      Verifikation
-                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                        PRO
-                      </div>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-muted-foreground pl-10"
-                      onClick={() => {
-                        setShowDokumentDialog(true);
-                      }}
-                    >
-                      Dokument
-                      <div className="ml-auto bg-gradient-to-r from-amber-200/80 to-amber-300/80 text-amber-900 text-xs px-2 py-0.5 rounded-full font-semibold">
-                        PRO
-                      </div>
-                    </Button>
-                  </div>
-                )}
-              </li>
-              <li>
-                <Button 
-                  variant={showSettings ? "default" : "ghost"} 
-                  className={`w-full justify-start ${showSettings ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
-                  onClick={() => {
-                    setShowPurchaseForm(false);
-                    setShowLogistics(false);
-                    setShowSales(false);
-                    setShowSettings(true);
-                    setShowStatistics(false);
-                    setShowLager(false);
-                    setSelectedVehicleId(null);
-                    setSelectedSaleVehicleId(null);
-                  }}
-                >
-                  <div className="flex items-center">
-                    <SettingsIcon className="mr-2 h-4 w-4" />
-                    Inställningar
-                  </div>
-                </Button>
-              </li>
-            </ul>
-          </nav>
-        </aside>
+          </header>
 
-        {/* Main Content */}
-        <div className="flex-1">
-          <main className="container mx-auto px-4 py-8">
-            {renderMainContent()}
+          {/* Main Content Area */}
+          <main className="flex-1 p-6">
+            <div className="max-w-7xl mx-auto">
+              <Breadcrumbs items={getBreadcrumbs()} />
+              
+              {/* Search Bar for Lager views */}
+              {currentView.startsWith("lager") && (
+                <div className="mb-6">
+                  <div className="relative max-w-md">
+                    <Input
+                      type="text"
+                      placeholder={searchPlaceholder}
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      disabled={inventoryItems.length === 0}
+                      className="pl-9 w-full"
+                    />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  </div>
+                </div>
+              )}
+              
+              {/* Quick Action Button for Purchase */}
+              {currentView === "overview" && (
+                <div className="mb-6">
+                  <Button 
+                    className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 font-medium"
+                    onClick={() => handleViewChange("purchase_form")}
+                  >
+                    Registrera inköp
+                  </Button>
+                </div>
+              )}
+
+              {renderMainContent()}
+            </div>
           </main>
         </div>
+
+        {/* Dialogs */}
+        <Dialog open={showKundtjanst} onOpenChange={setShowKundtjanst}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Kundtjänst</DialogTitle>
+            </DialogHeader>
+            <div className="p-4">
+              <p className="mb-4">Kontakta vår kundtjänst för hjälp och support.</p>
+              <div className="space-y-2">
+                <p><strong>Telefon:</strong> +46 8-123 456 78</p>
+                <p><strong>E-post:</strong> support@veksla.se</p>
+                <p><strong>Öppettider:</strong> Mån-Fre 09:00-17:00</p>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showSupportDialog} onOpenChange={setShowSupportDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Supportchatt</DialogTitle>
+            </DialogHeader>
+            <div className="p-4">
+              <p className="mb-4">Supportchatten är inte tillgänglig just nu.</p>
+              <p>Vänligen kontakta oss via telefon eller e-post istället.</p>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Exportera data</DialogTitle>
+            </DialogHeader>
+            <div className="p-4">
+              <p className="mb-4">Välj vilket format du vill exportera dina data i:</p>
+              <div className="space-y-2">
+                <Button variant="outline" className="w-full justify-start">
+                  <FileText className="mr-2 h-4 w-4" />
+                  Excel (.xlsx)
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  <File className="mr-2 h-4 w-4" />
+                  CSV (.csv)
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  <FileText className="mr-2 h-4 w-4" />
+                  PDF-rapport
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showVerifikationDialog} onOpenChange={setShowVerifikationDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Verifikation</DialogTitle>
+            </DialogHeader>
+            <div className="p-4">
+              <p className="mb-4">Här kan du hantera verifikationer och bokföringsunderlag.</p>
+              <div className="space-y-2">
+                <Button variant="outline" className="w-full justify-start">
+                  <CheckSquare className="mr-2 h-4 w-4" />
+                  Skapa ny verifikation
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  <BookOpen className="mr-2 h-4 w-4" />
+                  Visa alla verifikationer
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  <Download className="mr-2 h-4 w-4" />
+                  Exportera till bokföringsprogram
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showDokumentDialog} onOpenChange={setShowDokumentDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Dokument</DialogTitle>
+            </DialogHeader>
+            <div className="p-4">
+              <p className="mb-4">Hantera alla dina affärsdokument på ett ställe.</p>
+              <div className="space-y-2">
+                <Button variant="outline" className="w-full justify-start">
+                  <FileCheck className="mr-2 h-4 w-4" />
+                  Köpeavtal
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  <Receipt className="mr-2 h-4 w-4" />
+                  Fakturor
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  <File className="mr-2 h-4 w-4" />
+                  Övriga dokument
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  <Download className="mr-2 h-4 w-4" />
+                  Ladda upp dokument
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
-
-      {/* Export Dialog */}
-      <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center space-y-6 py-4">
-             <div className="flex items-center justify-center w-32 h-20 bg-white rounded-lg border">
-               <img 
-                 src="/lovable-uploads/ff47e205-8367-4921-a257-530eb5597fdd.png" 
-                 alt="Fortnox logo" 
-                 className="h-12 object-contain"
-               />
-             </div>
-            <div className="text-center space-y-2">
-              <p className="text-muted-foreground">
-                Dataexport till Fortnox och Visma är en betalfunktion
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
-              </p>
-            </div>
-            <Button className="w-full" onClick={() => setShowExportDialog(false)}>
-              Uppgradera medlemskap
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Support Dialog */}
-      <Dialog open={showSupportDialog} onOpenChange={setShowSupportDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center space-y-6 py-4">
-            <div className="flex items-center justify-center w-20 h-20 bg-primary/10 rounded-lg">
-              <MessageCircle className="w-12 h-12 text-primary" />
-            </div>
-            <div className="text-center space-y-2">
-              <p className="text-muted-foreground">
-                Supportchatt är en betalfunktion
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
-              </p>
-            </div>
-            <Button className="w-full" onClick={() => setShowSupportDialog(false)}>
-              Uppgradera medlemskap
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Finansiering Dialog */}
-      <Dialog open={showFinansiering} onOpenChange={setShowFinansiering}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center space-y-6 py-4">
-            <div className="flex items-center justify-center w-20 h-20 bg-blue-100 rounded-lg">
-              <CreditCard className="w-12 h-12 text-blue-600" />
-            </div>
-            <div className="text-center space-y-2">
-              <p className="text-muted-foreground">
-                Finansiering är en betalfunktion
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
-              </p>
-            </div>
-            <Button className="w-full" onClick={() => setShowFinansiering(false)}>
-              Uppgradera medlemskap
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Direktåtkomst Dialog */}
-      <Dialog open={showDirektatkomst} onOpenChange={setShowDirektatkomst}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center space-y-6 py-4">
-            <div className="flex items-center justify-center w-20 h-20 bg-yellow-100 rounded-lg">
-              <Zap className="w-12 h-12 text-yellow-600" />
-            </div>
-            <div className="text-center space-y-2">
-              <p className="text-muted-foreground">
-                Direktåtkomst är en betalfunktion
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
-              </p>
-            </div>
-            <Button className="w-full" onClick={() => setShowDirektatkomst(false)}>
-              Uppgradera medlemskap
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Direktanmälan Dialog */}
-      <Dialog open={showDirektanmalan} onOpenChange={setShowDirektanmalan}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center space-y-6 py-4">
-            <div className="flex items-center justify-center w-20 h-20 bg-purple-100 rounded-lg">
-              <FileCheck className="w-12 h-12 text-purple-600" />
-            </div>
-            <div className="text-center space-y-2">
-              <p className="text-muted-foreground">
-                Direktanmälan är en betalfunktion
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
-              </p>
-            </div>
-            <Button className="w-full" onClick={() => setShowDirektanmalan(false)}>
-              Uppgradera medlemskap
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Avtal Dialog */}
-      <Dialog open={showAvtal} onOpenChange={setShowAvtal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center space-y-6 py-4">
-            <div className="flex items-center justify-center w-20 h-20 bg-gray-100 rounded-lg">
-              <FileText className="w-12 h-12 text-gray-600" />
-            </div>
-            <div className="text-center space-y-2">
-              <p className="text-muted-foreground">
-                Avtal är en betalfunktion
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
-              </p>
-            </div>
-            <Button className="w-full" onClick={() => setShowAvtal(false)}>
-              Uppgradera medlemskap
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Dokument Dialog */}
-      <Dialog open={showDokument} onOpenChange={setShowDokument}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center space-y-6 py-4">
-            <div className="flex items-center justify-center w-20 h-20 bg-indigo-100 rounded-lg">
-              <File className="w-12 h-12 text-indigo-600" />
-            </div>
-            <div className="text-center space-y-2">
-              <p className="text-muted-foreground">
-                Dokument är en betalfunktion
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
-              </p>
-            </div>
-            <Button className="w-full" onClick={() => setShowDokument(false)}>
-              Uppgradera medlemskap
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Fakturor Dialog */}
-      <Dialog open={showFakturor} onOpenChange={setShowFakturor}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center space-y-6 py-4">
-            <div className="flex items-center justify-center w-20 h-20 bg-orange-100 rounded-lg">
-              <Receipt className="w-12 h-12 text-orange-600" />
-            </div>
-            <div className="text-center space-y-2">
-              <p className="text-muted-foreground">
-                Fakturor är en betalfunktion
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
-              </p>
-            </div>
-            <Button className="w-full" onClick={() => setShowFakturor(false)}>
-              Uppgradera medlemskap
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Direktbetalningar Dialog */}
-      <Dialog open={showDirektbetalningar} onOpenChange={setShowDirektbetalningar}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center space-y-6 py-4">
-            <div className="flex items-center justify-center w-20 h-20 bg-green-100 rounded-lg">
-              <DirectPayments className="w-12 h-12 text-green-600" />
-            </div>
-            <div className="text-center space-y-2">
-              <p className="text-muted-foreground">
-                Direktbetalningar är en betalfunktion
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
-              </p>
-            </div>
-            <Button className="w-full" onClick={() => setShowDirektbetalningar(false)}>
-              Uppgradera medlemskap
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Kundregister Dialog */}
-      <Dialog open={showKundregister} onOpenChange={setShowKundregister}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center space-y-6 py-4">
-            <div className="flex items-center justify-center w-20 h-20 bg-teal-100 rounded-lg">
-              <Users className="w-12 h-12 text-teal-600" />
-            </div>
-            <div className="text-center space-y-2">
-              <p className="text-muted-foreground">
-                Kundregister är en betalfunktion
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
-              </p>
-            </div>
-            <Button className="w-full" onClick={() => setShowKundregister(false)}>
-              Uppgradera medlemskap
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Bokföringsunderlag Dialog */}
-      <Dialog open={showBokforingsunderlag} onOpenChange={setShowBokforingsunderlag}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center space-y-6 py-4">
-            <div className="flex items-center justify-center w-20 h-20 bg-red-100 rounded-lg">
-              <BookOpen className="w-12 h-12 text-red-600" />
-            </div>
-            <div className="text-center space-y-2">
-              <p className="text-muted-foreground">
-                Bokföringsunderlag är en betalfunktion
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
-              </p>
-            </div>
-            <Button className="w-full" onClick={() => setShowBokforingsunderlag(false)}>
-              Uppgradera medlemskap
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Verifikation Dialog */}
-      <Dialog open={showVerifikation} onOpenChange={setShowVerifikation}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center space-y-6 py-4">
-            <div className="flex items-center justify-center w-20 h-20 bg-cyan-100 rounded-lg">
-              <CheckSquare className="w-12 h-12 text-cyan-600" />
-            </div>
-            <div className="text-center space-y-2">
-              <p className="text-muted-foreground">
-                Verifikation är en betalfunktion
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
-              </p>
-            </div>
-            <Button className="w-full" onClick={() => setShowVerifikation(false)}>
-              Uppgradera medlemskap
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Bokföring Dialog */}
-      <Dialog open={showBokforing} onOpenChange={setShowBokforing}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center space-y-6 py-4">
-            <div className="flex items-center justify-center w-20 h-20 bg-red-100 rounded-lg">
-              <FileText className="w-12 h-12 text-red-600" />
-            </div>
-            <div className="text-center space-y-2">
-              <p className="text-muted-foreground">
-                Bokföring är en betalfunktion
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
-              </p>
-            </div>
-            <Button className="w-full" onClick={() => setShowBokforing(false)}>
-              Uppgradera medlemskap
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Verifikation Dialog (Ekonomi) */}
-      <Dialog open={showVerifikationDialog} onOpenChange={setShowVerifikationDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center space-y-6 py-4">
-            <div className="flex items-center justify-center w-20 h-20 bg-cyan-100 rounded-lg">
-              <CheckSquare className="w-12 h-12 text-cyan-600" />
-            </div>
-            <div className="text-center space-y-2">
-              <p className="text-muted-foreground">
-                Verifikation är en betalfunktion
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
-              </p>
-            </div>
-            <Button className="w-full" onClick={() => setShowVerifikationDialog(false)}>
-              Uppgradera medlemskap
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Dokument Dialog (Ekonomi) */}
-      <Dialog open={showDokumentDialog} onOpenChange={setShowDokumentDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center space-y-6 py-4">
-            <div className="flex items-center justify-center w-20 h-20 bg-indigo-100 rounded-lg">
-              <File className="w-12 h-12 text-indigo-600" />
-            </div>
-            <div className="text-center space-y-2">
-              <p className="text-muted-foreground">
-                Dokument är en betalfunktion
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
-              </p>
-            </div>
-            <Button className="w-full" onClick={() => setShowDokumentDialog(false)}>
-              Uppgradera medlemskap
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Lagerfinansiering Dialog */}
-      <Dialog open={showLagerfinansiering} onOpenChange={setShowLagerfinansiering}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center space-y-6 py-4">
-            <div className="flex items-center justify-center w-20 h-20 bg-green-100 rounded-lg">
-              <Landmark className="w-12 h-12 text-green-600" />
-            </div>
-            <div className="text-center space-y-2">
-              <p className="text-muted-foreground">
-                Lagerfinansiering är en betalfunktion
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
-              </p>
-            </div>
-            <Button className="w-full" onClick={() => setShowLagerfinansiering(false)}>
-              Uppgradera medlemskap
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Slutkundsfinansiering Dialog */}
-      <Dialog open={showSlutkundsfinansiering} onOpenChange={setShowSlutkundsfinansiering}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center space-y-6 py-4">
-            <div className="flex items-center justify-center w-20 h-20 bg-purple-100 rounded-lg">
-              <Landmark className="w-12 h-12 text-purple-600" />
-            </div>
-            <div className="text-center space-y-2">
-              <p className="text-muted-foreground">
-                Slutkundsfinansiering är en betalfunktion
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
-              </p>
-            </div>
-            <Button className="w-full" onClick={() => setShowSlutkundsfinansiering(false)}>
-              Uppgradera medlemskap
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-      {/* Kundtjänst Dialog */}
-      <Dialog open={showKundtjanst} onOpenChange={setShowKundtjanst}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">Premiumfunktion</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center space-y-6 py-4">
-            <div className="flex items-center justify-center w-20 h-20 bg-blue-100 rounded-lg">
-              <Phone className="w-12 h-12 text-blue-600" />
-            </div>
-            <div className="text-center space-y-2">
-              <p className="text-muted-foreground">
-                Kundtjänst är en betalfunktion
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Uppgradera ditt medlemskap för att få tillgång till alla premiumfunktioner
-              </p>
-            </div>
-            <Button className="w-full" onClick={() => setShowKundtjanst(false)}>
-              Uppgradera medlemskap
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
+    </SidebarProvider>
   );
 };
 
