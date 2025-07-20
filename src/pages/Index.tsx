@@ -455,12 +455,9 @@ const Index = () => {
                     onClick={async () => {
                       console.log('Koppla button clicked - initiating Fortnox connection');
                       try {
-                        console.log('Calling fortnox-oauth function...');
                         const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
                           body: { action: 'get_auth_url' }
                         });
-
-                        console.log('Fortnox OAuth response:', { data, error });
 
                         if (error) {
                           console.error('Fortnox OAuth error:', error);
@@ -473,7 +470,6 @@ const Index = () => {
                         }
 
                         if (!data?.auth_url) {
-                          console.error('No auth URL received');
                           toast({
                             title: "Fel vid anslutning",
                             description: "Ingen OAuth-URL erhölls från servern",
@@ -482,12 +478,10 @@ const Index = () => {
                           return;
                         }
 
-                        console.log('Redirecting to Fortnox OAuth URL:', data.auth_url);
                         // Redirect to Fortnox OAuth
                         window.location.href = data.auth_url;
                         
                       } catch (error: any) {
-                        console.error('Fortnox connection error:', error);
                         toast({
                           title: "Fel vid anslutning",
                           description: "Ett oväntat fel uppstod. Kontrollera konsolen för mer information.",

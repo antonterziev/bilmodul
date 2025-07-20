@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
       }
       
       // Generate OAuth URL for Fortnox
-      const redirectUri = `${req.headers.get('origin')}/dashboard`
+      const redirectUri = 'https://lagermodulen.se/dashboard'
       const stateParam = crypto.randomUUID()
       
       console.log('OAuth parameters:', {
@@ -115,7 +115,7 @@ Deno.serve(async (req) => {
       // Exchange authorization code for access token
       const clientId = Deno.env.get('FORTNOX_CLIENT_ID')
       const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET')
-      const redirectUri = `${req.headers.get('origin')}/dashboard`
+      const redirectUri = 'https://lagermodulen.se/dashboard'
 
       console.log('Token exchange parameters:', {
         clientId: clientId ? 'present' : 'missing',
