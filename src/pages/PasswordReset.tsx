@@ -18,13 +18,14 @@ const PasswordReset = () => {
   useEffect(() => {
     const validateSession = async () => {
       try {
-        // Check for tokens in URL parameters (from email link)
+        // First, check if we have URL parameters that indicate this is a password reset
         const accessToken = searchParams.get('access_token');
         const refreshToken = searchParams.get('refresh_token');
         const type = searchParams.get('type');
 
-        if (accessToken && refreshToken && type === 'recovery') {
-          // Set session from URL tokens
+        // If we have URL parameters, try to handle them
+        if (accessToken && refreshToken) {
+          console.log("Found tokens in URL, setting session...");
           const { error: sessionError } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken
@@ -32,27 +33,44 @@ const PasswordReset = () => {
           
           if (sessionError) {
             console.error("Session error:", sessionError);
-            toast.error("Ogiltiga återställningsuppgifter");
-            navigate("/login-or-signup");
-            return;
           }
         }
 
-        // Verify we have a valid session
+        // Also listen for auth state changes (Supabase might handle the URL automatically)
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+          console.log("Auth state change:", event, session);
+          if (event === 'PASSWORD_RECOVERY') {
+            console.log("Password recovery event detected");
+            setIsValidatingSession(false);
+          }
+        });
+
+        // Check current session
         const { data: { session } } = await supabase.auth.getSession();
+        console.log("Current session:", session);
         
-        if (!session) {
-          toast.error("Du måste komma från en giltig återställningslänk");
-          navigate("/login-or-signup");
-          return;
+        if (session) {
+          console.log("Valid session found");
+          setIsValidatingSession(false);
+        } else {
+          // Wait a bit for auth state changes, then check again
+          setTimeout(async () => {
+            const { data: { session: laterSession } } = await supabase.auth.getSession();
+            if (laterSession) {
+              setIsValidatingSession(false);
+            } else {
+              toast.error("Du måste komma från en giltig återställningslänk");
+              navigate("/login-or-signup");
+            }
+          }, 2000);
         }
+
+        return () => subscription.unsubscribe();
 
       } catch (error) {
         console.error("Session validation error:", error);
         toast.error("Ett fel uppstod. Försök igen.");
         navigate("/login-or-signup");
-      } finally {
-        setIsValidatingSession(false);
       }
     };
 
