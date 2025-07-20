@@ -359,19 +359,13 @@ const Index = () => {
           <div className="text-center py-6">
             <h1 className="text-2xl font-bold mb-4">Välkommen till Veksla, {getFirstName()}</h1>
           </div>
-            <DashboardStats 
-              totalStock={stats.totalStock}
-              averageStorageDays={stats.averageStorageDays}
-              inventoryValue={stats.inventoryValue}
-              grossProfit={stats.grossProfit}
-            />
-            <Statistics 
-              onBack={() => {}}
-              totalStock={stats.totalStock}
-              averageStorageDays={stats.averageStorageDays}
-              inventoryValue={stats.inventoryValue}
-              grossProfit={stats.grossProfit}
-            />
+          <Statistics 
+            onBack={() => {}}
+            totalStock={stats.totalStock}
+            averageStorageDays={stats.averageStorageDays}
+            inventoryValue={stats.inventoryValue}
+            grossProfit={stats.grossProfit}
+          />
           </div>
         );
     }
