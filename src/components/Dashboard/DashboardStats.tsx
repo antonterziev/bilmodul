@@ -5,9 +5,10 @@ interface DashboardStatsProps {
   averageStorageDays: number;
   inventoryValue: number;
   grossProfit: number;
+  grossMargin: number;
 }
 
-export const DashboardStats = ({ totalStock, averageStorageDays, inventoryValue, grossProfit }: DashboardStatsProps) => {
+export const DashboardStats = ({ totalStock, averageStorageDays, inventoryValue, grossProfit, grossMargin }: DashboardStatsProps) => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('sv-SE', {
       style: 'currency',
@@ -18,7 +19,7 @@ export const DashboardStats = ({ totalStock, averageStorageDays, inventoryValue,
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -33,7 +34,7 @@ export const DashboardStats = ({ totalStock, averageStorageDays, inventoryValue,
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">
-            Lagerdagar
+            Genomsnittliga lagerdagar
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -44,7 +45,7 @@ export const DashboardStats = ({ totalStock, averageStorageDays, inventoryValue,
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">
-            Lagervärde
+            Totalt lagervärde
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -55,12 +56,25 @@ export const DashboardStats = ({ totalStock, averageStorageDays, inventoryValue,
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">
-            Bruttovinst
+            Förväntad bruttovinst
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className={`text-2xl font-bold ${grossProfit < 0 ? 'text-red-600' : grossProfit > 0 ? 'text-green-600' : ''}`}>
             {formatPrice(grossProfit)}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-muted-foreground">
+            Förväntad bruttomarginal
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className={`text-2xl font-bold ${grossMargin < 0 ? 'text-red-600' : grossMargin > 0 ? 'text-green-600' : ''}`}>
+            {grossMargin.toFixed(1)}%
           </div>
         </CardContent>
       </Card>

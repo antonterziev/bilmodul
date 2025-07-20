@@ -59,7 +59,8 @@ const Index = () => {
     totalStock: 0,
     averageStorageDays: 0,
     inventoryValue: 0,
-    grossProfit: 0
+    grossProfit: 0,
+    grossMargin: 0
   });
 
   useEffect(() => {
@@ -214,7 +215,14 @@ const Index = () => {
         .filter(item => item.expected_selling_price)
         .reduce((sum, item) => sum + ((item.expected_selling_price || 0) - item.purchase_price), 0);
 
-      setStats({ totalStock, averageStorageDays, inventoryValue, grossProfit });
+      // Calculate gross margin (expected profit / expected selling price * 100)
+      const totalExpectedSellingPrice = vehiclesInStock
+        .filter(item => item.expected_selling_price)
+        .reduce((sum, item) => sum + (item.expected_selling_price || 0), 0);
+      
+      const grossMargin = totalExpectedSellingPrice > 0 ? (grossProfit / totalExpectedSellingPrice) * 100 : 0;
+
+      setStats({ totalStock, averageStorageDays, inventoryValue, grossProfit, grossMargin });
     } catch (error) {
       console.error('Error loading stats:', error);
     }
@@ -352,6 +360,7 @@ const Index = () => {
               averageStorageDays={stats.averageStorageDays}
               inventoryValue={stats.inventoryValue}
               grossProfit={stats.grossProfit}
+              grossMargin={stats.grossMargin}
             />
             <VehicleList 
               filter={lagerFilter} 
@@ -459,6 +468,7 @@ const Index = () => {
             averageStorageDays={stats.averageStorageDays}
             inventoryValue={stats.inventoryValue}
             grossProfit={stats.grossProfit}
+            grossMargin={stats.grossMargin}
           />
           </div>
         );

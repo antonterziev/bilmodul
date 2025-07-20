@@ -15,9 +15,10 @@ interface StatisticsProps {
   averageStorageDays: number;
   inventoryValue: number;
   grossProfit: number;
+  grossMargin: number;
 }
 
-export const Statistics = ({ onBack, totalStock, averageStorageDays, inventoryValue, grossProfit }: StatisticsProps) => {
+export const Statistics = ({ onBack, totalStock, averageStorageDays, inventoryValue, grossProfit, grossMargin }: StatisticsProps) => {
   const currentYear = new Date().getFullYear();
   const [startDate, setStartDate] = useState<Date>(new Date(currentYear, 0, 1)); // January 1st of current year
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
@@ -101,6 +102,7 @@ export const Statistics = ({ onBack, totalStock, averageStorageDays, inventoryVa
         averageStorageDays={averageStorageDays}
         inventoryValue={inventoryValue}
         grossProfit={grossProfit}
+        grossMargin={grossMargin}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
