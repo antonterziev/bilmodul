@@ -483,8 +483,13 @@ const Index = () => {
                         }
 
                         console.log('Redirecting to Fortnox OAuth URL:', data.auth_url);
-                        // Redirect to Fortnox OAuth
-                        window.location.href = data.auth_url;
+                        // Force redirect using multiple methods for better compatibility
+                        try {
+                          window.location.replace(data.auth_url);
+                        } catch (e) {
+                          console.warn('location.replace failed, trying href:', e);
+                          window.location.href = data.auth_url;
+                        }
                         
                       } catch (error: any) {
                         console.error('Fortnox connection error:', error);
