@@ -422,9 +422,6 @@ const Index = () => {
           {/* Navigation bar with white background */}
           <header className="bg-white border-b flex flex-col">
             <div className="flex h-16">
-              <div className="flex items-center px-4">
-                <SidebarTrigger />
-              </div>
               <div className="flex-1 px-4 py-4 flex justify-end items-center">
                 <div className="flex items-center gap-4">
                   <span className="text-sm text-muted-foreground">

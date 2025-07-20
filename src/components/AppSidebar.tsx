@@ -46,10 +46,7 @@ export function AppSidebar({
   expandedSections, 
   onSectionToggle 
 }: AppSidebarProps) {
-  const { state } = useSidebar();
   const location = useLocation();
-
-  const isCollapsed = state === "collapsed";
 
   const isActive = (view: string) => currentView === view;
   
@@ -117,7 +114,7 @@ export function AppSidebar({
   ];
 
   return (
-    <Sidebar className={isCollapsed ? "w-14" : "w-72"} collapsible="icon">
+    <Sidebar className="w-72">
       <SidebarContent>
         {/* Main Navigation - No group labels */}
         <SidebarGroup>
@@ -130,7 +127,7 @@ export function AppSidebar({
                     className={getNavClass(item.id)}
                   >
                     <item.icon className="h-4 w-4" />
-                    {!isCollapsed && <span>{item.title}</span>}
+                    <span>{item.title}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -149,19 +146,15 @@ export function AppSidebar({
                     className="text-muted-foreground hover:bg-muted/50"
                   >
                     <section.icon className="h-4 w-4" />
-                    {!isCollapsed && (
-                      <>
-                        <span>{section.title}</span>
-                        {expandedSections[section.id] ? (
-                          <ChevronDown className="ml-auto h-4 w-4" />
-                        ) : (
-                          <ChevronRight className="ml-auto h-4 w-4" />
-                        )}
-                      </>
+                    <span>{section.title}</span>
+                    {expandedSections[section.id] ? (
+                      <ChevronDown className="ml-auto h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="ml-auto h-4 w-4" />
                     )}
                   </SidebarMenuButton>
                   
-                  {expandedSections[section.id] && !isCollapsed && (
+                  {expandedSections[section.id] && (
                     <SidebarMenu className="ml-4 mt-1">
                       {section.children.map((child) => (
                         <SidebarMenuItem key={child.id}>
@@ -193,7 +186,7 @@ export function AppSidebar({
                   className={getNavClass("settings")}
                 >
                   <SettingsIcon className="h-4 w-4" />
-                  {!isCollapsed && <span>Inställningar</span>}
+                  <span>Inställningar</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
