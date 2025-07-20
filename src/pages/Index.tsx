@@ -17,9 +17,11 @@ import { Statistics } from "@/components/Statistics/Statistics";
 import { AppSidebar } from "@/components/AppSidebar";
 
 import { supabase } from "@/integrations/supabase/client";
-import { Phone, MessageCircle, LogOut, Search, Download, FileText, File, FileCheck, Receipt, BookOpen, CheckSquare, User, ChevronDown, Bell, HelpCircle, Link } from "lucide-react";
+import { Phone, MessageCircle, LogOut, Search, Download, FileText, File, FileCheck, Receipt, BookOpen, CheckSquare, User, ChevronDown, Bell, HelpCircle, Link, Filter } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const Index = () => {
   const { user, signOut, isLoading } = useAuth();
@@ -355,7 +357,52 @@ const Index = () => {
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold">{getHeaderTitle()}</h2>
-            <DashboardStats 
+            
+            {/* Filter bar */}
+            <div className="flex items-center justify-between gap-4 p-4 bg-card border rounded-lg">
+              <div className="flex items-center gap-4">
+                <Button variant="outline" size="sm" className="h-8">
+                  <Filter className="w-4 h-4 mr-1" />
+                  Filter
+                </Button>
+                
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="visa-bokforda" />
+                  <label htmlFor="visa-bokforda" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Visa bokförda underlag
+                  </label>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <Input
+                    placeholder="Sök"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-64 h-8"
+                  />
+                  <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Sortera efter</span>
+                  <Select defaultValue="newest">
+                    <SelectTrigger className="w-48 h-8">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="newest">Skapandedatum (nyast till äldst)</SelectItem>
+                      <SelectItem value="oldest">Skapandedatum (äldst till nyast)</SelectItem>
+                      <SelectItem value="price-high">Pris (högst till lägst)</SelectItem>
+                      <SelectItem value="price-low">Pris (lägst till högst)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+            
+            <DashboardStats
               totalStock={stats.totalStock}
               averageStorageDays={stats.averageStorageDays}
               inventoryValue={stats.inventoryValue}
