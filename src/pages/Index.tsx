@@ -365,13 +365,6 @@ const Index = () => {
                   <Filter className="w-4 h-4 mr-1" />
                   Filter
                 </Button>
-                
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="visa-bokforda" />
-                  <label htmlFor="visa-bokforda" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                    Visa bokförda underlag
-                  </label>
-                </div>
               </div>
               
               <div className="flex items-center gap-4">
