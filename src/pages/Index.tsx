@@ -413,7 +413,7 @@ const Index = () => {
                       <p className="text-sm text-muted-foreground">{user?.email}</p>
                     </div>
                     <DropdownMenuItem onClick={() => setCurrentView('settings')}>
-                      Personliga inställningar
+                      Inställningar
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setCurrentView('radera-kontot')}>
                       Radera kontot
