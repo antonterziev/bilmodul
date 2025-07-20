@@ -361,10 +361,36 @@ const Index = () => {
             {/* Filter bar */}
             <div className="flex items-center justify-between gap-4 p-4 bg-card border rounded-lg">
               <div className="flex items-center gap-4">
-                <Button variant="outline" size="sm" className="h-8">
-                  <Filter className="w-4 h-4 mr-1" />
-                  Filter
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="h-8">
+                      <Filter className="w-4 h-4 mr-1" />
+                      Filter
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-48">
+                    <DropdownMenuItem>
+                      <Checkbox className="mr-2" />
+                      Kvitto eller utgift
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Checkbox className="mr-2" />
+                      Inkomst
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Checkbox className="mr-2" />
+                      Leverantörsfaktura
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Checkbox className="mr-2" />
+                      Annat
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Checkbox className="mr-2" />
+                      Okategoriserad
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               
               <div className="flex items-center gap-4">
