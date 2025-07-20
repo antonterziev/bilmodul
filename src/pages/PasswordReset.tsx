@@ -158,6 +158,7 @@ const PasswordReset = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-center pr-10"
+                  autoComplete="new-password"
                   required
                   minLength={6}
                 />
@@ -176,6 +177,7 @@ const PasswordReset = () => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-center pr-10"
+                  autoComplete="new-password"
                   required
                   minLength={6}
                 />
