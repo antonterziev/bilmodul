@@ -152,7 +152,7 @@ export function AppSidebar({
             </div>
           </SidebarGroupContent>
         </SidebarGroup>
-        {/* Main Navigation */}
+        {/* Main Navigation and Expandable Sections - Combined */}
         <SidebarGroup className="px-4">
           <SidebarGroupContent>
             <SidebarMenu>
@@ -167,14 +167,7 @@ export function AppSidebar({
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Expandable Sections */}
-        <SidebarGroup className="px-4">
-          <SidebarGroupContent>
-            <SidebarMenu>
+              
               {expandableMenuItems.map((section) => (
                 <SidebarMenuItem key={section.id}>
                   <SidebarMenuButton
