@@ -123,7 +123,7 @@ serve(async (req) => {
         console.error(`Failed to invalidate state for request ${requestId}:`, invalidateError);
       }
 
-      // Prepare token exchange request
+      // Prepare token exchange request - USING PRODUCTION ENDPOINT
       const tokenPayload = {
         grant_type: 'authorization_code',
         code,
@@ -253,13 +253,13 @@ serve(async (req) => {
 
   // ENV CHECK: Log environment and credentials for debugging
   console.log('ENV CHECK:', {
-    environment: Deno.env.get('ENVIRONMENT') || 'not-set',
+    environment: 'production',
     clientId: clientId ? `${clientId.substring(0, 8)}...` : 'MISSING',
     clientSecret: clientSecret ? `${clientSecret.substring(0, 8)}...` : 'MISSING',
     redirectUri,
     supabaseUrl: Deno.env.get('SUPABASE_URL'),
-    isProduction: redirectUri.includes('apps.fortnox.se'),
-    isSandbox: redirectUri.includes('sandbox')
+    isProduction: true,
+    isSandbox: false
   });
 
   if (action === 'get_auth_url') {
@@ -293,6 +293,7 @@ serve(async (req) => {
     }
 
     const scope = 'companyinformation';
+    // USING PRODUCTION ENDPOINT FOR AUTH URL
     const authUrl = `https://apps.fortnox.se/oauth-v1/auth?` +
       `client_id=${clientId}&` +
       `redirect_uri=${encodeURIComponent(redirectUri)}&` +
@@ -303,7 +304,7 @@ serve(async (req) => {
       `account_type=service`;
 
     console.log('Generated Fortnox auth URL for user:', user_id);
-    console.log('Using redirect URI:', redirectUri);
+    console.log('Using PRODUCTION endpoint and redirect URI:', redirectUri);
     console.log('State generated:', state);
 
     return new Response(JSON.stringify({ auth_url: authUrl }), {
