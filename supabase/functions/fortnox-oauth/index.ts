@@ -21,7 +21,7 @@ serve(async (req) => {
 
   const clientId = Deno.env.get('FORTNOX_CLIENT_ID');
   const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET');
-  const redirectUri = 'https://lagermodulen.se/fortnox-callback';
+  const redirectUri = 'https://yztwwehxppldoecwhomg.supabase.co/functions/v1/fortnox-oauth';
 
   if (!clientId || !clientSecret) {
     console.error('Missing Fortnox credentials');
