@@ -177,25 +177,35 @@ serve(async (req) => {
       }
 
       // Prepare token exchange request - USING PRODUCTION ENDPOINT
+      // Create Basic Auth credentials as per Fortnox documentation
+      const credentials = btoa(`${clientId}:${clientSecret}`);
+      
       const tokenPayload = {
         grant_type: 'authorization_code',
         code,
-        redirect_uri: redirectUri,
-        client_id: clientId,
-        client_secret: clientSecret
+        redirect_uri: redirectUri
       };
 
-      console.log(`Token exchange request for ${requestId}:`, {
+      console.log(`🔄 Token exchange request for ${requestId}:`, {
         grant_type: tokenPayload.grant_type,
         code: tokenPayload.code ? `${tokenPayload.code.substring(0, 8)}...` : 'MISSING',
         redirect_uri: tokenPayload.redirect_uri,
-        client_id: tokenPayload.client_id ? `${tokenPayload.client_id.substring(0, 8)}...` : 'MISSING',
-        client_secret: tokenPayload.client_secret ? 'PROVIDED' : 'MISSING'
+        client_id: clientId ? `${clientId.substring(0, 8)}...` : 'MISSING',
+        client_secret: clientSecret ? 'PROVIDED' : 'MISSING',
+        timestamp: new Date().toISOString(),
+        codeLength: code?.length || 0
       });
+
+      // Add delay to prevent timing issues
+      console.log(`⏱️ Adding 500ms delay before token exchange for ${requestId}`);
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       const tokenResponse = await fetch('https://apps.fortnox.se/oauth-v1/token', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        headers: { 
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Basic ${credentials}`
+        },
         body: new URLSearchParams(tokenPayload)
       });
 
