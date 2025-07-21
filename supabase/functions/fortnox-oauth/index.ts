@@ -77,7 +77,26 @@ serve(async (req) => {
     }
 
     const requestId = crypto.randomUUID();
-    console.log(`Processing GET callback ${requestId}`);
+    console.log(`Processing GET callback ${requestId} with code: ${code?.substring(0, 8)}...`);
+
+    // CRITICAL: Check if this authorization code has already been used
+    const { data: existingTokenData } = await supabase
+      .from('fortnox_integrations')
+      .select('id, is_active, access_token')
+      .eq('access_token', state)
+      .eq('is_active', true)
+      .maybeSingle();
+
+    if (existingTokenData && existingTokenData.access_token !== state) {
+      console.error(`Authorization code reuse attempt detected for ${requestId}. State already processed.`);
+      const errorMessage = encodeURIComponent('Denna auktoriseringskod har redan använts. Starta om anslutningsprocessen.');
+      return new Response(null, {
+        status: 302,
+        headers: {
+          'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+        }
+      });
+    }
 
     try {
       // Verify state to prevent CSRF attacks and code reuse - ALSO GET ID
