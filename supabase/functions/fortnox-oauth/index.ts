@@ -285,7 +285,7 @@ serve(async (req) => {
       });
     }
 
-    const scope = 'companyinformation customer supplier article companyaccount bookkeeping';
+    const scope = 'companyinformation customer supplier article'; // Reduced scope for test environment
     // Use test environment URL for unpublished integrations
     const authUrl = `https://apps.fortnox.se/oauth-v1/auth?` +
       `client_id=${clientId}&` +
