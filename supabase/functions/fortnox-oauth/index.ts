@@ -251,11 +251,15 @@ serve(async (req) => {
 
   const { action, user_id } = payload;
 
-  // Debug: Log credentials (without exposing sensitive data)
-  console.log('Fortnox credentials check:', {
+  // ENV CHECK: Log environment and credentials for debugging
+  console.log('ENV CHECK:', {
+    environment: Deno.env.get('ENVIRONMENT') || 'not-set',
     clientId: clientId ? `${clientId.substring(0, 8)}...` : 'MISSING',
     clientSecret: clientSecret ? `${clientSecret.substring(0, 8)}...` : 'MISSING',
-    redirectUri
+    redirectUri,
+    supabaseUrl: Deno.env.get('SUPABASE_URL'),
+    isProduction: redirectUri.includes('apps.fortnox.se'),
+    isSandbox: redirectUri.includes('sandbox')
   });
 
   if (action === 'get_auth_url') {
