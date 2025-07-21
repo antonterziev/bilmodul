@@ -286,12 +286,15 @@ serve(async (req) => {
     }
 
     const scope = 'companyinformation customer supplier article companyaccount bookkeeping';
+    // Use test environment URL for unpublished integrations
     const authUrl = `https://apps.fortnox.se/oauth-v1/auth?` +
       `client_id=${clientId}&` +
       `redirect_uri=${encodeURIComponent(redirectUri)}&` +
       `scope=${encodeURIComponent(scope)}&` +
       `state=${state}&` +
-      `response_type=code&access_type=offline`;
+      `response_type=code&` +
+      `access_type=offline&` +
+      `test=true`; // Add test parameter for unpublished apps
 
     console.log('Generated Fortnox auth URL for user:', user_id);
 
