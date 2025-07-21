@@ -77,18 +77,24 @@ serve(async (req) => {
     }
 
     const requestId = crypto.randomUUID();
-    console.log(`Processing GET callback ${requestId} with code: ${code?.substring(0, 8)}...`);
+    console.log(`🔁 Callback received ${requestId}:`, {
+      code: code?.substring(0, 8) + '...',
+      state: state?.substring(0, 8) + '...'
+    });
 
     // CRITICAL: Check if this authorization code has already been used
-    const { data: existingTokenData } = await supabase
+    const { data: existingCode } = await supabase
       .from('fortnox_integrations')
-      .select('id, is_active, access_token')
-      .eq('access_token', state)
-      .eq('is_active', true)
+      .select('id, oauth_code, code_used_at')
+      .eq('oauth_code', code)
+      .not('code_used_at', 'is', null)
       .maybeSingle();
 
-    if (existingTokenData && existingTokenData.access_token !== state) {
-      console.error(`Authorization code reuse attempt detected for ${requestId}. State already processed.`);
+    if (existingCode) {
+      console.error(`🚫 Authorization code reuse detected for ${requestId}:`, {
+        previousUse: existingCode.code_used_at,
+        integrationId: existingCode.id
+      });
       const errorMessage = encodeURIComponent('Denna auktoriseringskod har redan använts. Starta om anslutningsprocessen.');
       return new Response(null, {
         status: 302,
@@ -132,14 +138,20 @@ serve(async (req) => {
         });
       }
 
-      // Invalidate the state immediately to prevent reuse
-      const { error: invalidateError } = await supabase
+      // Mark the authorization code as used immediately to prevent reuse
+      const { error: markCodeUsedError } = await supabase
         .from('fortnox_integrations')
-        .update({ access_token: `used_${requestId}`, updated_at: new Date().toISOString() })
+        .update({ 
+          oauth_code: code,
+          code_used_at: new Date().toISOString(),
+          updated_at: new Date().toISOString() 
+        })
         .eq('access_token', state);
 
-      if (invalidateError) {
-        console.error(`Failed to invalidate state for request ${requestId}:`, invalidateError);
+      if (markCodeUsedError) {
+        console.error(`Failed to mark code as used for request ${requestId}:`, markCodeUsedError);
+      } else {
+        console.log(`✅ Code marked as used for request ${requestId}`);
       }
 
       // Prepare token exchange request - USING PRODUCTION ENDPOINT

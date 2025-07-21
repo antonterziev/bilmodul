@@ -41,6 +41,92 @@ export type Database = {
         }
         Relationships: []
       }
+      fortnox_article_sync: {
+        Row: {
+          created_at: string
+          fortnox_article_number: string
+          id: string
+          inventory_item_id: string
+          last_synced_at: string
+          sync_status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          fortnox_article_number: string
+          id?: string
+          inventory_item_id: string
+          last_synced_at?: string
+          sync_status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          fortnox_article_number?: string
+          id?: string
+          inventory_item_id?: string
+          last_synced_at?: string
+          sync_status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fortnox_article_sync_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fortnox_integrations: {
+        Row: {
+          access_token: string
+          code_used_at: string | null
+          company_name: string | null
+          created_at: string
+          fortnox_company_id: string | null
+          id: string
+          is_active: boolean
+          oauth_code: string | null
+          refresh_token: string | null
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          code_used_at?: string | null
+          company_name?: string | null
+          created_at?: string
+          fortnox_company_id?: string | null
+          id?: string
+          is_active?: boolean
+          oauth_code?: string | null
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          code_used_at?: string | null
+          company_name?: string | null
+          created_at?: string
+          fortnox_company_id?: string | null
+          id?: string
+          is_active?: boolean
+          oauth_code?: string | null
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       inventory_items: {
         Row: {
           additional_costs: number | null
