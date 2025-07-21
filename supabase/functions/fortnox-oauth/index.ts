@@ -95,7 +95,7 @@ serve(async (req) => {
       });
     }
 
-    const scope = 'settings'; // Basic scope that should work with most Fortnox accounts
+    const scope = 'companyinformation'; // Using the scope you have enabled
     // Clean URL for production environment
     const authUrl = `https://apps.fortnox.se/oauth-v1/auth?` +
       `client_id=${clientId}&` +
