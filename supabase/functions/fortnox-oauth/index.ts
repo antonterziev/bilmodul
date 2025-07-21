@@ -300,8 +300,7 @@ serve(async (req) => {
       `scope=${encodeURIComponent(scope)}&` +
       `state=${state}&` +
       `response_type=code&` +
-      `access_type=offline&` +
-      `account_type=service`;
+      `access_type=offline`;
 
     console.log('Generated Fortnox auth URL for user:', user_id);
     console.log('Using PRODUCTION endpoint and redirect URI:', redirectUri);
