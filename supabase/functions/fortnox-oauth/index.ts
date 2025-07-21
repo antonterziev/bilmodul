@@ -123,7 +123,7 @@ serve(async (req) => {
         console.error(`Failed to invalidate state for request ${requestId}:`, invalidateError);
       }
 
-      // Prepare token exchange request
+      // Prepare token exchange request - USING SANDBOX ENDPOINTS
       const tokenPayload = {
         grant_type: 'authorization_code',
         code,
@@ -140,7 +140,8 @@ serve(async (req) => {
         client_secret: tokenPayload.client_secret ? 'PROVIDED' : 'MISSING'
       });
 
-      const tokenResponse = await fetch('https://apps.fortnox.se/oauth-v1/token', {
+      // CRITICAL: Using sandbox token endpoint
+      const tokenResponse = await fetch('https://sandbox-fortnox.se/oauth-v1/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams(tokenPayload)
@@ -253,13 +254,13 @@ serve(async (req) => {
 
   // ENV CHECK: Log environment and credentials for debugging
   console.log('ENV CHECK:', {
-    environment: Deno.env.get('ENVIRONMENT') || 'not-set',
+    environment: 'SANDBOX',
     clientId: clientId ? `${clientId.substring(0, 8)}...` : 'MISSING',
     clientSecret: clientSecret ? `${clientSecret.substring(0, 8)}...` : 'MISSING',
     redirectUri,
     supabaseUrl: Deno.env.get('SUPABASE_URL'),
-    isProduction: redirectUri.includes('apps.fortnox.se'),
-    isSandbox: redirectUri.includes('sandbox')
+    usingProductionEndpoints: false,
+    usingSandboxEndpoints: true
   });
 
   if (action === 'get_auth_url') {
@@ -293,7 +294,8 @@ serve(async (req) => {
     }
 
     const scope = 'companyinformation';
-    const authUrl = `https://apps.fortnox.se/oauth-v1/auth?` +
+    // CRITICAL: Using sandbox authorization endpoint
+    const authUrl = `https://sandbox-fortnox.se/oauth-v1/auth?` +
       `client_id=${clientId}&` +
       `redirect_uri=${encodeURIComponent(redirectUri)}&` +
       `scope=${encodeURIComponent(scope)}&` +
@@ -302,7 +304,7 @@ serve(async (req) => {
       `access_type=offline&` +
       `account_type=service`;
 
-    console.log('Generated Fortnox auth URL for user:', user_id);
+    console.log('Generated Fortnox SANDBOX auth URL for user:', user_id);
     console.log('Using redirect URI:', redirectUri);
     console.log('State generated:', state);
 
