@@ -19,212 +19,22 @@ serve(async (req) => {
   const url = new URL(req.url);
   console.log('Fortnox OAuth request:', { method: req.method, url: url.toString() });
 
-  // Handle GET request (OAuth callback from Fortnox)
+  // Handle GET request (OAuth callback from Fortnox) - This is now handled by the React app
   if (req.method === 'GET') {
-    const code = url.searchParams.get('code');
-    const state = url.searchParams.get('state');
-    const error = url.searchParams.get('error');
-    const errorDescription = url.searchParams.get('error_description');
-    
-    // Log all parameters for debugging
-    const allParams = Object.fromEntries(url.searchParams.entries());
-    console.log('OAuth callback received with params:', allParams);
-    
-    // Handle error from Fortnox
-    if (error) {
-      console.error('Fortnox OAuth error:', { error, errorDescription });
-      return new Response(`
-        <!DOCTYPE html>
-        <html>
-          <head><title>Fortnox Authorization Error</title></head>
-          <body>
-            <h1>Authorization Error</h1>
-            <p><strong>Error:</strong> ${error}</p>
-            ${errorDescription ? `<p><strong>Description:</strong> ${errorDescription}</p>` : ''}
-            <p>Please try the integration again.</p>
-            <script>setTimeout(() => window.location.href = '/', 5000);</script>
-          </body>
-        </html>
-      `, {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'text/html' }
-      });
-    }
-
-    if (!code || !state) {
-      console.error('Missing code or state in OAuth callback');
-      return new Response(`
-        <!DOCTYPE html>
-        <html>
-          <head><title>OAuth Error</title></head>
-          <body>
-            <h1>OAuth Error</h1>
-            <p>Missing authorization code or state parameter.</p>
-            <script>setTimeout(() => window.close(), 3000);</script>
-          </body>
-        </html>
-      `, {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'text/html' }
-      });
-    }
-
-    // Handle the OAuth callback (same logic as handle_callback action)
-    const clientId = Deno.env.get('FORTNOX_CLIENT_ID');
-    const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET');
-    const redirectUri = `${Deno.env.get('SUPABASE_URL')}/functions/v1/fortnox-oauth`;
-
-    if (!clientId || !clientSecret) {
-      console.error('Missing Fortnox credentials');
-      return new Response(`
-        <!DOCTYPE html>
-        <html>
-          <head><title>Configuration Error</title></head>
-          <body>
-            <h1>Configuration Error</h1>
-            <p>Server configuration error. Please contact support.</p>
-            <script>setTimeout(() => window.close(), 3000);</script>
-          </body>
-        </html>
-      `, {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'text/html' }
-      });
-    }
-
-    // Verify state and get user_id
-    const { data: validState } = await supabase
-      .from('fortnox_integrations')
-      .select('user_id')
-      .eq('access_token', state)
-      .eq('is_active', false)
-      .single();
-
-    if (!validState) {
-      console.error('Invalid or expired state token:', state);
-      return new Response(`
-        <!DOCTYPE html>
-        <html>
-          <head><title>OAuth Error</title></head>
-          <body>
-            <h1>OAuth Error</h1>
-            <p>Invalid or expired authorization state. Please try again.</p>
-            <script>setTimeout(() => window.location.href = '/', 3000);</script>
-          </body>
-        </html>
-      `, {
-        status: 403,
-        headers: { ...corsHeaders, 'Content-Type': 'text/html' }
-      });
-    }
-
-    // Exchange code for tokens
-    try {
-      const tokenResponse = await fetch('https://apps.fortnox.se/oauth-v1/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          grant_type: 'authorization_code',
-          code,
-          redirect_uri: redirectUri,
-          client_id: clientId,
-          client_secret: clientSecret
-        })
-      });
-
-      const tokenData = await tokenResponse.json();
-
-      if (!tokenResponse.ok) {
-        console.error('Token exchange failed:', tokenData);
-        return new Response(`
-          <!DOCTYPE html>
-          <html>
-            <head><title>OAuth Error</title></head>
-            <body>
-              <h1>OAuth Error</h1>
-              <p>Failed to complete authorization. Please try again.</p>
-              <script>setTimeout(() => window.location.href = '/', 3000);</script>
-            </body>
-          </html>
-        `, {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'text/html' }
-        });
-      }
-
-      // Store tokens
-      const expiresAt = new Date(Date.now() + (tokenData.expires_in * 1000));
-      
-      const { error: updateError } = await supabase
-        .from('fortnox_integrations')
-        .update({
-          access_token: tokenData.access_token,
-          refresh_token: tokenData.refresh_token,
-          token_expires_at: expiresAt.toISOString(),
-          is_active: true,
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', validState.user_id)
-        .eq('is_active', false);
-
-      if (updateError) {
-        console.error('Error storing tokens:', updateError);
-        return new Response(`
-          <!DOCTYPE html>
-          <html>
-            <head><title>OAuth Error</title></head>
-            <body>
-              <h1>OAuth Error</h1>
-              <p>Failed to save authorization. Please try again.</p>
-              <script>setTimeout(() => window.location.href = '/', 3000);</script>
-            </body>
-          </html>
-        `, {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'text/html' }
-        });
-      }
-
-      console.log('Fortnox integration successful for user:', validState.user_id);
-
-      // Success page with redirect
-      return new Response(`
-        <!DOCTYPE html>
-        <html>
-          <head><title>Integration Successful</title></head>
-          <body>
-            <h1>Fortnox Integration Successful!</h1>
-            <p>Your Fortnox account has been successfully connected.</p>
-            <p>Redirecting to dashboard...</p>
-            <script>
-              setTimeout(() => {
-                window.location.href = '/';
-              }, 2000);
-            </script>
-          </body>
-        </html>
-      `, {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'text/html' }
-      });
-
-    } catch (error) {
-      console.error('OAuth callback error:', error);
-      return new Response(`
-        <!DOCTYPE html>
-        <html>
-          <head><title>OAuth Error</title></head>
-          <body>
-            <h1>OAuth Error</h1>
-            <p>An unexpected error occurred. Please try again.</p>
-            <script>setTimeout(() => window.location.href = '/', 3000);</script>
-          </body>
-        </html>
-      `, {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'text/html' }
-      });
-    }
+    return new Response(`
+      <!DOCTYPE html>
+      <html>
+        <head><title>OAuth Callback</title></head>
+        <body>
+          <h1>OAuth Callback</h1>
+          <p>This endpoint is now handled by the React app at /fortnox-callback</p>
+          <p>Please use the correct redirect URI: https://lagermodulen.se/fortnox-callback</p>
+        </body>
+      </html>
+    `, {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'text/html' }
+    });
   }
 
   // Handle POST requests (API calls from frontend)
@@ -248,9 +58,9 @@ serve(async (req) => {
   const { action, code, state, user_id } = payload;
   const clientId = Deno.env.get('FORTNOX_CLIENT_ID');
   const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET');
-  const redirectUri = `${supabaseUrl}/functions/v1/fortnox-oauth`;
+  const redirectUri = 'https://lagermodulen.se/fortnox-callback'; // Updated to use custom domain
 
-  if (!clientId || !clientSecret || !supabaseUrl) {
+  if (!clientId || !clientSecret) {
     console.error('Missing Fortnox credentials');
     return new Response(JSON.stringify({ error: 'Missing server credentials' }), {
       status: 500,
@@ -296,6 +106,7 @@ serve(async (req) => {
       `access_type=offline`;
 
     console.log('Generated Fortnox auth URL for user:', user_id);
+    console.log('Using redirect URI:', redirectUri);
 
     return new Response(JSON.stringify({ auth_url: authUrl }), {
       status: 200,

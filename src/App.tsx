@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -9,6 +10,7 @@ import Landing from "./pages/Landing";
 import PasswordReset from "./pages/PasswordReset";
 import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
+import FortnoxCallback from "./components/FortnoxCallback";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +26,7 @@ const App = () => (
           <Route path="/login-or-signup" element={<Auth />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/password-reset" element={<PasswordReset />} />
+          <Route path="/fortnox-callback" element={<FortnoxCallback />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
