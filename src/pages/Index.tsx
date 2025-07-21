@@ -524,21 +524,6 @@ const Index = () => {
                 </div>
               </div>
 
-              <div className="bg-card border rounded-lg p-4 flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-                    <img src="/lovable-uploads/7b240d76-c798-4b46-828d-0bb9b4250b35.png" alt="Visma" className="w-10 h-10 object-contain" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">Automatisk bokföring – Visma</h3>
-                    <p className="text-sm text-muted-foreground">Bokför dina fordonsaffärer smidigt och automatiskt med Visma</p>
-                  </div>
-                </div>
-                <Button variant="outline" disabled>
-                  <Link className="h-4 w-4 mr-2" />
-                  Koppla
-                </Button>
-              </div>
 
 
             </div>
