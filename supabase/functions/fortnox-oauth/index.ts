@@ -23,8 +23,33 @@ serve(async (req) => {
   if (req.method === 'GET') {
     const code = url.searchParams.get('code');
     const state = url.searchParams.get('state');
+    const error = url.searchParams.get('error');
+    const errorDescription = url.searchParams.get('error_description');
     
-    console.log('OAuth callback received:', { code: !!code, state });
+    // Log all parameters for debugging
+    const allParams = Object.fromEntries(url.searchParams.entries());
+    console.log('OAuth callback received with params:', allParams);
+    
+    // Handle error from Fortnox
+    if (error) {
+      console.error('Fortnox OAuth error:', { error, errorDescription });
+      return new Response(`
+        <!DOCTYPE html>
+        <html>
+          <head><title>Fortnox Authorization Error</title></head>
+          <body>
+            <h1>Authorization Error</h1>
+            <p><strong>Error:</strong> ${error}</p>
+            ${errorDescription ? `<p><strong>Description:</strong> ${errorDescription}</p>` : ''}
+            <p>Please try the integration again.</p>
+            <script>setTimeout(() => window.location.href = '/', 5000);</script>
+          </body>
+        </html>
+      `, {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'text/html' }
+      });
+    }
 
     if (!code || !state) {
       console.error('Missing code or state in OAuth callback');
