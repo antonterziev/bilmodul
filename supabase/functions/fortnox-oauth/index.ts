@@ -140,7 +140,7 @@ serve(async (req) => {
         client_secret: tokenPayload.client_secret ? 'PROVIDED' : 'MISSING'
       });
 
-      const tokenResponse = await fetch('https://sandbox-fortnox.se/oauth-v1/token', {
+      const tokenResponse = await fetch('https://apps.fortnox.se/oauth-v1/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams(tokenPayload)
@@ -293,7 +293,7 @@ serve(async (req) => {
     }
 
     const scope = 'companyinformation';
-    const authUrl = `https://sandbox-fortnox.se/oauth-v1/auth?` +
+    const authUrl = `https://apps.fortnox.se/oauth-v1/auth?` +
       `client_id=${clientId}&` +
       `redirect_uri=${encodeURIComponent(redirectUri)}&` +
       `scope=${encodeURIComponent(scope)}&` +
