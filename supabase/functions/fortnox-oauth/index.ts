@@ -1,120 +1,166 @@
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
+};
+
+const supabaseUrl = Deno.env.get('SUPABASE_URL');
+const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Invalid request method' }), {
+      status: 405,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+
+  let payload;
   try {
-    const { action, code, state } = await req.json();
-    
-    const clientId = Deno.env.get('FORTNOX_CLIENT_ID');
-    const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET');
-    
-    if (!clientId || !clientSecret) {
-      console.error('Missing Fortnox credentials');
-      return new Response(
-        JSON.stringify({ error: 'Missing Fortnox credentials' }),
-        { 
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
+    payload = await req.json();
+  } catch (_) {
+    return new Response(JSON.stringify({ error: 'Invalid JSON payload' }), {
+      status: 400,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+
+  const { action, code, state, user_id } = payload;
+  const clientId = Deno.env.get('FORTNOX_CLIENT_ID');
+  const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET');
+  const redirectUri = `${supabaseUrl}/functions/v1/fortnox-oauth`;
+
+  if (!clientId || !clientSecret || !supabaseUrl) {
+    console.error('Missing Fortnox credentials');
+    return new Response(JSON.stringify({ error: 'Missing server credentials' }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+
+  if (action === 'get_auth_url') {
+    if (!user_id) {
+      return new Response(JSON.stringify({ error: 'User authentication required' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
     }
 
-    if (action === 'get_auth_url') {
-      // Generate authorization URL
-      const redirectUri = `${Deno.env.get('SUPABASE_URL')}/functions/v1/fortnox-oauth`;
-      const scope = 'companyinformation customer supplier article companyaccount bookkeeping';
-      const state = crypto.randomUUID();
-      
-      const authUrl = `https://apps.fortnox.se/oauth-v1/auth?` +
-        `client_id=${clientId}&` +
-        `redirect_uri=${encodeURIComponent(redirectUri)}&` +
-        `scope=${encodeURIComponent(scope)}&` +
-        `state=${state}&` +
-        `response_type=code&` +
-        `access_type=offline`;
-
-      console.log('Generated Fortnox auth URL:', authUrl);
-      
-      return new Response(
-        JSON.stringify({ auth_url: authUrl }),
-        { 
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
-    if (action === 'handle_callback') {
-      // This would be called when Fortnox redirects back
-      // Exchange authorization code for access token
-      const redirectUri = `${Deno.env.get('SUPABASE_URL')}/functions/v1/fortnox-oauth`;
-      
-      const tokenResponse = await fetch('https://apps.fortnox.se/oauth-v1/token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          grant_type: 'authorization_code',
-          code: code,
-          redirect_uri: redirectUri,
-          client_id: clientId,
-          client_secret: clientSecret,
-        }),
+    const state = crypto.randomUUID();
+    
+    // Store state for CSRF protection with user association
+    const { error: stateError } = await supabase
+      .from('fortnox_integrations')
+      .upsert({
+        user_id,
+        access_token: state, // Temporarily store state in access_token field
+        is_active: false // Mark as inactive until OAuth completes
       });
 
-      const tokenData = await tokenResponse.json();
-      
-      if (!tokenResponse.ok) {
-        console.error('Token exchange failed:', tokenData);
-        return new Response(
-          JSON.stringify({ error: 'Token exchange failed' }),
-          { 
-            status: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          }
-        );
-      }
-
-      console.log('Token exchange successful');
-      
-      // Here you would typically store the tokens in your database
-      // For now, we'll just return success
-      return new Response(
-        JSON.stringify({ success: true, tokens: tokenData }),
-        { 
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
-    return new Response(
-      JSON.stringify({ error: 'Invalid action' }),
-      { 
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
-    );
-
-  } catch (error) {
-    console.error('Fortnox OAuth error:', error);
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { 
+    if (stateError) {
+      console.error('Error storing state:', stateError);
+      return new Response(JSON.stringify({ error: 'Failed to initialize OAuth' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
-    );
+      });
+    }
+
+    const scope = 'companyinformation customer supplier article companyaccount bookkeeping';
+    const authUrl = `https://apps.fortnox.se/oauth-v1/auth?` +
+      `client_id=${clientId}&` +
+      `redirect_uri=${encodeURIComponent(redirectUri)}&` +
+      `scope=${encodeURIComponent(scope)}&` +
+      `state=${state}&` +
+      `response_type=code&access_type=offline`;
+
+    console.log('Generated Fortnox auth URL for user:', user_id);
+
+    return new Response(JSON.stringify({ auth_url: authUrl }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
   }
+
+  if (action === 'handle_callback') {
+    // Verify state to prevent CSRF attacks
+    const { data: validState } = await supabase
+      .from('fortnox_integrations')
+      .select('user_id')
+      .eq('access_token', state)
+      .eq('is_active', false)
+      .single();
+
+    if (!validState) {
+      console.error('Invalid or expired state token:', state);
+      return new Response(JSON.stringify({ error: 'Invalid or expired state token' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    const tokenResponse = await fetch('https://apps.fortnox.se/oauth-v1/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: redirectUri,
+        client_id: clientId,
+        client_secret: clientSecret
+      })
+    });
+
+    const tokenData = await tokenResponse.json();
+
+    if (!tokenResponse.ok) {
+      console.error('Token exchange failed:', tokenData);
+      return new Response(JSON.stringify({ error: 'Token exchange failed', details: tokenData }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Store the tokens in the existing fortnox_integrations table
+    const expiresAt = new Date(Date.now() + (tokenData.expires_in * 1000));
+    
+    const { error: updateError } = await supabase
+      .from('fortnox_integrations')
+      .update({
+        access_token: tokenData.access_token,
+        refresh_token: tokenData.refresh_token,
+        token_expires_at: expiresAt.toISOString(),
+        is_active: true,
+        updated_at: new Date().toISOString()
+      })
+      .eq('user_id', validState.user_id)
+      .eq('is_active', false);
+
+    if (updateError) {
+      console.error('Error storing tokens:', updateError);
+      return new Response(JSON.stringify({ error: 'Failed to store integration tokens' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    console.log('Fortnox integration successful for user:', validState.user_id);
+
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+
+  return new Response(JSON.stringify({ error: 'Invalid action' }), {
+    status: 400,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+  });
 });
