@@ -46,7 +46,13 @@ const FortnoxCallback = () => {
       }
 
       try {
-        console.log('Calling Fortnox OAuth function to exchange code for tokens...');
+        console.log('Calling Fortnox OAuth function to exchange code for tokens...', {
+          action: 'handle_callback',
+          code,
+          state,
+          user_id: user.id
+        });
+        
         const { data, error: functionError } = await supabase.functions.invoke('fortnox-oauth', {
           body: { 
             action: 'handle_callback',
@@ -56,14 +62,20 @@ const FortnoxCallback = () => {
           }
         });
 
+        console.log('Fortnox OAuth function response:', { data, error: functionError });
+
         if (functionError) {
-          console.error('Function error:', functionError);
+          console.error('Function error details:', {
+            message: functionError.message,
+            status: functionError.status,
+            details: functionError
+          });
           throw functionError;
         }
 
         if (!data?.success) {
-          console.error('OAuth callback failed:', data);
-          throw new Error('OAuth callback failed');
+          console.error('OAuth callback failed - response data:', data);
+          throw new Error(`OAuth callback failed: ${data?.error || 'Unknown error'}`);
         }
 
         console.log('Fortnox integration successful');
@@ -72,10 +84,14 @@ const FortnoxCallback = () => {
         setTimeout(() => window.close(), 2000);
 
       } catch (error: any) {
-        console.error('OAuth callback error:', error);
+        console.error('OAuth callback error details:', {
+          error,
+          message: error?.message,
+          stack: error?.stack
+        });
         setStatus('error');
-        setMessage('Ett fel uppstod vid anslutning till Fortnox. Försök igen.');
-        setTimeout(() => navigate('/dashboard'), 3000);
+        setMessage(`Ett fel uppstod vid anslutning till Fortnox: ${error?.message || 'Okänt fel'}`);
+        setTimeout(() => window.close(), 5000);
       }
     };
 
