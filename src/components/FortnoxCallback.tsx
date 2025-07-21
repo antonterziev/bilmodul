@@ -9,21 +9,12 @@ const FortnoxCallback = () => {
   const { toast } = useToast();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('Processar anslutning...');
-  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     console.log('FortnoxCallback component mounted');
     console.log('Current URL:', window.location.href);
-    console.log('Search params:', Object.fromEntries(searchParams.entries()));
     
-    const handleCallback = async () => {
-      // Prevent multiple executions
-      if (isProcessing) {
-        console.log('Already processing callback, skipping...');
-        return;
-      }
-      
-      setIsProcessing(true);
+    const handleCallback = () => {
       const statusParam = searchParams.get('status');
       const messageParam = searchParams.get('message');
 
@@ -53,57 +44,29 @@ const FortnoxCallback = () => {
           window.close();
         }, 5000);
       } else {
-        // If no status parameter, this might be an OAuth callback with code
+        // If no status parameter, this might be an old-style callback
+        // Check for code parameter to determine if it's a callback
         const code = searchParams.get('code');
-        const state = searchParams.get('state');
-        const error = searchParams.get('error');
-        
-        if (error) {
-          console.error('OAuth error from Fortnox:', error);
+        if (code) {
           setStatus('error');
-          setMessage('Fortnox avbröt anslutningen. Försök igen.');
+          setMessage('Anslutningen kunde inte slutföras. Försök igen.');
           toast({
-            title: "Anslutning avbruten",
-            description: 'Fortnox avbröt anslutningen. Försök igen.',
+            title: "Anslutning misslyckad",
+            description: 'Anslutningen kunde inte slutföras. Försök igen.',
             variant: "destructive",
           });
           setTimeout(() => {
             window.close();
           }, 5000);
-        } else if (code && state) {
-          // This is the actual OAuth callback - add a small delay before processing
-          console.log('OAuth callback received, waiting 1 second before processing...');
-          setMessage('Slutför anslutning...');
-          
-          setTimeout(() => {
-            console.log('Processing OAuth callback after delay');
-            // The edge function will handle the token exchange
-            // Just show a processing message and let the redirect happen
-            setMessage('Väntar på svar från Fortnox...');
-          }, 1000);
-          
-          // Set a timeout to show error if processing takes too long
-          setTimeout(() => {
-            if (status === 'loading') {
-              setStatus('error');
-              setMessage('Anslutningen tog för lång tid. Stäng detta fönster och försök igen.');
-              toast({
-                title: "Timeout",
-                description: 'Anslutningen tog för lång tid. Försök igen.',
-                variant: "destructive",
-              });
-            }
-          }, 30000); // 30 second timeout
         } else {
           // No callback parameters, redirect to dashboard
-          console.log('No callback parameters, redirecting to dashboard');
           navigate('/dashboard');
         }
       }
     };
 
     handleCallback();
-  }, [searchParams, navigate, toast, isProcessing]);
+  }, [searchParams, navigate, toast]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
@@ -139,26 +102,12 @@ const FortnoxCallback = () => {
             <p className="text-sm text-muted-foreground">
               Stänger automatiskt om 5 sekunder...
             </p>
-            <div className="text-xs text-muted-foreground mt-4 p-3 bg-muted rounded">
-              <p className="font-semibold">Tips för att lösa problemet:</p>
-              <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>Kontrollera att Fortnox-appen har rätt redirect URI</li>
-                <li>Vänta några sekunder innan du försöker igen</li>
-                <li>Stäng alla Fortnox-fönster och börja om</li>
-              </ul>
-            </div>
           </div>
         )}
         
         {status === 'success' && (
           <p className="text-sm text-muted-foreground">
             Stänger automatiskt om 2 sekunder...
-          </p>
-        )}
-        
-        {status === 'loading' && (
-          <p className="text-sm text-muted-foreground">
-            Detta kan ta upp till 30 sekunder...
           </p>
         )}
       </div>
