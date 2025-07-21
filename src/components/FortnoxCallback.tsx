@@ -12,6 +12,8 @@ const FortnoxCallback = () => {
   const [message, setMessage] = useState('Ansluter till Fortnox...');
 
   useEffect(() => {
+    console.log('FortnoxCallback component mounted');
+    console.log('Current URL:', window.location.href);
     const handleCallback = async () => {
       const code = searchParams.get('code');
       const state = searchParams.get('state');
