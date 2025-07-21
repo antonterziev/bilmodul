@@ -123,7 +123,7 @@ serve(async (req) => {
         console.error(`Failed to invalidate state for request ${requestId}:`, invalidateError);
       }
 
-      // Prepare token exchange request - USING SANDBOX ENDPOINTS
+      // Prepare token exchange request
       const tokenPayload = {
         grant_type: 'authorization_code',
         code,
@@ -140,7 +140,6 @@ serve(async (req) => {
         client_secret: tokenPayload.client_secret ? 'PROVIDED' : 'MISSING'
       });
 
-      // CRITICAL: Using sandbox token endpoint
       const tokenResponse = await fetch('https://sandbox-fortnox.se/oauth-v1/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -254,13 +253,13 @@ serve(async (req) => {
 
   // ENV CHECK: Log environment and credentials for debugging
   console.log('ENV CHECK:', {
-    environment: 'SANDBOX',
+    environment: Deno.env.get('ENVIRONMENT') || 'not-set',
     clientId: clientId ? `${clientId.substring(0, 8)}...` : 'MISSING',
     clientSecret: clientSecret ? `${clientSecret.substring(0, 8)}...` : 'MISSING',
     redirectUri,
     supabaseUrl: Deno.env.get('SUPABASE_URL'),
-    usingProductionEndpoints: false,
-    usingSandboxEndpoints: true
+    isProduction: redirectUri.includes('apps.fortnox.se'),
+    isSandbox: redirectUri.includes('sandbox')
   });
 
   if (action === 'get_auth_url') {
@@ -294,7 +293,6 @@ serve(async (req) => {
     }
 
     const scope = 'companyinformation';
-    // CRITICAL: Using sandbox authorization endpoint
     const authUrl = `https://sandbox-fortnox.se/oauth-v1/auth?` +
       `client_id=${clientId}&` +
       `redirect_uri=${encodeURIComponent(redirectUri)}&` +
@@ -304,7 +302,7 @@ serve(async (req) => {
       `access_type=offline&` +
       `account_type=service`;
 
-    console.log('Generated Fortnox SANDBOX auth URL for user:', user_id);
+    console.log('Generated Fortnox auth URL for user:', user_id);
     console.log('Using redirect URI:', redirectUri);
     console.log('State generated:', state);
 
