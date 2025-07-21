@@ -66,8 +66,8 @@ const FortnoxCallback = () => {
 
         console.log('Fortnox integration successful');
         setStatus('success');
-        setMessage('Fortnox-anslutning lyckad! Omdirigerar till översikten...');
-        setTimeout(() => navigate('/dashboard'), 2000);
+        setMessage('Fortnox-anslutning lyckad! Stänger fönstret...');
+        setTimeout(() => window.close(), 2000);
 
       } catch (error: any) {
         console.error('OAuth callback error:', error);

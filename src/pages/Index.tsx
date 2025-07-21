@@ -495,9 +495,22 @@ const Index = () => {
                           throw new Error('No auth URL received from Fortnox OAuth function');
                         }
 
-                        console.log('Redirecting to Fortnox OAuth URL:', data.auth_url);
-                        // Redirect to Fortnox OAuth
-                        window.location.href = data.auth_url;
+                        console.log('Opening Fortnox OAuth in popup:', data.auth_url);
+                        // Open Fortnox OAuth in popup
+                        const popup = window.open(
+                          data.auth_url, 
+                          'fortnox-oauth', 
+                          'width=600,height=700,scrollbars=yes,resizable=yes'
+                        );
+                        
+                        // Listen for popup completion
+                        const checkClosed = setInterval(() => {
+                          if (popup?.closed) {
+                            clearInterval(checkClosed);
+                            // Refresh the page to check for updated connection status
+                            window.location.reload();
+                          }
+                        }, 1000);
                         
                       } catch (error: any) {
                         console.error('Fortnox connection error:', error);

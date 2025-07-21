@@ -95,7 +95,7 @@ serve(async (req) => {
       });
     }
 
-    const scope = 'companyinformation'; // Minimal scope for test environment
+    const scope = 'profile'; // Basic scope that should work with most Fortnox accounts
     // Clean URL for test environment
     const authUrl = `https://apps.fortnox.se/oauth-v1/auth?` +
       `client_id=${clientId}&` +
