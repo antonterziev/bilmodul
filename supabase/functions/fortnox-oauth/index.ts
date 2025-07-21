@@ -105,17 +105,41 @@ serve(async (req) => {
     }
 
     try {
-      // Verify state to prevent CSRF attacks and code reuse - ALSO GET ID
-      const { data: validState, error: stateError } = await supabase
-        .from('fortnox_integrations')
-        .select('id, user_id, created_at')
-        .eq('access_token', state)
-        .eq('is_active', false)
-        .single();
+      // Cleanup old states first
+      await supabase.rpc('cleanup_old_oauth_states');
 
-      if (stateError || !validState) {
-        console.error(`State validation failed for request ${requestId}:`, stateError);
-        const errorMessage = encodeURIComponent('Ogiltig eller utgången auktoriserings-session. Försök ansluta igen från början.');
+      // Verify state using dedicated OAuth states table
+      const { data: validState, error: stateError } = await supabase
+        .from('fortnox_oauth_states')
+        .select('user_id, created_at, used_at')
+        .eq('state', state)
+        .maybeSingle();
+
+      if (stateError) {
+        console.error(`State lookup failed for request ${requestId}:`, stateError);
+        const errorMessage = encodeURIComponent('Fel vid validering av auktoriserings-session. Försök igen.');
+        return new Response(null, {
+          status: 302,
+          headers: {
+            'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+          }
+        });
+      }
+
+      if (!validState) {
+        console.error(`Invalid state for request ${requestId}: state not found`);
+        const errorMessage = encodeURIComponent('Ogiltig auktoriserings-session. Starta om anslutningsprocessen.');
+        return new Response(null, {
+          status: 302,
+          headers: {
+            'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+          }
+        });
+      }
+
+      if (validState.used_at) {
+        console.error(`State reuse attempt detected for request ${requestId}: state already used at ${validState.used_at}`);
+        const errorMessage = encodeURIComponent('Denna auktoriserings-session har redan använts. Starta om anslutningsprocessen.');
         return new Response(null, {
           status: 302,
           headers: {
@@ -128,7 +152,7 @@ serve(async (req) => {
       const stateAge = Date.now() - new Date(validState.created_at).getTime();
       const maxAge = 10 * 60 * 1000; // 10 minutes
       if (stateAge > maxAge) {
-        console.error(`State expired for request ${requestId}. Age: ${stateAge}ms, Max: ${maxAge}ms`);
+        console.error(`State expired for request ${requestId}. Age: ${Math.round(stateAge / 60000)} minutes`);
         const errorMessage = encodeURIComponent('Auktoriserings-sessionen har gått ut. Försök ansluta igen från början.');
         return new Response(null, {
           status: 302,
@@ -138,20 +162,18 @@ serve(async (req) => {
         });
       }
 
-      // Mark the authorization code as used immediately to prevent reuse
-      const { error: markCodeUsedError } = await supabase
-        .from('fortnox_integrations')
-        .update({ 
-          oauth_code: code,
-          code_used_at: new Date().toISOString(),
-          updated_at: new Date().toISOString() 
-        })
-        .eq('access_token', state);
+      console.log(`✅ State validated for user ${validState.user_id} in request ${requestId}`);
 
-      if (markCodeUsedError) {
-        console.error(`Failed to mark code as used for request ${requestId}:`, markCodeUsedError);
+      // Mark the state as used immediately to prevent race conditions
+      const { error: markStateUsedError } = await supabase
+        .from('fortnox_oauth_states')
+        .update({ used_at: new Date().toISOString() })
+        .eq('state', state);
+
+      if (markStateUsedError) {
+        console.error(`Failed to mark state as used for request ${requestId}:`, markStateUsedError);
       } else {
-        console.log(`✅ Code marked as used for request ${requestId}`);
+        console.log(`✅ State marked as used for request ${requestId}`);
       }
 
       // Prepare token exchange request - USING PRODUCTION ENDPOINT
@@ -213,22 +235,24 @@ serve(async (req) => {
         });
       }
 
-      // Store the tokens in the existing fortnox_integrations table - USE ID INSTEAD OF ACCESS_TOKEN
+      // Store tokens in fortnox_integrations table (upsert for user)
       const expiresAt = new Date(Date.now() + (tokenData.expires_in * 1000));
       
-      const { error: updateError } = await supabase
+      const { error: upsertError } = await supabase
         .from('fortnox_integrations')
-        .update({
+        .upsert({
+          user_id: validState.user_id,
           access_token: tokenData.access_token,
           refresh_token: tokenData.refresh_token,
           token_expires_at: expiresAt.toISOString(),
+          oauth_code: code,
+          code_used_at: new Date().toISOString(),
           is_active: true,
           updated_at: new Date().toISOString()
-        })
-        .eq('id', validState.id);
+        });
 
-      if (updateError) {
-        console.error(`Error storing tokens for ${requestId}:`, updateError);
+      if (upsertError) {
+        console.error(`Error storing tokens for ${requestId}:`, upsertError);
         const errorMessage = encodeURIComponent('Kunde inte spara anslutningsuppgifter. Försök igen.');
         return new Response(null, {
           status: 302,
@@ -237,6 +261,14 @@ serve(async (req) => {
           }
         });
       }
+
+      // Clean up the used state after successful token exchange
+      await supabase
+        .from('fortnox_oauth_states')
+        .delete()
+        .eq('state', state);
+
+      console.log(`✅ OAuth state cleaned up for request ${requestId}`);
 
       console.log(`Fortnox integration successful for user ${validState.user_id}, request ${requestId}`);
 
@@ -300,22 +332,21 @@ serve(async (req) => {
       });
     }
 
+    // Cleanup old states first
+    await supabase.rpc('cleanup_old_oauth_states');
+
     const state = crypto.randomUUID();
-    const timestamp = new Date().toISOString();
     
-    // Store state with timestamp for CSRF protection and tracking
+    // Store state in dedicated OAuth states table for CSRF protection
     const { error: stateError } = await supabase
-      .from('fortnox_integrations')
-      .upsert({
-        user_id,
-        access_token: state, // Temporarily store state in access_token field
-        is_active: false, // Mark as inactive until OAuth completes
-        created_at: timestamp,
-        updated_at: timestamp
+      .from('fortnox_oauth_states')
+      .insert({
+        state,
+        user_id
       });
 
     if (stateError) {
-      console.error('Error storing state:', stateError);
+      console.error('Error storing OAuth state:', stateError);
       return new Response(JSON.stringify({ error: 'Failed to initialize OAuth' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }

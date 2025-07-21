@@ -127,6 +127,30 @@ export type Database = {
         }
         Relationships: []
       }
+      fortnox_oauth_states: {
+        Row: {
+          created_at: string
+          id: string
+          state: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          state: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          state?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       inventory_items: {
         Row: {
           additional_costs: number | null
@@ -354,6 +378,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_old_oauth_states: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]
