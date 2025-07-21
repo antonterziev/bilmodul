@@ -95,15 +95,16 @@ serve(async (req) => {
       });
     }
 
-    const scope = 'profile'; // Basic scope that should work with most Fortnox accounts
-    // Clean URL for test environment
+    const scope = 'settings'; // Basic scope that should work with most Fortnox accounts
+    // Clean URL for production environment
     const authUrl = `https://apps.fortnox.se/oauth-v1/auth?` +
       `client_id=${clientId}&` +
       `redirect_uri=${encodeURIComponent(redirectUri)}&` +
       `scope=${encodeURIComponent(scope)}&` +
       `state=${state}&` +
       `response_type=code&` +
-      `access_type=offline`;
+      `access_type=offline&` +
+      `account_type=service`;
 
     console.log('Generated Fortnox auth URL for user:', user_id);
     console.log('Using redirect URI:', redirectUri);
