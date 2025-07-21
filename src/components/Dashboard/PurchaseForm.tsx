@@ -358,13 +358,6 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
       setIsDuplicateRegNumber(isDuplicate);
       setDuplicateVehicleId(isDuplicate && data.length > 0 ? data[0].id : null);
       
-      if (isDuplicate) {
-        toast({
-          title: "Registreringsnummer finns redan",
-          description: "Detta registreringsnummer finns redan i systemet.",
-          variant: "destructive",
-        });
-      }
       
       return isDuplicate;
     } catch (error) {
