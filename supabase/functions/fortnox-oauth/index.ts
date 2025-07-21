@@ -192,13 +192,26 @@ serve(async (req) => {
 
       if (!tokenResponse.ok) {
         console.error('Token exchange failed:', tokenData);
+        
+        // Provide specific error messages based on Fortnox error codes
+        let userFriendlyMessage = 'Kunde inte ansluta till Fortnox.';
+        
+        if (tokenData.error === 'invalid_grant') {
+          userFriendlyMessage = 'Auktoriseringskoden är ogiltig eller har redan använts. Försök ansluta igen.';
+        } else if (tokenData.error === 'invalid_client') {
+          userFriendlyMessage = 'Felaktig klient-konfiguration. Kontakta support.';
+        } else if (tokenData.error === 'invalid_request') {
+          userFriendlyMessage = 'Felaktig förfrågan till Fortnox. Försök igen.';
+        }
+        
         return new Response(JSON.stringify({ 
-          error: 'Token exchange failed', 
-          details: tokenData,
-          fortnox_error: tokenData.error,
-          fortnox_error_description: tokenData.error_description
+          error: userFriendlyMessage,
+          technical_details: {
+            fortnox_error: tokenData.error,
+            fortnox_error_description: tokenData.error_description
+          }
         }), {
-          status: 400,
+          status: 200, // Return 200 so frontend can display the specific error message
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
       }
