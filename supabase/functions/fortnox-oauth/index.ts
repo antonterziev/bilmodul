@@ -80,10 +80,10 @@ serve(async (req) => {
     console.log(`Processing GET callback ${requestId}`);
 
     try {
-      // Verify state to prevent CSRF attacks and code reuse
+      // Verify state to prevent CSRF attacks and code reuse - ALSO GET ID
       const { data: validState, error: stateError } = await supabase
         .from('fortnox_integrations')
-        .select('user_id, created_at')
+        .select('id, user_id, created_at')
         .eq('access_token', state)
         .eq('is_active', false)
         .single();
@@ -182,7 +182,7 @@ serve(async (req) => {
         });
       }
 
-      // Store the tokens in the existing fortnox_integrations table
+      // Store the tokens in the existing fortnox_integrations table - USE ID INSTEAD OF ACCESS_TOKEN
       const expiresAt = new Date(Date.now() + (tokenData.expires_in * 1000));
       
       const { error: updateError } = await supabase
@@ -194,8 +194,7 @@ serve(async (req) => {
           is_active: true,
           updated_at: new Date().toISOString()
         })
-        .eq('user_id', validState.user_id)
-        .eq('access_token', `used_${requestId}`);
+        .eq('id', validState.id);
 
       if (updateError) {
         console.error(`Error storing tokens for ${requestId}:`, updateError);
