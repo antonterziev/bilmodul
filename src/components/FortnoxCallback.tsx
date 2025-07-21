@@ -1,161 +1,72 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
 const FortnoxCallback = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { toast } = useToast();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const [message, setMessage] = useState('Ansluter till Fortnox...');
+  const [message, setMessage] = useState('Processar anslutning...');
 
   useEffect(() => {
     console.log('FortnoxCallback component mounted');
     console.log('Current URL:', window.location.href);
     
-    const handleCallback = async () => {
-      const code = searchParams.get('code');
-      const state = searchParams.get('state');
-      const error = searchParams.get('error');
-      const errorDescription = searchParams.get('error_description');
+    const handleCallback = () => {
+      const statusParam = searchParams.get('status');
+      const messageParam = searchParams.get('message');
 
-      // Handle error from Fortnox
-      if (error) {
-        console.error('Fortnox OAuth error:', { error, errorDescription });
+      console.log('Callback parameters:', { statusParam, messageParam });
+
+      if (statusParam === 'success') {
+        setStatus('success');
+        setMessage(messageParam || 'Fortnox-anslutning lyckad!');
+        toast({
+          title: "Anslutning lyckad!",
+          description: messageParam || 'Fortnox-anslutning lyckad!',
+        });
+        // Close the window after a short delay
+        setTimeout(() => {
+          window.close();
+        }, 2000);
+      } else if (statusParam === 'error') {
         setStatus('error');
-        setMessage(`Fel vid anslutning: ${errorDescription || error}`);
+        setMessage(messageParam || 'Ett okänt fel uppstod');
         toast({
           title: "Anslutning misslyckad",
-          description: `Fel vid anslutning: ${errorDescription || error}`,
+          description: messageParam || 'Ett okänt fel uppstod',
           variant: "destructive",
         });
-        setTimeout(() => navigate('/dashboard'), 5000);
-        return;
-      }
-
-      if (!code || !state) {
-        console.error('Missing code or state in OAuth callback');
-        setStatus('error');
-        setMessage('Felaktig återkallnings-URL. Saknar auktoriseringskod.');
-        toast({
-          title: "Anslutning misslyckad",
-          description: 'Felaktig återkallnings-URL. Saknar auktoriseringskod.',
-          variant: "destructive",
-        });
-        setTimeout(() => navigate('/dashboard'), 3000);
-        return;
-      }
-
-      if (!user) {
-        console.error('User not authenticated during OAuth callback');
-        setStatus('error');
-        setMessage('Du måste vara inloggad för att slutföra anslutningen.');
-        toast({
-          title: "Anslutning misslyckad",
-          description: 'Du måste vara inloggad för att slutföra anslutningen.',
-          variant: "destructive",
-        });
-        setTimeout(() => navigate('/login-or-signup'), 3000);
-        return;
-      }
-
-      try {
-        console.log('Calling Fortnox OAuth function to exchange code for tokens...', {
-          action: 'handle_callback',
-          code,
-          state,
-          user_id: user.id
-        });
-        
-        const { data, error: functionError } = await supabase.functions.invoke('fortnox-oauth', {
-          body: { 
-            action: 'handle_callback',
-            code,
-            state,
-            user_id: user.id
-          }
-        });
-
-        console.log('Fortnox OAuth function response:', { data, error: functionError });
-
-        if (functionError) {
-          console.error('Function error details:', {
-            message: functionError.message,
-            status: functionError.status,
-            details: functionError
-          });
+        // Close the window after a longer delay for error messages
+        setTimeout(() => {
+          window.close();
+        }, 5000);
+      } else {
+        // If no status parameter, this might be an old-style callback
+        // Check for code parameter to determine if it's a callback
+        const code = searchParams.get('code');
+        if (code) {
           setStatus('error');
-          setMessage(`Ett fel uppstod: ${functionError.message}`);
+          setMessage('Anslutningen kunde inte slutföras. Försök igen.');
           toast({
             title: "Anslutning misslyckad",
-            description: `Ett fel uppstod: ${functionError.message}`,
+            description: 'Anslutningen kunde inte slutföras. Försök igen.',
             variant: "destructive",
           });
-          setTimeout(() => window.close(), 5000);
-          return;
-        }
-
-        // Check if the response indicates success
-        if (data?.success) {
-          console.log('Fortnox integration successful');
-          setStatus('success');
-          setMessage('Fortnox-anslutning lyckad! Stänger fönstret...');
-          toast({
-            title: "Anslutning lyckad!",
-            description: 'Fortnox-anslutning lyckad!',
-          });
-          setTimeout(() => window.close(), 2000);
+          setTimeout(() => {
+            window.close();
+          }, 5000);
         } else {
-          // Handle specific error from the edge function
-          const errorMessage = data?.error || 'Okänt fel vid anslutning till Fortnox';
-          const technicalDetails = data?.technical_details;
-          
-          console.error('OAuth callback failed:', {
-            error: errorMessage,
-            technical_details: technicalDetails
-          });
-          
-          setStatus('error');
-          setMessage(errorMessage);
-          
-          // Show detailed error in toast for debugging
-          toast({
-            title: "Anslutning misslyckad",
-            description: errorMessage,
-            variant: "destructive",
-          });
-          
-          // Log technical details if available
-          if (technicalDetails) {
-            console.error('Technical details:', technicalDetails);
-          }
-          
-          setTimeout(() => window.close(), 5000);
+          // No callback parameters, redirect to dashboard
+          navigate('/dashboard');
         }
-
-      } catch (error: any) {
-        console.error('OAuth callback error details:', {
-          error,
-          message: error?.message,
-          stack: error?.stack
-        });
-        setStatus('error');
-        setMessage(`Ett fel uppstod vid anslutning till Fortnox: ${error?.message || 'Okänt fel'}`);
-        toast({
-          title: "Anslutning misslyckad",
-          description: `Ett fel uppstod vid anslutning till Fortnox: ${error?.message || 'Okänt fel'}`,
-          variant: "destructive",
-        });
-        setTimeout(() => window.close(), 5000);
       }
     };
 
     handleCallback();
-  }, [searchParams, navigate, user, toast]);
+  }, [searchParams, navigate, toast]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
@@ -173,7 +84,7 @@ const FortnoxCallback = () => {
         )}
         
         <h1 className="text-2xl font-bold">
-          {status === 'loading' && 'Ansluter till Fortnox'}
+          {status === 'loading' && 'Processar anslutning'}
           {status === 'success' && 'Anslutning lyckad!'}
           {status === 'error' && 'Anslutning misslyckad'}
         </h1>
@@ -189,9 +100,15 @@ const FortnoxCallback = () => {
               Tillbaka till översikten
             </button>
             <p className="text-sm text-muted-foreground">
-              Tips: Kontrollera att redirect URI i Fortnox-appen är korrekt inställd till: https://lagermodulen.se/fortnox-callback
+              Stänger automatiskt om 5 sekunder...
             </p>
           </div>
+        )}
+        
+        {status === 'success' && (
+          <p className="text-sm text-muted-foreground">
+            Stänger automatiskt om 2 sekunder...
+          </p>
         )}
       </div>
     </div>

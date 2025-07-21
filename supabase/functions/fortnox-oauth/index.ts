@@ -19,22 +19,216 @@ serve(async (req) => {
   const url = new URL(req.url);
   console.log('Fortnox OAuth request:', { method: req.method, url: url.toString() });
 
-  // Handle GET request (OAuth callback from Fortnox) - This is now handled by the React app
-  if (req.method === 'GET') {
-    return new Response(`
-      <!DOCTYPE html>
-      <html>
-        <head><title>OAuth Callback</title></head>
-        <body>
-          <h1>OAuth Callback</h1>
-          <p>This endpoint is now handled by the React app at /fortnox-callback</p>
-          <p>Please use the correct redirect URI: https://lagermodulen.se/fortnox-callback</p>
-        </body>
-      </html>
-    `, {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'text/html' }
+  const clientId = Deno.env.get('FORTNOX_CLIENT_ID');
+  const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET');
+  const redirectUri = 'https://lagermodulen.se/fortnox-callback';
+
+  if (!clientId || !clientSecret) {
+    console.error('Missing Fortnox credentials');
+    if (req.method === 'GET') {
+      return new Response(null, {
+        status: 302,
+        headers: {
+          'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${encodeURIComponent('Server configuration error')}`
+        }
+      });
+    }
+    return new Response(JSON.stringify({ error: 'Missing server credentials' }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
+  }
+
+  // Handle GET request (OAuth callback from Fortnox)
+  if (req.method === 'GET') {
+    const code = url.searchParams.get('code');
+    const state = url.searchParams.get('state');
+    const error = url.searchParams.get('error');
+    const errorDescription = url.searchParams.get('error_description');
+
+    console.log('GET callback parameters:', {
+      code: code ? `${code.substring(0, 8)}...` : 'MISSING',
+      state: state ? `${state.substring(0, 8)}...` : 'MISSING',
+      error,
+      errorDescription
+    });
+
+    // Handle error from Fortnox
+    if (error) {
+      console.error('Fortnox OAuth error:', { error, errorDescription });
+      const errorMessage = encodeURIComponent(`Fel vid anslutning: ${errorDescription || error}`);
+      return new Response(null, {
+        status: 302,
+        headers: {
+          'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+        }
+      });
+    }
+
+    if (!code || !state) {
+      console.error('Missing code or state in OAuth callback');
+      const errorMessage = encodeURIComponent('Felaktig återkallnings-URL. Saknar auktoriseringskod.');
+      return new Response(null, {
+        status: 302,
+        headers: {
+          'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+        }
+      });
+    }
+
+    const requestId = crypto.randomUUID();
+    console.log(`Processing GET callback ${requestId}`);
+
+    try {
+      // Verify state to prevent CSRF attacks and code reuse
+      const { data: validState, error: stateError } = await supabase
+        .from('fortnox_integrations')
+        .select('user_id, created_at')
+        .eq('access_token', state)
+        .eq('is_active', false)
+        .single();
+
+      if (stateError || !validState) {
+        console.error(`State validation failed for request ${requestId}:`, stateError);
+        const errorMessage = encodeURIComponent('Ogiltig eller utgången auktoriserings-session. Försök ansluta igen från början.');
+        return new Response(null, {
+          status: 302,
+          headers: {
+            'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+          }
+        });
+      }
+
+      // Check if state is too old (more than 10 minutes)
+      const stateAge = Date.now() - new Date(validState.created_at).getTime();
+      const maxAge = 10 * 60 * 1000; // 10 minutes
+      if (stateAge > maxAge) {
+        console.error(`State expired for request ${requestId}. Age: ${stateAge}ms, Max: ${maxAge}ms`);
+        const errorMessage = encodeURIComponent('Auktoriserings-sessionen har gått ut. Försök ansluta igen från början.');
+        return new Response(null, {
+          status: 302,
+          headers: {
+            'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+          }
+        });
+      }
+
+      // Invalidate the state immediately to prevent reuse
+      const { error: invalidateError } = await supabase
+        .from('fortnox_integrations')
+        .update({ access_token: `used_${requestId}`, updated_at: new Date().toISOString() })
+        .eq('access_token', state);
+
+      if (invalidateError) {
+        console.error(`Failed to invalidate state for request ${requestId}:`, invalidateError);
+      }
+
+      // Prepare token exchange request
+      const tokenPayload = {
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: redirectUri,
+        client_id: clientId,
+        client_secret: clientSecret
+      };
+
+      console.log(`Token exchange request for ${requestId}:`, {
+        grant_type: tokenPayload.grant_type,
+        code: tokenPayload.code ? `${tokenPayload.code.substring(0, 8)}...` : 'MISSING',
+        redirect_uri: tokenPayload.redirect_uri,
+        client_id: tokenPayload.client_id ? `${tokenPayload.client_id.substring(0, 8)}...` : 'MISSING',
+        client_secret: tokenPayload.client_secret ? 'PROVIDED' : 'MISSING'
+      });
+
+      const tokenResponse = await fetch('https://apps.fortnox.se/oauth-v1/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(tokenPayload)
+      });
+
+      const tokenData = await tokenResponse.json();
+
+      console.log(`Fortnox token response for ${requestId}:`, {
+        status: tokenResponse.status,
+        statusText: tokenResponse.statusText,
+        ok: tokenResponse.ok,
+        hasAccessToken: !!tokenData.access_token,
+        hasRefreshToken: !!tokenData.refresh_token,
+        expiresIn: tokenData.expires_in,
+        error: tokenData.error,
+        errorDescription: tokenData.error_description
+      });
+
+      if (!tokenResponse.ok) {
+        console.error(`Token exchange failed for ${requestId}:`, tokenData);
+        
+        // Provide specific error messages based on Fortnox error codes
+        let userFriendlyMessage = 'Kunde inte ansluta till Fortnox.';
+        
+        if (tokenData.error === 'invalid_grant') {
+          userFriendlyMessage = 'Auktoriseringskoden är ogiltig eller har redan använts. Kontrollera att redirect URI i Fortnox-appen är korrekt inställd.';
+        } else if (tokenData.error === 'invalid_client') {
+          userFriendlyMessage = 'Felaktig klient-konfiguration. Kontrollera att Client ID och Client Secret är korrekta.';
+        } else if (tokenData.error === 'invalid_request') {
+          userFriendlyMessage = 'Felaktig förfrågan till Fortnox. Försök igen.';
+        }
+        
+        const errorMessage = encodeURIComponent(userFriendlyMessage);
+        return new Response(null, {
+          status: 302,
+          headers: {
+            'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+          }
+        });
+      }
+
+      // Store the tokens in the existing fortnox_integrations table
+      const expiresAt = new Date(Date.now() + (tokenData.expires_in * 1000));
+      
+      const { error: updateError } = await supabase
+        .from('fortnox_integrations')
+        .update({
+          access_token: tokenData.access_token,
+          refresh_token: tokenData.refresh_token,
+          token_expires_at: expiresAt.toISOString(),
+          is_active: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', validState.user_id)
+        .eq('access_token', `used_${requestId}`);
+
+      if (updateError) {
+        console.error(`Error storing tokens for ${requestId}:`, updateError);
+        const errorMessage = encodeURIComponent('Kunde inte spara anslutningsuppgifter. Försök igen.');
+        return new Response(null, {
+          status: 302,
+          headers: {
+            'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+          }
+        });
+      }
+
+      console.log(`Fortnox integration successful for user ${validState.user_id}, request ${requestId}`);
+
+      // Redirect to success page
+      const successMessage = encodeURIComponent('Fortnox-anslutning lyckad!');
+      return new Response(null, {
+        status: 302,
+        headers: {
+          'Location': `https://lagermodulen.se/fortnox-callback?status=success&message=${successMessage}`
+        }
+      });
+
+    } catch (fetchError) {
+      console.error(`Network error during token exchange for ${requestId}:`, fetchError);
+      const errorMessage = encodeURIComponent('Nätverksfel vid anslutning till Fortnox. Kontrollera din internetanslutning och försök igen.');
+      return new Response(null, {
+        status: 302,
+        headers: {
+          'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+        }
+      });
+    }
   }
 
   // Handle POST requests (API calls from frontend)
@@ -55,18 +249,7 @@ serve(async (req) => {
     });
   }
 
-  const { action, code, state, user_id } = payload;
-  const clientId = Deno.env.get('FORTNOX_CLIENT_ID');
-  const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET');
-  const redirectUri = 'https://lagermodulen.se/fortnox-callback';
-
-  if (!clientId || !clientSecret) {
-    console.error('Missing Fortnox credentials');
-    return new Response(JSON.stringify({ error: 'Missing server credentials' }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
-  }
+  const { action, user_id } = payload;
 
   // Debug: Log credentials (without exposing sensitive data)
   console.log('Fortnox credentials check:', {
@@ -123,170 +306,6 @@ serve(async (req) => {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
-  }
-
-  if (action === 'handle_callback') {
-    const requestId = crypto.randomUUID();
-    console.log(`Processing callback ${requestId} with parameters:`, {
-      code: code ? `${code.substring(0, 8)}...` : 'MISSING',
-      state: state ? `${state.substring(0, 8)}...` : 'MISSING',
-      user_id
-    });
-
-    // Verify state to prevent CSRF attacks and code reuse
-    const { data: validState, error: stateError } = await supabase
-      .from('fortnox_integrations')
-      .select('user_id, created_at')
-      .eq('access_token', state)
-      .eq('is_active', false)
-      .single();
-
-    if (stateError || !validState) {
-      console.error(`State validation failed for request ${requestId}:`, stateError);
-      return new Response(JSON.stringify({ 
-        error: 'Ogiltig eller utgången auktoriserings-session. Försök ansluta igen från början.',
-        technical_details: { error: 'Invalid or expired state token' }
-      }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    }
-
-    // Check if state is too old (more than 10 minutes)
-    const stateAge = Date.now() - new Date(validState.created_at).getTime();
-    const maxAge = 10 * 60 * 1000; // 10 minutes
-    if (stateAge > maxAge) {
-      console.error(`State expired for request ${requestId}. Age: ${stateAge}ms, Max: ${maxAge}ms`);
-      return new Response(JSON.stringify({ 
-        error: 'Auktoriserings-sessionen har gått ut. Försök ansluta igen från början.',
-        technical_details: { error: 'State token expired' }
-      }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    }
-
-    // Invalidate the state immediately to prevent reuse
-    const { error: invalidateError } = await supabase
-      .from('fortnox_integrations')
-      .update({ access_token: `used_${requestId}`, updated_at: new Date().toISOString() })
-      .eq('access_token', state);
-
-    if (invalidateError) {
-      console.error(`Failed to invalidate state for request ${requestId}:`, invalidateError);
-    }
-
-    // Prepare token exchange request
-    const tokenPayload = {
-      grant_type: 'authorization_code',
-      code,
-      redirect_uri: redirectUri,
-      client_id: clientId,
-      client_secret: clientSecret
-    };
-
-    console.log(`Token exchange request payload for ${requestId}:`, {
-      grant_type: tokenPayload.grant_type,
-      code: tokenPayload.code ? `${tokenPayload.code.substring(0, 8)}...` : 'MISSING',
-      redirect_uri: tokenPayload.redirect_uri,
-      client_id: tokenPayload.client_id ? `${tokenPayload.client_id.substring(0, 8)}...` : 'MISSING',
-      client_secret: tokenPayload.client_secret ? 'PROVIDED' : 'MISSING'
-    });
-
-    try {
-      const tokenResponse = await fetch('https://apps.fortnox.se/oauth-v1/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(tokenPayload)
-      });
-
-      const tokenData = await tokenResponse.json();
-
-      console.log(`Fortnox token response for ${requestId}:`, {
-        status: tokenResponse.status,
-        statusText: tokenResponse.statusText,
-        ok: tokenResponse.ok,
-        hasAccessToken: !!tokenData.access_token,
-        hasRefreshToken: !!tokenData.refresh_token,
-        expiresIn: tokenData.expires_in,
-        error: tokenData.error,
-        errorDescription: tokenData.error_description
-      });
-
-      if (!tokenResponse.ok) {
-        console.error(`Token exchange failed for ${requestId}:`, tokenData);
-        
-        // Provide specific error messages based on Fortnox error codes
-        let userFriendlyMessage = 'Kunde inte ansluta till Fortnox.';
-        
-        if (tokenData.error === 'invalid_grant') {
-          userFriendlyMessage = 'Auktoriseringskoden är ogiltig eller har redan använts. Kontrollera att redirect URI i Fortnox-appen är korrekt inställd till: https://lagermodulen.se/fortnox-callback';
-        } else if (tokenData.error === 'invalid_client') {
-          userFriendlyMessage = 'Felaktig klient-konfiguration. Kontrollera att Client ID och Client Secret är korrekta i Fortnox-appen.';
-        } else if (tokenData.error === 'invalid_request') {
-          userFriendlyMessage = 'Felaktig förfrågan till Fortnox. Försök igen.';
-        }
-        
-        return new Response(JSON.stringify({ 
-          error: userFriendlyMessage,
-          technical_details: {
-            fortnox_error: tokenData.error,
-            fortnox_error_description: tokenData.error_description,
-            request_id: requestId
-          }
-        }), {
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
-      }
-
-      // Store the tokens in the existing fortnox_integrations table
-      const expiresAt = new Date(Date.now() + (tokenData.expires_in * 1000));
-      
-      const { error: updateError } = await supabase
-        .from('fortnox_integrations')
-        .update({
-          access_token: tokenData.access_token,
-          refresh_token: tokenData.refresh_token,
-          token_expires_at: expiresAt.toISOString(),
-          is_active: true,
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', validState.user_id)
-        .eq('access_token', `used_${requestId}`);
-
-      if (updateError) {
-        console.error(`Error storing tokens for ${requestId}:`, updateError);
-        return new Response(JSON.stringify({ 
-          error: 'Kunde inte spara anslutningsuppgifter. Försök igen.',
-          technical_details: { error: 'Failed to store integration tokens' }
-        }), {
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
-      }
-
-      console.log(`Fortnox integration successful for user ${validState.user_id}, request ${requestId}`);
-
-      return new Response(JSON.stringify({ success: true }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-
-    } catch (fetchError) {
-      console.error(`Network error during token exchange for ${requestId}:`, fetchError);
-      return new Response(JSON.stringify({ 
-        error: 'Nätverksfel vid anslutning till Fortnox. Kontrollera din internetanslutning och försök igen.',
-        technical_details: { 
-          error: 'Network error during token exchange',
-          details: fetchError.message,
-          request_id: requestId
-        }
-      }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    }
   }
 
   return new Response(JSON.stringify({ error: 'Invalid action' }), {
