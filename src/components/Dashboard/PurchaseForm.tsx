@@ -874,16 +874,21 @@ export const PurchaseForm = ({
                 {/* 5. Momsregel - Non-selectable */}
                 <div>
                   <Label className="text-muted-foreground">Momsregel*</Label>
-                  <div className="flex flex-row gap-6 mt-2">
+                  <RadioGroup
+                    value={form.watch("vat_type")}
+                    onValueChange={() => {}} // No-op function to prevent changes
+                    className="flex flex-row gap-6 mt-2"
+                    disabled={true}
+                  >
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="Vinstmarginalbeskattning (VMB)" id="vmb" checked={true} disabled={true} />
+                      <RadioGroupItem value="Vinstmarginalbeskattning (VMB)" id="vmb" disabled={true} />
                       <Label htmlFor="vmb" className="font-normal text-muted-foreground">Vinstmarginalbeskattning (VMB)</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="Moms (25%)" id="moms" disabled={true} />
                       <Label htmlFor="moms" className="font-normal text-muted-foreground">Moms (25%)</Label>
                     </div>
-                  </div>
+                  </RadioGroup>
                   {form.formState.errors.vat_type && <p className="text-sm text-destructive mt-1 absolute">
                       {form.formState.errors.vat_type.message}
                     </p>}
