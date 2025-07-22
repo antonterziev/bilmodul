@@ -21,6 +21,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 
 const Index = () => {
   const { user, signOut, isLoading } = useAuth();
@@ -68,6 +69,9 @@ const Index = () => {
     grossMargin: 0
   });
 
+  // Fortnox integration status
+  const [fortnoxConnected, setFortnoxConnected] = useState(false);
+
   useEffect(() => {
     if (!isLoading && !user) {
       navigate("/login-or-signup");
@@ -93,6 +97,7 @@ const Index = () => {
       loadStats();
       loadUserProfile();
       loadInventoryItems();
+      checkFortnoxConnection();
     }
   }, [user]);
 
@@ -277,6 +282,30 @@ const Index = () => {
     }
   };
 
+  const checkFortnoxConnection = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('fortnox_integrations')
+        .select('is_active')
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .limit(1);
+
+      if (error) {
+        console.error('Error checking Fortnox connection:', error);
+        setFortnoxConnected(false);
+        return;
+      }
+
+      setFortnoxConnected(data && data.length > 0);
+    } catch (error) {
+      console.error('Error checking Fortnox connection:', error);
+      setFortnoxConnected(false);
+    }
+  };
+
   const getDisplayName = () => {
     if (userProfile?.full_name) {
       return userProfile.full_name;
@@ -454,17 +483,26 @@ const Index = () => {
             
             <div className="space-y-4">
               <div className="bg-card border rounded-lg p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-                      <img src="/lovable-uploads/06ce5fbb-cb35-47f9-9b24-5b51bdbe0647.png" alt="Fortnox" className="w-10 h-10 object-contain" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-medium">Automatisk bokföring – Fortnox</h3>
-                      <p className="text-sm text-muted-foreground">Bokför dina fordonsaffärer smidigt och automatiskt med Fortnox</p>
-                    </div>
-                  </div>
-                  <Button 
+                  <div className="flex items-center justify-between">
+                   <div className="flex items-center space-x-4">
+                     <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
+                       <img src="/lovable-uploads/06ce5fbb-cb35-47f9-9b24-5b51bdbe0647.png" alt="Fortnox" className="w-10 h-10 object-contain" />
+                     </div>
+                     <div className="flex-1">
+                       <h3 className="font-medium">Automatisk bokföring – Fortnox</h3>
+                       <p className="text-sm text-muted-foreground">Bokför dina fordonsaffärer smidigt och automatiskt med Fortnox</p>
+                     </div>
+                   </div>
+                   <div className="flex items-center gap-3">
+                     {fortnoxConnected && (
+                       <Badge 
+                         variant="default"
+                         className="text-xs whitespace-nowrap px-2 justify-center w-16 bg-green-500 hover:bg-green-600 text-white"
+                       >
+                         Aktiv
+                       </Badge>
+                     )}
+                     <Button
                     variant="outline"
                     onClick={async () => {
                       if (!user?.id) {
@@ -516,17 +554,15 @@ const Index = () => {
                       }
                     }}
                   >
-                    <Link className="h-4 w-4 mr-2" />
-                    Koppla
-                  </Button>
-                </div>
-              </div>
-
-
-
-            </div>
-          </div>
-        );
+                     <Link className="h-4 w-4 mr-2" />
+                     Koppla
+                   </Button>
+                   </div>
+                 </div>
+               </div>
+             </div>
+           </div>
+         );
 
       default:
         // Default overview content - includes both dashboard stats and statistics
