@@ -356,7 +356,7 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
                 disabled={isSubmitting}
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
-                {isSubmitting ? "Sparar..." : "Spara försäljning"}
+                {isSubmitting ? "Sparar..." : "Registrera"}
               </Button>
             </div>
             </div>
