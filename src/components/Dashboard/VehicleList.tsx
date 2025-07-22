@@ -403,9 +403,8 @@ export const VehicleList = ({
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled
                     onClick={() => onSellVehicle?.(vehicle.id)}
-                    className="text-green-600 hover:bg-green-600 hover:text-white w-10 h-10 p-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="text-green-600 hover:bg-green-600 hover:text-white w-10 h-10 p-0"
                   >
                     <DollarSign className="h-4 w-4" />
                   </Button>
