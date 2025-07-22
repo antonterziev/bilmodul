@@ -39,6 +39,7 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
   // Form state
   const [seller, setSeller] = useState("");
   const [sellingPrice, setSellingPrice] = useState("");
+  const [priceDisplay, setPriceDisplay] = useState("");
   const [sellingDate, setSellingDate] = useState<Date | undefined>(new Date());
   const [salesDocumentation, setSalesDocumentation] = useState("Köpeavtal");
   const [salesChannel, setSalesChannel] = useState("Bilhall");
@@ -94,6 +95,34 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Format price with thousands separator and decimals
+  const formatPriceWithThousands = (value: string) => {
+    // Remove existing formatting
+    const cleanValue = value.replace(/\s/g, '').replace(/,/g, '.');
+    if (!cleanValue) return '';
+    
+    const num = parseFloat(cleanValue);
+    if (isNaN(num)) return value;
+    
+    // Format with Swedish locale (space as thousand separator)
+    return num.toLocaleString('sv-SE', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  };
+
+  // Handle price input change
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Allow digits, comma, and decimal point
+    const cleanValue = value.replace(/\s/g, '').replace(/,/g, '.');
+    
+    if (cleanValue === '' || /^\d+([.,]\d{0,2})?$/.test(cleanValue)) {
+      const numValue = cleanValue === '' ? undefined : parseFloat(cleanValue);
+      if (numValue === undefined || numValue >= 0) {
+        setSellingPrice(numValue?.toString() || '');
+        setPriceDisplay(value === '' ? '' : formatPriceWithThousands(value));
+      }
     }
   };
 
@@ -174,10 +203,10 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
                   <Label htmlFor="price">Försäljningspris (inkl. moms)</Label>
                   <Input
                     id="price"
-                    value={sellingPrice}
-                    onChange={(e) => setSellingPrice(e.target.value)}
-                    type="number"
-                    placeholder="130,000"
+                    type="text"
+                    value={priceDisplay}
+                    onChange={handlePriceChange}
+                    placeholder="t.ex. 130 000"
                   />
                 </div>
 
