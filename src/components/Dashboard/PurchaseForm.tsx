@@ -21,95 +21,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { sv } from "date-fns/locale";
-
-const carBrands = [
-  "Annat",
-  "Alfa Romeo",
-  "Alpine", 
-  "Aston Martin",
-  "Audi",
-  "Bentley",
-  "BMW",
-  "BYD",
-  "Cadillac",
-  "Chevrolet",
-  "Chrysler",
-  "Citroën",
-  "Dacia",
-  "Daihatsu",
-  "Dodge",
-  "Ferrari",
-  "Fiat",
-  "Fisker, Karma",
-  "Ford",
-  "GMC",
-  "Honda",
-  "Hummer",
-  "Hyundai",
-  "Infiniti",
-  "Isuzu",
-  "Iveco",
-  "Jaguar",
-  "Jeep",
-  "Kia",
-  "Koenigsegg",
-  "KTM",
-  "Lada",
-  "Lamborghini",
-  "Lancia",
-  "Land Rover",
-  "Lexus",
-  "Ligier",
-  "Lincoln",
-  "Lotus",
-  "Maserati",
-  "Mazda",
-  "McLaren",
-  "Mercedes-Benz",
-  "Maybach",
-  "Mini",
-  "Mitsubishi",
-  "Nissan",
-  "Opel",
-  "Peugeot",
-  "Piaggio",
-  "Pininfarina",
-  "Polestar",
-  "Pontiac, Asüna",
-  "Porsche",
-  "Renault",
-  "Rivian",
-  "Rolls-Royce",
-  "Saab",
-  "Santana",
-  "Seat",
-  "Shelby SuperCars",
-  "Skoda",
-  "smart",
-  "SsangYong",
-  "Subaru",
-  "Suzuki",
-  "Tesla",
-  "Toyota",
-  "Volkswagen",
-  "Volvo"
-];
-
-const purchaseChannels = [
-  "Bilhandlare",
-  "Privatperson",
-  "Marknadsplats", 
-  "Annan"
-];
-
-const marketplaces = [
-  "Blocket",
-  "KVD",
-  "BCA",
-  "Auto1",
-  "Annan"
-];
-
+const carBrands = ["Annat", "Alfa Romeo", "Alpine", "Aston Martin", "Audi", "Bentley", "BMW", "BYD", "Cadillac", "Chevrolet", "Chrysler", "Citroën", "Dacia", "Daihatsu", "Dodge", "Ferrari", "Fiat", "Fisker, Karma", "Ford", "GMC", "Honda", "Hummer", "Hyundai", "Infiniti", "Isuzu", "Iveco", "Jaguar", "Jeep", "Kia", "Koenigsegg", "KTM", "Lada", "Lamborghini", "Lancia", "Land Rover", "Lexus", "Ligier", "Lincoln", "Lotus", "Maserati", "Mazda", "McLaren", "Mercedes-Benz", "Maybach", "Mini", "Mitsubishi", "Nissan", "Opel", "Peugeot", "Piaggio", "Pininfarina", "Polestar", "Pontiac, Asüna", "Porsche", "Renault", "Rivian", "Rolls-Royce", "Saab", "Santana", "Seat", "Shelby SuperCars", "Skoda", "smart", "SsangYong", "Subaru", "Suzuki", "Tesla", "Toyota", "Volkswagen", "Volvo"];
+const purchaseChannels = ["Bilhandlare", "Privatperson", "Marknadsplats", "Annan"];
+const marketplaces = ["Blocket", "KVD", "BCA", "Auto1", "Annan"];
 const purchaseSchema = z.object({
   // Vehicle data
   registration_number: z.string().min(1, "Registreringsnummer krävs"),
@@ -122,7 +36,6 @@ const purchaseSchema = z.object({
   year_model: z.number().min(1900, "Modellår måste vara minst 1900").max(new Date().getFullYear() + 1, "Modellår kan inte vara i framtiden").optional(),
   first_registration_date: z.date().max(new Date(), "Första datum i trafik kan inte vara i framtiden").optional(),
   vat_type: z.string().min(1, "Momsregel krävs"),
-  
   // Purchase information
   purchaser: z.string().min(1, "Inköpare krävs"),
   purchase_price: z.number().min(0.01, "Inköpspris måste vara positivt och större än 0"),
@@ -134,21 +47,27 @@ const purchaseSchema = z.object({
   purchase_channel_other: z.string().optional(),
   marketplace_channel: z.string().optional(),
   marketplace_channel_other: z.string().optional(),
-  expected_selling_price: z.number().min(0, "Förväntat försäljningspris kan inte vara negativt").optional(),
+  expected_selling_price: z.number().min(0, "Förväntat försäljningspris kan inte vara negativt").optional()
 });
-
 type PurchaseFormData = z.infer<typeof purchaseSchema>;
-
 interface PurchaseFormProps {
   onSuccess: () => void;
   onNavigateToVehicle?: (vehicleId: string) => void;
 }
-
-export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormProps) => {
-  const { user } = useAuth();
-  const { toast } = useToast();
+export const PurchaseForm = ({
+  onSuccess,
+  onNavigateToVehicle
+}: PurchaseFormProps) => {
+  const {
+    user
+  } = useAuth();
+  const {
+    toast
+  } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [userProfile, setUserProfile] = useState<{ full_name?: string } | null>(null);
+  const [userProfile, setUserProfile] = useState<{
+    full_name?: string;
+  } | null>(null);
   const [open, setOpen] = useState(false);
   const [firstRegOpen, setFirstRegOpen] = useState(false);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -169,23 +88,21 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
   const [isLoadingCarInfo, setIsLoadingCarInfo] = useState(false);
   const [showFullForm, setShowFullForm] = useState(false);
   const [carDataFetched, setCarDataFetched] = useState(false);
-  
+
   // Generate year options (last 50 years)
   const currentYear = new Date().getFullYear();
-  const yearOptions = Array.from({ length: 50 }, (_, i) => currentYear - i);
-  
-  // Month names in Swedish
-  const monthNames = [
-    "Januari", "Februari", "Mars", "April", "Maj", "Juni",
-    "Juli", "Augusti", "September", "Oktober", "November", "December"
-  ];
+  const yearOptions = Array.from({
+    length: 50
+  }, (_, i) => currentYear - i);
 
+  // Month names in Swedish
+  const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
   const form = useForm<PurchaseFormData>({
     resolver: zodResolver(purchaseSchema),
     defaultValues: {
       purchase_date: new Date(),
-      down_payment: 0,
-    },
+      down_payment: 0
+    }
   });
 
   // Function to reset form to initial state
@@ -207,7 +124,7 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
     setSelectedMonth(null);
     form.reset({
       purchase_date: new Date(),
-      down_payment: 0,
+      down_payment: 0
     });
   };
 
@@ -215,22 +132,17 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
   useEffect(() => {
     resetForm();
   }, []);
-  
-  
+
   // Fetch user profile and auto-populate purchaser field
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (!user) return;
-      
       try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('full_name')
-          .eq('user_id', user.id)
-          .single();
-
+        const {
+          data,
+          error
+        } = await supabase.from('profiles').select('full_name').eq('user_id', user.id).single();
         if (error) throw error;
-        
         if (data?.full_name) {
           setUserProfile(data);
           form.setValue('purchaser', data.full_name);
@@ -239,57 +151,50 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
         console.error('Error fetching user profile:', error);
       }
     };
-
     fetchUserProfile();
   }, [user, form]);
 
   // Fetch vehicle data from car info APIs via Edge Function
   const fetchCarInfo = async (regNumber: string) => {
     if (!regNumber.trim()) return;
-    
     console.log('fetchCarInfo called with:', regNumber);
     setIsLoadingCarInfo(true);
     try {
       console.log('Calling Supabase edge function with regNumber:', regNumber.trim());
-      
-      const { data, error } = await supabase.functions.invoke('fetch-car-info', {
-        body: { registrationNumber: regNumber.trim() }
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('fetch-car-info', {
+        body: {
+          registrationNumber: regNumber.trim()
+        }
       });
-      
       console.log('Edge function response - data:', data, 'error:', error);
-      
       if (error) {
         console.error('Edge function error:', error);
         return;
       }
-      
       if (data && !data.error) {
         console.log('Auto-populating form with data:', data);
-        
+
         // Auto-populate form fields with data from car info APIs
         if (data.brand) {
-          const brandMatch = carBrands.find(brand => 
-            brand.toLowerCase() === data.brand.toLowerCase()
-          );
+          const brandMatch = carBrands.find(brand => brand.toLowerCase() === data.brand.toLowerCase());
           form.setValue('brand', brandMatch || 'Annat');
           if (!brandMatch && data.brand) {
             form.setValue('brand_other', data.brand);
           }
         }
-        
         if (data.model) {
           form.setValue('model', data.model);
         }
-        
         if (data.modelYear) {
           form.setValue('year_model', parseInt(data.modelYear));
         }
-        
         if (data.mileage) {
           form.setValue('mileage', parseInt(data.mileage));
           setMileageDisplay(formatWithThousands(data.mileage.toString()));
         }
-        
         if (data.registrationDate) {
           // Validate registration date - reject future dates
           const regDate = new Date(data.registrationDate);
@@ -299,7 +204,6 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
             console.log(`Registration date ${data.registrationDate} rejected - future date`);
           }
         }
-        
         if (data.expectedSellingPrice) {
           form.setValue('expected_selling_price', data.expectedSellingPrice);
           setExpectedPriceDisplay(formatWithThousands(data.expectedSellingPrice.toString()));
@@ -307,18 +211,14 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
         if (data.vin) {
           form.setValue('chassis_number', data.vin);
         }
-        
         setCarDataFetched(true);
         // Only show full form if there's no duplicate
         if (!isDuplicateRegNumber) {
           setShowFullForm(true);
         }
-        
         toast({
           title: "Fordonsdata hämtad",
-          description: data.fromCache 
-            ? "Fordonsinformation hämtad från cachad data (inga tokens användes)"
-            : "Fordonsinformation har hämtats automatiskt",
+          description: data.fromCache ? "Fordonsinformation hämtad från cachad data (inga tokens användes)" : "Fordonsinformation har hämtats automatiskt"
         });
       } else {
         console.log('No data returned or data contains error:', data);
@@ -328,7 +228,7 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
       toast({
         title: "Fel",
         description: "Kunde inte hämta fordonsdata: " + error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsLoadingCarInfo(false);
@@ -342,23 +242,16 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
       setDuplicateVehicleId(null);
       return false;
     }
-
     setIsCheckingRegNumber(true);
     try {
-      const { data, error } = await supabase
-        .from('inventory_items')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('registration_number', regNumber.trim())
-        .limit(1);
-
+      const {
+        data,
+        error
+      } = await supabase.from('inventory_items').select('id').eq('user_id', user.id).eq('registration_number', regNumber.trim()).limit(1);
       if (error) throw error;
-
       const isDuplicate = data && data.length > 0;
       setIsDuplicateRegNumber(isDuplicate);
       setDuplicateVehicleId(isDuplicate && data.length > 0 ? data[0].id : null);
-      
-      
       return isDuplicate;
     } catch (error) {
       console.error('Error checking for duplicate registration number:', error);
@@ -370,7 +263,9 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
 
   // Watch for changes in registration number and check for duplicates only (no auto-fetch)
   useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
+    const subscription = form.watch((value, {
+      name
+    }) => {
       // Only check for duplicates when registration_number field changes and has at least 4 characters
       // NO LONGER auto-fetch car info - wait for user to press Enter or click "Hämta"
       if (name === 'registration_number' && value.registration_number && value.registration_number.length >= 4) {
@@ -388,7 +283,6 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
         setIsLoadingCarInfo(false);
       }
     });
-
     return () => subscription.unsubscribe();
   }, [form, user]);
 
@@ -396,10 +290,10 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
   const handleManualFetch = async () => {
     const regNumber = form.getValues("registration_number");
     if (!regNumber?.trim() || regNumber.length < 4) return;
-    
+
     // Check for duplicates first
     const isDuplicate = await checkForDuplicateRegNumber(regNumber);
-    
+
     // Only fetch car info if no duplicate was found
     if (!isDuplicate) {
       fetchCarInfo(regNumber);
@@ -426,13 +320,11 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
     // Remove existing formatting
     const cleanValue = value.replace(/\s/g, '').replace(/,/g, '.');
     if (!cleanValue) return '';
-    
     const num = parseFloat(cleanValue);
     if (isNaN(num)) return value;
-    
-    return num.toLocaleString('sv-SE', { 
+    return num.toLocaleString('sv-SE', {
       minimumFractionDigits: 0,
-      maximumFractionDigits: 2 
+      maximumFractionDigits: 2
     });
   };
 
@@ -456,7 +348,6 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
     const value = e.target.value;
     // Allow digits, comma, and decimal point
     const cleanValue = value.replace(/\s/g, '').replace(/,/g, '.');
-    
     if (cleanValue === '' || /^\d+([.,]\d{0,2})?$/.test(cleanValue)) {
       const numValue = cleanValue === '' ? undefined : parseFloat(cleanValue);
       if (numValue === undefined || numValue >= 0) {
@@ -471,7 +362,6 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
   const handleDownPaymentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     const cleanValue = value.replace(/\s/g, '').replace(/,/g, '.');
-    
     if (cleanValue === '' || /^\d+([.,]\d{0,2})?$/.test(cleanValue)) {
       const numValue = cleanValue === '' ? undefined : parseFloat(cleanValue);
       if (numValue === undefined || numValue >= 0) {
@@ -485,7 +375,6 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
   const handleExpectedPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     const cleanValue = value.replace(/\s/g, '').replace(/,/g, '.');
-    
     if (cleanValue === '' || /^\d+([.,]\d{0,2})?$/.test(cleanValue)) {
       const numValue = cleanValue === '' ? undefined : parseFloat(cleanValue);
       if (numValue === undefined || numValue >= 0) {
@@ -498,32 +387,27 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
   // Handle file upload
   const handleFileUpload = async (file: File) => {
     if (!user) return;
-    
     setIsUploading(true);
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
       const filePath = `down-payment-docs/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('down-payment-docs')
-        .upload(fileName, file);
-
+      const {
+        error: uploadError
+      } = await supabase.storage.from('down-payment-docs').upload(fileName, file);
       if (uploadError) throw uploadError;
-
       setUploadedFile(file);
       form.setValue('down_payment_document', filePath);
-      
       toast({
         title: "Fil uppladdad",
-        description: "Handpenningsdokument har laddats upp",
+        description: "Handpenningsdokument har laddats upp"
       });
     } catch (error) {
       console.error('Error uploading file:', error);
       toast({
         title: "Fel",
         description: "Det gick inte att ladda upp filen",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsUploading(false);
@@ -539,10 +423,8 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
   // Handle purchase documentation file upload
   const handlePurchaseDocUpload = async (file: File) => {
     if (!user) return;
-    
     setIsUploadingPurchaseDoc(true);
     setUploadProgress(0);
-    
     try {
       // Simulate progress for visual feedback
       const progressInterval = setInterval(() => {
@@ -551,18 +433,14 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
           return newProgress > 90 ? 90 : newProgress;
         });
       }, 200);
-
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
       const filePath = `purchase-docs/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('down-payment-docs')
-        .upload(fileName, file);
-
+      const {
+        error: uploadError
+      } = await supabase.storage.from('down-payment-docs').upload(fileName, file);
       clearInterval(progressInterval);
       setUploadProgress(100);
-
       if (uploadError) throw uploadError;
 
       // Small delay to show 100% completion
@@ -571,10 +449,9 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
         form.setValue('purchase_documentation', filePath);
         form.trigger('purchase_documentation'); // Trigger validation
         setUploadProgress(0);
-        
         toast({
           title: "Fil uppladdad",
-          description: "Inköpsunderlag har laddats upp",
+          description: "Inköpsunderlag har laddats upp"
         });
       }, 500);
     } catch (error) {
@@ -583,7 +460,7 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
       toast({
         title: "Fel",
         description: "Det gick inte att ladda upp filen",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setTimeout(() => setIsUploadingPurchaseDoc(false), 500);
@@ -600,23 +477,20 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
   const isVehicleDataValid = () => {
     const registrationNumber = form.watch("registration_number");
     const vatType = form.watch("vat_type");
-    return registrationNumber && registrationNumber.trim().length > 0 && 
-           vatType && vatType.trim().length > 0;
+    return registrationNumber && registrationNumber.trim().length > 0 && vatType && vatType.trim().length > 0;
   };
-
   const onSubmit = async (data: PurchaseFormData) => {
     if (!user) return;
-    
+
     // Prevent submission if there's a duplicate registration number
     if (isDuplicateRegNumber) {
       toast({
         title: "Kan inte registrera",
         description: "Detta registreringsnummer finns redan. Du kan inte ha fler än ett fordon med samma registreringsnummer.",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-    
     setIsSubmitting(true);
     try {
       const insertData = {
@@ -642,20 +516,16 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
         purchase_channel_other: data.purchase_channel_other || null,
         marketplace_channel: data.marketplace_channel || null,
         marketplace_channel_other: data.marketplace_channel_other || null,
-        expected_selling_price: data.expected_selling_price || null,
+        expected_selling_price: data.expected_selling_price || null
       };
-
-      const { error } = await supabase
-        .from('inventory_items')
-        .insert(insertData);
-
+      const {
+        error
+      } = await supabase.from('inventory_items').insert(insertData);
       if (error) throw error;
-
       toast({
         title: "Framgång",
-        description: "Fordon har lagts till i lagret",
+        description: "Fordon har lagts till i lagret"
       });
-      
       form.reset();
       onSuccess();
     } catch (error) {
@@ -663,53 +533,32 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
       toast({
         title: "Fel",
         description: "Det gick inte att lägga till fordonet",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  return (
-    <Card className="bg-card border rounded-lg">
+  return <Card className="bg-card border rounded-lg">
       <CardHeader>
       </CardHeader>
       <CardContent>
-        {!showFullForm ? (
-          <div className="space-y-4">
+        {!showFullForm ? <div className="space-y-4">
             <div className="text-center">
-              <p className="text-foreground mb-6">
-                Ange fordonets registreringsnummer för att hämta fordonsdata
-              </p>
+              <p className="text-foreground mb-6">Ange fordonets registreringsnummer för att hämta fordonsinformation</p>
             </div>
             
             <div className="max-w-md mx-auto">
               <Label htmlFor="registration_number"></Label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
-                  <Input
-                    id="registration_number"
-                    placeholder="t.ex. JSK15L"
-                    {...form.register("registration_number")}
-                    onKeyPress={handleKeyPress}
-                    className={cn(
-                      form.formState.errors.registration_number && "border-destructive",
-                      isDuplicateRegNumber && "border-destructive",
-                      (isCheckingRegNumber || isLoadingCarInfo) && "pr-10" // Add padding for spinner
-                    )}
-                  />
-                  {(isCheckingRegNumber || isLoadingCarInfo) && (
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <Input id="registration_number" placeholder="t.ex. JSK15L" {...form.register("registration_number")} onKeyPress={handleKeyPress} className={cn(form.formState.errors.registration_number && "border-destructive", isDuplicateRegNumber && "border-destructive", (isCheckingRegNumber || isLoadingCarInfo) && "pr-10" // Add padding for spinner
+              )} />
+                  {(isCheckingRegNumber || isLoadingCarInfo) && <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                       <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full"></div>
-                    </div>
-                  )}
+                    </div>}
                 </div>
-                <Button 
-                  type="button" 
-                  onClick={handleManualFetch}
-                  disabled={isCheckingRegNumber || isLoadingCarInfo}
-                  className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
-                >
+                <Button type="button" onClick={handleManualFetch} disabled={isCheckingRegNumber || isLoadingCarInfo} className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50">
                   Hämta
                 </Button>
               </div>
@@ -718,50 +567,28 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
                 <p className="text-sm text-muted-foreground">
                   Har du endast VIN-kod? Inga problem,<br />
                   du kan{" "}
-                  <button 
-                    type="button"
-                    onClick={() => setShowFullForm(true)}
-                    className="text-blue-600 hover:text-blue-700 underline"
-                  >
+                  <button type="button" onClick={() => setShowFullForm(true)} className="text-blue-600 hover:text-blue-700 underline">
                     fortsätta utan automatisk hämtning
                   </button>
                 </p>
               </div>
-              {isDuplicateRegNumber && (
-                <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-md">
+              {isDuplicateRegNumber && <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-md">
                   <p className="text-sm text-orange-800 mb-2">
                     Detta registreringsnummer finns redan registrerat i systemet.
                   </p>
-                  {duplicateVehicleId && onNavigateToVehicle && (
-                    <Button 
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onNavigateToVehicle(duplicateVehicleId)}
-                      className="flex items-center gap-2"
-                    >
+                  {duplicateVehicleId && onNavigateToVehicle && <Button type="button" variant="outline" size="sm" onClick={() => onNavigateToVehicle(duplicateVehicleId)} className="flex items-center gap-2">
                       <Truck className="h-4 w-4" />
                       Gå till fordonets transport
-                    </Button>
-                  )}
-                </div>
-              )}
-              {form.formState.errors.registration_number && (
-                <p className="text-sm text-destructive mt-1">
+                    </Button>}
+                </div>}
+              {form.formState.errors.registration_number && <p className="text-sm text-destructive mt-1">
                   {form.formState.errors.registration_number.message}
-                </p>
-              )}
+                </p>}
             </div>
-          </div>
-        ) : (
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          </div> : <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="fordonsdata">Fordonsinformation</TabsTrigger>
-              <TabsTrigger 
-                value="inkopsinformation" 
-                disabled={!isVehicleDataValid()}
-                className={!isVehicleDataValid() ? "cursor-not-allowed opacity-50" : ""}
-              >
+              <TabsTrigger value="inkopsinformation" disabled={!isVehicleDataValid()} className={!isVehicleDataValid() ? "cursor-not-allowed opacity-50" : ""}>
                 Inköpsinformation
               </TabsTrigger>
             </TabsList>
@@ -771,21 +598,10 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="registration_number">Registreringsnummer*</Label>
-                    <Input
-                      id="registration_number"
-                      placeholder="t.ex. JSK15L"
-                      {...form.register("registration_number")}
-                      className={cn(
-                        form.formState.errors.registration_number && "border-destructive",
-                        isDuplicateRegNumber && "border-destructive"
-                      )}
-                      readOnly={carDataFetched}
-                    />
-                    {form.formState.errors.registration_number && (
-                      <p className="text-sm text-destructive mt-1">
+                    <Input id="registration_number" placeholder="t.ex. JSK15L" {...form.register("registration_number")} className={cn(form.formState.errors.registration_number && "border-destructive", isDuplicateRegNumber && "border-destructive")} readOnly={carDataFetched} />
+                    {form.formState.errors.registration_number && <p className="text-sm text-destructive mt-1">
                         {form.formState.errors.registration_number.message}
-                      </p>
-                    )}
+                      </p>}
                   </div>
 
                 <div>
@@ -797,15 +613,7 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
                   <Label htmlFor="brand">Märke</Label>
                   <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={open}
-                        className={cn(
-                          "w-full justify-between font-normal",
-                          !form.watch("brand") && "text-muted-foreground"
-                        )}
-                      >
+                      <Button variant="outline" role="combobox" aria-expanded={open} className={cn("w-full justify-between font-normal", !form.watch("brand") && "text-muted-foreground")}>
                         {form.watch("brand") || "Välj märke"}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
@@ -816,49 +624,30 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
                         <CommandEmpty>Inget märke hittades.</CommandEmpty>
                         <CommandList>
                           <CommandGroup>
-                            {carBrands.map((brand) => (
-                              <CommandItem
-                                key={brand}
-                                value={brand}
-                                onSelect={(currentValue) => {
-                                  form.setValue("brand", currentValue === form.watch("brand") ? "" : currentValue);
-                                  if (currentValue !== "Annat") {
-                                    form.setValue("brand_other", undefined);
-                                  }
-                                  setOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    form.watch("brand") === brand ? "opacity-100" : "opacity-0"
-                                  )}
-                                />
+                            {carBrands.map(brand => <CommandItem key={brand} value={brand} onSelect={currentValue => {
+                            form.setValue("brand", currentValue === form.watch("brand") ? "" : currentValue);
+                            if (currentValue !== "Annat") {
+                              form.setValue("brand_other", undefined);
+                            }
+                            setOpen(false);
+                          }}>
+                                <Check className={cn("mr-2 h-4 w-4", form.watch("brand") === brand ? "opacity-100" : "opacity-0")} />
                                 {brand}
-                              </CommandItem>
-                            ))}
+                              </CommandItem>)}
                           </CommandGroup>
                         </CommandList>
                       </Command>
                     </PopoverContent>
                   </Popover>
-                  {form.formState.errors.brand && (
-                    <p className="text-sm text-destructive mt-1">
+                  {form.formState.errors.brand && <p className="text-sm text-destructive mt-1">
                       {form.formState.errors.brand.message}
-                    </p>
-                  )}
+                    </p>}
                 </div>
 
-                {form.watch("brand") === "Annat" && (
-                  <div>
+                {form.watch("brand") === "Annat" && <div>
                     <Label htmlFor="brand_other">Ange märke</Label>
-                    <Input
-                      id="brand_other"
-                      {...form.register("brand_other")}
-                      placeholder="t.ex. Batmobile"
-                    />
-                  </div>
-                )}
+                    <Input id="brand_other" {...form.register("brand_other")} placeholder="t.ex. Batmobile" />
+                  </div>}
 
                 <div>
                   <Label htmlFor="model">Modell</Label>
@@ -867,57 +656,31 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
 
                 <div>
                   <Label htmlFor="year_model">Modellår</Label>
-                  <Input
-                    id="year_model"
-                    type="number"
-                    min="1900"
-                    max={new Date().getFullYear() + 1}
-                    placeholder="t.ex. 2020"
-                    {...form.register("year_model", { 
-                      valueAsNumber: true
-                    })}
-                  />
-                  {form.formState.errors.year_model && (
-                    <p className="text-sm text-destructive mt-1">
+                  <Input id="year_model" type="number" min="1900" max={new Date().getFullYear() + 1} placeholder="t.ex. 2020" {...form.register("year_model", {
+                  valueAsNumber: true
+                })} />
+                  {form.formState.errors.year_model && <p className="text-sm text-destructive mt-1">
                       {form.formState.errors.year_model.message}
-                    </p>
-                  )}
+                    </p>}
                 </div>
 
                 <div>
                   <Label htmlFor="mileage">Miltal (km)</Label>
-                  <Input
-                    id="mileage"
-                    type="text"
-                    min="0"
-                    value={mileageDisplay}
-                    onChange={handleMileageChange}
-                    placeholder="t.ex. 4,500"
-                  />
-                  {form.formState.errors.mileage && (
-                    <p className="text-sm text-destructive mt-1">
+                  <Input id="mileage" type="text" min="0" value={mileageDisplay} onChange={handleMileageChange} placeholder="t.ex. 4,500" />
+                  {form.formState.errors.mileage && <p className="text-sm text-destructive mt-1">
                       {form.formState.errors.mileage.message}
-                    </p>
-                  )}
+                    </p>}
                 </div>
 
                 <div>
                   <Label>Första datum i trafik</Label>
                   <Popover open={firstRegOpen} onOpenChange={setFirstRegOpen}>
                     <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !form.watch("first_registration_date") && "text-muted-foreground"
-                        )}
-                      >
+                      <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !form.watch("first_registration_date") && "text-muted-foreground")}>
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {form.watch("first_registration_date") ? (
-                          format(form.watch("first_registration_date")!, "PPP", { locale: sv })
-                        ) : (
-                          <span>Välj datum</span>
-                        )}
+                        {form.watch("first_registration_date") ? format(form.watch("first_registration_date")!, "PPP", {
+                        locale: sv
+                      }) : <span>Välj datum</span>}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-4" align="start">
@@ -925,110 +688,69 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
                         <div className="grid grid-cols-2 gap-2">
                           <div>
                             <Label className="text-sm">År</Label>
-                            <Select 
-                              value={selectedYear?.toString() || ""} 
-                              onValueChange={(value) => setSelectedYear(parseInt(value))}
-                            >
+                            <Select value={selectedYear?.toString() || ""} onValueChange={value => setSelectedYear(parseInt(value))}>
                               <SelectTrigger>
                                 <SelectValue placeholder="Välj år" />
                               </SelectTrigger>
                               <SelectContent className="max-h-48">
-                                {yearOptions.map((year) => (
-                                  <SelectItem key={year} value={year.toString()}>
+                                {yearOptions.map(year => <SelectItem key={year} value={year.toString()}>
                                     {year}
-                                  </SelectItem>
-                                ))}
+                                  </SelectItem>)}
                               </SelectContent>
                             </Select>
                           </div>
                           
                           <div>
                             <Label className="text-sm">Månad</Label>
-                            <Select 
-                              value={selectedMonth?.toString() || ""} 
-                              onValueChange={(value) => setSelectedMonth(parseInt(value))}
-                            >
+                            <Select value={selectedMonth?.toString() || ""} onValueChange={value => setSelectedMonth(parseInt(value))}>
                               <SelectTrigger>
                                 <SelectValue placeholder="Välj månad" />
                               </SelectTrigger>
                               <SelectContent>
-                                {monthNames.map((month, index) => (
-                                  <SelectItem key={index} value={index.toString()}>
+                                {monthNames.map((month, index) => <SelectItem key={index} value={index.toString()}>
                                     {month}
-                                  </SelectItem>
-                                ))}
+                                  </SelectItem>)}
                               </SelectContent>
                             </Select>
                           </div>
                         </div>
                         
-                        {selectedYear && selectedMonth !== null && (
-                          <Calendar
-                            mode="single"
-                            selected={form.watch("first_registration_date")}
-                            onSelect={(date) => {
-                              if (date) {
-                                form.setValue("first_registration_date", date);
-                                setFirstRegOpen(false);
-                              }
-                            }}
-                            month={new Date(selectedYear, selectedMonth)}
-                            onMonthChange={(date) => {
-                              setSelectedYear(date.getFullYear());
-                              setSelectedMonth(date.getMonth());
-                            }}
-                            className="rounded-md border pointer-events-auto"
-                            disabled={(date) => 
-                              date > new Date() || 
-                              date.getFullYear() !== selectedYear ||
-                              date.getMonth() !== selectedMonth
-                            }
-                          />
-                        )}
+                        {selectedYear && selectedMonth !== null && <Calendar mode="single" selected={form.watch("first_registration_date")} onSelect={date => {
+                        if (date) {
+                          form.setValue("first_registration_date", date);
+                          setFirstRegOpen(false);
+                        }
+                      }} month={new Date(selectedYear, selectedMonth)} onMonthChange={date => {
+                        setSelectedYear(date.getFullYear());
+                        setSelectedMonth(date.getMonth());
+                      }} className="rounded-md border pointer-events-auto" disabled={date => date > new Date() || date.getFullYear() !== selectedYear || date.getMonth() !== selectedMonth} />}
                         
                         <div className="flex gap-2">
-                          <Button 
-                            variant="outline" 
-                            onClick={() => {
-                              form.setValue("first_registration_date", undefined);
-                              setSelectedYear(null);
-                              setSelectedMonth(null);
-                              setFirstRegOpen(false);
-                            }}
-                            className="flex-1"
-                          >
+                          <Button variant="outline" onClick={() => {
+                          form.setValue("first_registration_date", undefined);
+                          setSelectedYear(null);
+                          setSelectedMonth(null);
+                          setFirstRegOpen(false);
+                        }} className="flex-1">
                             Rensa
                           </Button>
-                          <Button 
-                            onClick={() => setFirstRegOpen(false)}
-                            className="flex-1"
-                          >
+                          <Button onClick={() => setFirstRegOpen(false)} className="flex-1">
                             Klar
                           </Button>
                         </div>
                       </div>
                     </PopoverContent>
                   </Popover>
-                  {form.formState.errors.first_registration_date && (
-                    <p className="text-sm text-destructive mt-1">
+                  {form.formState.errors.first_registration_date && <p className="text-sm text-destructive mt-1">
                       {form.formState.errors.first_registration_date.message}
-                    </p>
-                  )}
+                    </p>}
                 </div>
 
                 <div>
                   <Label htmlFor="vat_type">Momsregel*</Label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        className={cn(
-                          "w-full justify-between font-normal",
-                          !form.watch("vat_type") && "text-muted-foreground",
-                          form.formState.errors.vat_type && "border-destructive"
-                        )}
-                      >
+                      <Button variant="outline" role="combobox" className={cn("w-full justify-between font-normal", !form.watch("vat_type") && "text-muted-foreground", form.formState.errors.vat_type && "border-destructive")}>
                         {form.watch("vat_type") || "Välj momsregel"}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
@@ -1037,34 +759,18 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
                       <Command>
                         <CommandList>
                           <CommandGroup>
-                            <CommandItem
-                              value="Vinstmarginalbeskattning (VMB)"
-                               onSelect={() => {
-                                 form.setValue("vat_type", "Vinstmarginalbeskattning (VMB)");
-                                 form.trigger("vat_type"); // Trigger validation
-                               }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  form.watch("vat_type") === "Vinstmarginalbeskattning (VMB)" ? "opacity-100" : "opacity-0"
-                                )}
-                              />
+                            <CommandItem value="Vinstmarginalbeskattning (VMB)" onSelect={() => {
+                            form.setValue("vat_type", "Vinstmarginalbeskattning (VMB)");
+                            form.trigger("vat_type"); // Trigger validation
+                          }}>
+                              <Check className={cn("mr-2 h-4 w-4", form.watch("vat_type") === "Vinstmarginalbeskattning (VMB)" ? "opacity-100" : "opacity-0")} />
                               Vinstmarginalbeskattning (VMB)
                             </CommandItem>
-                            <CommandItem
-                              value="Moms (25%)"
-                               onSelect={() => {
-                                 form.setValue("vat_type", "Moms (25%)");
-                                 form.trigger("vat_type"); // Trigger validation
-                               }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  form.watch("vat_type") === "Moms (25%)" ? "opacity-100" : "opacity-0"
-                                )}
-                              />
+                            <CommandItem value="Moms (25%)" onSelect={() => {
+                            form.setValue("vat_type", "Moms (25%)");
+                            form.trigger("vat_type"); // Trigger validation
+                          }}>
+                              <Check className={cn("mr-2 h-4 w-4", form.watch("vat_type") === "Moms (25%)" ? "opacity-100" : "opacity-0")} />
                               Moms (25%)
                             </CommandItem>
                           </CommandGroup>
@@ -1072,21 +778,15 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
                       </Command>
                     </PopoverContent>
                   </Popover>
-                  {form.formState.errors.vat_type && (
-                    <p className="text-sm text-destructive mt-1">
+                  {form.formState.errors.vat_type && <p className="text-sm text-destructive mt-1">
                       {form.formState.errors.vat_type.message}
-                    </p>
-                  )}
+                    </p>}
                 </div>
               </div>
 
 
               <div className="flex justify-end">
-                <Button 
-                  type="button" 
-                  onClick={() => setActiveTab("inkopsinformation")}
-                  disabled={!isVehicleDataValid()}
-                >
+                <Button type="button" onClick={() => setActiveTab("inkopsinformation")} disabled={!isVehicleDataValid()}>
                   Fortsätt till inköpsinformation
                 </Button>
               </div>
@@ -1097,16 +797,10 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
                 {/* 1. Inköpare */}
                 <div>
                   <Label htmlFor="purchaser">Inköpare*</Label>
-                  <Input
-                    id="purchaser"
-                    {...form.register("purchaser")}
-                    className={form.formState.errors.purchaser ? "border-destructive" : ""}
-                  />
-                  {form.formState.errors.purchaser && (
-                    <p className="text-sm text-destructive mt-1">
+                  <Input id="purchaser" {...form.register("purchaser")} className={form.formState.errors.purchaser ? "border-destructive" : ""} />
+                  {form.formState.errors.purchaser && <p className="text-sm text-destructive mt-1">
                       {form.formState.errors.purchaser.message}
-                    </p>
-                  )}
+                    </p>}
                 </div>
 
                 {/* 2. Inköpsdatum */}
@@ -1116,19 +810,11 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
                     <PopoverTrigger asChild>
                       <Button variant="outline" className="w-full justify-start text-left font-normal">
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {form.watch("purchase_date") 
-                          ? format(form.watch("purchase_date"), "yyyy-MM-dd")
-                          : "Välj datum"
-                        }
+                        {form.watch("purchase_date") ? format(form.watch("purchase_date"), "yyyy-MM-dd") : "Välj datum"}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={form.watch("purchase_date")}
-                        onSelect={(date) => form.setValue("purchase_date", date || new Date())}
-                        className="pointer-events-auto"
-                      />
+                      <Calendar mode="single" selected={form.watch("purchase_date")} onSelect={date => form.setValue("purchase_date", date || new Date())} className="pointer-events-auto" />
                     </PopoverContent>
                   </Popover>
                 </div>
@@ -1136,132 +822,70 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
                 {/* 3. Inköpspris */}
                 <div>
                   <Label htmlFor="purchase_price">Inköpspris (SEK)*</Label>
-                  <Input
-                    id="purchase_price"
-                    type="text"
-                    value={priceDisplay}
-                    onChange={handlePriceChange}
-                    placeholder="t.ex. 150,000"
-                    className={form.formState.errors.purchase_price ? "border-destructive" : ""}
-                  />
-                  {form.formState.errors.purchase_price && (
-                    <p className="text-sm text-destructive mt-1">
+                  <Input id="purchase_price" type="text" value={priceDisplay} onChange={handlePriceChange} placeholder="t.ex. 150,000" className={form.formState.errors.purchase_price ? "border-destructive" : ""} />
+                  {form.formState.errors.purchase_price && <p className="text-sm text-destructive mt-1">
                       {form.formState.errors.purchase_price.message}
-                    </p>
-                  )}
+                    </p>}
                 </div>
 
                 {/* 4. Förväntat försäljningspris */}
                 <div>
                   <Label htmlFor="expected_selling_price">Förväntat försäljningspris (SEK)</Label>
-                  <Input
-                    id="expected_selling_price"
-                    type="text"
-                    value={expectedPriceDisplay}
-                    onChange={handleExpectedPriceChange}
-                    placeholder="t.ex. 180,000"
-                  />
-                  {form.formState.errors.expected_selling_price && (
-                    <p className="text-sm text-destructive mt-1">
+                  <Input id="expected_selling_price" type="text" value={expectedPriceDisplay} onChange={handleExpectedPriceChange} placeholder="t.ex. 180,000" />
+                  {form.formState.errors.expected_selling_price && <p className="text-sm text-destructive mt-1">
                       {form.formState.errors.expected_selling_price.message}
-                    </p>
-                  )}
+                    </p>}
                 </div>
 
                 {/* 5. Handpenning */}
                 <div>
                   <Label htmlFor="down_payment">Handpenning (SEK)</Label>
-                  <Input
-                    id="down_payment"
-                    type="text"
-                    value={downPaymentDisplay}
-                    onChange={handleDownPaymentChange}
-                    placeholder="t.ex. 25,000"
-                  />
-                  {form.formState.errors.down_payment && (
-                    <p className="text-sm text-destructive mt-1">
+                  <Input id="down_payment" type="text" value={downPaymentDisplay} onChange={handleDownPaymentChange} placeholder="t.ex. 25,000" />
+                  {form.formState.errors.down_payment && <p className="text-sm text-destructive mt-1">
                       {form.formState.errors.down_payment.message}
-                    </p>
-                  )}
+                    </p>}
                 </div>
 
                 {/* File upload for down payment documentation */}
-                {form.watch("down_payment") > 0 && (
-                  <div>
+                {form.watch("down_payment") > 0 && <div>
                     <Label htmlFor="down_payment_document">Handpenningsunderlag</Label>
                     <div className="space-y-2">
-                      {!uploadedFile ? (
-                        <div>
+                      {!uploadedFile ? <div>
                           <div className="relative">
-                            <Input
-                              type="file"
-                              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  handleFileUpload(file);
-                                }
-                              }}
-                              disabled={isUploading}
-                              className="hidden"
-                              id="file-upload"
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              className="w-full justify-start text-left font-normal"
-                              onClick={() => document.getElementById('file-upload')?.click()}
-                              disabled={isUploading}
-                            >
+                            <Input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onChange={e => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleFileUpload(file);
+                        }
+                      }} disabled={isUploading} className="hidden" id="file-upload" />
+                            <Button type="button" variant="outline" className="w-full justify-start text-left font-normal" onClick={() => document.getElementById('file-upload')?.click()} disabled={isUploading}>
                               <Upload className="mr-2 h-4 w-4" />
                               Välj fil
                             </Button>
                           </div>
                           <p className="text-sm text-muted-foreground">Ingen fil vald</p>
-                          {isUploading && (
-                            <p className="text-sm text-muted-foreground">Laddar upp fil...</p>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-between p-2 border rounded-md bg-muted/50">
+                          {isUploading && <p className="text-sm text-muted-foreground">Laddar upp fil...</p>}
+                        </div> : <div className="flex items-center justify-between p-2 border rounded-md bg-muted/50">
                           <div className="flex items-center space-x-2">
                             <Upload className="h-4 w-4" />
                             <span className="text-sm">{uploadedFile.name}</span>
                           </div>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={handleFileRemove}
-                          >
+                          <Button type="button" variant="ghost" size="sm" onClick={handleFileRemove}>
                             <X className="h-4 w-4" />
                           </Button>
-                        </div>
-                       )}
+                        </div>}
                      </div>
-                     {form.formState.errors.down_payment_document && (
-                       <p className="text-sm text-destructive mt-1">
-                         {typeof form.formState.errors.down_payment_document.message === 'string' 
-                           ? form.formState.errors.down_payment_document.message 
-                           : "Handpenningsunderlag krävs när handpenning anges"}
-                       </p>
-                     )}
-                   </div>
-                 )}
+                     {form.formState.errors.down_payment_document && <p className="text-sm text-destructive mt-1">
+                         {typeof form.formState.errors.down_payment_document.message === 'string' ? form.formState.errors.down_payment_document.message : "Handpenningsunderlag krävs när handpenning anges"}
+                       </p>}
+                   </div>}
 
                 {/* 6. Inköpskanal */}
                 <div>
                   <Label htmlFor="purchase_channel">Inköpskanal</Label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        className={cn(
-                          "w-full justify-between font-normal",
-                          !form.watch("purchase_channel") && "text-muted-foreground"
-                        )}
-                      >
+                      <Button variant="outline" role="combobox" className={cn("w-full justify-between font-normal", !form.watch("purchase_channel") && "text-muted-foreground")}>
                         {form.watch("purchase_channel") || "Välj inköpskanal"}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
@@ -1270,30 +894,19 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
                       <Command>
                         <CommandList>
                           <CommandGroup>
-                            {purchaseChannels.map((channel) => (
-                              <CommandItem
-                                key={channel}
-                                value={channel}
-                                onSelect={() => {
-                                  form.setValue("purchase_channel", channel);
-                                  if (channel !== "Marknadsplats") {
-                                    form.setValue("marketplace_channel", undefined);
-                                    form.setValue("marketplace_channel_other", undefined);
-                                  }
-                                  if (channel !== "Annan") {
-                                    form.setValue("purchase_channel_other", undefined);
-                                  }
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    form.watch("purchase_channel") === channel ? "opacity-100" : "opacity-0"
-                                  )}
-                                />
+                            {purchaseChannels.map(channel => <CommandItem key={channel} value={channel} onSelect={() => {
+                            form.setValue("purchase_channel", channel);
+                            if (channel !== "Marknadsplats") {
+                              form.setValue("marketplace_channel", undefined);
+                              form.setValue("marketplace_channel_other", undefined);
+                            }
+                            if (channel !== "Annan") {
+                              form.setValue("purchase_channel_other", undefined);
+                            }
+                          }}>
+                                <Check className={cn("mr-2 h-4 w-4", form.watch("purchase_channel") === channel ? "opacity-100" : "opacity-0")} />
                                 {channel}
-                              </CommandItem>
-                            ))}
+                              </CommandItem>)}
                           </CommandGroup>
                         </CommandList>
                       </Command>
@@ -1301,85 +914,54 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
                   </Popover>
                 </div>
 
-                {form.watch("purchase_channel") === "Annan" && (
-                  <div>
+                {form.watch("purchase_channel") === "Annan" && <div>
                     <Label htmlFor="purchase_channel_other">Ange inköpskanal</Label>
-                    <Input
-                      id="purchase_channel_other"
-                      {...form.register("purchase_channel_other")}
-                      placeholder="Ange vilken inköpskanal"
-                    />
-                  </div>
-                )}
+                    <Input id="purchase_channel_other" {...form.register("purchase_channel_other")} placeholder="Ange vilken inköpskanal" />
+                  </div>}
 
-                {form.watch("purchase_channel") === "Marknadsplats" && (
-                  <div>
+                {form.watch("purchase_channel") === "Marknadsplats" && <div>
                     <Label htmlFor="marketplace_channel">Marknadsplats</Label>
-                    <Select onValueChange={(value) => {
-                      form.setValue("marketplace_channel", value);
-                      if (value !== "Annan") {
-                        form.setValue("marketplace_channel_other", undefined);
-                      }
-                    }}>
+                    <Select onValueChange={value => {
+                  form.setValue("marketplace_channel", value);
+                  if (value !== "Annan") {
+                    form.setValue("marketplace_channel_other", undefined);
+                  }
+                }}>
                       <SelectTrigger>
                         <SelectValue placeholder="Välj marknadsplats" />
                       </SelectTrigger>
                       <SelectContent>
-                        {marketplaces.map((marketplace) => (
-                          <SelectItem key={marketplace} value={marketplace}>
+                        {marketplaces.map(marketplace => <SelectItem key={marketplace} value={marketplace}>
                             {marketplace}
-                          </SelectItem>
-                        ))}
+                          </SelectItem>)}
                       </SelectContent>
                     </Select>
-                  </div>
-                )}
+                  </div>}
 
-                {form.watch("purchase_channel") === "Marknadsplats" && form.watch("marketplace_channel") === "Annan" && (
-                  <div>
+                {form.watch("purchase_channel") === "Marknadsplats" && form.watch("marketplace_channel") === "Annan" && <div>
                     <Label htmlFor="marketplace_channel_other">Beskriv marknadsplats</Label>
-                    <Input
-                      id="marketplace_channel_other"
-                      {...form.register("marketplace_channel_other")}
-                      placeholder="Ange vilken marknadsplats"
-                    />
-                  </div>
-                )}
+                    <Input id="marketplace_channel_other" {...form.register("marketplace_channel_other")} placeholder="Ange vilken marknadsplats" />
+                  </div>}
               </div>
 
               <div>
                 <Label htmlFor="purchase_documentation">Inköpsunderlag</Label>
                 <div className="space-y-2">
-                  {!uploadedPurchaseDoc ? (
-                    <div>
+                  {!uploadedPurchaseDoc ? <div>
                       <div className="relative">
-                        <Input
-                          type="file"
-                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              handlePurchaseDocUpload(file);
-                            }
-                          }}
-                          disabled={isUploadingPurchaseDoc}
-                          className="hidden"
-                          id="purchase-doc-upload"
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="w-full justify-start text-left font-normal"
-                          onClick={() => document.getElementById('purchase-doc-upload')?.click()}
-                          disabled={isUploadingPurchaseDoc}
-                        >
+                        <Input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        handlePurchaseDocUpload(file);
+                      }
+                    }} disabled={isUploadingPurchaseDoc} className="hidden" id="purchase-doc-upload" />
+                        <Button type="button" variant="outline" className="w-full justify-start text-left font-normal" onClick={() => document.getElementById('purchase-doc-upload')?.click()} disabled={isUploadingPurchaseDoc}>
                           <Upload className="mr-2 h-4 w-4" />
                           Välj fil
                         </Button>
                       </div>
                       <p className="text-sm text-muted-foreground">Ingen fil vald</p>
-                      {isUploadingPurchaseDoc && (
-                        <div className="space-y-2">
+                      {isUploadingPurchaseDoc && <div className="space-y-2">
                           <div className="flex items-center space-x-2">
                             <Progress value={uploadProgress} className="flex-1 h-2" />
                             <span className="text-sm text-muted-foreground min-w-[3rem]">
@@ -1389,31 +971,20 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
                           <p className="text-sm text-muted-foreground animate-pulse">
                             Laddar upp fil...
                           </p>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between p-2 border rounded-md bg-muted/50">
+                        </div>}
+                    </div> : <div className="flex items-center justify-between p-2 border rounded-md bg-muted/50">
                       <div className="flex items-center space-x-2">
                         <Upload className="h-4 w-4" />
                         <span className="text-sm">{uploadedPurchaseDoc.name}</span>
                       </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={handlePurchaseDocRemove}
-                      >
+                      <Button type="button" variant="ghost" size="sm" onClick={handlePurchaseDocRemove}>
                         <X className="h-4 w-4" />
                       </Button>
-                    </div>
-                   )}
+                    </div>}
                  </div>
-                 {form.formState.errors.purchase_documentation && (
-                   <p className="text-sm text-destructive mt-1">
+                 {form.formState.errors.purchase_documentation && <p className="text-sm text-destructive mt-1">
                      {form.formState.errors.purchase_documentation.message}
-                   </p>
-                 )}
+                   </p>}
                 </div>
 
               <div>
@@ -1422,11 +993,7 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
               </div>
 
               <div className="flex justify-between">
-                <Button 
-                  type="button" 
-                  variant="outline"
-                  onClick={() => setActiveTab("fordonsdata")}
-                >
+                <Button type="button" variant="outline" onClick={() => setActiveTab("fordonsdata")}>
                   Tillbaka till fordonsinformation
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
@@ -1435,9 +1002,7 @@ export const PurchaseForm = ({ onSuccess, onNavigateToVehicle }: PurchaseFormPro
               </div>
             </TabsContent>
           </form>
-        </Tabs>
-        )}
+        </Tabs>}
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
