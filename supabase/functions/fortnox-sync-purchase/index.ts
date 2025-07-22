@@ -179,7 +179,6 @@ Deno.serve(async (req) => {
       VoucherSeries: "A",
       Description: `Fordonsinköp - ${inventoryItem.brand} ${inventoryItem.model} (${inventoryItem.registration_number})`,
       TransactionDate: purchaseDate,
-      Reference: inventoryItem.registration_number,
       VoucherRows: [
         {
           Account: 1465, // Vehicle account (confirmed to exist)
