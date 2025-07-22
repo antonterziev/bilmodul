@@ -522,27 +522,27 @@ const Index = () => {
                       return;
                     }
 
-                    const { data, error } = await supabase.functions.invoke('fortnox-debug-sync', {
+                    const { data, error } = await supabase.functions.invoke('fortnox-simple-test', {
                       body: { inventoryItemId: items[0].id }
                     });
 
-                    console.log('Debug sync result:', { data, error });
+                    console.log('Simple test result:', { data, error });
                     
                     if (error) {
-                      alert(`Debug sync error: ${error.message}`);
+                      alert(`Simple test error: ${error.message}`);
                     } else if (data?.success) {
-                      alert(`✅ Debug sync worked!`);
+                      alert(`✅ Simple test worked!\nCompany info: ${data.companyInfoStatus}\nVoucher: ${data.voucherStatus}`);
                     } else {
-                      alert(`❌ Debug sync failed: ${data?.error || 'Unknown error'}\n\nDetails: ${data?.details || 'No details'}`);
+                      alert(`❌ Simple test failed: ${data?.error || 'Unknown error'}`);
                     }
                   } catch (err) {
-                    console.error('Debug sync error:', err);
+                    console.error('Simple test error:', err);
                     alert(`Error: ${err.message}`);
                   }
                 }}
                 variant="outline"
               >
-                🐛 Debug Sync Test
+                🔧 Simple Sync Test
               </Button>
             </div>
             
