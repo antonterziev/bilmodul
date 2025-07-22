@@ -110,6 +110,8 @@ export const VehicleList = ({
 
     try {
       setLoading(true);
+      console.log('VehicleList: Loading vehicles with filter:', filter);
+      
       let query = supabase
         .from('inventory_items')
         .select('id, registration_number, brand, model, purchase_date, selling_date, purchaser, purchase_price, expected_selling_price, status')
@@ -117,12 +119,14 @@ export const VehicleList = ({
 
       // Apply status filter if not 'all'
       if (filter !== 'all') {
+        console.log('VehicleList: Applying status filter:', filter);
         query = query.eq('status', filter);
       }
 
       const { data, error } = await query.order('purchase_date', { ascending: false });
 
       if (error) throw error;
+      console.log('VehicleList: Loaded vehicles:', data?.length, 'vehicles with filter:', filter);
       setVehicles(data || []);
     } catch (error) {
       console.error('Error loading vehicles:', error);
