@@ -809,9 +809,9 @@ export const PurchaseForm = ({
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="SEK">SEK</SelectItem>
-                          <SelectItem value="NOK">NOK</SelectItem>
-                          <SelectItem value="DKK">DKK</SelectItem>
-                          <SelectItem value="EUR">EUR</SelectItem>
+                          <SelectItem value="NOK" className="text-muted-foreground">NOK</SelectItem>
+                          <SelectItem value="DKK" className="text-muted-foreground">DKK</SelectItem>
+                          <SelectItem value="EUR" className="text-muted-foreground">EUR</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -833,9 +833,9 @@ export const PurchaseForm = ({
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="SEK">SEK</SelectItem>
-                          <SelectItem value="NOK">NOK</SelectItem>
-                          <SelectItem value="DKK">DKK</SelectItem>
-                          <SelectItem value="EUR">EUR</SelectItem>
+                          <SelectItem value="NOK" className="text-muted-foreground">NOK</SelectItem>
+                          <SelectItem value="DKK" className="text-muted-foreground">DKK</SelectItem>
+                          <SelectItem value="EUR" className="text-muted-foreground">EUR</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -857,9 +857,9 @@ export const PurchaseForm = ({
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="SEK">SEK</SelectItem>
-                          <SelectItem value="NOK">NOK</SelectItem>
-                          <SelectItem value="DKK">DKK</SelectItem>
-                          <SelectItem value="EUR">EUR</SelectItem>
+                          <SelectItem value="NOK" className="text-muted-foreground">NOK</SelectItem>
+                          <SelectItem value="DKK" className="text-muted-foreground">DKK</SelectItem>
+                          <SelectItem value="EUR" className="text-muted-foreground">EUR</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
