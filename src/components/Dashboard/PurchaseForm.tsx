@@ -33,7 +33,7 @@ const purchaseSchema = z.object({
   brand_other: z.string().optional(),
   model: z.string().optional(),
   comment: z.string().optional(),
-  year_model: z.number().min(1900, "Modellår måste vara minst 1900").max(new Date().getFullYear() + 1, "Modellår kan inte vara i framtiden").optional(),
+  year_model: z.number().min(1981, "Modellår måste vara minst 1981").max(new Date().getFullYear() + 2, "Modellår kan inte vara mer än två år i framtiden").optional(),
   first_registration_date: z.date().max(new Date(), "Första datum i trafik kan inte vara i framtiden").optional(),
   vat_type: z.string().min(1, "Momsregel krävs"),
   // Purchase information
@@ -667,7 +667,7 @@ export const PurchaseForm = ({
 
                 <div>
                   <Label htmlFor="year_model">Modellår</Label>
-                  <Input id="year_model" type="number" min="1900" max={new Date().getFullYear() + 1} placeholder="t.ex. 2020" {...form.register("year_model", {
+                  <Input id="year_model" type="number" min="1981" max={new Date().getFullYear() + 2} placeholder="t.ex. 2020" {...form.register("year_model", {
                   valueAsNumber: true
                 })} />
                   {form.formState.errors.year_model && <p className="text-sm text-destructive mt-1">
