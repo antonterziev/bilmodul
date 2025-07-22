@@ -476,8 +476,7 @@ export const PurchaseForm = ({
   // Check if vehicle data is properly filled to enable the second tab
   const isVehicleDataValid = () => {
     const registrationNumber = form.watch("registration_number");
-    const vatType = form.watch("vat_type");
-    return registrationNumber && registrationNumber.trim().length > 0 && vatType && vatType.trim().length > 0;
+    return registrationNumber && registrationNumber.trim().length > 0;
   };
   const onSubmit = async (data: PurchaseFormData) => {
     if (!user) return;
@@ -758,42 +757,6 @@ export const PurchaseForm = ({
                     </p>}
                 </div>
 
-                <div>
-                  <Label htmlFor="vat_type">Momsregel*</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" role="combobox" className={cn("w-full justify-between font-normal", !form.watch("vat_type") && "text-muted-foreground", form.formState.errors.vat_type && "border-destructive")}>
-                        {form.watch("vat_type") || "Välj momsregel"}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-full p-0">
-                      <Command>
-                        <CommandList>
-                          <CommandGroup>
-                            <CommandItem value="Vinstmarginalbeskattning (VMB)" onSelect={() => {
-                            form.setValue("vat_type", "Vinstmarginalbeskattning (VMB)");
-                            form.trigger("vat_type"); // Trigger validation
-                          }}>
-                              <Check className={cn("mr-2 h-4 w-4", form.watch("vat_type") === "Vinstmarginalbeskattning (VMB)" ? "opacity-100" : "opacity-0")} />
-                              Vinstmarginalbeskattning (VMB)
-                            </CommandItem>
-                            <CommandItem value="Moms (25%)" onSelect={() => {
-                            form.setValue("vat_type", "Moms (25%)");
-                            form.trigger("vat_type"); // Trigger validation
-                          }}>
-                              <Check className={cn("mr-2 h-4 w-4", form.watch("vat_type") === "Moms (25%)" ? "opacity-100" : "opacity-0")} />
-                              Moms (25%)
-                            </CommandItem>
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  {form.formState.errors.vat_type && <p className="text-sm text-destructive mt-1">
-                      {form.formState.errors.vat_type.message}
-                    </p>}
-                </div>
               </div>
 
 
@@ -892,7 +855,45 @@ export const PurchaseForm = ({
                        </p>}
                    </div>}
 
-                {/* 6. Inköpskanal */}
+                {/* 6. Momsregel */}
+                <div>
+                  <Label htmlFor="vat_type">Momsregel*</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" role="combobox" className={cn("w-full justify-between font-normal", !form.watch("vat_type") && "text-muted-foreground", form.formState.errors.vat_type && "border-destructive")}>
+                        {form.watch("vat_type") || "Välj momsregel"}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0">
+                      <Command>
+                        <CommandList>
+                          <CommandGroup>
+                            <CommandItem value="Vinstmarginalbeskattning (VMB)" onSelect={() => {
+                            form.setValue("vat_type", "Vinstmarginalbeskattning (VMB)");
+                            form.trigger("vat_type"); // Trigger validation
+                          }}>
+                              <Check className={cn("mr-2 h-4 w-4", form.watch("vat_type") === "Vinstmarginalbeskattning (VMB)" ? "opacity-100" : "opacity-0")} />
+                              Vinstmarginalbeskattning (VMB)
+                            </CommandItem>
+                            <CommandItem value="Moms (25%)" onSelect={() => {
+                            form.setValue("vat_type", "Moms (25%)");
+                            form.trigger("vat_type"); // Trigger validation
+                          }}>
+                              <Check className={cn("mr-2 h-4 w-4", form.watch("vat_type") === "Moms (25%)" ? "opacity-100" : "opacity-0")} />
+                              Moms (25%)
+                            </CommandItem>
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  {form.formState.errors.vat_type && <p className="text-sm text-destructive mt-1">
+                      {form.formState.errors.vat_type.message}
+                    </p>}
+                </div>
+
+                {/* 7. Inköpskanal */}
                 <div>
                   <Label htmlFor="purchase_channel">Inköpskanal</Label>
                   <Popover>
