@@ -1008,8 +1008,8 @@ export const PurchaseForm = ({
                 <Button type="button" variant="outline" onClick={() => setActiveTab("fordonsdata")} className="flex items-center gap-1">
                   <ChevronLeft className="h-4 w-4" /> Tillbaka
                 </Button>
-                <Button type="submit" disabled={isSubmitting} className="flex items-center gap-1">
-                  {isSubmitting ? "Registrerar..." : "Registrera inköp"} <ChevronRight className="h-4 w-4" />
+                <Button type="submit" disabled={isSubmitting} className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white">
+                  {isSubmitting ? "Registrerar..." : "Registrera"} <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
             </TabsContent>
