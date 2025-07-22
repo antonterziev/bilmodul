@@ -75,7 +75,11 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
   };
 
   const loadVehicle = async () => {
-    if (!vehicleId) return;
+    console.log('Loading vehicle with ID:', vehicleId);
+    if (!vehicleId) {
+      console.log('No vehicleId provided');
+      return;
+    }
     
     try {
       const { data, error } = await supabase
@@ -84,7 +88,11 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
         .eq('id', vehicleId)
         .single();
 
-      if (error) throw error;
+      console.log('Vehicle data received:', data);
+      if (error) {
+        console.error('Database error:', error);
+        throw error;
+      }
       setVehicle(data);
     } catch (error) {
       console.error('Error loading vehicle:', error);
