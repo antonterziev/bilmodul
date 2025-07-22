@@ -363,7 +363,7 @@ serve(async (req) => {
       });
     }
 
-    const scope = 'companyinformation';
+    const scope = 'companyinformation bookkeeping';
     // USING PRODUCTION ENDPOINT FOR AUTH URL
     const authUrl = `https://apps.fortnox.se/oauth-v1/auth?` +
       `client_id=${clientId}&` +
