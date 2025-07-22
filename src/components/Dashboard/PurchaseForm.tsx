@@ -469,6 +469,23 @@ export const PurchaseForm = ({
     const registrationNumber = form.watch("registration_number");
     return registrationNumber && registrationNumber.trim().length > 0;
   };
+
+  // Check if all required fields are filled to enable submit button
+  const isFormValid = () => {
+    const registrationNumber = form.watch("registration_number");
+    const purchaser = form.watch("purchaser");
+    const purchasePrice = form.watch("purchase_price");
+    const purchaseDate = form.watch("purchase_date");
+    const vatType = form.watch("vat_type");
+
+    return (
+      registrationNumber && registrationNumber.trim().length > 0 &&
+      purchaser && purchaser.trim().length > 0 &&
+      purchasePrice && purchasePrice > 0 &&
+      purchaseDate &&
+      vatType && vatType.trim().length > 0
+    );
+  };
   const onSubmit = async (data: PurchaseFormData) => {
     if (!user) return;
 
@@ -998,7 +1015,7 @@ export const PurchaseForm = ({
                 <Button type="button" variant="outline" onClick={() => setActiveTab("fordonsdata")} className="flex items-center gap-1">
                   <ChevronLeft className="h-4 w-4" /> Tillbaka
                 </Button>
-                <Button type="submit" disabled={isSubmitting} className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white">
+                <Button type="submit" disabled={isSubmitting || !isFormValid()} className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed">
                   {isSubmitting ? "Registrerar..." : "Registrera"} <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
