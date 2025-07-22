@@ -123,14 +123,14 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
   // Handle price input change
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // Allow digits, comma, and decimal point
-    const cleanValue = value.replace(/\s/g, '').replace(/,/g, '.');
+    // Allow digits and decimal point (no comma conversion for input)
+    const cleanValue = value.replace(/\s/g, '');
     
-    if (cleanValue === '' || /^\d+([.,]\d{0,2})?$/.test(cleanValue)) {
+    if (cleanValue === '' || /^\d+(\.\d{0,2})?$/.test(cleanValue)) {
       const numValue = cleanValue === '' ? undefined : parseFloat(cleanValue);
       if (numValue === undefined || numValue >= 0) {
         setSellingPrice(numValue?.toString() || '');
-        setPriceDisplay(value === '' ? '' : formatPriceWithThousands(value));
+        setPriceDisplay(value);
       }
     }
   };
