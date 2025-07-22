@@ -913,7 +913,7 @@ export const PurchaseForm = ({
                       form.setValue("vat_type", value);
                       form.trigger("vat_type");
                     }}
-                    className="mt-2"
+                    className="flex flex-row gap-6 mt-2"
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="Vinstmarginalbeskattning (VMB)" id="vmb" />
