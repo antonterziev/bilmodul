@@ -493,15 +493,17 @@ const Index = () => {
                        <p className="text-sm text-muted-foreground">Bokför dina fordonsaffärer smidigt och automatiskt med Fortnox</p>
                      </div>
                    </div>
-                   <div className="flex items-center gap-3">
-                     {fortnoxConnected && (
-                       <Badge 
-                         variant="default"
-                         className="text-xs whitespace-nowrap px-2 justify-center w-16 bg-green-500 hover:bg-green-600 text-white"
-                       >
-                         Aktiv
-                       </Badge>
-                     )}
+                    <div className="flex items-center gap-3">
+                      <Badge 
+                        variant="default"
+                        className={`text-xs whitespace-nowrap px-2 justify-center w-16 text-white ${
+                          fortnoxConnected 
+                            ? 'bg-green-500 hover:bg-green-600' 
+                            : 'bg-gray-500 hover:bg-gray-600'
+                        }`}
+                      >
+                        {fortnoxConnected ? 'Aktiv' : 'Inaktiv'}
+                      </Badge>
                      <Button
                     variant="outline"
                     onClick={async () => {
