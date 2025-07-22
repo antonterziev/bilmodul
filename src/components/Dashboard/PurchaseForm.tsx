@@ -15,7 +15,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import { Calendar } from "@/components/ui/calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarIcon, Check, ChevronsUpDown, Upload, X, Truck } from "lucide-react";
+import { CalendarIcon, Check, ChevronLeft, ChevronRight, ChevronsUpDown, Upload, X, Truck } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -1005,11 +1005,11 @@ export const PurchaseForm = ({
               </div>
 
               <div className="flex justify-between">
-                <Button type="button" variant="outline" onClick={() => setActiveTab("fordonsdata")}>
-                  Tillbaka till fordonsinformation
+                <Button type="button" variant="outline" onClick={() => setActiveTab("fordonsdata")} className="flex items-center gap-1">
+                  <ChevronLeft className="h-4 w-4" /> Tillbaka
                 </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Registrerar..." : "Registrera inköp"}
+                <Button type="submit" disabled={isSubmitting} className="flex items-center gap-1">
+                  {isSubmitting ? "Registrerar..." : "Registrera inköp"} <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
             </TabsContent>
