@@ -143,11 +143,6 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Försäljning</h1>
-          {vehicle && (
-            <h2 className="text-xl text-muted-foreground mt-2">
-              {vehicle.brand} {vehicle.model} {vehicle.year_model && `(${vehicle.year_model})`}
-            </h2>
-          )}
         </div>
       </div>
       
