@@ -14,6 +14,7 @@ interface Vehicle {
   brand: string;
   model: string | null;
   purchase_date: string;
+  selling_date?: string;
   purchaser: string;
   purchase_price: number;
   expected_selling_price: number | null;
@@ -111,7 +112,7 @@ export const VehicleList = ({
       setLoading(true);
       let query = supabase
         .from('inventory_items')
-        .select('id, registration_number, brand, model, purchase_date, purchaser, purchase_price, expected_selling_price, status')
+        .select('id, registration_number, brand, model, purchase_date, selling_date, purchaser, purchase_price, expected_selling_price, status')
         .eq('user_id', user.id);
 
       // Apply status filter if not 'all'
@@ -169,16 +170,24 @@ export const VehicleList = ({
     }).format(price);
   };
 
-  const calculateStorageDays = (purchaseDate: string) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset to start of today
-    
+  const calculateStorageDays = (purchaseDate: string, status: string, sellingDate?: string) => {
     const purchase = new Date(purchaseDate);
     purchase.setHours(0, 0, 0, 0); // Reset to start of purchase day
     
-    const diffTime = today.getTime() - purchase.getTime();
+    let endDate: Date;
+    if (status === 'såld' && sellingDate) {
+      // For sold vehicles, use selling date
+      endDate = new Date(sellingDate);
+      endDate.setHours(0, 0, 0, 0); // Reset to start of selling day
+    } else {
+      // For vehicles in stock, use today's date
+      endDate = new Date();
+      endDate.setHours(0, 0, 0, 0); // Reset to start of today
+    }
+    
+    const diffTime = endDate.getTime() - purchase.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    return Math.max(1, diffDays + 1); // Ensure minimum 1 day, add 1 to show day 1 when purchased today
+    return Math.max(1, diffDays + 1); // Ensure minimum 1 day, add 1 to include both start and end day
   };
 
   const formatPurchaserName = (fullName: string) => {
@@ -266,8 +275,8 @@ export const VehicleList = ({
     
     switch (sortField) {
       case 'storage-days':
-        valueA = calculateStorageDays(a.purchase_date);
-        valueB = calculateStorageDays(b.purchase_date);
+        valueA = calculateStorageDays(a.purchase_date, a.status, a.selling_date);
+        valueB = calculateStorageDays(b.purchase_date, b.status, b.selling_date);
         break;
       case 'purchase-price':
         valueA = a.purchase_price;
@@ -350,7 +359,7 @@ export const VehicleList = ({
                   {/* Column 3: Storage Days */}
                   <div>
                     <p className="text-xs text-muted-foreground whitespace-nowrap">Lagerdagar</p>
-                    <p className="font-medium text-sm whitespace-nowrap">{calculateStorageDays(vehicle.purchase_date)} dagar</p>
+                    <p className="font-medium text-sm whitespace-nowrap">{calculateStorageDays(vehicle.purchase_date, vehicle.status, vehicle.selling_date)} dagar</p>
                   </div>
                   
                   {/* Column 4: Purchaser */}
