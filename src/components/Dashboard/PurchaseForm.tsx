@@ -48,7 +48,7 @@ const purchaseSchema = z.object({
   purchase_channel_other: z.string().optional(),
   marketplace_channel: z.string().optional(),
   marketplace_channel_other: z.string().optional(),
-  expected_selling_price: z.number().min(0, "Förväntat försäljningspris kan inte vara negativt").optional()
+  
 });
 type PurchaseFormData = z.infer<typeof purchaseSchema>;
 interface PurchaseFormProps {
@@ -76,7 +76,7 @@ export const PurchaseForm = ({
   const [mileageDisplay, setMileageDisplay] = useState("");
   const [priceDisplay, setPriceDisplay] = useState("");
   const [downPaymentDisplay, setDownPaymentDisplay] = useState("");
-  const [expectedPriceDisplay, setExpectedPriceDisplay] = useState("");
+  
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedPurchaseDoc, setUploadedPurchaseDoc] = useState<File | null>(null);
@@ -90,7 +90,7 @@ export const PurchaseForm = ({
   const [showFullForm, setShowFullForm] = useState(false);
   const [carDataFetched, setCarDataFetched] = useState(false);
   const [purchasePriceCurrency, setPurchasePriceCurrency] = useState("SEK");
-  const [expectedPriceCurrency, setExpectedPriceCurrency] = useState("SEK");
+  
   const [downPaymentCurrency, setDownPaymentCurrency] = useState("SEK");
 
   // Generate year options (last 50 years)
@@ -121,7 +121,7 @@ export const PurchaseForm = ({
     setMileageDisplay("");
     setPriceDisplay("");
     setDownPaymentDisplay("");
-    setExpectedPriceDisplay("");
+    
     setUploadedFile(null);
     setUploadedPurchaseDoc(null);
     setSelectedYear(null);
@@ -207,10 +207,6 @@ export const PurchaseForm = ({
           } else {
             console.log(`Registration date ${data.registrationDate} rejected - future date`);
           }
-        }
-        if (data.expectedSellingPrice) {
-          form.setValue('expected_selling_price', data.expectedSellingPrice);
-          setExpectedPriceDisplay(formatWithThousands(data.expectedSellingPrice.toString()));
         }
         if (data.vin) {
           form.setValue('chassis_number', data.vin);
@@ -375,18 +371,6 @@ export const PurchaseForm = ({
     }
   };
 
-  // Handle expected selling price input change
-  const handleExpectedPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    const cleanValue = value.replace(/\s/g, '').replace(/,/g, '.');
-    if (cleanValue === '' || /^\d+([.,]\d{0,2})?$/.test(cleanValue)) {
-      const numValue = cleanValue === '' ? undefined : parseFloat(cleanValue);
-      if (numValue === undefined || numValue >= 0) {
-        form.setValue('expected_selling_price', numValue);
-        setExpectedPriceDisplay(value === '' ? '' : formatPriceWithThousands(value));
-      }
-    }
-  };
 
   // Handle file upload
   const handleFileUpload = async (file: File) => {
@@ -519,7 +503,7 @@ export const PurchaseForm = ({
         purchase_channel_other: data.purchase_channel_other || null,
         marketplace_channel: data.marketplace_channel || null,
         marketplace_channel_other: data.marketplace_channel_other || null,
-        expected_selling_price: data.expected_selling_price || null
+        
       };
       const {
         error
@@ -822,29 +806,6 @@ export const PurchaseForm = ({
                     </p>}
                 </div>
 
-                {/* 4. Förväntat försäljningspris */}
-                <div>
-                  <Label htmlFor="expected_selling_price">Förväntat försäljningspris</Label>
-                  <div className="relative">
-                    <Input id="expected_selling_price" type="text" value={expectedPriceDisplay} onChange={handleExpectedPriceChange} placeholder="t.ex. 180,000" className="pr-20" />
-                    <div className="absolute inset-y-0 right-0 flex items-center">
-                      <Select value={expectedPriceCurrency} onValueChange={setExpectedPriceCurrency}>
-                        <SelectTrigger className="w-16 h-8 border-0 bg-transparent text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="SEK">SEK</SelectItem>
-                          <SelectItem value="NOK" disabled className="text-muted-foreground">NOK</SelectItem>
-                          <SelectItem value="DKK" disabled className="text-muted-foreground">DKK</SelectItem>
-                          <SelectItem value="EUR" disabled className="text-muted-foreground">EUR</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  {form.formState.errors.expected_selling_price && <p className="text-sm text-destructive mt-1">
-                      {form.formState.errors.expected_selling_price.message}
-                    </p>}
-                </div>
 
                 {/* 5. Handpenning */}
                 <div>
