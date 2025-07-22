@@ -871,26 +871,19 @@ export const PurchaseForm = ({
                     </p>}
                 </div>
 
-                {/* 5. Momsregel */}
+                {/* 5. Momsregel - Non-selectable */}
                 <div>
-                  <Label>Momsregel*</Label>
-                  <RadioGroup
-                    value={form.watch("vat_type")}
-                    onValueChange={(value) => {
-                      form.setValue("vat_type", value);
-                      form.trigger("vat_type");
-                    }}
-                    className="flex flex-row gap-6 mt-2"
-                  >
+                  <Label className="text-muted-foreground">Momsregel*</Label>
+                  <div className="flex flex-row gap-6 mt-2">
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="Vinstmarginalbeskattning (VMB)" id="vmb" />
-                      <Label htmlFor="vmb" className="font-normal">Vinstmarginalbeskattning (VMB)</Label>
+                      <RadioGroupItem value="Vinstmarginalbeskattning (VMB)" id="vmb" checked={true} disabled={true} />
+                      <Label htmlFor="vmb" className="font-normal text-muted-foreground">Vinstmarginalbeskattning (VMB)</Label>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="Moms (25%)" id="moms" />
-                      <Label htmlFor="moms" className="font-normal">Moms (25%)</Label>
+                      <RadioGroupItem value="Moms (25%)" id="moms" disabled={true} />
+                      <Label htmlFor="moms" className="font-normal text-muted-foreground">Moms (25%)</Label>
                     </div>
-                  </RadioGroup>
+                  </div>
                   {form.formState.errors.vat_type && <p className="text-sm text-destructive mt-1 absolute">
                       {form.formState.errors.vat_type.message}
                     </p>}
@@ -962,6 +955,18 @@ export const PurchaseForm = ({
                        </p>}
                    </div>}
 
+                {/* 7. Anteckning - moved below handpenning and greyed out */}
+                <div>
+                  <Label htmlFor="comment" className="text-muted-foreground">Anteckning</Label>
+                  <Input 
+                    id="comment" 
+                    {...form.register("comment")} 
+                    className="bg-muted/30 cursor-not-allowed text-muted-foreground"
+                    disabled={true}
+                    placeholder="Funktionen kommer snart"
+                  />
+                </div>
+
                 {/* Additional Marknadsplats section removed as it's no longer needed */}
               </div>
 
@@ -1006,10 +1011,6 @@ export const PurchaseForm = ({
                     </p>}
                 </div>
 
-              <div>
-                <Label htmlFor="comment">Anteckning</Label>
-                <Input id="comment" {...form.register("comment")} />
-              </div>
 
               <div className="flex justify-between">
                 <Button type="button" variant="outline" onClick={() => setActiveTab("fordonsdata")} className="flex items-center gap-1">
