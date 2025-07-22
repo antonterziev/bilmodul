@@ -148,116 +148,116 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Left column */}
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="seller">Säljare</Label>
-                    <Input
-                      id="seller"
-                      value={seller}
-                      onChange={(e) => setSeller(e.target.value)}
-                      placeholder="Johan Nilsson"
+            {/* Row 1: Säljare and Försäljningsdatum */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="seller">Säljare</Label>
+                <Input
+                  id="seller"
+                  value={seller}
+                  onChange={(e) => setSeller(e.target.value)}
+                  placeholder="Johan Nilsson"
+                />
+              </div>
+              <div>
+                <Label>Försäljningsdatum</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !sellingDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {sellingDate ? format(sellingDate, "dd/MM/yyyy") : <span>Välj datum</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={sellingDate}
+                      onSelect={setSellingDate}
+                      initialFocus
+                      className="pointer-events-auto"
                     />
-                  </div>
-                  <div>
-                    <Label>Försäljningsdatum</Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !sellingDate && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {sellingDate ? format(sellingDate, "dd/MM/yyyy") : <span>Välj datum</span>}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={sellingDate}
-                          onSelect={setSellingDate}
-                          initialFocus
-                          className="pointer-events-auto"
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="price">Försäljningspris (inkl. moms)</Label>
-                  <Input
-                    id="price"
-                    type="text"
-                    value={priceDisplay}
-                    onChange={handlePriceChange}
-                    placeholder="t.ex. 130 000"
-                  />
-                </div>
-
+                  </PopoverContent>
+                </Popover>
               </div>
+            </div>
 
-              {/* Right column */}
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="documentation">Säljunderlag</Label>
-                  <Select value={salesDocumentation} onValueChange={setSalesDocumentation}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Välj säljunderlag" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Köpeavtal">Köpeavtal</SelectItem>
-                      <SelectItem value="Faktura">Faktura</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="channel">Säljkanal</Label>
-                  <Select value={salesChannel} onValueChange={setSalesChannel}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Välj säljkanal" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Bilhall">Bilhall</SelectItem>
-                      <SelectItem value="Blocket">Blocket</SelectItem>
-                      <SelectItem value="Annan">Annan</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="customerType">Kundtyp</Label>
-                  <Select value={customerType} onValueChange={setCustomerType}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Välj kundtyp" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Företag">Företag</SelectItem>
-                      <SelectItem value="Privatperson">Privatperson</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="country">Kunds land</Label>
-                  <Select value={customerCountry} onValueChange={setCustomerCountry}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Välj land" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Sverige">Sverige</SelectItem>
-                      <SelectItem value="EU">EU</SelectItem>
-                      <SelectItem value="Utanför EU">Utanför EU</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+            {/* Row 2: Försäljningspris and Säljunderlag */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="price">Försäljningspris (inkl. moms)</Label>
+                <Input
+                  id="price"
+                  type="text"
+                  value={priceDisplay}
+                  onChange={handlePriceChange}
+                  placeholder="t.ex. 130 000"
+                />
               </div>
+              <div>
+                <Label htmlFor="documentation">Säljunderlag</Label>
+                <Select value={salesDocumentation} onValueChange={setSalesDocumentation}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Välj säljunderlag" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Köpeavtal">Köpeavtal</SelectItem>
+                    <SelectItem value="Faktura">Faktura</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Row 3: Säljkanal and Kundtyp */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="channel">Säljkanal</Label>
+                <Select value={salesChannel} onValueChange={setSalesChannel}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Välj säljkanal" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Bilhall">Bilhall</SelectItem>
+                    <SelectItem value="Blocket">Blocket</SelectItem>
+                    <SelectItem value="Annan">Annan</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="customerType">Kundtyp</Label>
+                <Select value={customerType} onValueChange={setCustomerType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Välj kundtyp" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Företag">Företag</SelectItem>
+                    <SelectItem value="Privatperson">Privatperson</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Row 4: Kunds land (single field centered) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="country">Kunds land</Label>
+                <Select value={customerCountry} onValueChange={setCustomerCountry}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Välj land" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Sverige">Sverige</SelectItem>
+                    <SelectItem value="EU">EU</SelectItem>
+                    <SelectItem value="Utanför EU">Utanför EU</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div></div> {/* Empty div to maintain grid structure */}
             </div>
             
             <div className="flex justify-end gap-4">
