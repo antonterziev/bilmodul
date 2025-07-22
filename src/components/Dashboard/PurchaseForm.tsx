@@ -569,9 +569,9 @@ export const PurchaseForm = ({
                       Gå till fordonets transport
                     </Button>}
                 </div>}
-              {form.formState.errors.registration_number && <p className="text-sm text-destructive mt-1">
-                  {form.formState.errors.registration_number.message}
-                </p>}
+                  {form.formState.errors.registration_number && <p className="text-sm text-destructive mt-1 absolute">
+                      {form.formState.errors.registration_number.message}
+                    </p>}
             </div>
           </div> : <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="grid w-full grid-cols-2">
@@ -604,9 +604,9 @@ export const PurchaseForm = ({
                         </span>
                       </div>
                     </div>
-                    {form.formState.errors.registration_number && <p className="text-sm text-destructive mt-1">
-                        {form.formState.errors.registration_number.message}
-                      </p>}
+                     {form.formState.errors.registration_number && <p className="text-sm text-destructive mt-1 absolute">
+                         {form.formState.errors.registration_number.message}
+                       </p>}
                   </div>
 
                 <div>
@@ -639,7 +639,7 @@ export const PurchaseForm = ({
                       </Command>
                     </PopoverContent>
                   </Popover>
-                  {form.formState.errors.brand && <p className="text-sm text-destructive mt-1">
+                  {form.formState.errors.brand && <p className="text-sm text-destructive mt-1 absolute">
                       {form.formState.errors.brand.message}
                     </p>}
                 </div>
@@ -659,7 +659,7 @@ export const PurchaseForm = ({
                   <Input id="year_model" type="number" min="1981" max={new Date().getFullYear() + 2} placeholder="t.ex. 2020" {...form.register("year_model", {
                   valueAsNumber: true
                 })} />
-                  {form.formState.errors.year_model && <p className="text-sm text-destructive mt-1">
+                  {form.formState.errors.year_model && <p className="text-sm text-destructive mt-1 absolute">
                       {form.formState.errors.year_model.message}
                     </p>}
                 </div>
@@ -667,7 +667,7 @@ export const PurchaseForm = ({
                 <div>
                   <Label htmlFor="mileage">Miltal (km)</Label>
                   <Input id="mileage" type="text" min="0" value={mileageDisplay} onChange={handleMileageChange} placeholder="t.ex. 4,500" />
-                  {form.formState.errors.mileage && <p className="text-sm text-destructive mt-1">
+                  {form.formState.errors.mileage && <p className="text-sm text-destructive mt-1 absolute">
                       {form.formState.errors.mileage.message}
                     </p>}
                 </div>
@@ -741,7 +741,7 @@ export const PurchaseForm = ({
                       </div>
                     </PopoverContent>
                   </Popover>
-                  {form.formState.errors.first_registration_date && <p className="text-sm text-destructive mt-1">
+                  {form.formState.errors.first_registration_date && <p className="text-sm text-destructive mt-1 absolute">
                       {form.formState.errors.first_registration_date.message}
                     </p>}
                 </div>
@@ -762,7 +762,7 @@ export const PurchaseForm = ({
                 <div>
                   <Label htmlFor="purchaser">Inköpare*</Label>
                   <Input id="purchaser" {...form.register("purchaser")} className={form.formState.errors.purchaser ? "border-destructive" : ""} />
-                  {form.formState.errors.purchaser && <p className="text-sm text-destructive mt-1">
+                  {form.formState.errors.purchaser && <p className="text-sm text-destructive mt-1 absolute">
                       {form.formState.errors.purchaser.message}
                     </p>}
                 </div>
@@ -849,7 +849,7 @@ export const PurchaseForm = ({
                       </Select>
                     </div>
                   </div>
-                  {form.formState.errors.purchase_price && <p className="text-sm text-destructive mt-1">
+                  {form.formState.errors.purchase_price && <p className="text-sm text-destructive mt-1 absolute">
                       {form.formState.errors.purchase_price.message}
                     </p>}
                 </div>
@@ -874,7 +874,7 @@ export const PurchaseForm = ({
                       <Label htmlFor="moms" className="font-normal">Moms (25%)</Label>
                     </div>
                   </RadioGroup>
-                  {form.formState.errors.vat_type && <p className="text-sm text-destructive mt-1">
+                  {form.formState.errors.vat_type && <p className="text-sm text-destructive mt-1 absolute">
                       {form.formState.errors.vat_type.message}
                     </p>}
                 </div>
@@ -906,7 +906,7 @@ export const PurchaseForm = ({
                       </Select>
                     </div>
                   </div>
-                  {form.formState.errors.down_payment && <p className="text-sm text-destructive mt-1">
+                  {form.formState.errors.down_payment && <p className="text-sm text-destructive mt-1 absolute">
                       {form.formState.errors.down_payment.message}
                     </p>}
                 </div>
@@ -940,7 +940,7 @@ export const PurchaseForm = ({
                           </Button>
                         </div>}
                      </div>
-                     {form.formState.errors.down_payment_document && <p className="text-sm text-destructive mt-1">
+                     {form.formState.errors.down_payment_document && <p className="text-sm text-destructive mt-1 absolute">
                          {typeof form.formState.errors.down_payment_document.message === 'string' ? form.formState.errors.down_payment_document.message : "Handpenningsunderlag krävs när handpenning anges"}
                        </p>}
                    </div>}
@@ -984,9 +984,9 @@ export const PurchaseForm = ({
                         <X className="h-4 w-4" />
                       </Button>
                     </div>}
-                 {form.formState.errors.purchase_documentation && <p className="text-sm text-destructive mt-1">
-                     {form.formState.errors.purchase_documentation.message}
-                   </p>}
+                  {form.formState.errors.purchase_documentation && <p className="text-sm text-destructive mt-1 absolute">
+                      {form.formState.errors.purchase_documentation.message}
+                    </p>}
                 </div>
 
               <div>
