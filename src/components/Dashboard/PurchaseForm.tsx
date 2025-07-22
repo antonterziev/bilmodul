@@ -793,15 +793,25 @@ export const PurchaseForm = ({
                       <Command>
                         <CommandList>
                           <CommandGroup>
-                            {purchaseChannels.map(channel => <CommandItem key={channel} value={channel} onSelect={() => {
-                              form.setValue("purchase_channel", channel);
-                              if (channel !== "Annan") {
-                                form.setValue("purchase_channel_other", undefined);
-                              }
-                            }}>
+                            {purchaseChannels.map(channel => (
+                              <CommandItem 
+                                key={channel} 
+                                value={channel} 
+                                onSelect={() => {
+                                  if (channel === "Privatperson") {
+                                    form.setValue("purchase_channel", channel);
+                                    // No need to check against "Annan" since we're only allowing "Privatperson"
+                                    form.setValue("purchase_channel_other", undefined);
+                                  }
+                                }}
+                                disabled={channel !== "Privatperson"}
+                                className={channel !== "Privatperson" ? "opacity-50 cursor-not-allowed" : ""}
+                              >
                                 <Check className={cn("mr-2 h-4 w-4", form.watch("purchase_channel") === channel ? "opacity-100" : "opacity-0")} />
                                 {channel}
-                              </CommandItem>)}
+                                {channel !== "Privatperson" && <span className="ml-2 text-xs text-muted-foreground">(kommer snart)</span>}
+                              </CommandItem>
+                            ))}
                           </CommandGroup>
                         </CommandList>
                       </Command>
