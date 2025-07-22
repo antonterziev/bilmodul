@@ -141,16 +141,6 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
             </h2>
           )}
         </div>
-        {onBack && (
-          <Button
-            variant="outline"
-            onClick={onBack}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Tillbaka
-          </Button>
-        )}
       </div>
       
       <Card className="bg-card border rounded-lg">
