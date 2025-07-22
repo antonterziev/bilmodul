@@ -288,15 +288,26 @@ export const PurchaseForm = ({
 
   // Handle manual fetch trigger (Enter key or button click)
   const handleManualFetch = async () => {
+    console.log('handleManualFetch called');
     const regNumber = form.getValues("registration_number");
-    if (!regNumber?.trim() || regNumber.length < 4) return;
+    console.log('Registration number from form:', regNumber);
+    
+    if (!regNumber?.trim() || regNumber.length < 4) {
+      console.log('Registration number too short or empty');
+      return;
+    }
 
     // Check for duplicates first
+    console.log('Checking for duplicates...');
     const isDuplicate = await checkForDuplicateRegNumber(regNumber);
+    console.log('Is duplicate:', isDuplicate);
 
     // Only fetch car info if no duplicate was found
     if (!isDuplicate) {
+      console.log('No duplicate found, fetching car info...');
       fetchCarInfo(regNumber);
+    } else {
+      console.log('Duplicate found, skipping car info fetch');
     }
   };
 

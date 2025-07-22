@@ -87,15 +87,29 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Fetch-car-info function called');
     const { registrationNumber } = await req.json()
     
     console.log('Received request for registration number:', registrationNumber)
     
     if (!registrationNumber) {
+      console.log('Registration number is missing');
       return new Response(
         JSON.stringify({ error: 'Registration number is required' }),
         { 
           status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
+    }
+
+    const firecrawlApiKey = Deno.env.get('FIRECRAWL_API_KEY');
+    if (!firecrawlApiKey) {
+      console.error('Firecrawl API key not found');
+      return new Response(
+        JSON.stringify({ error: 'Firecrawl API key not configured' }),
+        { 
+          status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
@@ -128,72 +142,36 @@ serve(async (req) => {
       console.log('Cache check failed, proceeding with scraping:', error);
     }
 
-    const firecrawlApiKey = Deno.env.get('FIRECRAWL_API_KEY');
-    if (!firecrawlApiKey) {
-      console.error('Firecrawl API key not found');
-      return new Response(
-        JSON.stringify({ error: 'Firecrawl API key not configured' }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      )
-    }
 
     // No cached data found, proceed with scraping Swedish Transport Authority
     console.log('No cached data found. Attempting to scrape Transport Authority for:', registrationNumber);
     
     try {
-      // First attempt: Try crawling with actions
-      console.log('Attempting to crawl with form interaction...');
-      let firecrawlResponse = await fetch('https://api.firecrawl.dev/v0/crawl', {
+      // Try direct URL approach first as it's more reliable
+      console.log('Attempting direct URL scrape...');
+      const directUrl = `https://fordon-fu-regnr.transportstyrelsen.se/?regnr=${registrationNumber}`;
+      console.log('Direct URL:', directUrl);
+      
+      let firecrawlResponse = await fetch('https://api.firecrawl.dev/v0/scrape', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${firecrawlApiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          url: 'https://fordon-fu-regnr.transportstyrelsen.se/',
-          crawlerOptions: {
-            includes: ['**/'],
-            limit: 1
-          },
-          pageOptions: {
-            actions: [
-              {
-                type: 'fill',
-                selector: 'input[name="regnr"], input[id*="regnr"], input[placeholder*="regnr"]',
-                text: registrationNumber
-              },
-              {
-                type: 'click',
-                selector: 'input[type="submit"], button[type="submit"], input[value*="Sök"], button[value*="Sök"], .button, button'
-              },
-              {
-                type: 'wait',
-                milliseconds: 3000
-              }
-            ],
-            onlyMainContent: true
-          }
+          url: directUrl,
+          formats: ['markdown', 'text'],
+          onlyMainContent: false,
+          waitFor: 3000
         })
       });
 
-      // If crawl doesn't work, try direct scrape with URL parameter
+      console.log('Firecrawl response status:', firecrawlResponse.status);
+      
       if (!firecrawlResponse.ok) {
-        console.log('Crawl failed, trying direct URL scrape...');
-        firecrawlResponse = await fetch('https://api.firecrawl.dev/v0/scrape', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${firecrawlApiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            url: `https://fordon-fu-regnr.transportstyrelsen.se/?regnr=${registrationNumber}`,
-            formats: ['markdown', 'text'],
-            onlyMainContent: true
-          })
-        });
+        const errorText = await firecrawlResponse.text();
+        console.error('Firecrawl error response:', errorText);
+        throw new Error(`Firecrawl failed with status ${firecrawlResponse.status}: ${errorText}`);
       }
 
       if (firecrawlResponse.ok) {
