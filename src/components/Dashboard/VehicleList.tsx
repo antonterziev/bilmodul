@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Car, Trash2, Eye, DollarSign } from "lucide-react";
+import { Car, Trash2, Eye, ShoppingCart } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { useToast } from "@/hooks/use-toast";
 
@@ -406,7 +406,7 @@ export const VehicleList = ({
                     onClick={() => onSellVehicle?.(vehicle.id)}
                     className="text-green-600 hover:bg-green-600 hover:text-white w-10 h-10 p-0"
                   >
-                    <DollarSign className="h-4 w-4" />
+                    <ShoppingCart className="h-4 w-4" />
                   </Button>
                   
                   <Button
