@@ -28,6 +28,7 @@ const Index = () => {
   
   // Current view state
   const [currentView, setCurrentView] = useState("overview");
+  const [previousView, setPreviousView] = useState("overview");
   
   // Expanded sections state
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
@@ -123,6 +124,7 @@ const Index = () => {
 
   // Navigation handlers
   const handleViewChange = (view: string) => {
+    setPreviousView(currentView); // Store current view as previous before changing
     setCurrentView(view);
     setSelectedVehicleId(null);
     setSelectedSaleVehicleId(null);
@@ -331,7 +333,7 @@ const Index = () => {
       case "sales":
         return <SalesForm 
           vehicleId={selectedSaleVehicleId || undefined}
-          onBack={() => handleViewChange("overview")}
+          onBack={() => handleViewChange(previousView)}
           onSuccess={() => {
             handleViewChange("overview");
             loadStats();
