@@ -1,3 +1,4 @@
+
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -66,7 +67,101 @@ Deno.serve(async (req) => {
       .single()
 
     if (integrationError || !fortnoxIntegration) {
-      throw new Error('No active Fortnox integration found')
+      console.error('No Fortnox integration found:', integrationError)
+      throw new Error('No active Fortnox integration found. Please connect to Fortnox first.')
+    }
+
+    console.log('Found Fortnox integration:', {
+      id: fortnoxIntegration.id,
+      expires_at: fortnoxIntegration.token_expires_at,
+      has_refresh_token: !!fortnoxIntegration.refresh_token
+    })
+
+    // Check if token is expired and refresh if needed
+    let accessToken = fortnoxIntegration.access_token
+    const tokenExpiresAt = new Date(fortnoxIntegration.token_expires_at)
+    const now = new Date()
+    const isTokenExpired = tokenExpiresAt <= now
+
+    console.log('Token expiration check:', {
+      expires_at: tokenExpiresAt.toISOString(),
+      current_time: now.toISOString(),
+      is_expired: isTokenExpired,
+      minutes_until_expiry: Math.round((tokenExpiresAt.getTime() - now.getTime()) / (1000 * 60))
+    })
+
+    if (isTokenExpired) {
+      console.log('Access token expired, attempting refresh...')
+      
+      if (!fortnoxIntegration.refresh_token) {
+        console.error('No refresh token available')
+        throw new Error('Access token expired and no refresh token available. Please reconnect to Fortnox.')
+      }
+
+      try {
+        // Refresh the token
+        const clientId = Deno.env.get('FORTNOX_CLIENT_ID')
+        const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET')
+        
+        if (!clientId || !clientSecret) {
+          throw new Error('Missing Fortnox credentials for token refresh')
+        }
+
+        const credentials = btoa(`${clientId}:${clientSecret}`)
+        
+        const refreshResponse = await fetch('https://apps.fortnox.se/oauth-v1/token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Basic ${credentials}`
+          },
+          body: new URLSearchParams({
+            grant_type: 'refresh_token',
+            refresh_token: fortnoxIntegration.refresh_token
+          })
+        })
+
+        const refreshData = await refreshResponse.json()
+
+        console.log('Token refresh response:', {
+          status: refreshResponse.status,
+          ok: refreshResponse.ok,
+          has_access_token: !!refreshData.access_token,
+          has_refresh_token: !!refreshData.refresh_token,
+          expires_in: refreshData.expires_in,
+          error: refreshData.error
+        })
+
+        if (!refreshResponse.ok) {
+          console.error('Token refresh failed:', refreshData)
+          throw new Error(`Token refresh failed: ${refreshData.error || 'Unknown error'}. Please reconnect to Fortnox.`)
+        }
+
+        // Update the integration with new tokens
+        const newExpiresAt = new Date(Date.now() + (refreshData.expires_in * 1000))
+        
+        const { error: updateError } = await supabaseClient
+          .from('fortnox_integrations')
+          .update({
+            access_token: refreshData.access_token,
+            refresh_token: refreshData.refresh_token || fortnoxIntegration.refresh_token, // Keep old refresh token if new one not provided
+            token_expires_at: newExpiresAt.toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', fortnoxIntegration.id)
+
+        if (updateError) {
+          console.error('Failed to update tokens:', updateError)
+          throw new Error('Failed to save refreshed tokens')
+        }
+
+        accessToken = refreshData.access_token
+        console.log('Token successfully refreshed, new expiry:', newExpiresAt.toISOString())
+        
+      } catch (refreshError) {
+        console.error('Token refresh error:', refreshError)
+        throw new Error(`Failed to refresh access token: ${refreshError.message}`)
+      }
     }
 
     // Prepare the verification data for Fortnox
@@ -104,23 +199,46 @@ Deno.serve(async (req) => {
 
     try {
       // Call Fortnox API to create verification
+      console.log('Making Fortnox API call with access token:', accessToken.substring(0, 8) + '...')
+      
       const fortnoxResponse = await fetch('https://api.fortnox.se/3/vouchers', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${fortnoxIntegration.access_token}`,
+          'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
         body: JSON.stringify({ Voucher: verificationData })
       })
 
+      const responseText = await fortnoxResponse.text()
+      console.log('Fortnox API response:', {
+        status: fortnoxResponse.status,
+        statusText: fortnoxResponse.statusText,
+        ok: fortnoxResponse.ok,
+        body: responseText.substring(0, 500) + (responseText.length > 500 ? '...' : '')
+      })
+
       if (!fortnoxResponse.ok) {
-        const errorText = await fortnoxResponse.text()
-        console.error('Fortnox API error:', errorText)
-        throw new Error(`Fortnox API error: ${fortnoxResponse.status} - ${errorText}`)
+        console.error('Fortnox API error:', responseText)
+        
+        // Provide more specific error messages
+        let errorMessage = `Fortnox API error: ${fortnoxResponse.status}`
+        
+        try {
+          const errorData = JSON.parse(responseText)
+          if (errorData.ErrorInformation) {
+            errorMessage = `Fortnox error: ${errorData.ErrorInformation.message || errorData.ErrorInformation.error}`
+          }
+        } catch (parseError) {
+          // Use the raw response if JSON parsing fails
+          errorMessage = `Fortnox API error: ${fortnoxResponse.status} - ${responseText}`
+        }
+        
+        throw new Error(errorMessage)
       }
 
-      const fortnoxResult = await fortnoxResponse.json()
+      const fortnoxResult = JSON.parse(responseText)
       const verificationNumber = fortnoxResult.Voucher?.VoucherNumber
 
       console.log('Verification created successfully:', verificationNumber)
