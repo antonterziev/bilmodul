@@ -507,11 +507,11 @@ export const PurchaseForm = ({
         registration_number: data.registration_number,
         chassis_number: data.chassis_number || null,
         mileage: data.mileage || null,
-        brand: data.brand || "Saknas", // Set default value if brand is empty
+        brand: data.brand?.trim() || "Saknas", // Properly handle empty strings and whitespace
         brand_other: data.brand_other || null,
         model: data.model || null,
         comment: data.comment || null,
-        year_model: data.year_model || null,
+        year_model: data.year_model || null, // Convert undefined/empty to null
         first_registration_date: data.first_registration_date?.toISOString().split('T')[0] || null,
         vat_type: data.vat_type || null,
         purchaser: data.purchaser,
@@ -522,8 +522,11 @@ export const PurchaseForm = ({
         purchase_documentation: data.purchase_documentation || null,
         purchase_channel: data.purchase_channel || null,
         purchase_channel_other: data.purchase_channel_other || null,
-        // Marketplace fields removed
       };
+      
+      // Log the data being sent to database for debugging
+      console.log('Inserting data to database:', insertData);
+      
       const {
         error
       } = await supabase.from('inventory_items').insert(insertData);
