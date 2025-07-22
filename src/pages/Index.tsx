@@ -544,6 +544,32 @@ const Index = () => {
               >
                 🔧 Simple Sync Test
               </Button>
+
+              <Button
+                onClick={async () => {
+                  try {
+                    const { data, error } = await supabase.functions.invoke('fortnox-list-accounts');
+
+                    console.log('Accounts result:', { data, error });
+                    
+                    if (error) {
+                      alert(`Accounts error: ${error.message}`);
+                    } else if (data?.success) {
+                      const accounts = data.relevantAccounts;
+                      const accountsList = accounts.map(acc => `${acc.number}: ${acc.description} (${acc.active ? 'Active' : 'Inactive'})`).join('\n');
+                      alert(`📋 Found ${data.totalAccounts} total accounts, showing relevant ones:\n\n${accountsList}`);
+                    } else {
+                      alert(`❌ Failed to get accounts: ${data?.error || 'Unknown error'}`);
+                    }
+                  } catch (err) {
+                    console.error('Accounts error:', err);
+                    alert(`Error: ${err.message}`);
+                  }
+                }}
+                variant="outline"
+              >
+                📋 Check Available Accounts
+              </Button>
             </div>
             
             <div className="space-y-4">
