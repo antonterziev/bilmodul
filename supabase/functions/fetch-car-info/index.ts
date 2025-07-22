@@ -144,7 +144,9 @@ serve(async (req) => {
     console.log('No cached data found. Attempting to scrape Transport Authority for:', registrationNumber);
     
     try {
-      const firecrawlResponse = await fetch('https://api.firecrawl.dev/v0/scrape', {
+      // First attempt: Try crawling with actions
+      console.log('Attempting to crawl with form interaction...');
+      let firecrawlResponse = await fetch('https://api.firecrawl.dev/v0/crawl', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${firecrawlApiKey}`,
@@ -152,25 +154,47 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           url: 'https://fordon-fu-regnr.transportstyrelsen.se/',
-          formats: ['markdown', 'text'],
-          onlyMainContent: true,
-          actions: [
-            {
-              type: 'fill',
-              selector: 'input[name="regnr"]',
-              text: registrationNumber
-            },
-            {
-              type: 'click',
-              selector: 'input[type="submit"], button[type="submit"], input[value*="sök"], button[value*="sök"]'
-            },
-            {
-              type: 'wait',
-              milliseconds: 2000
-            }
-          ]
+          crawlerOptions: {
+            includes: ['**/'],
+            limit: 1
+          },
+          pageOptions: {
+            actions: [
+              {
+                type: 'fill',
+                selector: 'input[name="regnr"], input[id*="regnr"], input[placeholder*="regnr"]',
+                text: registrationNumber
+              },
+              {
+                type: 'click',
+                selector: 'input[type="submit"], button[type="submit"], input[value*="Sök"], button[value*="Sök"], .button, button'
+              },
+              {
+                type: 'wait',
+                milliseconds: 3000
+              }
+            ],
+            onlyMainContent: true
+          }
         })
       });
+
+      // If crawl doesn't work, try direct scrape with URL parameter
+      if (!firecrawlResponse.ok) {
+        console.log('Crawl failed, trying direct URL scrape...');
+        firecrawlResponse = await fetch('https://api.firecrawl.dev/v0/scrape', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${firecrawlApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            url: `https://fordon-fu-regnr.transportstyrelsen.se/?regnr=${registrationNumber}`,
+            formats: ['markdown', 'text'],
+            onlyMainContent: true
+          })
+        });
+      }
 
       if (firecrawlResponse.ok) {
         const firecrawlData = await firecrawlResponse.json();
