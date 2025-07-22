@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import { sv } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
 interface Vehicle {
@@ -33,6 +34,7 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   // Form state
   const [seller, setSeller] = useState("");
@@ -41,9 +43,9 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
   const [hasWarranty, setHasWarranty] = useState(false);
   const [hasFinance, setHasFinance] = useState(false);
   const [salesDocumentation, setSalesDocumentation] = useState("Köpeavtal");
-  const [salesChannel, setSalesChannel] = useState("Showroom");
-  const [customerType, setCustomerType] = useState("Aktiebolag");
-  const [customerCountry, setCustomerCountry] = useState("EU");
+  const [salesChannel, setSalesChannel] = useState("Bilhall");
+  const [customerType, setCustomerType] = useState("Företag");
+  const [customerCountry, setCustomerCountry] = useState("Sverige");
 
   useEffect(() => {
     if (vehicleId) {
@@ -51,7 +53,27 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
     } else {
       setLoading(false);
     }
-  }, [vehicleId]);
+    loadUserProfile();
+  }, [vehicleId, user]);
+
+  const loadUserProfile = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('full_name, first_name, last_name')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error) throw error;
+      
+      const userName = data.full_name || `${data.first_name || ''} ${data.last_name || ''}`.trim() || 'Okänd användare';
+      setSeller(userName);
+    } catch (error) {
+      console.error('Error loading user profile:', error);
+    }
+  };
 
   const loadVehicle = async () => {
     if (!vehicleId) return;
@@ -112,56 +134,53 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Left column */}
               <div className="space-y-4">
-                <div>
-                  <Label htmlFor="seller">Säljare</Label>
-                  <Input
-                    id="seller"
-                    value={seller}
-                    onChange={(e) => setSeller(e.target.value)}
-                    placeholder="Johan Nilsson"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="price">Säljpris bil (ink. moms)</Label>
-                  <div className="flex items-center gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="seller">Säljare</Label>
                     <Input
-                      id="price"
-                      value={sellingPrice}
-                      onChange={(e) => setSellingPrice(e.target.value)}
-                      type="number"
-                      placeholder="130,000"
-                      className="flex-1"
+                      id="seller"
+                      value={seller}
+                      onChange={(e) => setSeller(e.target.value)}
+                      placeholder="Johan Nilsson"
                     />
-                    <span>SEK</span>
+                  </div>
+                  <div>
+                    <Label>Försäljningsdatum</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !sellingDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {sellingDate ? format(sellingDate, "dd/MM/yyyy") : <span>Välj datum</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={sellingDate}
+                          onSelect={setSellingDate}
+                          initialFocus
+                          className="pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </div>
 
                 <div>
-                  <Label>Försäljningsdatum</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !sellingDate && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {sellingDate ? format(sellingDate, "dd/MM/yyyy") : <span>Välj datum</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={sellingDate}
-                        onSelect={setSellingDate}
-                        initialFocus
-                        className="pointer-events-auto"
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <Label htmlFor="price">Säljpris bil (ink. moms)</Label>
+                  <Input
+                    id="price"
+                    value={sellingPrice}
+                    onChange={(e) => setSellingPrice(e.target.value)}
+                    type="number"
+                    placeholder="130,000"
+                  />
                 </div>
 
                 <div>
@@ -200,7 +219,6 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
                     <SelectContent>
                       <SelectItem value="Köpeavtal">Köpeavtal</SelectItem>
                       <SelectItem value="Faktura">Faktura</SelectItem>
-                      <SelectItem value="Kvitto">Kvitto</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -212,10 +230,9 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
                       <SelectValue placeholder="Välj säljkanal" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Showroom">Showroom</SelectItem>
-                      <SelectItem value="Online">Online</SelectItem>
-                      <SelectItem value="Telefon">Telefon</SelectItem>
-                      <SelectItem value="Annat">Annat</SelectItem>
+                      <SelectItem value="Bilhall">Bilhall</SelectItem>
+                      <SelectItem value="Blocket">Blocket</SelectItem>
+                      <SelectItem value="Annan">Annan</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -227,10 +244,8 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
                       <SelectValue placeholder="Välj kundtyp" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="Företag">Företag</SelectItem>
                       <SelectItem value="Privatperson">Privatperson</SelectItem>
-                      <SelectItem value="Aktiebolag">Aktiebolag</SelectItem>
-                      <SelectItem value="Handelsbolag">Handelsbolag</SelectItem>
-                      <SelectItem value="Kommanditbolag">Kommanditbolag</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -242,11 +257,9 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
                       <SelectValue placeholder="Välj land" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="SE">SE</SelectItem>
+                      <SelectItem value="Sverige">Sverige</SelectItem>
                       <SelectItem value="EU">EU</SelectItem>
-                      <SelectItem value="NO">NO</SelectItem>
-                      <SelectItem value="US">US</SelectItem>
-                      <SelectItem value="OTHER">Annat</SelectItem>
+                      <SelectItem value="Utanför EU">Utanför EU</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
