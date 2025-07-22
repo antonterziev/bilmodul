@@ -23,8 +23,8 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { sv } from "date-fns/locale";
 const carBrands = ["Annat", "Alfa Romeo", "Alpine", "Aston Martin", "Audi", "Bentley", "BMW", "BYD", "Cadillac", "Chevrolet", "Chrysler", "Citroën", "Dacia", "Daihatsu", "Dodge", "Ferrari", "Fiat", "Fisker, Karma", "Ford", "GMC", "Honda", "Hummer", "Hyundai", "Infiniti", "Isuzu", "Iveco", "Jaguar", "Jeep", "Kia", "Koenigsegg", "KTM", "Lada", "Lamborghini", "Lancia", "Land Rover", "Lexus", "Ligier", "Lincoln", "Lotus", "Maserati", "Mazda", "McLaren", "Mercedes-Benz", "Maybach", "Mini", "Mitsubishi", "Nissan", "Opel", "Peugeot", "Piaggio", "Pininfarina", "Polestar", "Pontiac, Asüna", "Porsche", "Renault", "Rivian", "Rolls-Royce", "Saab", "Santana", "Seat", "Shelby SuperCars", "Skoda", "smart", "SsangYong", "Subaru", "Suzuki", "Tesla", "Toyota", "Volkswagen", "Volvo"];
-const purchaseChannels = ["Bilhandlare", "Privatperson", "Marknadsplats", "Annan"];
-const marketplaces = ["Blocket", "KVD", "BCA", "Auto1", "Annan"];
+const purchaseChannels = ["Privatperson", "Företag (utan moms)", "Företag (med moms)", "Utländskt företag (med moms)", "Utländskt företag (utan moms)", "Leasingbolag (privat)", "Leasingbolag (tjänstebil)"];
+// No longer needed as marketplace options have been removed
 const purchaseSchema = z.object({
   // Vehicle data
   registration_number: z.string().min(1, "Registreringsnummer krävs"),
@@ -46,8 +46,7 @@ const purchaseSchema = z.object({
   purchase_documentation: z.string().optional(),
   purchase_channel: z.string().optional(),
   purchase_channel_other: z.string().optional(),
-  marketplace_channel: z.string().optional(),
-  marketplace_channel_other: z.string().optional(),
+  // Marketplace fields removed as they're no longer used
   
 });
 type PurchaseFormData = z.infer<typeof purchaseSchema>;
@@ -501,9 +500,7 @@ export const PurchaseForm = ({
         purchase_documentation: data.purchase_documentation || null,
         purchase_channel: data.purchase_channel || null,
         purchase_channel_other: data.purchase_channel_other || null,
-        marketplace_channel: data.marketplace_channel || null,
-        marketplace_channel_other: data.marketplace_channel_other || null,
-        
+        // Marketplace fields removed
       };
       const {
         error
@@ -797,15 +794,11 @@ export const PurchaseForm = ({
                         <CommandList>
                           <CommandGroup>
                             {purchaseChannels.map(channel => <CommandItem key={channel} value={channel} onSelect={() => {
-                            form.setValue("purchase_channel", channel);
-                            if (channel !== "Marknadsplats") {
-                              form.setValue("marketplace_channel", undefined);
-                              form.setValue("marketplace_channel_other", undefined);
-                            }
-                            if (channel !== "Annan") {
-                              form.setValue("purchase_channel_other", undefined);
-                            }
-                          }}>
+                              form.setValue("purchase_channel", channel);
+                              if (channel !== "Annan") {
+                                form.setValue("purchase_channel_other", undefined);
+                              }
+                            }}>
                                 <Check className={cn("mr-2 h-4 w-4", form.watch("purchase_channel") === channel ? "opacity-100" : "opacity-0")} />
                                 {channel}
                               </CommandItem>)}
@@ -821,29 +814,7 @@ export const PurchaseForm = ({
                     <Input id="purchase_channel_other" {...form.register("purchase_channel_other")} placeholder="Ange vilken inköpskanal" />
                   </div>}
 
-                {form.watch("purchase_channel") === "Marknadsplats" && <div>
-                    <Label htmlFor="marketplace_channel">Marknadsplats</Label>
-                    <Select onValueChange={value => {
-                  form.setValue("marketplace_channel", value);
-                  if (value !== "Annan") {
-                    form.setValue("marketplace_channel_other", undefined);
-                  }
-                }}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Välj marknadsplats" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {marketplaces.map(marketplace => <SelectItem key={marketplace} value={marketplace}>
-                            {marketplace}
-                          </SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>}
-
-                {form.watch("marketplace_channel") === "Annan" && <div>
-                    <Label htmlFor="marketplace_channel_other">Beskriv marknadsplats</Label>
-                    <Input id="marketplace_channel_other" {...form.register("marketplace_channel_other")} placeholder="Ange vilken marknadsplats" />
-                  </div>}
+                {/* Marketplace section removed as it's no longer in the dropdown */}
 
                 {/* 4. Inköpspris */}
                 <div>
@@ -952,10 +923,7 @@ export const PurchaseForm = ({
                        </p>}
                    </div>}
 
-                {form.watch("purchase_channel") === "Marknadsplats" && form.watch("marketplace_channel") === "Annan" && <div>
-                    <Label htmlFor="marketplace_channel_other">Beskriv marknadsplats</Label>
-                    <Input id="marketplace_channel_other" {...form.register("marketplace_channel_other")} placeholder="Ange vilken marknadsplats" />
-                  </div>}
+                {/* Additional Marknadsplats section removed as it's no longer needed */}
               </div>
 
               <div>
