@@ -217,15 +217,15 @@ export function AppSidebar({
                                 </SidebarMenuButton>
                              ) : (
                                  <SidebarMenuButton
-                                    onClick={child.id === 'sales' ? () => onViewChange(child.id) : (['finansiering', 'affarer', 'direktfloden', 'ekonomi'].includes(section.id) || child.isPro) ? undefined : () => onViewChange(child.id)}
-                                    className={child.id === 'sales' ? getNavClass(child.id) : (['finansiering', 'affarer', 'direktfloden', 'ekonomi'].includes(section.id) || child.isPro)
+                                    onClick={(['finansiering', 'affarer', 'direktfloden', 'ekonomi'].includes(section.id) || child.isPro) ? undefined : () => onViewChange(child.id)}
+                                    className={(['finansiering', 'affarer', 'direktfloden', 'ekonomi'].includes(section.id) || child.isPro)
                                       ? "cursor-not-allowed pointer-events-none text-muted-foreground hover:bg-muted/50 flex items-center justify-between" 
                                       : getNavClass(child.id)
                                     }
                                     size="sm"
                                  >
                                    <span className="text-sm">{child.title}</span>
-                                   {(child.id !== 'sales' && (['finansiering', 'affarer', 'direktfloden', 'ekonomi'].includes(section.id) || child.isPro)) && (
+                                   {((['finansiering', 'affarer', 'direktfloden', 'ekonomi'].includes(section.id) || child.isPro)) && (
                                      <span className="inline-flex items-center rounded-full bg-yellow-200 px-1.5 py-0 text-[11px] font-medium text-yellow-900">
                                        PRO
                                      </span>

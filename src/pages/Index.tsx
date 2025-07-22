@@ -10,8 +10,6 @@ import { VehicleList } from "@/components/Dashboard/VehicleList";
 import { PurchaseForm } from "@/components/Dashboard/PurchaseForm";
 import { LogisticsList } from "@/components/Logistics/LogisticsList";
 import { LogisticsDetail } from "@/components/Logistics/LogisticsDetail";
-import { SalesList } from "@/components/Sales/SalesList";
-import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
 import { Statistics } from "@/components/Statistics/Statistics";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -42,7 +40,7 @@ const Index = () => {
   // Form and data states
   const [purchaseFormKey, setPurchaseFormKey] = useState(0);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
-  const [selectedSaleVehicleId, setSelectedSaleVehicleId] = useState<string | null>(null);
+  
   const [userProfile, setUserProfile] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [inventoryItems, setInventoryItems] = useState<any[]>([]);
@@ -125,7 +123,6 @@ const Index = () => {
   const handleViewChange = (view: string) => {
     setCurrentView(view);
     setSelectedVehicleId(null);
-    setSelectedSaleVehicleId(null);
     
     // Handle special cases
     if (view === "purchase_form") {
@@ -327,24 +324,6 @@ const Index = () => {
           </div>
         );
 
-      case "sales":
-        if (selectedSaleVehicleId) {
-          return <SalesForm 
-            vehicleId={selectedSaleVehicleId} 
-            onBack={() => setSelectedSaleVehicleId(null)}
-            onSuccess={() => {
-              setSelectedSaleVehicleId(null);
-              handleViewChange("overview");
-              loadStats();
-            }}
-          />;
-        }
-        return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold">Försäljning</h2>
-            <SalesList onSellVehicle={(vehicleId) => setSelectedSaleVehicleId(vehicleId)} />
-          </div>
-        );
 
       case "settings":
         return <Settings />;
@@ -439,10 +418,6 @@ const Index = () => {
               searchTerm={searchTerm}
               sortField={sortField}
               sortOrder={sortOrder}
-              onSellVehicle={(vehicleId) => {
-                setSelectedSaleVehicleId(vehicleId);
-                handleViewChange("sales");
-              }}
               onStatsUpdate={loadStats}
             />
            </div>
