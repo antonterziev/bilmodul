@@ -59,17 +59,24 @@ Deno.serve(async (req) => {
     }
 
     // Get the user's Fortnox integration
-    const { data: fortnoxIntegration, error: integrationError } = await supabaseClient
+    const { data: fortnoxIntegrations, error: integrationError } = await supabaseClient
       .from('fortnox_integrations')
       .select('*')
       .eq('user_id', user.id)
       .eq('is_active', true)
-      .single()
+      .order('created_at', { ascending: false })
 
-    if (integrationError || !fortnoxIntegration) {
-      console.error('No Fortnox integration found:', integrationError)
+    if (integrationError) {
+      console.error('Error fetching Fortnox integration:', integrationError)
+      throw new Error('Error fetching Fortnox integration')
+    }
+
+    if (!fortnoxIntegrations || fortnoxIntegrations.length === 0) {
+      console.error('No Fortnox integration found')
       throw new Error('No active Fortnox integration found. Please connect to Fortnox first.')
     }
+
+    const fortnoxIntegration = fortnoxIntegrations[0] // Use the most recent one
 
     console.log('Found Fortnox integration:', {
       id: fortnoxIntegration.id,
