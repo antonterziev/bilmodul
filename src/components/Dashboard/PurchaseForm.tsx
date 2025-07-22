@@ -762,7 +762,7 @@ export const PurchaseForm = ({
 
               <div className="flex justify-end">
                 <Button type="button" onClick={() => setActiveTab("inkopsinformation")} disabled={!isVehicleDataValid()} className="bg-blue-600 hover:bg-blue-700 text-white">
-                  Fortsätt till inköpsinformation
+                  Fortsätt
                 </Button>
               </div>
             </TabsContent>
