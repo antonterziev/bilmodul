@@ -171,18 +171,18 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Prepare the verification data for Fortnox
+    // Prepare the verification data for Fortnox using standard accounts
     const verificationData = {
       Description: `Fordonsinköp - ${inventoryItem.brand} ${inventoryItem.model} (${inventoryItem.registration_number})`,
       TransactionDate: inventoryItem.purchase_date,
       VoucherRows: [
         {
-          Account: 1465, // Fordon account
+          Account: 1200, // Inventarier account (standard Swedish chart of accounts)
           Debit: inventoryItem.purchase_price,
           Description: `Inköp ${inventoryItem.brand} ${inventoryItem.model}`,
         },
         {
-          Account: 1910, // Kassa/Bank account
+          Account: 1930, // Företagskonto/Checkräkningskonto (standard bank account)
           Credit: inventoryItem.purchase_price,
           Description: `Betalning ${inventoryItem.brand} ${inventoryItem.model}`,
         }
