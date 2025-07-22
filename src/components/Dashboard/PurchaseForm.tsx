@@ -610,35 +610,10 @@ export const PurchaseForm = ({
                         )} 
                         readOnly={carDataFetched} 
                       />
-                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
-                        <div className="flex items-center space-x-1">
-                          <input
-                            type="radio"
-                            id="reg-radio"
-                            name="registration_type"
-                            value="reg-nummer"
-                            checked={form.watch("registration_number")?.length !== 17}
-                            disabled
-                            className="opacity-50 cursor-not-allowed w-3 h-3"
-                          />
-                          <Label htmlFor="reg-radio" className="text-xs text-muted-foreground cursor-not-allowed">
-                            REG
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <input
-                            type="radio"
-                            id="vin-radio"
-                            name="registration_type"
-                            value="vin-nummer"
-                            checked={form.watch("registration_number")?.length === 17}
-                            disabled
-                            className="opacity-50 cursor-not-allowed w-3 h-3"
-                          />
-                          <Label htmlFor="vin-radio" className="text-xs text-muted-foreground cursor-not-allowed">
-                            VIN
-                          </Label>
-                        </div>
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <span className="text-sm text-muted-foreground">
+                          {form.watch("registration_number")?.length === 17 ? "VIN" : "REG"}
+                        </span>
                       </div>
                     </div>
                     {form.formState.errors.registration_number && <p className="text-sm text-destructive mt-1">
