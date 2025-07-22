@@ -148,9 +148,7 @@ const Index = () => {
         'lager_stock': 'på_lager', 
         'lager_sold': 'såld'
       };
-      const newFilter = filterMap[view] || 'all';
-      console.log('Index: Changing filter from', lagerFilter, 'to', newFilter, 'for view:', view);
-      setLagerFilter(newFilter);
+      setLagerFilter(filterMap[view] || 'all');
     }
   };
 

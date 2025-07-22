@@ -94,8 +94,6 @@ export function AppSidebar({
       children: [
         { id: "purchase_form_sub", title: "Registrera fordon", icon: Car, isButton: true },
         { id: "lager_all", title: "Lagerlista", icon: Car },
-        { id: "lager_stock", title: "I lager", icon: Car },
-        { id: "lager_sold", title: "Såld", icon: Car },
         { id: "vardering", title: "Värdering", icon: Calculator, isPro: true },
         { id: "statistics", title: "Statistik", icon: BarChart3, isPro: true },
       ]
