@@ -696,7 +696,7 @@ export const PurchaseForm = ({
                 <div>
                   <Label htmlFor="year_model">Modellår</Label>
                   <Input id="year_model" type="number" min="1981" max={new Date().getFullYear() + 2} placeholder="t.ex. 2020" {...form.register("year_model", {
-                  valueAsNumber: true
+                  setValueAs: (value) => value === "" ? undefined : Number(value)
                 })} />
                   {form.formState.errors.year_model && <p className="text-sm text-destructive mt-1 absolute">
                       {form.formState.errors.year_model.message}
