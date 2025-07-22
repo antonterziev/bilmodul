@@ -787,9 +787,9 @@ export const PurchaseForm = ({
                   <Label htmlFor="purchase_channel">Säljare</Label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" role="combobox" className={cn("w-full justify-between font-normal", !form.watch("purchase_channel") && "text-muted-foreground")}>
-                        {form.watch("purchase_channel") || "Välj inköpskanal"}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                       <Button variant="outline" role="combobox" className={cn("w-full justify-between font-normal", !form.watch("purchase_channel") && "text-muted-foreground")}>
+                         {form.watch("purchase_channel") || "Välj säljarkategori"}
+                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-full p-0">
