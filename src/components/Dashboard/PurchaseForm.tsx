@@ -596,7 +596,7 @@ export const PurchaseForm = ({
               <TabsContent value="fordonsdata" className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="registration_number">Registrerings- eller VIN-nummer*</Label>
+                    <Label htmlFor="registration_number">Registreringsnummer*</Label>
                     <div className="relative">
                       <Input 
                         id="registration_number" 
