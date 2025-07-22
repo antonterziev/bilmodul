@@ -1,3 +1,4 @@
+
 -- Create inventory/purchase table for vehicles
 CREATE TABLE public.inventory_items (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -7,7 +8,7 @@ CREATE TABLE public.inventory_items (
   registration_number TEXT NOT NULL,
   chassis_number TEXT,
   mileage INTEGER,
-  brand TEXT NOT NULL,
+  brand TEXT,
   model TEXT,
   comment TEXT,
   year_model INTEGER,

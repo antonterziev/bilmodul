@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,8 +10,9 @@ import { Eye } from "lucide-react";
 interface Vehicle {
   id: string;
   registration_number: string;
-  brand: string;
-  model: string;
+  brand: string | null;
+  model: string | null;
+  year_model: number | null;
   status: string;
   current_location: string;
   purchase_price: number;
@@ -63,6 +65,13 @@ export const LogisticsList = ({ onViewVehicle }: LogisticsListProps) => {
     return (vehicle.purchase_price || 0) + (vehicle.additional_costs || 0);
   };
 
+  // Display "Saknas" for missing brand, model, or year
+  const getVehicleInfo = (vehicle: Vehicle) => {
+    const brand = vehicle.brand || "Saknas";
+    const model = vehicle.model || "Saknas";
+    return `${brand} ${model}`;
+  };
+
   if (loading) {
     return <div>Laddar fordon...</div>;
   }
@@ -77,7 +86,7 @@ export const LogisticsList = ({ onViewVehicle }: LogisticsListProps) => {
                 <div>
                   <div className="font-semibold">{vehicle.registration_number}</div>
                   <div className="text-sm text-muted-foreground">
-                    {vehicle.brand} {vehicle.model}
+                    {getVehicleInfo(vehicle)}
                   </div>
                 </div>
                 
