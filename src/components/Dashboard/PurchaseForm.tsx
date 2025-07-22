@@ -598,7 +598,7 @@ export const PurchaseForm = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="registration_number">Registrerings- eller VIN-nummer*</Label>
-                    <Input id="registration_number" placeholder="t.ex. JSK15L" {...form.register("registration_number")} className={cn(form.formState.errors.registration_number && "border-destructive", isDuplicateRegNumber && "border-destructive")} readOnly={carDataFetched} />
+                    <Input id="registration_number" placeholder="t.ex. JSK15L eller 1234567890ABCDEFG" {...form.register("registration_number")} className={cn(form.formState.errors.registration_number && "border-destructive", isDuplicateRegNumber && "border-destructive")} readOnly={carDataFetched} />
                     {form.formState.errors.registration_number && <p className="text-sm text-destructive mt-1">
                         {form.formState.errors.registration_number.message}
                       </p>}
