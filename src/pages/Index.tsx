@@ -10,6 +10,7 @@ import { VehicleList } from "@/components/Dashboard/VehicleList";
 import { PurchaseForm } from "@/components/Dashboard/PurchaseForm";
 import { LogisticsList } from "@/components/Logistics/LogisticsList";
 import { LogisticsDetail } from "@/components/Logistics/LogisticsDetail";
+import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
 import { Statistics } from "@/components/Statistics/Statistics";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -40,6 +41,7 @@ const Index = () => {
   // Form and data states
   const [purchaseFormKey, setPurchaseFormKey] = useState(0);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
+  const [selectedSaleVehicleId, setSelectedSaleVehicleId] = useState<string | null>(null);
   
   const [userProfile, setUserProfile] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -123,6 +125,7 @@ const Index = () => {
   const handleViewChange = (view: string) => {
     setCurrentView(view);
     setSelectedVehicleId(null);
+    setSelectedSaleVehicleId(null);
     
     // Handle special cases
     if (view === "purchase_form") {
@@ -325,6 +328,16 @@ const Index = () => {
         );
 
 
+      case "sales":
+        return <SalesForm 
+          vehicleId={selectedSaleVehicleId || undefined}
+          onBack={() => handleViewChange("overview")}
+          onSuccess={() => {
+            handleViewChange("overview");
+            loadStats();
+          }}
+        />;
+
       case "settings":
         return <Settings />;
 
@@ -418,6 +431,10 @@ const Index = () => {
               searchTerm={searchTerm}
               sortField={sortField}
               sortOrder={sortOrder}
+              onSellVehicle={(vehicleId) => {
+                setSelectedSaleVehicleId(vehicleId);
+                handleViewChange("sales");
+              }}
               onStatsUpdate={loadStats}
             />
            </div>
