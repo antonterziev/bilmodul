@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Car, Trash2, Eye, DollarSign } from "lucide-react";
+import { Car, Trash2, Eye, DollarSign, RefreshCw } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { useToast } from "@/hooks/use-toast";
 
@@ -46,6 +46,7 @@ export const VehicleList = ({
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [syncingId, setSyncingId] = useState<string | null>(null);
   const [forceUpdate, setForceUpdate] = useState(0);
   
   // Use ref to track mounted state and cleanup timers
@@ -238,6 +239,39 @@ export const VehicleList = ({
     }
   };
 
+  const handleSync = async (vehicleId: string, registrationNumber: string) => {
+    try {
+      setSyncingId(vehicleId);
+      
+      const { data, error } = await supabase.functions.invoke('fortnox-sync-purchase', {
+        body: { inventoryItemId: vehicleId }
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        toast({
+          title: "Synkronisering lyckad",
+          description: `${registrationNumber} har synkroniserats med Fortnox.`,
+        });
+        
+        // Reload vehicles to show updated sync status
+        loadVehicles();
+      } else {
+        throw new Error(data?.error || 'Okänt fel vid synkronisering');
+      }
+    } catch (error) {
+      console.error('Error syncing vehicle:', error);
+      toast({
+        title: "Synkroniseringsfel",
+        description: `Kunde inte synkronisera ${registrationNumber} med Fortnox. Försök igen.`,
+        variant: "destructive",
+      });
+    } finally {
+      setSyncingId(null);
+    }
+  };
+
   const handleView = (vehicleId: string) => {
     // For now, just show a toast. This could navigate to a detail view later
     toast({
@@ -427,6 +461,24 @@ export const VehicleList = ({
                   >
                     <Eye className="h-4 w-4" />
                   </Button>
+                  
+                  {/* Show sync button for vehicles not synced with Fortnox */}
+                  {(!vehicle.fortnox_sync_status || vehicle.fortnox_sync_status === 'pending' || vehicle.fortnox_sync_status === 'failed') && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleSync(vehicle.id, vehicle.registration_number)}
+                      disabled={syncingId === vehicle.id}
+                      className="text-blue-600 hover:bg-blue-600 hover:text-white w-10 h-10 p-0"
+                      title="Synkronisera med Fortnox"
+                    >
+                      {syncingId === vehicle.id ? (
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      ) : (
+                        <RefreshCw className="h-4 w-4" />
+                      )}
+                    </Button>
+                  )}
                   
                   <Button
                     variant="outline"
