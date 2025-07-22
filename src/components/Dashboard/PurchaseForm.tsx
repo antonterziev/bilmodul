@@ -241,7 +241,9 @@ export const PurchaseForm = ({
 
   // Check for duplicate registration numbers
   const checkForDuplicateRegNumber = async (regNumber: string) => {
+    console.log('checkForDuplicateRegNumber called with:', regNumber);
     if (!user || !regNumber.trim()) {
+      console.log('Early return: no user or empty regNumber');
       setIsDuplicateRegNumber(false);
       setDuplicateVehicleId(null);
       return false;
@@ -253,12 +255,15 @@ export const PurchaseForm = ({
         error
       } = await supabase.from('inventory_items').select('id').eq('user_id', user.id).eq('registration_number', regNumber.trim()).limit(1);
       if (error) throw error;
+      console.log('Duplicate check response:', data);
       const isDuplicate = data && data.length > 0;
+      console.log('isDuplicate:', isDuplicate);
       setIsDuplicateRegNumber(isDuplicate);
       setDuplicateVehicleId(isDuplicate && data.length > 0 ? data[0].id : null);
       return isDuplicate;
     } catch (error) {
       console.error('Error checking for duplicate registration number:', error);
+      setIsDuplicateRegNumber(false);
       return false;
     } finally {
       setIsCheckingRegNumber(false);
@@ -488,10 +493,15 @@ export const PurchaseForm = ({
     );
   };
   const onSubmit = async (data: PurchaseFormData) => {
+    console.log('Form submitted with data:', data);
+    console.log('isDuplicateRegNumber:', isDuplicateRegNumber);
+    console.log('duplicateVehicleId:', duplicateVehicleId);
+    
     if (!user) return;
 
     // Prevent submission if there's a duplicate registration number
     if (isDuplicateRegNumber) {
+      console.log('Blocking submission due to duplicate registration number');
       toast({
         title: "Kan inte registrera",
         description: "Detta registreringsnummer finns redan. Du kan inte ha fler än ett fordon med samma registreringsnummer.",
