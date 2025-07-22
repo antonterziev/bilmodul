@@ -151,9 +151,24 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          url: `https://fordon-fu-regnr.transportstyrelsen.se/?regnr=${registrationNumber}`,
+          url: 'https://fordon-fu-regnr.transportstyrelsen.se/',
           formats: ['markdown', 'text'],
-          onlyMainContent: true
+          onlyMainContent: true,
+          actions: [
+            {
+              type: 'fill',
+              selector: 'input[name="regnr"]',
+              text: registrationNumber
+            },
+            {
+              type: 'click',
+              selector: 'input[type="submit"], button[type="submit"], input[value*="sök"], button[value*="sök"]'
+            },
+            {
+              type: 'wait',
+              milliseconds: 2000
+            }
+          ]
         })
       });
 
