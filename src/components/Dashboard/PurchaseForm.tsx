@@ -784,7 +784,7 @@ export const PurchaseForm = ({
 
                 {/* 3. Inköpskanal */}
                 <div>
-                  <Label htmlFor="purchase_channel">Inköpskanal</Label>
+                  <Label htmlFor="purchase_channel">Säljare</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button variant="outline" role="combobox" className={cn("w-full justify-between font-normal", !form.watch("purchase_channel") && "text-muted-foreground")}>
