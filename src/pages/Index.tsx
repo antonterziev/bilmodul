@@ -481,8 +481,8 @@ const Index = () => {
             <h1 className="text-2xl font-bold mb-2">Integrationer</h1>
             <p className="text-muted-foreground mb-6">Här hittar du alla integrationer som för närvarande finns i Veksla.</p>
             
-            {/* Test button for easier debugging */}
-            <div className="mb-6">
+            {/* Test buttons for easier debugging */}
+            <div className="mb-6 space-y-3">
               <Button
                 onClick={async () => {
                   try {
@@ -502,9 +502,47 @@ const Index = () => {
                   }
                 }}
                 variant="outline"
-                className="mb-4"
+                className="mr-3"
               >
                 🧪 Test Fortnox Connection
+              </Button>
+
+              <Button
+                onClick={async () => {
+                  try {
+                    // Use the first inventory item for testing
+                    const { data: items } = await supabase
+                      .from('inventory_items')
+                      .select('id')
+                      .eq('user_id', user.id)
+                      .limit(1);
+                    
+                    if (!items || items.length === 0) {
+                      alert('No vehicles found to test with');
+                      return;
+                    }
+
+                    const { data, error } = await supabase.functions.invoke('fortnox-debug-sync', {
+                      body: { inventoryItemId: items[0].id }
+                    });
+
+                    console.log('Debug sync result:', { data, error });
+                    
+                    if (error) {
+                      alert(`Debug sync error: ${error.message}`);
+                    } else if (data?.success) {
+                      alert(`✅ Debug sync worked!`);
+                    } else {
+                      alert(`❌ Debug sync failed: ${data?.error || 'Unknown error'}\n\nDetails: ${data?.details || 'No details'}`);
+                    }
+                  } catch (err) {
+                    console.error('Debug sync error:', err);
+                    alert(`Error: ${err.message}`);
+                  }
+                }}
+                variant="outline"
+              >
+                🐛 Debug Sync Test
               </Button>
             </div>
             
