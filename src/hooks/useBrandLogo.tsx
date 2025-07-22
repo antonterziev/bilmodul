@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { Car } from 'lucide-react';
 
 interface BrandLogoResult {
   logoUrl: string | null;
   isLoading: boolean;
   error: string | null;
   fromCache: boolean;
+  fallbackIcon: React.ComponentType<any> | null;
 }
 
 export const useBrandLogo = (brandName: string): BrandLogoResult => {
@@ -70,5 +72,11 @@ export const useBrandLogo = (brandName: string): BrandLogoResult => {
     fetchLogo();
   }, [brandName]);
 
-  return { logoUrl, isLoading, error, fromCache };
+  return { 
+    logoUrl, 
+    isLoading, 
+    error, 
+    fromCache, 
+    fallbackIcon: !logoUrl && !isLoading ? Car : null 
+  };
 };
