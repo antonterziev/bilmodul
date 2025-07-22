@@ -19,6 +19,8 @@ interface Vehicle {
   purchase_price: number;
   expected_selling_price: number | null;
   status: string;
+  fortnox_sync_status?: string;
+  fortnox_verification_number?: string;
 }
 
 interface VehicleListProps {
@@ -112,7 +114,7 @@ export const VehicleList = ({
       setLoading(true);
       let query = supabase
         .from('inventory_items')
-        .select('id, registration_number, brand, model, purchase_date, selling_date, purchaser, purchase_price, expected_selling_price, status')
+        .select('id, registration_number, brand, model, purchase_date, selling_date, purchaser, purchase_price, expected_selling_price, status, fortnox_sync_status, fortnox_verification_number')
         .eq('user_id', user.id);
 
       // Apply status filter if not 'all'
@@ -337,10 +339,10 @@ export const VehicleList = ({
                     </p>
                   </div>
                   
-                  {/* Column 2: Status */}
+                  {/* Column 2: Status & Fortnox */}
                   <div className="text-center -ml-4">
                     <p className="text-xs text-muted-foreground whitespace-nowrap">Status</p>
-                    <div className="flex justify-center">
+                    <div className="flex flex-col gap-1 items-center">
                        <Badge 
                          variant={getStatusVariant(vehicle.status)} 
                          className={`text-xs whitespace-nowrap px-2 justify-center w-16 ${
@@ -353,6 +355,22 @@ export const VehicleList = ({
                        >
                         {getStatusLabel(vehicle.status)}
                       </Badge>
+                      {vehicle.fortnox_sync_status && (
+                        <Badge 
+                          variant="outline"
+                          className={`text-xs px-1 ${
+                            vehicle.fortnox_sync_status === 'synced' 
+                              ? 'border-green-500 text-green-700 bg-green-50' 
+                              : vehicle.fortnox_sync_status === 'failed'
+                              ? 'border-red-500 text-red-700 bg-red-50'
+                              : 'border-orange-500 text-orange-700 bg-orange-50'
+                          }`}
+                          title={vehicle.fortnox_verification_number ? `Verifikation: ${vehicle.fortnox_verification_number}` : undefined}
+                        >
+                          {vehicle.fortnox_sync_status === 'synced' ? '✓ F' : 
+                           vehicle.fortnox_sync_status === 'failed' ? '✗ F' : '⏳ F'}
+                        </Badge>
+                      )}
                     </div>
                   </div>
                   

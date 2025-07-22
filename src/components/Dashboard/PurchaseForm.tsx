@@ -543,13 +543,49 @@ export const PurchaseForm = ({
       console.log('Inserting data to database:', insertData);
       
       const {
+        data: insertedItem,
         error
-      } = await supabase.from('inventory_items').insert(insertData);
+      } = await supabase.from('inventory_items').insert(insertData).select('id').single();
       if (error) throw error;
+      
       toast({
         title: "Framgång",
         description: "Fordon har lagts till i lagret"
       });
+
+      // Automatically sync with Fortnox if integration is active
+      try {
+        const { data: fortnoxIntegration } = await supabase
+          .from('fortnox_integrations')
+          .select('is_active')
+          .eq('user_id', user.id)
+          .eq('is_active', true)
+          .single();
+
+        if (fortnoxIntegration && insertedItem?.id) {
+          // Sync in background - don't block the success flow
+          supabase.functions.invoke('fortnox-sync-purchase', {
+            body: { inventoryItemId: insertedItem.id }
+          }).then(({ data, error }) => {
+            if (error) {
+              console.error('Fortnox sync error:', error);
+              toast({
+                title: "Fortnox-synkning misslyckades",
+                description: "Fordonet sparades men kunde inte synkroniseras med Fortnox",
+                variant: "destructive"
+              });
+            } else {
+              toast({
+                title: "Synkroniserat med Fortnox",
+                description: `Verifikation ${data.verificationNumber} skapad`,
+              });
+            }
+          });
+        }
+      } catch (syncError) {
+        console.error('Error checking Fortnox integration:', syncError);
+      }
+
       form.reset();
       onSuccess();
     } catch (error) {

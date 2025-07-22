@@ -151,6 +151,53 @@ export type Database = {
         }
         Relationships: []
       }
+      fortnox_sync_log: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          fortnox_verification_number: string | null
+          id: string
+          inventory_item_id: string
+          sync_data: Json | null
+          sync_status: string
+          sync_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          fortnox_verification_number?: string | null
+          id?: string
+          inventory_item_id: string
+          sync_data?: Json | null
+          sync_status: string
+          sync_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          fortnox_verification_number?: string | null
+          id?: string
+          inventory_item_id?: string
+          sync_data?: Json | null
+          sync_status?: string
+          sync_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fortnox_sync_log_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory_items: {
         Row: {
           additional_costs: number | null
@@ -169,6 +216,9 @@ export type Database = {
           financing_details: string | null
           financing_provided: boolean | null
           first_registration_date: string | null
+          fortnox_sync_status: string | null
+          fortnox_synced_at: string | null
+          fortnox_verification_number: string | null
           id: string
           logistics_documentation_attached: boolean | null
           logistics_notes: string | null
@@ -215,6 +265,9 @@ export type Database = {
           financing_details?: string | null
           financing_provided?: boolean | null
           first_registration_date?: string | null
+          fortnox_sync_status?: string | null
+          fortnox_synced_at?: string | null
+          fortnox_verification_number?: string | null
           id?: string
           logistics_documentation_attached?: boolean | null
           logistics_notes?: string | null
@@ -261,6 +314,9 @@ export type Database = {
           financing_details?: string | null
           financing_provided?: boolean | null
           first_registration_date?: string | null
+          fortnox_sync_status?: string | null
+          fortnox_synced_at?: string | null
+          fortnox_verification_number?: string | null
           id?: string
           logistics_documentation_attached?: boolean | null
           logistics_notes?: string | null
