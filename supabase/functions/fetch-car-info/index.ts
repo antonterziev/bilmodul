@@ -11,207 +11,69 @@ const supabaseUrl = Deno.env.get('SUPABASE_URL')!
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-// Function to extract vehicle data from car.info scraped content
+// Function to extract vehicle data from Swedish Transport Authority website
 function extractVehicleData(content: string, regNumber: string) {
   try {
-    console.log('Extracting vehicle data from car.info content for:', regNumber);
+    console.log('Extracting vehicle data from Transport Authority content for:', regNumber);
     console.log('Content sample (first 500 chars):', content.substring(0, 500));
     
     const data: any = {};
     
-    // Log more specific patterns we're looking for
-    console.log('Looking for patterns in content...');
-    
-    // Pattern 1: Try to extract from breadcrumb navigation: "Hem / Volvo / V60 / V60 / 2020"
-    const breadcrumbPattern = /Hem\s*\/\s*([A-Za-z-]+)\s*\/\s*([A-Za-z0-9\s]+)\s*\/\s*[^\/]*\/\s*(\d{4})/i;
-    const breadcrumbMatch = content.match(breadcrumbPattern);
-    
-    if (breadcrumbMatch) {
-      data.brand = breadcrumbMatch[1].trim();
-      data.model = breadcrumbMatch[2].trim(); 
-      data.modelYear = breadcrumbMatch[3].trim();
-      console.log('Extracted from breadcrumb:', { brand: data.brand, model: data.model, year: data.modelYear });
+    // Extract Fabrikat (Brand) → Märke
+    const fabrikatMatch = content.match(/Fabrikat[:\s]*([^\n\r]+)/i);
+    if (fabrikatMatch) {
+      data.brand = fabrikatMatch[1].trim();
+      console.log('Extracted Fabrikat (brand):', data.brand);
     }
     
-    // Pattern 2: Try to extract from title/header format with reg number
-    if (!data.brand) {
-      const titlePattern = new RegExp(`${regNumber}\\s+([A-Za-z-]+)\\s+([^,]+),\\s*\\d+hk,\\s*(\\d{4})`, 'i');
-      const titleMatch = content.match(titlePattern);
-      
-      if (titleMatch) {
-        data.brand = titleMatch[1].trim();
-        data.model = titleMatch[2].trim();
-        data.modelYear = titleMatch[3].trim();
-        console.log('Extracted from title with reg:', { brand: data.brand, model: data.model, year: data.modelYear });
-      }
+    // Extract Handelsbeteckning (Model) → Modell
+    const handelsbeteckningMatch = content.match(/Handelsbeteckning[:\s]*([^\n\r]+)/i);
+    if (handelsbeteckningMatch) {
+      data.model = handelsbeteckningMatch[1].trim();
+      console.log('Extracted Handelsbeteckning (model):', data.model);
     }
     
-    // Pattern 3: Look for direct brand model year patterns like "Volvo V60 2020"
-    if (!data.brand) {
-      const directPattern = /([A-Za-z-]+)\s+([A-Za-z0-9\s]+)\s+(\d{4})/g;
-      let match;
-      while ((match = directPattern.exec(content)) !== null) {
-        const potentialBrand = match[1].trim();
-        const potentialModel = match[2].trim();
-        const potentialYear = match[3].trim();
-        
-        // Check if it looks like a car brand (common brands)
-        const knownBrands = ['volvo', 'bmw', 'mercedes', 'audi', 'toyota', 'nissan', 'honda', 'ford', 'volkswagen', 'peugeot', 'citroen', 'renault', 'skoda', 'seat', 'fiat', 'hyundai', 'kia', 'mazda', 'subaru', 'mitsubishi', 'lexus', 'jaguar', 'porsche', 'lamborghini', 'ferrari', 'maserati', 'bentley', 'rolls-royce', 'aston-martin', 'mclaren', 'lotus', 'mini', 'land-rover', 'jeep', 'dodge', 'chrysler', 'cadillac', 'chevrolet', 'buick', 'gmc', 'lincoln', 'acura', 'infiniti', 'genesis', 'alfa-romeo', 'lancia', 'saab'];
-        
-        if (knownBrands.includes(potentialBrand.toLowerCase())) {
-          data.brand = potentialBrand;
-          data.model = potentialModel;
-          data.modelYear = potentialYear;
-          console.log('Extracted from direct pattern:', { brand: data.brand, model: data.model, year: data.modelYear });
-          break;
-        }
-      }
+    // Extract Fordonsår (Model Year) → Modellår
+    const fordonsarMatch = content.match(/Fordonsår[:\s]*(\d{4})/i);
+    if (fordonsarMatch) {
+      data.modelYear = fordonsarMatch[1].trim();
+      console.log('Extracted Fordonsår (model year):', data.modelYear);
     }
     
-    // Pattern 4: Look for patterns in statistics/similar section
-    if (!data.brand) {
-      const statsMatch = content.match(/([A-Za-z-]+)\s+([A-Za-z0-9\s]+),\s*(\d{4})\s*-\s*(\d{4})/i);
-      if (statsMatch) {
-        data.brand = statsMatch[1].trim();
-        data.model = statsMatch[2].trim();
-        data.modelYear = statsMatch[4].trim(); // Use end year
-        console.log('Extracted from stats section:', { brand: data.brand, model: data.model, year: data.modelYear });
-      }
-    }
-    
-    // Pattern 5: Look for detailed model info with horsepower
-    if (!data.brand) {
-      const detailMatch = content.match(/([A-Za-z-]+)\s+([A-Za-z0-9\s]+)\s+[0-9.]+\s+[A-Z]+.*?,\s*\d+hk,\s*(\d{4})/i);
-      if (detailMatch) {
-        data.brand = detailMatch[1].trim();
-        data.model = detailMatch[2].trim();
-        data.modelYear = detailMatch[3].trim();
-        console.log('Extracted from detailed model info:', { brand: data.brand, model: data.model, year: data.modelYear });
-      }
-    }
-    
-    // After all brand/model/year extraction attempts, log what we found
-    if (data.brand) {
-      console.log('Successfully found brand info:', { brand: data.brand, model: data.model, year: data.modelYear });
-    } else {
-      console.log('No brand/model/year data found in content');
-      // Log some content snippets to debug
-      const contentLines = content.split('\n').slice(0, 10);
-      console.log('First 10 lines of content:', contentLines);
-    }
-    const mileageMatch = content.match(/Mätarställning[:\s]*(\d+[\s,]*\d*)\s*mil/i);
-    if (mileageMatch) {
-      const mileageInMil = mileageMatch[1].replace(/[\s,]/g, '');
-      // Add (km) suffix to indicate the unit
-      data.mileage = `${mileageInMil} (km)`;
-      console.log('Extracted mileage:', data.mileage);
-    }
-    
-    // Extract engine info 
-    const motorMatch = content.match(/Motor[:\s]*([^,\n]+)/i);
-    if (motorMatch) {
-      data.engineInfo = motorMatch[1].trim();
-    }
-    
-    // Extract body type (Kaross)
-    const bodyMatch = content.match(/Kaross[:\s]*([^\n]+)/i);
-    if (bodyMatch) {
-      data.bodyType = bodyMatch[1].trim();
-    }
-    
-    // Extract color (Färg)
-    const colorMatch = content.match(/Färg[:\s]*([^\n]+)/i);
-    if (colorMatch) {
-      data.color = colorMatch[1].trim();
-    }
-    
-    // Extract transmission (Växellåda)
-    const transmissionMatch = content.match(/Växellåda[:\s]*([^\n]+)/i);
-    if (transmissionMatch) {
-      data.transmission = transmissionMatch[1].trim();
-    }
-    
-    // Extract drivetrain (Drivlina)
-    const drivetrainMatch = content.match(/Drivlina[:\s]*([^\n]+)/i);
-    if (drivetrainMatch) {
-      data.drivetrain = drivetrainMatch[1].trim();
-    }
-    
-    // Extract generation info
-    const generationMatch = content.match(/Generation[:\s]*([^\n]+)/i);
-    if (generationMatch) {
-      data.generation = generationMatch[1].trim();
-    }
-    
-    // Extract equipment level
-    const equipmentMatch = content.match(/Utrustningsnivå[:\s]*([^\n]+)/i);
-    if (equipmentMatch) {
-      data.equipmentLevel = equipmentMatch[1].trim();
-    }
-    
-    // Extract registration date - prioritize "förregistrerad" date, then "första datum i trafik"
-    // Look for förregistrerad date first
-    const forregistreradMatch = content.match(/Förregistrerad[:\s]*(\d{4}-\d{2}-\d{2})/i);
-    if (forregistreradMatch) {
-      const extractedDate = forregistreradMatch[1].trim();
+    // Extract Registreringsdatum under Status section → Första datum i trafik
+    // Look for Status section first, then find Registreringsdatum within that section
+    const statusSectionMatch = content.match(/Status[\s\S]*?Registreringsdatum[:\s]*(\d{4}-\d{2}-\d{2})/i);
+    if (statusSectionMatch) {
+      const extractedDate = statusSectionMatch[1].trim();
       // Validate that the date is not in the future
       if (new Date(extractedDate) <= new Date()) {
         data.registrationDate = extractedDate;
-        console.log('Extracted förregistrerad date:', data.registrationDate);
+        console.log('Extracted Registreringsdatum from Status section:', data.registrationDate);
       } else {
-        console.log(`Förregistrerad date ${extractedDate} rejected - future date`);
+        console.log(`Registreringsdatum ${extractedDate} rejected - future date`);
       }
     } else {
-      // Fallback to första datum i trafik
-      const forstaDateMatch = content.match(/Första datum i trafik[:\s]*(\d{4}-\d{2}-\d{2})/i);
-      if (forstaDateMatch) {
-        const extractedDate = forstaDateMatch[1].trim();
-        // Validate that the date is not in the future
+      // Fallback: look for any Registreringsdatum
+      const registreringsdatumMatch = content.match(/Registreringsdatum[:\s]*(\d{4}-\d{2}-\d{2})/i);
+      if (registreringsdatumMatch) {
+        const extractedDate = registreringsdatumMatch[1].trim();
         if (new Date(extractedDate) <= new Date()) {
           data.registrationDate = extractedDate;
-          console.log('Extracted första datum i trafik:', data.registrationDate);
+          console.log('Extracted Registreringsdatum (fallback):', data.registrationDate);
         } else {
-          console.log(`Första datum i trafik ${extractedDate} rejected - future date`);
-        }
-      } else {
-        // Last fallback - any date pattern, but validate against model year and future dates
-        const anyDateMatch = content.match(/(\d{4}-\d{2}-\d{2})/);
-        if (anyDateMatch) {
-          const foundDate = anyDateMatch[1].trim();
-          const foundYear = parseInt(foundDate.substring(0, 4));
-          
-          // First check if it's not a future date
-          if (new Date(foundDate) > new Date()) {
-            console.log(`Date ${foundDate} rejected - future date`);
-          } else {
-            // Validate against model year if available
-            if (data.modelYear) {
-              const modelYear = parseInt(data.modelYear);
-              // Date should typically be same year as model year or within 2 years
-              if (Math.abs(foundYear - modelYear) <= 2) {
-                data.registrationDate = foundDate;
-                console.log('Extracted and validated registration date:', data.registrationDate);
-              } else {
-                console.log(`Date ${foundDate} rejected - too far from model year ${data.modelYear}`);
-              }
-            } else {
-              data.registrationDate = foundDate;
-              console.log('Extracted registration date (no model year validation):', data.registrationDate);
-            }
-          }
+          console.log(`Registreringsdatum ${extractedDate} rejected - future date`);
         }
       }
     }
     
-    // Extract indicative valuation (Indikativ värdering) for expected selling price
-    const valuationMatch = content.match(/Indikativ värdering \(företag\)\s*(\d+[\s,]*\d*)\s*SEK/i);
-    if (valuationMatch) {
-      const valuationAmount = valuationMatch[1].replace(/[\s,]/g, '');
-      data.expectedSellingPrice = parseInt(valuationAmount);
-      console.log('Extracted indicative valuation:', data.expectedSellingPrice);
+    // Log all patterns found for debugging
+    if (!data.brand && !data.model && !data.modelYear && !data.registrationDate) {
+      console.log('No main data found. Content analysis:');
+      const lines = content.split('\n').slice(0, 20);
+      console.log('First 20 lines:', lines);
     }
     
-    console.log('Final extracted data from car.info:', data);
+    console.log('Final extracted data from Transport Authority:', data);
     return data;
   } catch (error) {
     console.error('Error extracting vehicle data:', error);
@@ -278,8 +140,8 @@ serve(async (req) => {
       )
     }
 
-    // No cached data found, proceed with scraping car.info
-    console.log('No cached data found. Attempting to scrape car.info for:', registrationNumber);
+    // No cached data found, proceed with scraping Swedish Transport Authority
+    console.log('No cached data found. Attempting to scrape Transport Authority for:', registrationNumber);
     
     try {
       const firecrawlResponse = await fetch('https://api.firecrawl.dev/v0/scrape', {
@@ -289,7 +151,7 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          url: `https://www.car.info/sv-se/license-plate/S/${registrationNumber}`,
+          url: `https://fordon-fu-regnr.transportstyrelsen.se/?regnr=${registrationNumber}`,
           formats: ['markdown', 'text'],
           onlyMainContent: true
         })
@@ -331,7 +193,7 @@ serve(async (req) => {
         }
       }
     } catch (error) {
-      console.log('Car.info scraping failed:', error);
+      console.log('Transport Authority scraping failed:', error);
     }
 
     console.log('No vehicle data could be extracted from scraped content');
