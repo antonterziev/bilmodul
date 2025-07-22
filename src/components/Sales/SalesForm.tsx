@@ -40,8 +40,6 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
   const [seller, setSeller] = useState("");
   const [sellingPrice, setSellingPrice] = useState("");
   const [sellingDate, setSellingDate] = useState<Date | undefined>(new Date());
-  const [hasWarranty, setHasWarranty] = useState(false);
-  const [hasFinance, setHasFinance] = useState(false);
   const [salesDocumentation, setSalesDocumentation] = useState("Köpeavtal");
   const [salesChannel, setSalesChannel] = useState("Bilhall");
   const [customerType, setCustomerType] = useState("Företag");
@@ -183,29 +181,6 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
                   />
                 </div>
 
-                <div>
-                  <Label>Garanti</Label>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="warranty"
-                      checked={hasWarranty}
-                      onCheckedChange={(checked) => setHasWarranty(checked as boolean)}
-                    />
-                    <Label htmlFor="warranty">Ja</Label>
-                  </div>
-                </div>
-
-                <div>
-                  <Label>Finans</Label>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="finance"
-                      checked={hasFinance}
-                      onCheckedChange={(checked) => setHasFinance(checked as boolean)}
-                    />
-                    <Label htmlFor="finance">Ja</Label>
-                  </div>
-                </div>
               </div>
 
               {/* Right column */}
