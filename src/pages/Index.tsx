@@ -494,16 +494,19 @@ const Index = () => {
                      </div>
                    </div>
                     <div className="flex items-center gap-3">
-                      <Badge 
-                        variant="default"
-                        className={`text-xs whitespace-nowrap px-2 justify-center w-16 text-white ${
-                          fortnoxConnected 
-                            ? 'bg-green-500 hover:bg-green-600' 
-                            : 'bg-gray-500 hover:bg-gray-600'
-                        }`}
-                      >
-                        {fortnoxConnected ? 'Aktiv' : 'Inaktiv'}
-                      </Badge>
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="text-xs text-muted-foreground">Status</span>
+                        <Badge 
+                          variant="default"
+                          className={`text-xs whitespace-nowrap px-2 justify-center w-16 text-white ${
+                            fortnoxConnected 
+                              ? 'bg-green-500' 
+                              : 'bg-gray-500'
+                          }`}
+                        >
+                          {fortnoxConnected ? 'Aktiv' : 'Inaktiv'}
+                        </Badge>
+                      </div>
                      <Button
                     variant="outline"
                     onClick={async () => {
