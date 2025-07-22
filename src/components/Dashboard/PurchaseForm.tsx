@@ -104,7 +104,9 @@ export const PurchaseForm = ({
     resolver: zodResolver(purchaseSchema),
     defaultValues: {
       purchase_date: new Date(),
-      down_payment: 0
+      down_payment: 0,
+      purchase_channel: "Privatperson",
+      vat_type: "Vinstmarginalbeskattning (VMB)"
     }
   });
 
@@ -125,9 +127,11 @@ export const PurchaseForm = ({
     setUploadedPurchaseDoc(null);
     setSelectedYear(null);
     setSelectedMonth(null);
-    form.reset({
+     form.reset({
       purchase_date: new Date(),
-      down_payment: 0
+      down_payment: 0,
+      purchase_channel: "Privatperson",
+      vat_type: "Vinstmarginalbeskattning (VMB)"
     });
   };
 
@@ -877,12 +881,20 @@ export const PurchaseForm = ({
 
                 {/* 6. Handpenning */}
                 <div>
-                  <Label htmlFor="down_payment">Handpenning</Label>
+                  <Label htmlFor="down_payment" className="text-muted-foreground">Handpenning</Label>
                   <div className="relative">
-                    <Input id="down_payment" type="text" value={downPaymentDisplay} onChange={handleDownPaymentChange} placeholder="t.ex. 25,000" className="pr-20" />
+                    <Input 
+                      id="down_payment" 
+                      type="text" 
+                      value={downPaymentDisplay} 
+                      onChange={handleDownPaymentChange} 
+                      placeholder="t.ex. 25,000" 
+                      className="pr-20 bg-muted/30 cursor-not-allowed"
+                      disabled={true}
+                    />
                     <div className="absolute inset-y-0 right-0 flex items-center">
-                      <Select value={downPaymentCurrency} onValueChange={setDownPaymentCurrency}>
-                        <SelectTrigger className="w-16 h-8 border-0 bg-transparent text-xs">
+                      <Select value={downPaymentCurrency} disabled={true}>
+                        <SelectTrigger className="w-16 h-8 border-0 bg-transparent text-xs opacity-50 cursor-not-allowed">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
