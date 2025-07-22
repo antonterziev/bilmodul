@@ -171,7 +171,7 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
                 </div>
 
                 <div>
-                  <Label htmlFor="price">Säljpris bil (ink. moms)</Label>
+                  <Label htmlFor="price">Försäljningspris (inkl. moms)</Label>
                   <Input
                     id="price"
                     value={sellingPrice}
