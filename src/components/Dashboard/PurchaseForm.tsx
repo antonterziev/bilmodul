@@ -598,45 +598,53 @@ export const PurchaseForm = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="registration_number">Registrerings- eller VIN-nummer*</Label>
-                    <Input id="registration_number" placeholder="t.ex. JSK15L eller 1234567890ABCDEFG" {...form.register("registration_number")} className={cn(form.formState.errors.registration_number && "border-destructive", isDuplicateRegNumber && "border-destructive")} readOnly={carDataFetched} />
+                    <div className="relative">
+                      <Input 
+                        id="registration_number" 
+                        placeholder="t.ex. JSK15L eller 1234567890ABCDEFG" 
+                        {...form.register("registration_number")} 
+                        className={cn(
+                          form.formState.errors.registration_number && "border-destructive", 
+                          isDuplicateRegNumber && "border-destructive",
+                          "pr-20" // Add padding for radio buttons
+                        )} 
+                        readOnly={carDataFetched} 
+                      />
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
+                        <div className="flex items-center space-x-1">
+                          <input
+                            type="radio"
+                            id="reg-radio"
+                            name="registration_type"
+                            value="reg-nummer"
+                            checked={form.watch("registration_number")?.length !== 17}
+                            disabled
+                            className="opacity-50 cursor-not-allowed w-3 h-3"
+                          />
+                          <Label htmlFor="reg-radio" className="text-xs text-muted-foreground cursor-not-allowed">
+                            REG
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <input
+                            type="radio"
+                            id="vin-radio"
+                            name="registration_type"
+                            value="vin-nummer"
+                            checked={form.watch("registration_number")?.length === 17}
+                            disabled
+                            className="opacity-50 cursor-not-allowed w-3 h-3"
+                          />
+                          <Label htmlFor="vin-radio" className="text-xs text-muted-foreground cursor-not-allowed">
+                            VIN
+                          </Label>
+                        </div>
+                      </div>
+                    </div>
                     {form.formState.errors.registration_number && <p className="text-sm text-destructive mt-1">
                         {form.formState.errors.registration_number.message}
                       </p>}
                   </div>
-
-                <div>
-                  <Label htmlFor="registration_type">Registreringstyp</Label>
-                  <div className="flex items-center space-x-4 mt-2">
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="radio"
-                        id="reg-nummer"
-                        name="registration_type"
-                        value="reg-nummer"
-                        checked={form.watch("registration_number")?.length !== 17}
-                        disabled
-                        className="opacity-50 cursor-not-allowed"
-                      />
-                      <Label htmlFor="reg-nummer" className="text-sm text-muted-foreground">
-                        Reg-nummer
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="radio"
-                        id="vin-nummer"
-                        name="registration_type"
-                        value="vin-nummer"
-                        checked={form.watch("registration_number")?.length === 17}
-                        disabled
-                        className="opacity-50 cursor-not-allowed"
-                      />
-                      <Label htmlFor="vin-nummer" className="text-sm text-muted-foreground">
-                        VIN-nummer
-                      </Label>
-                    </div>
-                  </div>
-                </div>
 
                 <div>
                   <Label htmlFor="brand">Märke</Label>
