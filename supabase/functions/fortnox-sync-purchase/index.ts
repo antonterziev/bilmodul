@@ -171,10 +171,15 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Prepare the verification data for Fortnox using the account you confirmed exists
+    // Ensure purchase_date is in YYYY-MM-DD format
+    const purchaseDate = new Date(inventoryItem.purchase_date).toISOString().split('T')[0]
+
+    // Prepare the verification data for Fortnox with VoucherSeries and correct accounts
     const verificationData = {
+      VoucherSeries: "A",
       Description: `Fordonsinköp - ${inventoryItem.brand} ${inventoryItem.model} (${inventoryItem.registration_number})`,
-      TransactionDate: inventoryItem.purchase_date,
+      TransactionDate: purchaseDate,
+      Reference: inventoryItem.registration_number,
       VoucherRows: [
         {
           Account: 1465, // Vehicle account (confirmed to exist)
@@ -182,7 +187,7 @@ Deno.serve(async (req) => {
           Description: `Inköp ${inventoryItem.brand} ${inventoryItem.model}`,
         },
         {
-          Account: 1920, // Bank account (trying 1920 instead of 1930)
+          Account: 1910, // Bank account (based on your working example)
           Credit: inventoryItem.purchase_price,
           Description: `Betalning ${inventoryItem.brand} ${inventoryItem.model}`,
         }
