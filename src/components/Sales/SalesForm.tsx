@@ -148,6 +148,15 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
+            {/* Vehicle Information */}
+            {vehicle && (
+              <div className="text-center">
+                <h3 className="text-lg font-bold">
+                  {vehicle.brand} {vehicle.model} ({vehicle.registration_number})
+                </h3>
+              </div>
+            )}
+            
             {/* Row 1: Säljare and Försäljningsdatum */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
