@@ -127,7 +127,11 @@ const Index = () => {
     setPreviousView(currentView); // Store current view as previous before changing
     setCurrentView(view);
     setSelectedVehicleId(null);
-    setSelectedSaleVehicleId(null);
+    
+    // Only reset selectedSaleVehicleId if not going to sales view
+    if (view !== "sales") {
+      setSelectedSaleVehicleId(null);
+    }
     
     // Handle special cases
     if (view === "purchase_form") {
