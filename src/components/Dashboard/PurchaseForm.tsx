@@ -39,7 +39,7 @@ const purchaseSchema = z.object({
   // Purchase information
   purchaser: z.string().min(1, "Inköpare krävs"),
   purchase_price: z.number().min(0.01, "Inköpspris måste vara positivt och större än 0"),
-  purchase_date: z.date(),
+  purchase_date: z.date().max(new Date(), "Inköpsdatum kan inte vara i framtiden"),
   down_payment: z.number().min(0, "Handpenning kan inte vara negativ").optional(),
   down_payment_document: z.any().optional(),
   purchase_documentation: z.string().optional(),
@@ -88,6 +88,9 @@ export const PurchaseForm = ({
   const [isLoadingCarInfo, setIsLoadingCarInfo] = useState(false);
   const [showFullForm, setShowFullForm] = useState(false);
   const [carDataFetched, setCarDataFetched] = useState(false);
+  const [purchasePriceCurrency, setPurchasePriceCurrency] = useState("SEK");
+  const [expectedPriceCurrency, setExpectedPriceCurrency] = useState("SEK");
+  const [downPaymentCurrency, setDownPaymentCurrency] = useState("SEK");
 
   // Generate year options (last 50 years)
   const currentYear = new Date().getFullYear();
@@ -789,15 +792,30 @@ export const PurchaseForm = ({
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
-                      <Calendar mode="single" selected={form.watch("purchase_date")} onSelect={date => form.setValue("purchase_date", date || new Date())} className="pointer-events-auto" />
+                      <Calendar mode="single" selected={form.watch("purchase_date")} onSelect={date => form.setValue("purchase_date", date || new Date())} className="pointer-events-auto" disabled={date => date > new Date()} />
                     </PopoverContent>
                   </Popover>
                 </div>
 
                 {/* 3. Inköpspris */}
                 <div>
-                  <Label htmlFor="purchase_price">Inköpspris (SEK)*</Label>
-                  <Input id="purchase_price" type="text" value={priceDisplay} onChange={handlePriceChange} placeholder="t.ex. 150,000" className={form.formState.errors.purchase_price ? "border-destructive" : ""} />
+                  <Label htmlFor="purchase_price">Inköpspris*</Label>
+                  <div className="relative">
+                    <Input id="purchase_price" type="text" value={priceDisplay} onChange={handlePriceChange} placeholder="t.ex. 150,000" className={cn("pr-20", form.formState.errors.purchase_price ? "border-destructive" : "")} />
+                    <div className="absolute inset-y-0 right-0 flex items-center">
+                      <Select value={purchasePriceCurrency} onValueChange={setPurchasePriceCurrency}>
+                        <SelectTrigger className="w-16 h-8 border-0 bg-transparent text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="SEK">SEK</SelectItem>
+                          <SelectItem value="NOK">NOK</SelectItem>
+                          <SelectItem value="DKK">DKK</SelectItem>
+                          <SelectItem value="EUR">EUR</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                   {form.formState.errors.purchase_price && <p className="text-sm text-destructive mt-1">
                       {form.formState.errors.purchase_price.message}
                     </p>}
@@ -805,8 +823,23 @@ export const PurchaseForm = ({
 
                 {/* 4. Förväntat försäljningspris */}
                 <div>
-                  <Label htmlFor="expected_selling_price">Förväntat försäljningspris (SEK)</Label>
-                  <Input id="expected_selling_price" type="text" value={expectedPriceDisplay} onChange={handleExpectedPriceChange} placeholder="t.ex. 180,000" />
+                  <Label htmlFor="expected_selling_price">Förväntat försäljningspris</Label>
+                  <div className="relative">
+                    <Input id="expected_selling_price" type="text" value={expectedPriceDisplay} onChange={handleExpectedPriceChange} placeholder="t.ex. 180,000" className="pr-20" />
+                    <div className="absolute inset-y-0 right-0 flex items-center">
+                      <Select value={expectedPriceCurrency} onValueChange={setExpectedPriceCurrency}>
+                        <SelectTrigger className="w-16 h-8 border-0 bg-transparent text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="SEK">SEK</SelectItem>
+                          <SelectItem value="NOK">NOK</SelectItem>
+                          <SelectItem value="DKK">DKK</SelectItem>
+                          <SelectItem value="EUR">EUR</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                   {form.formState.errors.expected_selling_price && <p className="text-sm text-destructive mt-1">
                       {form.formState.errors.expected_selling_price.message}
                     </p>}
@@ -814,8 +847,23 @@ export const PurchaseForm = ({
 
                 {/* 5. Handpenning */}
                 <div>
-                  <Label htmlFor="down_payment">Handpenning (SEK)</Label>
-                  <Input id="down_payment" type="text" value={downPaymentDisplay} onChange={handleDownPaymentChange} placeholder="t.ex. 25,000" />
+                  <Label htmlFor="down_payment">Handpenning</Label>
+                  <div className="relative">
+                    <Input id="down_payment" type="text" value={downPaymentDisplay} onChange={handleDownPaymentChange} placeholder="t.ex. 25,000" className="pr-20" />
+                    <div className="absolute inset-y-0 right-0 flex items-center">
+                      <Select value={downPaymentCurrency} onValueChange={setDownPaymentCurrency}>
+                        <SelectTrigger className="w-16 h-8 border-0 bg-transparent text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="SEK">SEK</SelectItem>
+                          <SelectItem value="NOK">NOK</SelectItem>
+                          <SelectItem value="DKK">DKK</SelectItem>
+                          <SelectItem value="EUR">EUR</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                   {form.formState.errors.down_payment && <p className="text-sm text-destructive mt-1">
                       {form.formState.errors.down_payment.message}
                     </p>}
