@@ -972,49 +972,50 @@ export const PurchaseForm = ({
                   />
                 </div>
 
+                {/* 8. Inköpsunderlag - moved to same row as Anteckning */}
+                <div>
+                  <Label htmlFor="purchase_documentation">Inköpsunderlag</Label>
+                  {!uploadedPurchaseDoc ? <div>
+                        <div className="relative">
+                          <Input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onChange={e => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handlePurchaseDocUpload(file);
+                        }
+                      }} disabled={isUploadingPurchaseDoc} className="hidden" id="purchase-doc-upload" />
+                          <Button type="button" variant="outline" className="justify-start text-left font-normal h-9" onClick={() => document.getElementById('purchase-doc-upload')?.click()} disabled={isUploadingPurchaseDoc}>
+                            <Upload className="mr-2 h-4 w-4" />
+                            Välj fil
+                          </Button>
+                        </div>
+                        <p className="text-sm text-muted-foreground">Ingen fil vald</p>
+                        {isUploadingPurchaseDoc && <div className="space-y-2">
+                            <div className="flex items-center space-x-2">
+                              <Progress value={uploadProgress} className="flex-1 h-2" />
+                              <span className="text-sm text-muted-foreground min-w-[3rem]">
+                                {Math.round(uploadProgress)}%
+                              </span>
+                            </div>
+                            <p className="text-sm text-muted-foreground animate-pulse">
+                              Laddar upp fil...
+                            </p>
+                          </div>}
+                      </div> : <div className="flex items-center justify-between p-2 border rounded-md bg-muted/50">
+                        <div className="flex items-center space-x-2">
+                          <Upload className="h-4 w-4" />
+                          <span className="text-sm">{uploadedPurchaseDoc.name}</span>
+                        </div>
+                        <Button type="button" variant="ghost" size="sm" onClick={handlePurchaseDocRemove}>
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>}
+                    {form.formState.errors.purchase_documentation && <p className="text-sm text-destructive mt-1 absolute">
+                        {form.formState.errors.purchase_documentation.message}
+                      </p>}
+                  </div>
+
                 {/* Additional Marknadsplats section removed as it's no longer needed */}
               </div>
-
-              <div>
-                <Label htmlFor="purchase_documentation">Inköpsunderlag</Label>
-                {!uploadedPurchaseDoc ? <div>
-                      <div className="relative">
-                        <Input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onChange={e => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        handlePurchaseDocUpload(file);
-                      }
-                    }} disabled={isUploadingPurchaseDoc} className="hidden" id="purchase-doc-upload" />
-                        <Button type="button" variant="outline" className="justify-start text-left font-normal h-9" onClick={() => document.getElementById('purchase-doc-upload')?.click()} disabled={isUploadingPurchaseDoc}>
-                          <Upload className="mr-2 h-4 w-4" />
-                          Välj fil
-                        </Button>
-                      </div>
-                      <p className="text-sm text-muted-foreground">Ingen fil vald</p>
-                      {isUploadingPurchaseDoc && <div className="space-y-2">
-                          <div className="flex items-center space-x-2">
-                            <Progress value={uploadProgress} className="flex-1 h-2" />
-                            <span className="text-sm text-muted-foreground min-w-[3rem]">
-                              {Math.round(uploadProgress)}%
-                            </span>
-                          </div>
-                          <p className="text-sm text-muted-foreground animate-pulse">
-                            Laddar upp fil...
-                          </p>
-                        </div>}
-                    </div> : <div className="flex items-center justify-between p-2 border rounded-md bg-muted/50">
-                      <div className="flex items-center space-x-2">
-                        <Upload className="h-4 w-4" />
-                        <span className="text-sm">{uploadedPurchaseDoc.name}</span>
-                      </div>
-                      <Button type="button" variant="ghost" size="sm" onClick={handlePurchaseDocRemove}>
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>}
-                  {form.formState.errors.purchase_documentation && <p className="text-sm text-destructive mt-1 absolute">
-                      {form.formState.errors.purchase_documentation.message}
-                    </p>}
-                </div>
 
 
               <div className="flex justify-between">
