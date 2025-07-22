@@ -782,115 +782,7 @@ export const PurchaseForm = ({
                   </Popover>
                 </div>
 
-                {/* 3. Inköpspris */}
-                <div>
-                  <Label htmlFor="purchase_price">Inköpspris*</Label>
-                  <div className="relative">
-                    <Input id="purchase_price" type="text" value={priceDisplay} onChange={handlePriceChange} placeholder="t.ex. 150,000" className={cn("pr-20", form.formState.errors.purchase_price ? "border-destructive" : "")} />
-                    <div className="absolute inset-y-0 right-0 flex items-center">
-                      <Select value={purchasePriceCurrency} onValueChange={setPurchasePriceCurrency}>
-                        <SelectTrigger className="w-16 h-8 border-0 bg-transparent text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="SEK">SEK</SelectItem>
-                          <SelectItem value="NOK" disabled className="text-muted-foreground">NOK</SelectItem>
-                          <SelectItem value="DKK" disabled className="text-muted-foreground">DKK</SelectItem>
-                          <SelectItem value="EUR" disabled className="text-muted-foreground">EUR</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  {form.formState.errors.purchase_price && <p className="text-sm text-destructive mt-1">
-                      {form.formState.errors.purchase_price.message}
-                    </p>}
-                </div>
-
-
-                {/* 5. Handpenning */}
-                <div>
-                  <Label htmlFor="down_payment">Handpenning</Label>
-                  <div className="relative">
-                    <Input id="down_payment" type="text" value={downPaymentDisplay} onChange={handleDownPaymentChange} placeholder="t.ex. 25,000" className="pr-20" />
-                    <div className="absolute inset-y-0 right-0 flex items-center">
-                      <Select value={downPaymentCurrency} onValueChange={setDownPaymentCurrency}>
-                        <SelectTrigger className="w-16 h-8 border-0 bg-transparent text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="SEK">SEK</SelectItem>
-                          <SelectItem value="NOK" disabled className="text-muted-foreground">NOK</SelectItem>
-                          <SelectItem value="DKK" disabled className="text-muted-foreground">DKK</SelectItem>
-                          <SelectItem value="EUR" disabled className="text-muted-foreground">EUR</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  {form.formState.errors.down_payment && <p className="text-sm text-destructive mt-1">
-                      {form.formState.errors.down_payment.message}
-                    </p>}
-                </div>
-
-                {/* File upload for down payment documentation */}
-                {form.watch("down_payment") > 0 && <div>
-                    <Label htmlFor="down_payment_document">Handpenningsunderlag</Label>
-                    <div className="space-y-2">
-                      {!uploadedFile ? <div>
-                          <div className="relative">
-                            <Input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onChange={e => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          handleFileUpload(file);
-                        }
-                      }} disabled={isUploading} className="hidden" id="file-upload" />
-                            <Button type="button" variant="outline" className="w-full justify-start text-left font-normal" onClick={() => document.getElementById('file-upload')?.click()} disabled={isUploading}>
-                              <Upload className="mr-2 h-4 w-4" />
-                              Välj fil
-                            </Button>
-                          </div>
-                          <p className="text-sm text-muted-foreground">Ingen fil vald</p>
-                          {isUploading && <p className="text-sm text-muted-foreground">Laddar upp fil...</p>}
-                        </div> : <div className="flex items-center justify-between p-2 border rounded-md bg-muted/50">
-                          <div className="flex items-center space-x-2">
-                            <Upload className="h-4 w-4" />
-                            <span className="text-sm">{uploadedFile.name}</span>
-                          </div>
-                          <Button type="button" variant="ghost" size="sm" onClick={handleFileRemove}>
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>}
-                     </div>
-                     {form.formState.errors.down_payment_document && <p className="text-sm text-destructive mt-1">
-                         {typeof form.formState.errors.down_payment_document.message === 'string' ? form.formState.errors.down_payment_document.message : "Handpenningsunderlag krävs när handpenning anges"}
-                       </p>}
-                   </div>}
-
-                {/* 6. Momsregel */}
-                <div>
-                  <Label>Momsregel*</Label>
-                  <RadioGroup
-                    value={form.watch("vat_type")}
-                    onValueChange={(value) => {
-                      form.setValue("vat_type", value);
-                      form.trigger("vat_type");
-                    }}
-                    className="flex flex-row gap-6 mt-2"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="Vinstmarginalbeskattning (VMB)" id="vmb" />
-                      <Label htmlFor="vmb" className="font-normal">Vinstmarginalbeskattning (VMB)</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="Moms (25%)" id="moms" />
-                      <Label htmlFor="moms" className="font-normal">Moms (25%)</Label>
-                    </div>
-                  </RadioGroup>
-                  {form.formState.errors.vat_type && <p className="text-sm text-destructive mt-1">
-                      {form.formState.errors.vat_type.message}
-                    </p>}
-                </div>
-
-                {/* 7. Inköpskanal */}
+                {/* 3. Inköpskanal */}
                 <div>
                   <Label htmlFor="purchase_channel">Inköpskanal</Label>
                   <Popover>
@@ -947,6 +839,118 @@ export const PurchaseForm = ({
                       </SelectContent>
                     </Select>
                   </div>}
+
+                {form.watch("marketplace_channel") === "Annan" && <div>
+                    <Label htmlFor="marketplace_channel_other">Beskriv marknadsplats</Label>
+                    <Input id="marketplace_channel_other" {...form.register("marketplace_channel_other")} placeholder="Ange vilken marknadsplats" />
+                  </div>}
+
+                {/* 4. Inköpspris */}
+                <div>
+                  <Label htmlFor="purchase_price">Inköpspris*</Label>
+                  <div className="relative">
+                    <Input id="purchase_price" type="text" value={priceDisplay} onChange={handlePriceChange} placeholder="t.ex. 150,000" className={cn("pr-20", form.formState.errors.purchase_price ? "border-destructive" : "")} />
+                    <div className="absolute inset-y-0 right-0 flex items-center">
+                      <Select value={purchasePriceCurrency} onValueChange={setPurchasePriceCurrency}>
+                        <SelectTrigger className="w-16 h-8 border-0 bg-transparent text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="SEK">SEK</SelectItem>
+                          <SelectItem value="NOK" disabled className="text-muted-foreground">NOK</SelectItem>
+                          <SelectItem value="DKK" disabled className="text-muted-foreground">DKK</SelectItem>
+                          <SelectItem value="EUR" disabled className="text-muted-foreground">EUR</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  {form.formState.errors.purchase_price && <p className="text-sm text-destructive mt-1">
+                      {form.formState.errors.purchase_price.message}
+                    </p>}
+                </div>
+
+                {/* 5. Momsregel */}
+                <div>
+                  <Label>Momsregel*</Label>
+                  <RadioGroup
+                    value={form.watch("vat_type")}
+                    onValueChange={(value) => {
+                      form.setValue("vat_type", value);
+                      form.trigger("vat_type");
+                    }}
+                    className="flex flex-row gap-6 mt-2"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="Vinstmarginalbeskattning (VMB)" id="vmb" />
+                      <Label htmlFor="vmb" className="font-normal">Vinstmarginalbeskattning (VMB)</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="Moms (25%)" id="moms" />
+                      <Label htmlFor="moms" className="font-normal">Moms (25%)</Label>
+                    </div>
+                  </RadioGroup>
+                  {form.formState.errors.vat_type && <p className="text-sm text-destructive mt-1">
+                      {form.formState.errors.vat_type.message}
+                    </p>}
+                </div>
+
+                {/* 6. Handpenning */}
+                <div>
+                  <Label htmlFor="down_payment">Handpenning</Label>
+                  <div className="relative">
+                    <Input id="down_payment" type="text" value={downPaymentDisplay} onChange={handleDownPaymentChange} placeholder="t.ex. 25,000" className="pr-20" />
+                    <div className="absolute inset-y-0 right-0 flex items-center">
+                      <Select value={downPaymentCurrency} onValueChange={setDownPaymentCurrency}>
+                        <SelectTrigger className="w-16 h-8 border-0 bg-transparent text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="SEK">SEK</SelectItem>
+                          <SelectItem value="NOK" disabled className="text-muted-foreground">NOK</SelectItem>
+                          <SelectItem value="DKK" disabled className="text-muted-foreground">DKK</SelectItem>
+                          <SelectItem value="EUR" disabled className="text-muted-foreground">EUR</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  {form.formState.errors.down_payment && <p className="text-sm text-destructive mt-1">
+                      {form.formState.errors.down_payment.message}
+                    </p>}
+                </div>
+
+                {/* File upload for down payment documentation */}
+                {form.watch("down_payment") > 0 && <div>
+                    <Label htmlFor="down_payment_document">Handpenningsunderlag</Label>
+                    <div className="space-y-2">
+                      {!uploadedFile ? <div>
+                          <div className="relative">
+                            <Input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onChange={e => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleFileUpload(file);
+                        }
+                      }} disabled={isUploading} className="hidden" id="file-upload" />
+                            <Button type="button" variant="outline" className="w-full justify-start text-left font-normal" onClick={() => document.getElementById('file-upload')?.click()} disabled={isUploading}>
+                              <Upload className="mr-2 h-4 w-4" />
+                              Välj fil
+                            </Button>
+                          </div>
+                          <p className="text-sm text-muted-foreground">Ingen fil vald</p>
+                          {isUploading && <p className="text-sm text-muted-foreground">Laddar upp fil...</p>}
+                        </div> : <div className="flex items-center justify-between p-2 border rounded-md bg-muted/50">
+                          <div className="flex items-center space-x-2">
+                            <Upload className="h-4 w-4" />
+                            <span className="text-sm">{uploadedFile.name}</span>
+                          </div>
+                          <Button type="button" variant="ghost" size="sm" onClick={handleFileRemove}>
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>}
+                     </div>
+                     {form.formState.errors.down_payment_document && <p className="text-sm text-destructive mt-1">
+                         {typeof form.formState.errors.down_payment_document.message === 'string' ? form.formState.errors.down_payment_document.message : "Handpenningsunderlag krävs när handpenning anges"}
+                       </p>}
+                   </div>}
 
                 {form.watch("purchase_channel") === "Marknadsplats" && form.watch("marketplace_channel") === "Annan" && <div>
                     <Label htmlFor="marketplace_channel_other">Beskriv marknadsplats</Label>
