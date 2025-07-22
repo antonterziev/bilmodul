@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Car, Trash2, Eye } from "lucide-react";
+import { Car, Trash2, Eye, DollarSign } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { useToast } from "@/hooks/use-toast";
 
@@ -397,6 +397,18 @@ export const VehicleList = ({
                     className="text-primary hover:bg-primary hover:text-primary-foreground w-10 h-10 p-0"
                   >
                     <Eye className="h-4 w-4" />
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      // Placeholder for sales functionality
+                      console.log('Sales clicked for vehicle:', vehicle.id);
+                    }}
+                    className="text-green-600 hover:bg-green-600 hover:text-white w-10 h-10 p-0"
+                  >
+                    <DollarSign className="h-4 w-4" />
                   </Button>
                   
                   
