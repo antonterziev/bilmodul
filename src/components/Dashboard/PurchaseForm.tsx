@@ -605,7 +605,7 @@ export const PurchaseForm = ({
                   </div>
 
                 <div>
-                  <Label htmlFor="registration_type">Registreingstyp</Label>
+                  <Label htmlFor="registration_type">Registreringstyp</Label>
                   <div className="flex items-center space-x-4 mt-2">
                     <div className="flex items-center space-x-2">
                       <input
