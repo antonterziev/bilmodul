@@ -22,6 +22,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { sv } from "date-fns/locale";
+
 const carBrands = ["Annat", "Alfa Romeo", "Alpine", "Aston Martin", "Audi", "Bentley", "BMW", "BYD", "Cadillac", "Chevrolet", "Chrysler", "Citroën", "Dacia", "Daihatsu", "Dodge", "Ferrari", "Fiat", "Fisker, Karma", "Ford", "GMC", "Honda", "Hummer", "Hyundai", "Infiniti", "Isuzu", "Iveco", "Jaguar", "Jeep", "Kia", "Koenigsegg", "KTM", "Lada", "Lamborghini", "Lancia", "Land Rover", "Lexus", "Ligier", "Lincoln", "Lotus", "Maserati", "Mazda", "McLaren", "Mercedes-Benz", "Maybach", "Mini", "Mitsubishi", "Nissan", "Opel", "Peugeot", "Piaggio", "Pininfarina", "Polestar", "Pontiac, Asüna", "Porsche", "Renault", "Rivian", "Rolls-Royce", "Saab", "Santana", "Seat", "Shelby SuperCars", "Skoda", "smart", "SsangYong", "Subaru", "Suzuki", "Tesla", "Toyota", "Volkswagen", "Volvo"];
 const purchaseChannels = ["Privatperson", "Företag (utan moms)", "Företag (med moms)", "Utländskt företag (med moms)", "Utländskt företag (utan moms)", "Leasingbolag (privat)", "Leasingbolag (tjänstebil)"];
 // No longer needed as marketplace options have been removed
@@ -506,7 +507,7 @@ export const PurchaseForm = ({
         registration_number: data.registration_number,
         chassis_number: data.chassis_number || null,
         mileage: data.mileage || null,
-        brand: data.brand,
+        brand: data.brand || "Saknas", // Set default value if brand is empty
         brand_other: data.brand_other || null,
         model: data.model || null,
         comment: data.comment || null,
