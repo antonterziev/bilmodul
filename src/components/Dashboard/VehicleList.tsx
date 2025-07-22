@@ -239,6 +239,38 @@ export const VehicleList = ({
     }
   };
 
+  const handleTestConnection = async () => {
+    try {
+      setSyncingId('test');
+      
+      const { data, error } = await supabase.functions.invoke('fortnox-test-connection');
+
+      if (error) throw error;
+
+      if (data?.success) {
+        toast({
+          title: "Fortnox-anslutning OK",
+          description: `Anslutning till Fortnox fungerar. API status: ${data.api_response_status}`,
+        });
+      } else {
+        toast({
+          title: "Fortnox-anslutning misslyckades",
+          description: data?.message || 'Okänt fel vid test av anslutning',
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error testing connection:', error);
+      toast({
+        title: "Anslutningstest misslyckades",
+        description: `Kunde inte testa Fortnox-anslutning: ${error.message}`,
+        variant: "destructive",
+      });
+    } finally {
+      setSyncingId(null);
+    }
+  };
+
   const handleSync = async (vehicleId: string, registrationNumber: string) => {
     try {
       setSyncingId(vehicleId);

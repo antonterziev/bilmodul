@@ -481,6 +481,33 @@ const Index = () => {
             <h1 className="text-2xl font-bold mb-2">Integrationer</h1>
             <p className="text-muted-foreground mb-6">Här hittar du alla integrationer som för närvarande finns i Veksla.</p>
             
+            {/* Test button for easier debugging */}
+            <div className="mb-6">
+              <Button
+                onClick={async () => {
+                  try {
+                    const { data, error } = await supabase.functions.invoke('fortnox-test-connection');
+                    console.log('Test result:', { data, error });
+                    
+                    if (error) {
+                      alert(`Test error: ${error.message}`);
+                    } else if (data?.success) {
+                      alert(`✅ Fortnox connection works! API status: ${data.api_response_status}`);
+                    } else {
+                      alert(`❌ Test failed: ${data?.message || 'Unknown error'}`);
+                    }
+                  } catch (err) {
+                    console.error('Test error:', err);
+                    alert(`Error: ${err.message}`);
+                  }
+                }}
+                variant="outline"
+                className="mb-4"
+              >
+                🧪 Test Fortnox Connection
+              </Button>
+            </div>
+            
             <div className="space-y-4">
               <div className="bg-card border rounded-lg p-4">
                   <div className="flex items-center justify-between">
