@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import { Calendar } from "@/components/ui/calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -905,37 +906,24 @@ export const PurchaseForm = ({
 
                 {/* 6. Momsregel */}
                 <div>
-                  <Label htmlFor="vat_type">Momsregel*</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" role="combobox" className={cn("w-full justify-between font-normal", !form.watch("vat_type") && "text-muted-foreground", form.formState.errors.vat_type && "border-destructive")}>
-                        {form.watch("vat_type") || "Välj momsregel"}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-full p-0">
-                      <Command>
-                        <CommandList>
-                          <CommandGroup>
-                            <CommandItem value="Vinstmarginalbeskattning (VMB)" onSelect={() => {
-                            form.setValue("vat_type", "Vinstmarginalbeskattning (VMB)");
-                            form.trigger("vat_type"); // Trigger validation
-                          }}>
-                              <Check className={cn("mr-2 h-4 w-4", form.watch("vat_type") === "Vinstmarginalbeskattning (VMB)" ? "opacity-100" : "opacity-0")} />
-                              Vinstmarginalbeskattning (VMB)
-                            </CommandItem>
-                            <CommandItem value="Moms (25%)" onSelect={() => {
-                            form.setValue("vat_type", "Moms (25%)");
-                            form.trigger("vat_type"); // Trigger validation
-                          }}>
-                              <Check className={cn("mr-2 h-4 w-4", form.watch("vat_type") === "Moms (25%)" ? "opacity-100" : "opacity-0")} />
-                              Moms (25%)
-                            </CommandItem>
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+                  <Label>Momsregel*</Label>
+                  <RadioGroup
+                    value={form.watch("vat_type")}
+                    onValueChange={(value) => {
+                      form.setValue("vat_type", value);
+                      form.trigger("vat_type");
+                    }}
+                    className="mt-2"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="Vinstmarginalbeskattning (VMB)" id="vmb" />
+                      <Label htmlFor="vmb" className="font-normal">Vinstmarginalbeskattning (VMB)</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="Moms (25%)" id="moms" />
+                      <Label htmlFor="moms" className="font-normal">Moms (25%)</Label>
+                    </div>
+                  </RadioGroup>
                   {form.formState.errors.vat_type && <p className="text-sm text-destructive mt-1">
                       {form.formState.errors.vat_type.message}
                     </p>}
