@@ -264,6 +264,7 @@ export const PurchaseForm = ({
     } catch (error) {
       console.error('Error checking for duplicate registration number:', error);
       setIsDuplicateRegNumber(false);
+      setDuplicateVehicleId(null);
       return false;
     } finally {
       setIsCheckingRegNumber(false);
@@ -499,8 +500,12 @@ export const PurchaseForm = ({
     
     if (!user) return;
 
+    // Double-check for duplicates right before submission
+    const finalDuplicateCheck = await checkForDuplicateRegNumber(data.registration_number);
+    console.log('Final duplicate check result:', finalDuplicateCheck);
+
     // Prevent submission if there's a duplicate registration number
-    if (isDuplicateRegNumber) {
+    if (isDuplicateRegNumber || finalDuplicateCheck) {
       console.log('Blocking submission due to duplicate registration number');
       toast({
         title: "Kan inte registrera",
