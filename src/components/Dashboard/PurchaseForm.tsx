@@ -995,8 +995,7 @@ export const PurchaseForm = ({
 
               <div>
                 <Label htmlFor="purchase_documentation">Inköpsunderlag</Label>
-                <div className="space-y-2">
-                  {!uploadedPurchaseDoc ? <div>
+                {!uploadedPurchaseDoc ? <div>
                       <div className="relative">
                         <Input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onChange={e => {
                       const file = e.target.files?.[0];
@@ -1030,7 +1029,6 @@ export const PurchaseForm = ({
                         <X className="h-4 w-4" />
                       </Button>
                     </div>}
-                 </div>
                  {form.formState.errors.purchase_documentation && <p className="text-sm text-destructive mt-1">
                      {form.formState.errors.purchase_documentation.message}
                    </p>}
