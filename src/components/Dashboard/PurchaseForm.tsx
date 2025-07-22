@@ -605,8 +605,37 @@ export const PurchaseForm = ({
                   </div>
 
                 <div>
-                  <Label htmlFor="chassis_number">Chassinummer</Label>
-                  <Input id="chassis_number" placeholder="t.ex. 1234567890ABCDEFG" {...form.register("chassis_number")} />
+                  <Label htmlFor="registration_type">Registreingstyp</Label>
+                  <div className="flex items-center space-x-4 mt-2">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        id="reg-nummer"
+                        name="registration_type"
+                        value="reg-nummer"
+                        checked={form.watch("registration_number")?.length !== 17}
+                        disabled
+                        className="opacity-50 cursor-not-allowed"
+                      />
+                      <Label htmlFor="reg-nummer" className="text-sm text-muted-foreground">
+                        Reg-nummer
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        id="vin-nummer"
+                        name="registration_type"
+                        value="vin-nummer"
+                        checked={form.watch("registration_number")?.length === 17}
+                        disabled
+                        className="opacity-50 cursor-not-allowed"
+                      />
+                      <Label htmlFor="vin-nummer" className="text-sm text-muted-foreground">
+                        VIN-nummer
+                      </Label>
+                    </div>
+                  </div>
                 </div>
 
                 <div>
