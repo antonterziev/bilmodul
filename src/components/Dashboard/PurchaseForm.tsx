@@ -1003,7 +1003,7 @@ export const PurchaseForm = ({
                         handlePurchaseDocUpload(file);
                       }
                     }} disabled={isUploadingPurchaseDoc} className="hidden" id="purchase-doc-upload" />
-                        <Button type="button" variant="outline" className="w-full justify-start text-left font-normal h-9" onClick={() => document.getElementById('purchase-doc-upload')?.click()} disabled={isUploadingPurchaseDoc}>
+                        <Button type="button" variant="outline" className="justify-start text-left font-normal h-9" onClick={() => document.getElementById('purchase-doc-upload')?.click()} disabled={isUploadingPurchaseDoc}>
                           <Upload className="mr-2 h-4 w-4" />
                           Välj fil
                         </Button>
