@@ -21,6 +21,7 @@ interface Vehicle {
   brand: string;
   model: string;
   year_model?: number;
+  purchase_date: string;
 }
 
 interface SalesFormProps {
@@ -84,7 +85,7 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
     try {
       const { data, error } = await supabase
         .from('inventory_items')
-        .select('id, registration_number, brand, model, year_model')
+        .select('id, registration_number, brand, model, year_model, purchase_date')
         .eq('id', vehicleId)
         .single();
 
@@ -144,6 +145,19 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
         variant: "destructive",
       });
       return;
+    }
+
+    // Validate selling date is not before purchase date
+    if (vehicle?.purchase_date && sellingDate) {
+      const purchaseDate = new Date(vehicle.purchase_date);
+      if (sellingDate < purchaseDate) {
+        toast({
+          title: "Fel",
+          description: "Försäljningsdatum kan inte vara före inköpsdatum",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     setIsSubmitting(true);
@@ -242,6 +256,12 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
                       mode="single"
                       selected={sellingDate}
                       onSelect={setSellingDate}
+                      disabled={(date) => {
+                        if (vehicle?.purchase_date) {
+                          return date < new Date(vehicle.purchase_date);
+                        }
+                        return false;
+                      }}
                       initialFocus
                       className="pointer-events-auto"
                     />
