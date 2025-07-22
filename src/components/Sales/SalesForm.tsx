@@ -134,6 +134,56 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
     }
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!vehicleId || !sellingPrice || !sellingDate) {
+      toast({
+        title: "Fel",
+        description: "Fyll i alla obligatoriska fält",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      const { error } = await supabase
+        .from('inventory_items')
+        .update({
+          status: 'såld',
+          seller,
+          selling_price: parseFloat(sellingPrice),
+          selling_date: format(sellingDate, 'yyyy-MM-dd'),
+          sales_documentation: salesDocumentation,
+          sales_channel: salesChannel,
+          customer_type: customerType,
+          customer_country: customerCountry,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', vehicleId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Framgång",
+        description: "Försäljningen har registrerats",
+      });
+
+      onSuccess?.();
+    } catch (error) {
+      console.error('Error saving sale:', error);
+      toast({
+        title: "Fel",
+        description: "Kunde inte registrera försäljningen",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (loading) {
     return <div>Laddar fordonsinformation...</div>;
   }
@@ -150,7 +200,8 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
         <CardHeader>
         </CardHeader>
         <CardContent>
-          <div className="space-y-6">
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-6">
             {/* Vehicle Information */}
             {vehicle && (
               <div className="text-center">
@@ -288,7 +339,8 @@ export const SalesForm = ({ vehicleId, onBack, onSuccess }: SalesFormProps) => {
                 {isSubmitting ? "Sparar..." : "Spara försäljning"}
               </Button>
             </div>
-          </div>
+            </div>
+          </form>
         </CardContent>
       </Card>
     </div>
