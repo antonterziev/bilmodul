@@ -71,7 +71,10 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           success: true, 
-          data: archiveData, // contains Id for later linking
+          data: {
+            ArchiveFileId: archiveData.File.ArchiveFileId,
+            FileName: archiveData.File.Name,
+          },
           message: 'File uploaded to Fortnox archive'
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

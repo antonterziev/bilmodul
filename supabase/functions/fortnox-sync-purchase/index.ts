@@ -341,18 +341,24 @@ Deno.serve(async (req) => {
               
               // Step 2: Attach archive file to voucher using voucherattachments
               const archiveFileId = archiveData.File?.ArchiveFileId;
+              const fileName = archiveData.File?.Name;
               console.log('📋 Extracted ArchiveFileId for attachment:', archiveFileId);
+              console.log('📋 File name for attachment:', fileName);
               
-              if (archiveFileId) {
-                console.log('📎 Attaching archive file to voucher...');
-                console.log('📋 Voucher details:', { series: 'A', number: verificationNumber });
+              if (archiveFileId && verificationNumber) {
+                console.log('📎 Attaching archive file to voucher via /voucherattachments...', {
+                  archiveFileId,
+                  fileName,
+                  series: 'A',
+                  number: verificationNumber
+                });
 
                 const voucherAttachmentPayload = {
                   VoucherAttachment: {
                     VoucherSeries: 'A',
                     VoucherNumber: verificationNumber,
                     ArchiveFileId: archiveFileId,
-                    Name: `bokforingsunderlag_${verificationNumber}.pdf`
+                    Name: fileName || 'bokforingsunderlag.pdf'
                   }
                 };
                 
@@ -362,13 +368,15 @@ Deno.serve(async (req) => {
                   method: 'POST',
                   headers: {
                     'Authorization': `Bearer ${accessToken}`,
+                    'Client-Secret': Deno.env.get('FORTNOX_CLIENT_SECRET') ?? '',
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json',
+                    'Accept': 'application/json'
                   },
                   body: JSON.stringify(voucherAttachmentPayload),
                 });
-
+                
                 const attachmentResponseText = await attachmentResponse.text();
+                console.log('📎 Voucher attachment response:', attachmentResponse.status, attachmentResponseText);
                 console.log('📤 Voucher attachment response:', {
                   status: attachmentResponse.status,
                   statusText: attachmentResponse.statusText,
@@ -390,15 +398,14 @@ Deno.serve(async (req) => {
                     errorMessage = `Fortnox attachment error: ${attachmentResponse.status} - ${attachmentResponseText}`;
                   }
                   
-                  attachmentResult = { success: false, error: errorMessage };
+                  attachmentResult = { success: false, error: `Attachment failed: ${attachmentResponseText}` };
                 } else {
-                  console.log('✅ Archive file attached to voucher successfully');
-                  const attachmentResult_data = JSON.parse(attachmentResponseText);
-                  attachmentResult = { success: true, data: { archive: archiveData, attachment: attachmentResult_data } };
+                  console.log('✅ File successfully attached to voucher');
+                  attachmentResult = { success: true, method: 'voucherattachments', fileId: archiveFileId };
                 }
               } else {
-                console.log('⚠️ No FileId returned from archive upload');
-                attachmentResult = { success: false, error: 'No FileId returned from archive upload' };
+                console.log('⚠️ Missing ArchiveFileId or VoucherNumber, skipping attachment step.');
+                attachmentResult = { success: false, error: 'Missing ArchiveFileId or VoucherNumber' };
               }
             } else {
               console.log('⚠️ Failed to upload file to archive:', archiveResponseText);
