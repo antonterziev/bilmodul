@@ -424,80 +424,70 @@ export const VehicleList = ({
                 </div>
                 
                 {/* Vehicle main info */}
-                <div className="flex-1 grid grid-cols-6 gap-6 items-center text-sm">
-                  {/* Column 1: Brand & Model + Registration */}
-                  <div className="col-span-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-medium">
-                        {vehicle.brand} {vehicle.model || ''}
-                      </h3>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {vehicle.registration_number}
-                    </p>
-                  </div>
-                  
-                  {/* Column 2: Status & Fortnox */}
-                  <div className="text-center -ml-4">
-                    <p className="text-xs text-muted-foreground whitespace-nowrap">Status</p>
-                    <div className="flex flex-col gap-1 items-center">
-                        <Badge 
-                          variant={getStatusVariant(vehicle.status)} 
-                          className={`text-xs whitespace-nowrap px-2 justify-center w-20 ${
-                            vehicle.status === 'på_lager' 
-                              ? 'border-blue-500 text-blue-500 hover:border-blue-600 hover:text-blue-600' 
-                              : vehicle.status === 'såld'
-                              ? 'bg-green-500 hover:bg-green-600 text-white'
-                              : ''
-                          }`}
-                       >
-                        {getStatusLabel(vehicle.status)}
-                      </Badge>
-                       {vehicle.fortnox_sync_status && (
-                         <Badge 
-                           variant="outline"
-                           className={`text-xs px-1 w-20 justify-center whitespace-nowrap ${
-                             vehicle.fortnox_sync_status === 'synced' 
-                               ? 'border-green-500 text-green-700 bg-green-50' 
-                               : vehicle.fortnox_sync_status === 'failed'
-                               ? 'border-gray-500 text-gray-700 bg-gray-50'
-                               : 'border-orange-500 text-orange-700 bg-orange-50'
-                           }`}
-                           title={vehicle.fortnox_verification_number ? `Verifikation: ${vehicle.fortnox_verification_number}` : undefined}
-                         >
-                            {vehicle.fortnox_sync_status === 'synced' ? 'Bokförd' : 
-                             vehicle.fortnox_sync_status === 'failed' ? 'Ej bokförd' : '⏳ F'}
-                         </Badge>
-                       )}
-                    </div>
-                  </div>
-                  
-                  {/* Column 3: Storage Days */}
-                  <div>
-                    <p className="text-xs text-muted-foreground whitespace-nowrap">Lagerdagar</p>
-                    <p className="font-medium text-sm whitespace-nowrap">{calculateStorageDays(vehicle.purchase_date, vehicle.status, vehicle.selling_date)} dagar</p>
-                  </div>
-                  
-                  {/* Column 4: Purchaser */}
-                  <div>
-                    <p className="text-xs text-muted-foreground whitespace-nowrap">Inköpare</p>
-                    <p className="font-medium">{formatPurchaserName(vehicle.purchaser)}</p>
-                  </div>
-                  
-                   {/* Column 5: Purchase Price */}
-                   <div className="w-16">
-                     <p className="text-xs text-muted-foreground whitespace-nowrap">Inköpspris</p>
-                     <p className="font-medium">{formatPrice(vehicle.purchase_price)}</p>
+                <div className="flex-1 grid grid-cols-5 gap-6 items-center text-sm">
+                   {/* Column 1: Brand & Model + Registration */}
+                   <div className="col-span-1">
+                     <h3 className="font-medium truncate" title={`${vehicle.brand} ${vehicle.model || ''}`}>
+                       {vehicle.brand} {vehicle.model || ''}
+                     </h3>
+                     <p className="text-sm text-muted-foreground">
+                       {vehicle.registration_number}
+                     </p>
                    </div>
-                  
-                  {/* Column 6: Expected Selling Price */}
-                  <div>
-                    <p className="text-xs text-muted-foreground whitespace-nowrap">Utpris</p>
-                    <p className="font-medium">
-                      {vehicle.expected_selling_price ? formatPrice(vehicle.expected_selling_price) : "-"}
-                    </p>
-                  </div>
-                </div>
+                   
+                   {/* Column 2: Status & Fortnox */}
+                   <div className="text-center -ml-4">
+                     <p className="text-xs text-muted-foreground whitespace-nowrap">Status</p>
+                     <div className="flex flex-col gap-1 items-center">
+                         <Badge 
+                           variant={getStatusVariant(vehicle.status)} 
+                           className={`text-xs whitespace-nowrap px-2 justify-center w-20 ${
+                             vehicle.status === 'på_lager' 
+                               ? 'border-blue-500 text-blue-500 hover:border-blue-600 hover:text-blue-600' 
+                               : vehicle.status === 'såld'
+                               ? 'bg-green-500 hover:bg-green-600 text-white'
+                               : ''
+                           }`}
+                        >
+                         {getStatusLabel(vehicle.status)}
+                       </Badge>
+                        {vehicle.fortnox_sync_status && (
+                          <Badge 
+                            variant="outline"
+                            className={`text-xs px-1 w-20 justify-center whitespace-nowrap ${
+                              vehicle.fortnox_sync_status === 'synced' 
+                                ? 'border-green-500 text-green-700 bg-green-50' 
+                                : vehicle.fortnox_sync_status === 'failed'
+                                ? 'border-gray-500 text-gray-700 bg-gray-50'
+                                : 'border-orange-500 text-orange-700 bg-orange-50'
+                            }`}
+                            title={vehicle.fortnox_verification_number ? `Verifikation: ${vehicle.fortnox_verification_number}` : undefined}
+                          >
+                             {vehicle.fortnox_sync_status === 'synced' ? 'Bokförd' : 
+                              vehicle.fortnox_sync_status === 'failed' ? 'Ej bokförd' : '⏳ F'}
+                          </Badge>
+                        )}
+                     </div>
+                   </div>
+                   
+                   {/* Column 3: Storage Days */}
+                   <div>
+                     <p className="text-xs text-muted-foreground whitespace-nowrap">Lagerdagar</p>
+                     <p className="font-medium text-sm whitespace-nowrap">{calculateStorageDays(vehicle.purchase_date, vehicle.status, vehicle.selling_date)} dagar</p>
+                   </div>
+                   
+                   {/* Column 4: Purchaser */}
+                   <div>
+                     <p className="text-xs text-muted-foreground whitespace-nowrap">Inköpare</p>
+                     <p className="font-medium">{formatPurchaserName(vehicle.purchaser)}</p>
+                   </div>
+                   
+                    {/* Column 5: Purchase Price */}
+                    <div className="w-16">
+                      <p className="text-xs text-muted-foreground whitespace-nowrap">Inköpspris</p>
+                      <p className="font-medium">{formatPrice(vehicle.purchase_price)}</p>
+                    </div>
+                 </div>
                 
                 {/* Action buttons */}
                 <div className="flex-shrink-0 flex gap-2 pr-[1rem]">
