@@ -121,8 +121,8 @@ Deno.serve(async (req) => {
             const inboxJson = await inboxUploadRes.json();
             const fileId = inboxJson?.File?.Id;
 
-          if (fileId) {
-            console.log(`✅ Uploaded file to inbox. FileId: ${fileId}`);
+            if (fileId) {
+              console.log(`✅ Uploaded file to inbox. FileId: ${fileId}`);
 
             // Connect file to voucher
             const connectionRes = await fetch("https://api.fortnox.se/3/voucherfileconnections", {
@@ -151,9 +151,13 @@ Deno.serve(async (req) => {
               console.error("❌ Could not connect file to voucher:", connectionJson);
               attachmentResult = { success: false, error: 'Voucher connection failed' };
             }
+            } else {
+              console.error("❌ Upload to Fortnox failed:", inboxJson);
+              attachmentResult = { success: false, error: inboxJson?.ErrorInformation?.message || 'Upload failed' };
+            }
           } else {
-            console.error("❌ Upload to Fortnox failed:", inboxJson);
-            attachmentResult = { success: false, error: inboxJson?.ErrorInformation?.message || 'Upload failed' };
+            console.error("❌ Upload request failed:", inboxUploadRes.status);
+            attachmentResult = { success: false, error: 'Upload request failed' };
           }
         } else {
           console.error("❌ Could not download file from storage", fileError);
