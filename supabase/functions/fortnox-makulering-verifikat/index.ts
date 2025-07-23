@@ -65,18 +65,25 @@ serve(async (req) => {
       return errorResponse('Verifikatet har inga rader att makulera', 400);
     }
 
+    // Amount formatting function with decimal precision
+    function toAmount(value: any): number | undefined {
+      const num = Number(value);
+      return isNaN(num) ? undefined : Number(num.toFixed(2));
+    }
+
     // Clean row function with explicit Number conversion
     function cleanRow(row: any) {
       const cleaned: Record<string, any> = {
         Account: Number(row.Account),
         TransactionInformation: `Makulerar rad från ${series}-${number}`
       };
+      const debit = toAmount(row.Credit);
+      const credit = toAmount(row.Debit);
+      if (debit !== undefined && debit > 0) cleaned.Debit = debit;
+      if (credit !== undefined && credit > 0) cleaned.Credit = credit;
 
-      const debit = Number(row.Credit);
-      const credit = Number(row.Debit);
-
-      if (!isNaN(debit) && debit > 0) cleaned.Debit = debit;
-      if (!isNaN(credit) && credit > 0) cleaned.Credit = credit;
+      if (row.CostCenter && row.CostCenter.trim() !== '') cleaned.CostCenter = row.CostCenter;
+      if (row.Project && row.Project.trim() !== '') cleaned.Project = row.Project;
 
       return cleaned;
     }
