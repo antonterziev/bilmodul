@@ -25,40 +25,30 @@ serve(async (req) => {
       return new Response("Unauthorized", { status: 401, headers: corsHeaders });
     }
 
-    console.log("📥 Processing formData...");
+    console.log("📥 Processing JSON body...");
     
-    const formData = await req.formData();
-    console.log("📥 FormData entries:", Array.from(formData.entries()).map(([k, v]) => [k, typeof v, v instanceof File ? v.name : 'not a file']));
+    const { inventoryItemId } = await req.json();
     
-    const file = formData.get("file") as File;
-    const inventoryItemId = formData.get("inventoryItemId") as string;
+    console.log("📥 Received inventoryItemId:", inventoryItemId);
 
-    console.log("📥 File details:", {
-      hasFile: !!file,
-      fileName: file?.name,
-      fileType: file?.type,
-      fileSize: file?.size,
-      inventoryItemId
-    });
-
-    if (!file || !inventoryItemId) {
-      console.error("❌ Missing file or inventoryItemId", { hasFile: !!file, inventoryItemId });
-      return new Response("Missing file or inventoryItemId", { status: 400, headers: corsHeaders });
+    if (!inventoryItemId) {
+      console.error("❌ Missing inventoryItemId");
+      return new Response("Missing inventoryItemId", { status: 400, headers: corsHeaders });
     }
 
     console.log(`📦 Starting attachment sync for inventoryItemId: ${inventoryItemId}`);
 
-    // 🔎 Hämta verifikationsinfo från Supabase
+    // 🔎 Hämta både verifikationsinfo och filen från Supabase
     const { data: item, error: fetchError } = await supabase
       .from("inventory_items")
-      .select("fortnox_verification_number")
+      .select("fortnox_verification_number, purchase_documentation")
       .eq("id", inventoryItemId)
       .eq("user_id", user.id)
       .single();
 
-    if (fetchError || !item || !item.fortnox_verification_number) {
-      console.error("❌ Could not find voucher info", fetchError);
-      return new Response("No voucher found for item", { status: 404, headers: corsHeaders });
+    if (fetchError || !item || !item.fortnox_verification_number || !item.purchase_documentation) {
+      console.error("❌ Could not find voucher info or purchase documentation", fetchError);
+      return new Response("No voucher or documentation found for item", { status: 404, headers: corsHeaders });
     }
 
     const voucherNumber = item.fortnox_verification_number;
@@ -66,6 +56,22 @@ serve(async (req) => {
     const voucherYear = new Date().getFullYear();
     
     console.log(`🔗 Found voucher: ${voucherSeries}-${voucherNumber}-${voucherYear}`);
+    console.log(`📄 Purchase documentation path: ${item.purchase_documentation}`);
+
+    // Hämta filen från storage
+    const filePath = item.purchase_documentation.replace('purchase-docs/', '');
+    console.log(`📥 Downloading file from storage: ${filePath}`);
+    
+    const { data: fileData, error: fileError } = await supabase.storage
+      .from('purchase-docs')
+      .download(filePath);
+
+    if (fileError || !fileData) {
+      console.error("❌ Could not download file from storage", fileError);
+      return new Response("Could not download file from storage", { status: 404, headers: corsHeaders });
+    }
+
+    console.log(`📥 File downloaded successfully, size: ${fileData.size} bytes`);
 
     // Get Fortnox credentials
     const { data: integrations, error: integrationError } = await supabase
@@ -84,7 +90,7 @@ serve(async (req) => {
 
     // 📤 1. Ladda upp fil till inbox
     const uploadForm = new FormData();
-    uploadForm.append("file", file, file.name);
+    uploadForm.append("file", new File([fileData], 'bokforingsunderlag.pdf', { type: 'application/pdf' }));
 
     const inboxUploadRes = await fetch("https://api.fortnox.se/3/inbox", {
       method: "POST",

@@ -84,27 +84,17 @@ Deno.serve(async (req) => {
     // Optional: Upload file if it exists using new attachment method
     let attachmentResult = null;
     if (inventoryItem.purchase_documentation) {
-      const serviceClient = createClient(
-        Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-      );
-
       const filePath = inventoryItem.purchase_documentation.replace('purchase-docs/', '');
-      const { data: fileData, error: fileError } = await serviceClient.storage.from('purchase-docs').download(filePath);
-      if (!fileError && fileData) {
-        const formData = new FormData();
-        formData.append('file', new File([fileData], 'bokforingsunderlag.pdf', { type: 'application/pdf' }));
-        formData.append('inventoryItemId', inventoryItemId);
+      console.log(`📎 Found purchase documentation: ${filePath}`);
 
-        const uploadResponse = await supabaseClient.functions.invoke('sync-verification-attachment', {
-          body: formData
-        });
+      const uploadResponse = await supabaseClient.functions.invoke('sync-verification-attachment', {
+        body: { inventoryItemId }
+      });
 
-        if (uploadResponse?.data?.success) {
-          attachmentResult = { success: true, fileId: uploadResponse.data.fileId };
-        } else {
-          attachmentResult = { success: false, error: uploadResponse.data?.error || 'Upload failed' };
-        }
+      if (uploadResponse?.data?.success) {
+        attachmentResult = { success: true, fileId: uploadResponse.data.fileId };
+      } else {
+        attachmentResult = { success: false, error: uploadResponse.data?.error || 'Upload failed' };
       }
     }
 
