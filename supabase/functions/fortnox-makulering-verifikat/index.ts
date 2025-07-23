@@ -28,25 +28,18 @@ serve(async (req) => {
     // Get user's Fortnox integration details
     const { data: integration, error: integrationError } = await supabase
       .from('fortnox_integrations')
-      .select('access_token, refresh_token, token_expires_at')
+      .select('access_token')
       .eq('user_id', userId)
       .eq('is_active', true)
-      .single();
+      .maybeSingle();
 
     if (integrationError || !integration) {
       console.error('❌ No active Fortnox integration found:', integrationError);
-      console.log('🔍 Integration query details:', { userId, integrationError, integration });
       return new Response(
         JSON.stringify({ error: 'No active Fortnox integration found' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    console.log('✅ Integration found:', { 
-      hasAccessToken: !!integration.access_token,
-      hasRefreshToken: !!integration.refresh_token,
-      tokenExpiresAt: integration.token_expires_at 
-    });
 
     // Get Fortnox credentials from environment
     const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET');
@@ -59,7 +52,6 @@ serve(async (req) => {
     });
 
     console.log("🧪 Access token (truncated):", integration.access_token?.slice(0, 10));
-    console.log("🕐 Token expires at:", integration.token_expires_at);
 
     if (!clientSecret || !clientId) {
       console.error('❌ Missing Fortnox credentials in environment');
@@ -69,90 +61,10 @@ serve(async (req) => {
       );
     }
 
-    // Check if token is expired and try to refresh
-    let currentAccessToken = integration.access_token;
-    const tokenExpiresAt = integration.token_expires_at ? new Date(integration.token_expires_at) : null;
-    const now = new Date();
-    
-    if (tokenExpiresAt && now >= tokenExpiresAt) {
-      console.log('🔄 Access token expired, attempting refresh...');
-      
-      if (!integration.refresh_token) {
-        console.error('❌ No refresh token available');
-        // Delete expired integration
-        await supabase
-          .from('fortnox_integrations')
-          .update({ is_active: false })
-          .eq('user_id', userId);
-          
-        return new Response(
-          JSON.stringify({ 
-            error: 'Fortnox-anslutningen har gått ut. Anslut igen via Inställningar → Integrationer.',
-            requiresReconnection: true 
-          }),
-          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      // Try to refresh token
-      const refreshRes = await fetch('https://api.fortnox.se/3/token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Client-Secret': clientSecret,
-          'Client-Identifier': clientId
-        },
-        body: new URLSearchParams({
-          grant_type: 'refresh_token',
-          refresh_token: integration.refresh_token
-        })
-      });
-
-      if (refreshRes.ok) {
-        const tokenData = await refreshRes.json();
-        currentAccessToken = tokenData.access_token;
-        
-        // Update token in database
-        const newExpiresAt = new Date(now.getTime() + (tokenData.expires_in * 1000));
-        await supabase
-          .from('fortnox_integrations')
-          .update({
-            access_token: tokenData.access_token,
-            refresh_token: tokenData.refresh_token || integration.refresh_token,
-            token_expires_at: newExpiresAt.toISOString()
-          })
-          .eq('user_id', userId);
-          
-        console.log('✅ Token refreshed successfully');
-      } else {
-        console.error('❌ Failed to refresh token');
-        // Deactivate integration
-        await supabase
-          .from('fortnox_integrations')
-          .update({ is_active: false })
-          .eq('user_id', userId);
-          
-        return new Response(
-          JSON.stringify({ 
-            error: 'Fortnox-anslutningen kunde inte förnyas. Anslut igen via Inställningar → Integrationer.',
-            requiresReconnection: true 
-          }),
-          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-    }
-
-    // Debug log all header values
-    console.log('🔍 Header values:', {
-      access_token: currentAccessToken ? 'PRESENT' : 'MISSING',
-      client_secret: clientSecret ? 'PRESENT' : 'MISSING',
-      client_id: clientId ? 'PRESENT' : 'MISSING'
-    });
-
     const headers = {
       "Content-Type": "application/json",
       "Accept": "application/json",
-      "Access-Token": currentAccessToken,
+      "Access-Token": integration.access_token,
       "Client-Secret": clientSecret,
       "Client-Identifier": clientId
     };
@@ -168,6 +80,27 @@ serve(async (req) => {
     if (!originalRes.ok) {
       const errorText = await originalRes.text();
       console.error('❌ Could not fetch original voucher:', errorText);
+      
+      // Check if this is a token authentication error (Fortnox token expired/invalid)
+      if (errorText.includes("access-token eller client-secret saknas") || 
+          errorText.includes("Kan inte logga in")) {
+        console.log('🔄 Token appears to be invalid, deactivating integration');
+        
+        // Deactivate the integration
+        await supabase
+          .from('fortnox_integrations')
+          .update({ is_active: false })
+          .eq('user_id', userId);
+        
+        return new Response(
+          JSON.stringify({ 
+            error: 'Din Fortnox-anslutning har gått ut. Anslut på nytt via Inställningar → Integrationer.',
+            requiresReconnection: true 
+          }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
       return new Response(
         JSON.stringify({ error: 'Kunde inte hämta originalverifikatet' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
