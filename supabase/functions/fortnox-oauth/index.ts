@@ -396,7 +396,7 @@ serve(async (req) => {
       });
     }
 
-    const scope = 'companyinformation bookkeeping archive inbox voucher';
+    const scope = 'companyinformation bookkeeping archive inbox';
     // USING PRODUCTION ENDPOINT FOR AUTH URL
     const authUrl = `https://apps.fortnox.se/oauth-v1/auth?` +
       `client_id=${clientId}&` +
