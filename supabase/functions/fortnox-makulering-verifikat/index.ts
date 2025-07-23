@@ -121,9 +121,22 @@ async function tryFetchVoucher(headers: Record<string, string>, series: string, 
 
 async function refreshAccessToken(userId: string) {
   const integration = await getActiveIntegration(userId);
-  if (!integration?.refresh_token) return false;
+  if (!integration?.refresh_token) {
+    console.error('❌ Ingen refresh_token hittades för användare:', userId);
+    await deactivateBrokenIntegration(userId, 'Saknar refresh_token');
+    return false;
+  }
 
-  const credentials = btoa(`${Deno.env.get("FORTNOX_CLIENT_ID")}:${Deno.env.get("FORTNOX_CLIENT_SECRET")}`);
+  const clientId = Deno.env.get("FORTNOX_CLIENT_ID");
+  const clientSecret = Deno.env.get("FORTNOX_CLIENT_SECRET");
+
+  if (!clientId || !clientSecret) {
+    console.error("❌ Saknas klientuppgifter i miljövariabler");
+    await deactivateBrokenIntegration(userId, 'Saknar client credentials');
+    return false;
+  }
+
+  const credentials = btoa(`${clientId}:${clientSecret}`);
   const payload = new URLSearchParams({
     grant_type: 'refresh_token',
     refresh_token: integration.refresh_token
@@ -138,18 +151,72 @@ async function refreshAccessToken(userId: string) {
     body: payload
   });
 
-  const token = await res.json();
-  if (!res.ok || !token.access_token) return false;
+  const responseText = await res.text();
+  let token;
+  try {
+    token = JSON.parse(responseText);
+  } catch {
+    token = {};
+  }
+
+  if (!res.ok || !token.access_token) {
+    console.error('🔁 Refresh token failed:', {
+      status: res.status,
+      body: responseText,
+      parsed: token,
+      refresh_token: integration.refresh_token,
+      clientId: clientId,
+      clientSecretSet: !!clientSecret
+    });
+
+    await deactivateBrokenIntegration(userId, token.error_description || 'Refresh failed');
+    return false;
+  }
 
   const expiresAt = new Date(Date.now() + token.expires_in * 1000).toISOString();
-  await supabase.from('fortnox_integrations').update({
-    access_token: token.access_token,
-    refresh_token: token.refresh_token,
-    token_expires_at: expiresAt,
-    updated_at: new Date().toISOString()
-  }).eq('user_id', userId).eq('is_active', true);
 
+  // Inaktivera tidigare aktiva poster
+  await supabase
+    .from('fortnox_integrations')
+    .update({ is_active: false })
+    .eq('user_id', userId)
+    .eq('is_active', true);
+
+  // Spara ny token som aktiv
+  const { error: upsertError } = await supabase
+    .from('fortnox_integrations')
+    .insert({
+      user_id: userId,
+      access_token: token.access_token,
+      refresh_token: token.refresh_token,
+      token_expires_at: expiresAt,
+      is_active: true,
+      updated_at: new Date().toISOString()
+    });
+
+  if (upsertError) {
+    console.error('⚠️ Misslyckades att spara ny token:', upsertError);
+    return false;
+  }
+
+  console.log('✅ Token förnyades och ny integration är nu aktiv');
   return true;
+}
+
+async function deactivateBrokenIntegration(userId: string, reason = 'unknown') {
+  console.warn(`🛑 Inaktiverar trasig Fortnox-integration för ${userId}. Orsak: ${reason}`);
+  const { error } = await supabase
+    .from('fortnox_integrations')
+    .update({
+      is_active: false,
+      updated_at: new Date().toISOString()
+    })
+    .eq('user_id', userId)
+    .eq('is_active', true);
+
+  if (error) {
+    console.error('❌ Kunde inte inaktivera trasig integration:', error);
+  }
 }
 
 function errorResponse(message: string, status: number) {
