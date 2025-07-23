@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Link, Unlink, FileCheck } from "lucide-react";
+import { Link, Unlink, FileCheck, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useFortnoxConnection } from "@/hooks/useFortnoxConnection";
 
 interface FortnoxIntegration {
   id: string;
@@ -26,6 +27,7 @@ export const Integrations = () => {
   } | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
+  const { handleFortnoxError, reconnectFortnox } = useFortnoxConnection();
 
   useEffect(() => {
     if (user) {
@@ -94,6 +96,11 @@ export const Integrations = () => {
       const { data, error } = await supabase.functions.invoke('fortnox-test-attachment');
 
       if (error) {
+        // Check if this is a token renewal error
+        const wasReconnectionError = await handleFortnoxError(error);
+        if (wasReconnectionError) {
+          return; // Let the error handler take care of redirection
+        }
         throw error;
       }
 
@@ -107,8 +114,15 @@ export const Integrations = () => {
         description: data.message,
         variant: data.success ? "default" : "destructive",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error testing attachment:', error);
+      
+      // Check if this is a token renewal error
+      const wasReconnectionError = await handleFortnoxError(error);
+      if (wasReconnectionError) {
+        return; // Let the error handler take care of redirection
+      }
+      
       setAttachmentTestResult({
         success: false,
         message: "Kunde inte testa bifogning. Försök igen senare."
