@@ -344,9 +344,26 @@ export const VehicleList = ({
     });
   };
 
-  const handleOpenFortnoxVoucher = (verificationNumber: string) => {
-    const fortnoxUrl = `https://www.fortnox.se/bokforing/verifikationer/A/${verificationNumber}`;
-    window.open(fortnoxUrl, 'fortnox-voucher', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+  const handleOpenFortnoxVoucher = async (verificationNumber: string) => {
+    try {
+      // Get the user's Fortnox integration to find their company ID
+      const { data: fortnoxIntegration, error } = await supabase
+        .from('fortnox_integrations')
+        .select('fortnox_company_id')
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .single();
+
+      if (error || !fortnoxIntegration?.fortnox_company_id) {
+        console.error('Could not find Fortnox company ID:', error);
+        return;
+      }
+
+      const fortnoxUrl = `https://apps5.fortnox.se/app/${fortnoxIntegration.fortnox_company_id}/bf/voucher/A-${verificationNumber}`;
+      window.open(fortnoxUrl, 'fortnox-voucher', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+    } catch (error) {
+      console.error('Error opening Fortnox voucher:', error);
+    }
   };
 
   if (loading) {
