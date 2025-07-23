@@ -21,6 +21,7 @@ interface Vehicle {
   status: string;
   fortnox_sync_status?: string;
   fortnox_verification_number?: string;
+  vat_type?: string;
 }
 
 interface VehicleListProps {
@@ -115,7 +116,7 @@ export const VehicleList = ({
       setLoading(true);
       let query = supabase
         .from('inventory_items')
-        .select('id, registration_number, brand, model, purchase_date, selling_date, purchaser, purchase_price, expected_selling_price, status, fortnox_sync_status, fortnox_verification_number')
+        .select('id, registration_number, brand, model, purchase_date, selling_date, purchaser, purchase_price, expected_selling_price, status, fortnox_sync_status, fortnox_verification_number, vat_type')
         .eq('user_id', user.id);
 
       // Apply status filter if not 'all'
@@ -536,7 +537,7 @@ export const VehicleList = ({
                    {/* Column 5: Purchaser */}
                    <div>
                      <p className="text-xs text-muted-foreground whitespace-nowrap">Momstyp</p>
-                     <p className="font-medium">{formatPurchaserName(vehicle.purchaser)}</p>
+                     <p className="font-medium">{vehicle.vat_type || 'Ej angiven'}</p>
                    </div>
                    
                     {/* Column 6: Purchase Price */}
