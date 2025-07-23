@@ -117,8 +117,9 @@ Deno.serve(async (req) => {
             body: uploadForm,
           });
 
-          const inboxJson = await inboxUploadRes.json();
-          const fileId = inboxJson?.File?.Id;
+          if (inboxUploadRes.ok) {
+            const inboxJson = await inboxUploadRes.json();
+            const fileId = inboxJson?.File?.Id;
 
           if (fileId) {
             console.log(`✅ Uploaded file to inbox. FileId: ${fileId}`);
