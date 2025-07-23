@@ -47,7 +47,6 @@ export const VehicleList = ({
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [syncingId, setSyncingId] = useState<string | null>(null);
-  const [uploadingId, setUploadingId] = useState<string | null>(null);
   const [forceUpdate, setForceUpdate] = useState(0);
   
   // Use ref to track mounted state and cleanup timers
@@ -341,40 +340,6 @@ export const VehicleList = ({
     }
   };
 
-  const handleUploadDocumentation = async (vehicleId: string, registrationNumber: string, verificationNumber: string) => {
-    try {
-      setUploadingId(vehicleId);
-      
-      const { data, error } = await supabase.functions.invoke('upload-voucher-attachment', {
-        body: { 
-          series: 'A',
-          number: verificationNumber,
-          userId: user?.id,
-          vehicleId: vehicleId
-        }
-      });
-
-      if (error) throw error;
-
-      if (data?.success) {
-        toast({
-          title: "Underlag uppladdat",
-          description: `Bokföringsunderlag har laddats upp till verifikat A-${verificationNumber}.`,
-        });
-      } else {
-        throw new Error(data?.error || 'Okänt fel vid uppladdning av underlag');
-      }
-    } catch (error) {
-      console.error('Error uploading documentation:', error);
-      toast({
-        title: "Uppladdningsfel",
-        description: `Kunde inte ladda upp underlag för ${registrationNumber}. Försök igen.`,
-        variant: "destructive",
-      });
-    } finally {
-      setUploadingId(null);
-    }
-  };
 
   const handleView = (vehicleId: string) => {
     // For now, just show a toast. This could navigate to a detail view later
@@ -612,25 +577,6 @@ export const VehicleList = ({
                     )}
                   </Button>
 
-                  {/* Upload documentation button - only show for synced vehicles */}
-                  {vehicle.fortnox_sync_status === 'synced' && vehicle.fortnox_verification_number && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleUploadDocumentation(vehicle.id, vehicle.registration_number, vehicle.fortnox_verification_number)}
-                      disabled={uploadingId === vehicle.id}
-                      className="text-purple-600 hover:bg-purple-600 hover:text-white w-10 h-10 p-0"
-                      title="Ladda upp bokföringsunderlag"
-                    >
-                      {uploadingId === vehicle.id ? (
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                      ) : (
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                        </svg>
-                      )}
-                    </Button>
-                  )}
                   
                   <Button
                     variant="outline"
