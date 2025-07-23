@@ -344,6 +344,11 @@ export const VehicleList = ({
     });
   };
 
+  const handleOpenFortnoxVoucher = (verificationNumber: string) => {
+    const fortnoxUrl = `https://apps.fortnox.se/3/vouchers/A/${verificationNumber}`;
+    window.open(fortnoxUrl, 'fortnox-voucher', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+  };
+
   if (loading) {
     return (
       <Card>
@@ -455,22 +460,27 @@ export const VehicleList = ({
                    {/* Column 3: Status 2 (Fortnox) */}
                    <div className="text-center">
                      <p className="text-xs text-muted-foreground whitespace-nowrap">Bokföring</p>
-                     {vehicle.fortnox_sync_status && (
-                       <Badge 
-                         variant="outline"
-                         className={`text-xs px-1 w-20 justify-center whitespace-nowrap ${
-                           vehicle.fortnox_sync_status === 'synced' 
-                             ? 'border-green-500 text-green-700 bg-green-50' 
-                             : vehicle.fortnox_sync_status === 'failed'
-                             ? 'border-gray-500 text-gray-700 bg-gray-50'
-                             : 'border-orange-500 text-orange-700 bg-orange-50'
-                         }`}
-                         title={vehicle.fortnox_verification_number ? `Verifikation: ${vehicle.fortnox_verification_number}` : undefined}
-                       >
-                          {vehicle.fortnox_sync_status === 'synced' ? 'Bokförd' : 
-                           vehicle.fortnox_sync_status === 'failed' ? 'Ej bokförd' : '⏳ F'}
-                       </Badge>
-                     )}
+                      {vehicle.fortnox_sync_status && (
+                        <Badge 
+                          variant="outline"
+                          className={`text-xs px-1 w-20 justify-center whitespace-nowrap cursor-pointer ${
+                            vehicle.fortnox_sync_status === 'synced' 
+                              ? 'border-green-500 text-green-700 bg-green-50 hover:bg-green-100' 
+                              : vehicle.fortnox_sync_status === 'failed'
+                              ? 'border-gray-500 text-gray-700 bg-gray-50'
+                              : 'border-orange-500 text-orange-700 bg-orange-50'
+                          }`}
+                          title={vehicle.fortnox_verification_number ? `Verifikation: ${vehicle.fortnox_verification_number}` : undefined}
+                          onClick={() => {
+                            if (vehicle.fortnox_sync_status === 'synced' && vehicle.fortnox_verification_number) {
+                              handleOpenFortnoxVoucher(vehicle.fortnox_verification_number);
+                            }
+                          }}
+                        >
+                           {vehicle.fortnox_sync_status === 'synced' ? 'Bokförd' : 
+                            vehicle.fortnox_sync_status === 'failed' ? 'Ej bokförd' : '⏳ F'}
+                        </Badge>
+                      )}
                    </div>
                    
                    {/* Column 4: Storage Days */}
