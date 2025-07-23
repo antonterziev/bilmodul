@@ -48,6 +48,7 @@ Deno.serve(async (req) => {
     }
 
     let accessToken = integrations[0].access_token;
+    const clientSecret = Deno.env.get("FORTNOX_CLIENT_SECRET")!;
     const purchaseDate = new Date(inventoryItem.purchase_date).toISOString().split('T')[0];
     const verificationData = {
       VoucherSeries: 'A',
@@ -81,20 +82,85 @@ Deno.serve(async (req) => {
       fortnox_synced_at: new Date().toISOString()
     }).eq('id', inventoryItemId);
 
-    // Optional: Upload file if it exists using new attachment method
+    // Optional: Upload file if it exists - now integrated directly
     let attachmentResult = null;
     if (inventoryItem.purchase_documentation) {
-      const filePath = inventoryItem.purchase_documentation.replace('purchase-docs/', '');
-      console.log(`📎 Found purchase documentation: ${filePath}`);
+      try {
+        const filePath = inventoryItem.purchase_documentation.replace('purchase-docs/', '');
+        console.log(`📎 Found purchase documentation: ${filePath}`);
 
-      const uploadResponse = await supabaseClient.functions.invoke('sync-verification-attachment', {
-        body: { inventoryItemId }
-      });
+        // Create service client for storage access
+        const serviceClient = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+        );
 
-      if (uploadResponse?.data?.success) {
-        attachmentResult = { success: true, fileId: uploadResponse.data.fileId };
-      } else {
-        attachmentResult = { success: false, error: uploadResponse.data?.error || 'Upload failed' };
+        // Download file from storage
+        const { data: fileData, error: fileError } = await serviceClient.storage
+          .from('purchase-docs')
+          .download(filePath);
+
+        if (!fileError && fileData) {
+          console.log(`📥 File downloaded successfully, size: ${fileData.size} bytes`);
+
+          // Upload to Fortnox inbox
+          const uploadForm = new FormData();
+          uploadForm.append("file", new File([fileData], 'bokforingsunderlag.pdf', { type: 'application/pdf' }));
+
+          const inboxUploadRes = await fetch("https://api.fortnox.se/3/inbox", {
+            method: "POST",
+            headers: {
+              "Client-Secret": clientSecret,
+              "Authorization": `Bearer ${accessToken}`,
+              "Accept": "application/json",
+            },
+            body: uploadForm,
+          });
+
+          const inboxJson = await inboxUploadRes.json();
+          const fileId = inboxJson?.InboxFile?.Id;
+
+          if (fileId) {
+            console.log(`✅ Uploaded file to inbox. FileId: ${fileId}`);
+
+            // Connect file to voucher
+            const connectionRes = await fetch("https://api.fortnox.se/3/voucherfileconnections", {
+              method: "POST",
+              headers: {
+                "Client-Secret": clientSecret,
+                "Authorization": `Bearer ${accessToken}`,
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                VoucherFileConnection: {
+                  FileId: fileId,
+                  VoucherSeries: "A",
+                  VoucherNumber: parseInt(verificationNumber),
+                  VoucherYear: new Date().getFullYear(),
+                },
+              }),
+            });
+
+            if (connectionRes.ok) {
+              console.log(`✅ File successfully connected to voucher.`);
+              attachmentResult = { success: true, fileId };
+            } else {
+              const connectionJson = await connectionRes.json();
+              console.error("❌ Could not connect file to voucher:", connectionJson);
+              attachmentResult = { success: false, error: 'Voucher connection failed' };
+            }
+          } else {
+            console.error("❌ Upload to Fortnox failed:", inboxJson);
+            attachmentResult = { success: false, error: inboxJson?.ErrorInformation?.message || 'Upload failed' };
+          }
+        } else {
+          console.error("❌ Could not download file from storage", fileError);
+          attachmentResult = { success: false, error: 'Could not download file from storage' };
+        }
+      } catch (attachmentError) {
+        console.error("❌ Attachment upload error:", attachmentError);
+        attachmentResult = { success: false, error: attachmentError.message };
       }
     }
 
