@@ -45,6 +45,14 @@ serve(async (req) => {
     const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET');
     const clientId = Deno.env.get('FORTNOX_CLIENT_ID');
 
+    console.log("🔐 DEBUG env", {
+      clientId: clientId ? "OK" : "MISSING",
+      clientSecret: clientSecret ? "OK" : "MISSING",
+      token: integration.access_token ? "OK" : "MISSING"
+    });
+
+    console.log("🧪 Access token (truncated):", integration.access_token?.slice(0, 10));
+
     if (!clientSecret || !clientId) {
       console.error('❌ Missing Fortnox credentials in environment');
       return new Response(
