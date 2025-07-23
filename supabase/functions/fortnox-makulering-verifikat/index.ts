@@ -8,121 +8,102 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
   try {
     const { series, number, userId, correctionSeries = 'A', correctionDate } = await req.json();
-
-    console.log('📝 Creating correction voucher for:', { series, number, userId, correctionSeries, correctionDate });
-    console.log('📍 Request received at:', new Date().toISOString());
-
-    // Initialize Supabase client
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Get user's Fortnox integration details (latest active integration)
-    const { data: integration, error: integrationError } = await supabase
+    const { data: integration, error } = await supabase
       .from('fortnox_integrations')
-      .select('access_token, fortnox_company_id, company_name')
+      .select('access_token, refresh_token, token_expires_at, fortnox_company_id, company_name')
       .eq('user_id', userId)
       .eq('is_active', true)
       .order('created_at', { ascending: false })
       .limit(1)
       .single();
 
-    if (integrationError || !integration) {
-      console.error('❌ No active Fortnox integration found:', integrationError);
-      return new Response(
-        JSON.stringify({ error: 'No active Fortnox integration found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (error || !integration) {
+      return new Response(JSON.stringify({ error: 'Ingen aktiv Fortnox-integration' }), {
+        status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    // Get Fortnox credentials from environment
     const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET');
     const clientId = Deno.env.get('FORTNOX_CLIENT_ID');
 
-    console.log("🔐 DEBUG env", {
-      clientId: clientId ? "OK" : "MISSING",
-      clientSecret: clientSecret ? "OK" : "MISSING",
-      token: integration.access_token ? "OK" : "MISSING",
-      companyId: integration.fortnox_company_id,
-      companyName: integration.company_name
-    });
-
-    console.log("🧪 Full access token for debugging:", integration.access_token);
-
     if (!clientSecret || !clientId) {
-      console.error('❌ Missing Fortnox credentials in environment');
-      return new Response(
-        JSON.stringify({ error: 'Missing Fortnox credentials' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Saknar Fortnox client credentials' }), {
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    // Set headers with proper authentication based on token type
-    const headers: Record<string, string> = {
+    // Check for expiration
+    const now = Date.now();
+    const tokenExpiry = new Date(integration.token_expires_at).getTime();
+    let accessToken = integration.access_token;
+
+    if (now >= tokenExpiry) {
+      console.log("🔄 Token expired – refreshing");
+
+      const refreshRes = await fetch("https://apps.fortnox.se/oauth-v1/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          grant_type: "refresh_token",
+          refresh_token: integration.refresh_token,
+          client_id: clientId,
+          client_secret: clientSecret
+        }),
+      });
+
+      const refreshed = await refreshRes.json();
+
+      if (!refreshRes.ok) {
+        console.error("❌ Refresh failed", refreshed);
+        return new Response(JSON.stringify({ error: 'Token refresh misslyckades', details: refreshed }), {
+          status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      accessToken = refreshed.access_token;
+
+      await supabase
+        .from('fortnox_integrations')
+        .update({
+          access_token: refreshed.access_token,
+          refresh_token: refreshed.refresh_token,
+          token_expires_at: new Date(Date.now() + refreshed.expires_in * 1000).toISOString(),
+        })
+        .eq('user_id', userId)
+        .eq('is_active', true);
+
+      console.log("✅ Token refreshed");
+    }
+
+    const headers = {
       "Content-Type": "application/json",
       "Accept": "application/json",
-      "Authorization": `Bearer ${integration.access_token}`,
-      "Client-Identifier": clientId  // Required for all token types
+      "Authorization": `Bearer ${accessToken}`,
+      "Client-Identifier": clientId,
     };
 
-    console.log('🔍 Fetching original voucher:', `https://api.fortnox.se/3/vouchers/${series}/${number}`);
-    console.log("🔐 HEADERS USED FOR REQUEST:", headers);
-    console.log("📡 URL:", `https://api.fortnox.se/3/vouchers/${series}/${number}`);
-
-    // 1. Hämta originalverifikatet
     const originalRes = await fetch(
       `https://api.fortnox.se/3/vouchers/${series}/${number}`,
       { headers }
     );
 
     if (!originalRes.ok) {
-      const errorText = await originalRes.text();
-      console.error('❌ Could not fetch original voucher:', {
-        status: originalRes.status,
-        statusText: originalRes.statusText,
-        error: errorText,
-        headers: Object.fromEntries(originalRes.headers.entries())
+      const err = await originalRes.text();
+      return new Response(JSON.stringify({ error: 'Kunde inte hämta original', details: err }), {
+        status: originalRes.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
-      
-      // Check if this is a token authentication error (Fortnox token expired/invalid)
-      if (originalRes.status === 401 || 
-          errorText.includes("access-token eller client-secret saknas") || 
-          errorText.includes("Kan inte logga in")) {
-        console.log('🔄 Token authentication failed, but keeping integration active for manual retry');
-        
-        return new Response(
-          JSON.stringify({ 
-            error: 'Autentisering misslyckades. Kontrollera din Fortnox-anslutning i inställningar.',
-            tokenError: true,
-            details: errorText
-          }),
-          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      
-      return new Response(
-        JSON.stringify({ 
-          error: 'Kunde inte hämta originalverifikatet',
-          details: errorText 
-        }),
-        { status: originalRes.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
     }
 
-    const original = await originalRes.json();
-    const origVoucher = original.Voucher;
-
-    console.log('📄 Original voucher fetched:', origVoucher);
-
-    // 2. Bygg spegelverifikatet (swap debit and credit)
+    const { Voucher: origVoucher } = await originalRes.json();
     const correctionRows = origVoucher.VoucherRows
       .filter((row: any) => Number(row.Debit || 0) !== 0 || Number(row.Credit || 0) !== 0)
       .map((row: any) => ({
@@ -134,17 +115,9 @@ serve(async (req) => {
         TransactionInformation: `Makulerar rad från ${series}-${number}`
       }));
 
-    if (correctionRows.length === 0) {
-      console.error('❌ No valid rows found to create correction voucher');
-      return new Response(
-        JSON.stringify({ error: 'Inga giltiga rader att makulera' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
     const transactionDate = correctionDate || origVoucher.TransactionDate || new Date().toISOString().split("T")[0];
-    
-    const body = {
+
+    const payload = {
       VoucherSeries: correctionSeries,
       TransactionDate: transactionDate,
       Description: `Ändringsverifikation för verifikat ${series}-${number}`,
@@ -152,83 +125,43 @@ serve(async (req) => {
       VoucherRows: correctionRows
     };
 
-    console.log('📝 Creating correction voucher with body:', body);
-
-    // 3. Skicka ändringsverifikatet
     const createRes = await fetch("https://api.fortnox.se/3/vouchers", {
       method: "POST",
       headers,
-      body: JSON.stringify(body)
+      body: JSON.stringify(payload)
     });
 
     if (!createRes.ok) {
       const errorText = await createRes.text();
-      console.error('❌ Error creating correction voucher:', errorText);
-      
-      console.log('📤 Status:', createRes.status);
-      console.log('📤 Response body:', errorText);
-      
-      // Better error handling for closed periods
-      if (createRes.status === 400 && errorText.includes("Bokföringsperioden är stängd")) {
-        return new Response(
-          JSON.stringify({ error: "Bokföringsperioden är stängd för valt datum. Kontrollera verifikationsserien eller datumet." }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      
-      // Handle missing voucher series
-      if (createRes.status === 400 && errorText.includes("Verifikationsserien")) {
-        return new Response(
-          JSON.stringify({ error: "Verifikationsserien finns inte eller är stängd. Kontrollera att serien 'A' är tillgänglig i Fortnox." }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      
-      return new Response(
-        JSON.stringify({ error: `Fel vid skapande: ${errorText}` }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Fel vid skapande', details: errorText }), {
+        status: createRes.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const created = await createRes.json();
-    console.log('✅ Correction voucher created:', created);
 
-    // Log the correction in database for traceability
-    try {
-      await supabase
-        .from('fortnox_corrections')
-        .insert({
-          user_id: userId,
-          original_series: series,
-          original_number: number,
-          correction_series: created.Voucher.VoucherSeries,
-          correction_number: created.Voucher.VoucherNumber.toString(),
-          correction_date: transactionDate
-        });
-      
-      console.log('✅ Correction logged in database');
-    } catch (logError) {
-      console.error('⚠️ Failed to log correction in database:', logError);
-      // Don't fail the entire operation if logging fails
-    }
+    await supabase.from('fortnox_corrections').insert({
+      user_id: userId,
+      original_series: series,
+      original_number: number,
+      correction_series: created.Voucher.VoucherSeries,
+      correction_number: created.Voucher.VoucherNumber,
+      correction_date: transactionDate
+    });
 
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        correctionVoucher: created.Voucher,
-        message: `Ändringsverifikation ${created.Voucher.VoucherSeries}-${created.Voucher.VoucherNumber} skapad`
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200
-      }
-    );
+    return new Response(JSON.stringify({
+      success: true,
+      correctionVoucher: created.Voucher,
+      message: `Ändringsverifikation ${created.Voucher.VoucherSeries}-${created.Voucher.VoucherNumber} skapad`
+    }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
 
-  } catch (error) {
-    console.error('❌ Unexpected error:', error);
-    return new Response(
-      JSON.stringify({ error: 'Ett oväntat fel inträffade' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+  } catch (err) {
+    console.error("❌ Internal error:", err);
+    return new Response(JSON.stringify({ error: 'Interna fel', details: err.message }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 });
