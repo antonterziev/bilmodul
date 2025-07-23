@@ -442,10 +442,8 @@ const Index = () => {
                        <SelectValue />
                      </SelectTrigger>
                      <SelectContent>
-                       <SelectItem value="storage-days">Lagerdagar</SelectItem>
-                       <SelectItem value="purchase-price">Inköpspris</SelectItem>
-                       <SelectItem value="selling-price">Utpris</SelectItem>
-                       <SelectItem value="gross-profit">Bruttovinst</SelectItem>
+                        <SelectItem value="storage-days">Lagerdagar</SelectItem>
+                        <SelectItem value="purchase-price">Inköpspris</SelectItem>
                      </SelectContent>
                    </Select>
                    
