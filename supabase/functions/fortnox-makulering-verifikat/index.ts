@@ -52,6 +52,13 @@ serve(async (req) => {
       );
     }
 
+    // Debug log all header values
+    console.log('🔍 Header values:', {
+      access_token: integration.access_token ? 'PRESENT' : 'MISSING',
+      client_secret: clientSecret ? 'PRESENT' : 'MISSING',
+      client_id: clientId ? 'PRESENT' : 'MISSING'
+    });
+
     const headers = {
       "Content-Type": "application/json",
       "Accept": "application/json",
