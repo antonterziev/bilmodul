@@ -89,7 +89,8 @@ Deno.serve(async (req) => {
     if (inventoryItem.purchase_documentation) {
       try {
         const filePath = inventoryItem.purchase_documentation.replace('purchase-docs/', '');
-        console.log(`📎 Found purchase documentation: ${filePath}`);
+        const originalFileName = filePath.split('/').pop() || 'dokument.pdf'; // Extract actual filename
+        console.log(`📎 Found purchase documentation: ${filePath} (original name: ${originalFileName})`);
 
         // Create service client for storage access
         const serviceClient = createClient(
@@ -105,9 +106,9 @@ Deno.serve(async (req) => {
         if (!fileError && fileData) {
           console.log(`📥 File downloaded successfully, size: ${fileData.size} bytes`);
 
-          // Upload to Fortnox inbox
+          // Upload to Fortnox inbox with original filename
           const uploadForm = new FormData();
-          uploadForm.append("file", new File([fileData], 'bokforingsunderlag.pdf', { type: 'application/pdf' }));
+          uploadForm.append("file", new File([fileData], originalFileName, { type: 'application/pdf' }));
 
           const inboxUploadRes = await fetch("https://api.fortnox.se/3/inbox", {
             method: "POST",
