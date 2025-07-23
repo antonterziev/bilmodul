@@ -484,11 +484,11 @@ export const VehicleList = ({
                     <p className="font-medium">{formatPurchaserName(vehicle.purchaser)}</p>
                   </div>
                   
-                  {/* Column 5: Purchase Price */}
-                  <div>
-                    <p className="text-xs text-muted-foreground whitespace-nowrap">Inköpspris</p>
-                    <p className="font-medium">{formatPrice(vehicle.purchase_price)}</p>
-                  </div>
+                   {/* Column 5: Purchase Price */}
+                   <div className="w-16">
+                     <p className="text-xs text-muted-foreground whitespace-nowrap">Inköpspris</p>
+                     <p className="font-medium">{formatPrice(vehicle.purchase_price)}</p>
+                   </div>
                   
                   {/* Column 6: Expected Selling Price */}
                   <div>
