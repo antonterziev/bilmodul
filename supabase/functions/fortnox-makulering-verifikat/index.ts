@@ -88,9 +88,19 @@ serve(async (req) => {
       return cleaned;
     }
 
+    // Log original rows for comparison
+    console.log(`🔍 ORIGINAL VOUCHER ROWS:`);
+    orig.VoucherRows.forEach((row: any, index: number) => {
+      console.log(`  Original Row ${index + 1}:`, JSON.stringify(row, null, 2));
+    });
+
     const correctionRows = orig.VoucherRows
       .filter((row) => Number(row.Debit || 0) !== 0 || Number(row.Credit || 0) !== 0)
-      .map(cleanRow);
+      .map((row: any, index: number) => {
+        const cleaned = cleanRow(row);
+        console.log(`🔧 PROCESSED ROW ${index + 1}:`, JSON.stringify(cleaned, null, 2));
+        return cleaned;
+      });
 
     if (correctionRows.length === 0) {
       await logError(userId, `No valid rows to correct in voucher ${series}-${number}`);
@@ -107,18 +117,38 @@ serve(async (req) => {
 
     console.log(`📤 Creating correction voucher with ${correctionRows.length} rows for series ${correctionSeries}`);
     console.log(`📅 Transaction date: ${body.TransactionDate}`);
-    console.log(`🔍 Request body:`, JSON.stringify(body, null, 2));
+    console.log(`🔍 COMPLETE REQUEST BODY:`, JSON.stringify(body, null, 2));
+    console.log(`🔍 REQUEST TO FORTNOX:`, JSON.stringify({ Voucher: body }, null, 2));
+
+    // Log headers being sent
+    console.log(`📨 REQUEST HEADERS:`, JSON.stringify(headers, null, 2));
 
     const createRes = await fetch("https://api.fortnox.se/3/vouchers", {
       method: "POST",
       headers,
-      body: JSON.stringify(body)
+      body: JSON.stringify({ Voucher: body })
     });
 
+    console.log(`📥 RESPONSE STATUS: ${createRes.status} ${createRes.statusText}`);
+    console.log(`📥 RESPONSE HEADERS:`, JSON.stringify(Object.fromEntries(createRes.headers.entries()), null, 2));
+
     const responseText = await createRes.text();
+    console.log(`📥 RAW RESPONSE BODY:`, responseText);
     
     if (!createRes.ok) {
-      console.error(`❌ Fortnox API error (${createRes.status}):`, responseText);
+      console.error(`❌ FORTNOX API ERROR (${createRes.status}):`, responseText);
+      
+      // Try to parse error as JSON for more details
+      try {
+        const errorJson = JSON.parse(responseText);
+        console.error(`❌ PARSED ERROR OBJECT:`, JSON.stringify(errorJson, null, 2));
+        
+        if (errorJson.ErrorInformation) {
+          console.error(`❌ ERROR DETAILS - Code: ${errorJson.ErrorInformation.code}, Message: ${errorJson.ErrorInformation.message}, Error: ${errorJson.ErrorInformation.error}`);
+        }
+      } catch (parseError) {
+        console.error(`❌ Could not parse error response as JSON:`, parseError);
+      }
       
       // Parse error details if possible
       let errorDetails = responseText;
