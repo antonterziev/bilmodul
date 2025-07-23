@@ -118,6 +118,36 @@ export type Database = {
         }
         Relationships: []
       }
+      fortnox_errors_log: {
+        Row: {
+          context: Json | null
+          created_at: string
+          id: string
+          message: string
+          timestamp: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          context?: Json | null
+          created_at?: string
+          id?: string
+          message: string
+          timestamp?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          context?: Json | null
+          created_at?: string
+          id?: string
+          message?: string
+          timestamp?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       fortnox_integrations: {
         Row: {
           access_token: string
