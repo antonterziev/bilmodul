@@ -312,43 +312,18 @@ Deno.serve(async (req) => {
 
             console.log('📤 Step 1: Uploading file to Fortnox archive...');
             
-            // Create manual multipart/form-data payload for archive upload
-            const boundary = `----formdata-lovable-${Date.now()}`;
-            const textEncoder = new TextEncoder();
-            const parts = [];
-            
-            // Add file part
-            parts.push(textEncoder.encode(`--${boundary}\r\n`));
-            parts.push(textEncoder.encode(`Content-Disposition: form-data; name="file"; filename="bokforingsunderlag_${verificationNumber}.pdf"\r\n`));
-            parts.push(textEncoder.encode(`Content-Type: application/pdf\r\n\r\n`));
-            parts.push(fileBytes);
-            parts.push(textEncoder.encode(`\r\n`));
-            
-            // Add folderpath (optional - will create in root if not specified)
-            parts.push(textEncoder.encode(`--${boundary}\r\n`));
-            parts.push(textEncoder.encode(`Content-Disposition: form-data; name="folderpath"\r\n\r\n`));
-            parts.push(textEncoder.encode(`root\\vouchers\r\n`));
-            
-            // Close boundary
-            parts.push(textEncoder.encode(`--${boundary}--\r\n`));
-            
-            // Calculate total length and create final body
-            const totalLength = parts.reduce((sum, part) => sum + part.length, 0);
-            const body = new Uint8Array(totalLength);
-            let offset = 0;
-            for (const part of parts) {
-              body.set(part, offset);
-              offset += part.length;
-            }
+            // Use FormData instead of manual multipart boundaries
+            const form = new FormData();
+            form.append('file', new Blob([fileBytes], { type: 'application/pdf' }), `bokforingsunderlag_${verificationNumber}.pdf`);
 
             // Upload file to Fortnox archive
             const archiveRes = await fetch('https://api.fortnox.se/3/archive', {
               method: 'POST',
               headers: {
                 "Authorization": `Bearer ${accessToken}`,
-                "Content-Type": `multipart/form-data; boundary=${boundary}`,
+                // DO NOT set Content-Type manually — browser will handle it correctly
               },
-              body: body
+              body: form
             });
 
             const archiveResponseText = await archiveRes.text();
@@ -362,11 +337,16 @@ Deno.serve(async (req) => {
             if (archiveRes.ok) {
               const archiveData = JSON.parse(archiveResponseText);
               console.log('✅ File uploaded to archive successfully:', archiveData);
+              console.log('📋 Full archive response structure:', JSON.stringify(archiveData, null, 2));
               
               // Step 2: Connect archive file to voucher using inbox connectors
               const fileId = archiveData.File?.Id;
+              console.log('📋 Extracted file ID for linking:', fileId);
+              
               if (fileId) {
                 console.log('📎 Connecting archive file to voucher...');
+                const entityId = `A-${verificationNumber}`;
+                console.log('📋 Using EntityId:', entityId);
 
                 const connectorResponse = await fetch('https://api.fortnox.se/3/inboxconnectors', {
                   method: 'POST',
@@ -379,27 +359,37 @@ Deno.serve(async (req) => {
                   body: JSON.stringify({
                     InboxFileId: fileId,
                     EntityType: 'Voucher',
-                    EntityId: `A-${verificationNumber}`, // Use actual voucher series and number
+                    EntityId: entityId,
                   }),
                 });
 
-                const connectorResult = await connectorResponse.json();
+                const connectorResponseText = await connectorResponse.text();
                 console.log('📤 Inbox connector response:', {
                   status: connectorResponse.status,
                   statusText: connectorResponse.statusText,
                   ok: connectorResponse.ok,
-                  body: JSON.stringify(connectorResult).substring(0, 500) + (JSON.stringify(connectorResult).length > 500 ? '...' : '')
+                  body: connectorResponseText.substring(0, 500) + (connectorResponseText.length > 500 ? '...' : '')
                 });
 
                 if (!connectorResponse.ok) {
-                  console.error('❌ Failed to connect archive file:', connectorResult);
-                  attachmentResult = {
-                    success: false,
-                    error: `Could not link archive file to voucher: ${connectorResult.ErrorInformation?.message || connectorResponse.statusText}`
-                  };
+                  console.error('❌ Failed to connect archive file:', connectorResponseText);
+                  let errorMessage = `Could not link archive file to voucher: ${connectorResponse.statusText}`;
+                  
+                  try {
+                    const errorData = JSON.parse(connectorResponseText);
+                    if (errorData.ErrorInformation) {
+                      errorMessage = `Fortnox connector error: ${errorData.ErrorInformation.message || errorData.ErrorInformation.error}`;
+                    }
+                  } catch (parseError) {
+                    // Use the raw response if JSON parsing fails
+                    errorMessage = `Fortnox connector error: ${connectorResponse.status} - ${connectorResponseText}`;
+                  }
+                  
+                  attachmentResult = { success: false, error: errorMessage };
                 } else {
                   console.log('✅ Archive file connected to voucher');
-                  attachmentResult = { success: true, data: { archive: archiveData, connection: connectorResult }, koppling: { success: true } };
+                  const connectorResult = JSON.parse(connectorResponseText);
+                  attachmentResult = { success: true, data: { archive: archiveData, connection: connectorResult } };
                 }
               } else {
                 console.log('⚠️ No FileId returned from archive upload');

@@ -1,3 +1,4 @@
+
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -33,49 +34,25 @@ Deno.serve(async (req) => {
         .map(char => char.charCodeAt(0))
     );
 
-    // Create manual multipart/form-data payload
-    const boundary = `----formdata-lovable-${Date.now()}`;
-    const textEncoder = new TextEncoder();
-    const parts = [];
-    
-    // Add file part
-    parts.push(textEncoder.encode(`--${boundary}\r\n`));
-    parts.push(textEncoder.encode(`Content-Disposition: form-data; name="file"; filename="${fileName || 'bokforingsunderlag.pdf'}"\r\n`));
-    parts.push(textEncoder.encode(`Content-Type: application/pdf\r\n\r\n`));
-    parts.push(fileBytes);
-    parts.push(textEncoder.encode(`\r\n`));
-    
-    // Add folderpath (optional - will create in root if not specified)
-    parts.push(textEncoder.encode(`--${boundary}\r\n`));
-    parts.push(textEncoder.encode(`Content-Disposition: form-data; name="folderpath"\r\n\r\n`));
-    parts.push(textEncoder.encode(`root\\vouchers\r\n`));
-    
-    // Close boundary
-    parts.push(textEncoder.encode(`--${boundary}--\r\n`));
-    
-    // Calculate total length and create final body
-    const totalLength = parts.reduce((sum, part) => sum + part.length, 0);
-    const body = new Uint8Array(totalLength);
-    let offset = 0;
-    for (const part of parts) {
-      body.set(part, offset);
-      offset += part.length;
-    }
-
-    console.log('📤 Multipart body created:', {
-      boundary,
-      totalBodySize: body.length,
-      filePartSize: fileBytes.length
+    console.log('📤 File converted to bytes:', {
+      originalBase64Length: fileData.length,
+      convertedBytesLength: fileBytes.length
     });
+
+    // Use FormData instead of manual multipart boundaries
+    const form = new FormData();
+    form.append('file', new Blob([fileBytes], { type: 'application/pdf' }), fileName || 'bokforingsunderlag.pdf');
+    
+    console.log('📤 FormData created successfully');
 
     // Upload file to Fortnox archive (not voucherattachments)
     const archiveUploadRes = await fetch('https://api.fortnox.se/3/archive', {
       method: 'POST',
       headers: {
         "Authorization": `Bearer ${accessToken}`,
-        "Content-Type": `multipart/form-data; boundary=${boundary}`,
+        // DO NOT set Content-Type manually — browser will handle it correctly
       },
-      body: body
+      body: form
     });
 
     const archiveResponseText = await archiveUploadRes.text();
@@ -89,6 +66,7 @@ Deno.serve(async (req) => {
     if (archiveUploadRes.ok) {
       const archiveData = JSON.parse(archiveResponseText);
       console.log('✅ File uploaded to archive successfully:', archiveData);
+      console.log('📋 Archive file ID for linking:', archiveData.File?.Id);
       
       return new Response(
         JSON.stringify({ 
