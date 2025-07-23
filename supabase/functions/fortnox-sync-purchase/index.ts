@@ -280,6 +280,7 @@ Deno.serve(async (req) => {
       let attachmentResult = null;
       if (inventoryItem.purchase_documentation) {
         console.log('📎 Found purchase documentation, uploading to Fortnox...');
+        console.log('📄 Purchase documentation path:', inventoryItem.purchase_documentation);
         
         try {
           const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET');
@@ -291,16 +292,19 @@ Deno.serve(async (req) => {
             Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
           );
           
-          // Download file from Supabase Storage
+          // Download file from Supabase Storage (using the path stored in the database)
+          console.log('📥 Downloading file from purchase-docs bucket with path:', inventoryItem.purchase_documentation);
           const { data: fileData, error: fileError } = await serviceClient.storage
             .from('purchase-docs')
             .download(inventoryItem.purchase_documentation);
 
           if (fileError) {
             console.log('⚠️ Could not download file from storage:', fileError);
-            attachmentResult = { success: false, error: fileError.message };
+            console.log('⚠️ Storage error details:', JSON.stringify(fileError, null, 2));
+            attachmentResult = { success: false, error: `Storage error: ${fileError.message}` };
           } else {
-            console.log('📥 File downloaded from storage, uploading to Fortnox...');
+            console.log('✅ File downloaded successfully, size:', fileData.size, 'bytes');
+            console.log('📥 File type:', fileData.type);
             
             // Create FormData for Fortnox upload
             const formData = new FormData();
@@ -308,31 +312,47 @@ Deno.serve(async (req) => {
             formData.append('voucherSeries', 'A');
             formData.append('voucherNumber', verificationNumber.toString());
 
+            console.log('📤 Uploading attachment to Fortnox...');
+            console.log('📤 Form data details:', {
+              voucherSeries: 'A',
+              voucherNumber: verificationNumber.toString(),
+              fileName: 'bokforingsunderlag.pdf',
+              fileSize: fileData.size
+            });
+
             // Upload attachment to Fortnox
             const attachmentRes = await fetch('https://api.fortnox.se/3/voucherattachments', {
               method: 'POST',
               headers: {
-                "Access-Token": accessToken,
-                "Client-Secret": clientSecret,
-                "Client-Identifier": clientId
+                "Authorization": `Bearer ${accessToken}`,
+                // Note: Don't set Content-Type for FormData, let the browser set it
               },
               body: formData
             });
 
+            const attachmentResponseText = await attachmentRes.text();
+            console.log('📤 Fortnox attachment response:', {
+              status: attachmentRes.status,
+              statusText: attachmentRes.statusText,
+              ok: attachmentRes.ok,
+              body: attachmentResponseText.substring(0, 500) + (attachmentResponseText.length > 500 ? '...' : '')
+            });
+
             if (attachmentRes.ok) {
-              const attachmentData = await attachmentRes.json();
+              const attachmentData = JSON.parse(attachmentResponseText);
               console.log('✅ Attachment uploaded successfully:', attachmentData);
               attachmentResult = { success: true, data: attachmentData };
             } else {
-              const attachmentError = await attachmentRes.text();
-              console.log('⚠️ Failed to upload attachment:', attachmentError);
-              attachmentResult = { success: false, error: attachmentError };
+              console.log('⚠️ Failed to upload attachment:', attachmentResponseText);
+              attachmentResult = { success: false, error: `Fortnox attachment error: ${attachmentRes.status} - ${attachmentResponseText}` };
             }
           }
         } catch (uploadError) {
           console.log('⚠️ Error during file upload process:', uploadError);
-          attachmentResult = { success: false, error: uploadError.message };
+          attachmentResult = { success: false, error: `Upload process error: ${uploadError.message}` };
         }
+      } else {
+        console.log('📎 No purchase documentation found for this item');
       }
 
       const responseMessage = attachmentResult?.success 
