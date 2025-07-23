@@ -279,7 +279,7 @@ Deno.serve(async (req) => {
       // After successful voucher creation, try to upload PDF if it exists
       let attachmentResult = null;
       if (inventoryItem.purchase_documentation) {
-        console.log('📎 Found purchase documentation, uploading to Fortnox...');
+        console.log('📎 Found purchase documentation, uploading to Fortnox archive...');
         console.log('📄 Purchase documentation path:', inventoryItem.purchase_documentation);
         
         try {
@@ -310,29 +310,24 @@ Deno.serve(async (req) => {
             // Convert file to bytes for upload
             const fileBytes = new Uint8Array(await fileData.arrayBuffer());
 
-            console.log('📤 Uploading attachment directly to Fortnox...');
+            console.log('📤 Step 1: Uploading file to Fortnox archive...');
             
-            // Create manual multipart/form-data payload
+            // Create manual multipart/form-data payload for archive upload
             const boundary = `----formdata-lovable-${Date.now()}`;
             const textEncoder = new TextEncoder();
             const parts = [];
             
             // Add file part
             parts.push(textEncoder.encode(`--${boundary}\r\n`));
-            parts.push(textEncoder.encode(`Content-Disposition: form-data; name="file"; filename="bokforingsunderlag.pdf"\r\n`));
+            parts.push(textEncoder.encode(`Content-Disposition: form-data; name="file"; filename="bokforingsunderlag_${verificationNumber}.pdf"\r\n`));
             parts.push(textEncoder.encode(`Content-Type: application/pdf\r\n\r\n`));
             parts.push(fileBytes);
             parts.push(textEncoder.encode(`\r\n`));
             
-            // Add voucherSeries part
+            // Add folderpath (optional - will create in root if not specified)
             parts.push(textEncoder.encode(`--${boundary}\r\n`));
-            parts.push(textEncoder.encode(`Content-Disposition: form-data; name="voucherSeries"\r\n\r\n`));
-            parts.push(textEncoder.encode(`A\r\n`));
-            
-            // Add voucherNumber part
-            parts.push(textEncoder.encode(`--${boundary}\r\n`));
-            parts.push(textEncoder.encode(`Content-Disposition: form-data; name="voucherNumber"\r\n\r\n`));
-            parts.push(textEncoder.encode(`${verificationNumber.toString()}\r\n`));
+            parts.push(textEncoder.encode(`Content-Disposition: form-data; name="folderpath"\r\n\r\n`));
+            parts.push(textEncoder.encode(`root\\vouchers\r\n`));
             
             // Close boundary
             parts.push(textEncoder.encode(`--${boundary}--\r\n`));
@@ -346,8 +341,8 @@ Deno.serve(async (req) => {
               offset += part.length;
             }
 
-            // Upload attachment to Fortnox
-            const attachmentRes = await fetch('https://api.fortnox.se/3/voucherattachments', {
+            // Upload file to Fortnox archive
+            const archiveRes = await fetch('https://api.fortnox.se/3/archive', {
               method: 'POST',
               headers: {
                 "Authorization": `Bearer ${accessToken}`,
@@ -356,21 +351,63 @@ Deno.serve(async (req) => {
               body: body
             });
 
-            const attachmentResponseText = await attachmentRes.text();
-            console.log('📤 Fortnox attachment response:', {
-              status: attachmentRes.status,
-              statusText: attachmentRes.statusText,
-              ok: attachmentRes.ok,
-              body: attachmentResponseText.substring(0, 500) + (attachmentResponseText.length > 500 ? '...' : '')
+            const archiveResponseText = await archiveRes.text();
+            console.log('📤 Fortnox archive upload response:', {
+              status: archiveRes.status,
+              statusText: archiveRes.statusText,
+              ok: archiveRes.ok,
+              body: archiveResponseText.substring(0, 500) + (archiveResponseText.length > 500 ? '...' : '')
             });
 
-            if (attachmentRes.ok) {
-              const attachmentData = JSON.parse(attachmentResponseText);
-              console.log('✅ Attachment uploaded successfully:', attachmentData);
-              attachmentResult = { success: true, data: attachmentData };
+            if (archiveRes.ok) {
+              const archiveData = JSON.parse(archiveResponseText);
+              console.log('✅ File uploaded to archive successfully:', archiveData);
+              
+              // Step 2: Create voucher file connection
+              const fileId = archiveData.File?.Id;
+              if (fileId) {
+                console.log('📤 Step 2: Creating voucher file connection...');
+                
+                const voucherFileConnectionData = {
+                  VoucherFileConnection: {
+                    FileId: fileId,
+                    VoucherSeries: 'A',
+                    VoucherNumber: verificationNumber
+                  }
+                };
+
+                const connectionRes = await fetch('https://api.fortnox.se/3/voucherfileconnections', {
+                  method: 'POST',
+                  headers: {
+                    "Authorization": `Bearer ${accessToken}`,
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify(voucherFileConnectionData)
+                });
+
+                const connectionResponseText = await connectionRes.text();
+                console.log('📤 Voucher file connection response:', {
+                  status: connectionRes.status,
+                  statusText: connectionRes.statusText,
+                  ok: connectionRes.ok,
+                  body: connectionResponseText.substring(0, 500) + (connectionResponseText.length > 500 ? '...' : '')
+                });
+
+                if (connectionRes.ok) {
+                  const connectionData = JSON.parse(connectionResponseText);
+                  console.log('✅ Voucher file connection created successfully:', connectionData);
+                  attachmentResult = { success: true, data: { archive: archiveData, connection: connectionData } };
+                } else {
+                  console.log('⚠️ Failed to create voucher file connection:', connectionResponseText);
+                  attachmentResult = { success: false, error: `Voucher file connection error: ${connectionRes.status} - ${connectionResponseText}` };
+                }
+              } else {
+                console.log('⚠️ No FileId returned from archive upload');
+                attachmentResult = { success: false, error: 'No FileId returned from archive upload' };
+              }
             } else {
-              console.log('⚠️ Failed to upload attachment:', attachmentResponseText);
-              attachmentResult = { success: false, error: `Fortnox attachment error: ${attachmentRes.status} - ${attachmentResponseText}` };
+              console.log('⚠️ Failed to upload file to archive:', archiveResponseText);
+              attachmentResult = { success: false, error: `Fortnox archive error: ${archiveRes.status} - ${archiveResponseText}` };
             }
           }
         } catch (uploadError) {
