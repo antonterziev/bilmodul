@@ -1072,7 +1072,7 @@ export const PurchaseForm = ({
                       </div> : <div className="flex items-center justify-between p-2 border rounded-md bg-muted/50">
                         <div className="flex items-center space-x-2">
                           <Upload className="h-4 w-4" />
-                          <span className="text-sm">{uploadedPurchaseDoc.name}</span>
+                          <span className="text-sm truncate max-w-48">{uploadedPurchaseDoc.name}</span>
                         </div>
                         <Button type="button" variant="ghost" size="sm" onClick={handlePurchaseDocRemove}>
                           <X className="h-4 w-4" />
