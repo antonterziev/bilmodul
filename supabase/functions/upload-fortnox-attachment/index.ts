@@ -45,15 +45,10 @@ Deno.serve(async (req) => {
     parts.push(fileBytes);
     parts.push(textEncoder.encode(`\r\n`));
     
-    // Add voucherSeries part
+    // Add folderpath (optional - will create in root if not specified)
     parts.push(textEncoder.encode(`--${boundary}\r\n`));
-    parts.push(textEncoder.encode(`Content-Disposition: form-data; name="voucherSeries"\r\n\r\n`));
-    parts.push(textEncoder.encode(`${voucherSeries}\r\n`));
-    
-    // Add voucherNumber part
-    parts.push(textEncoder.encode(`--${boundary}\r\n`));
-    parts.push(textEncoder.encode(`Content-Disposition: form-data; name="voucherNumber"\r\n\r\n`));
-    parts.push(textEncoder.encode(`${voucherNumber.toString()}\r\n`));
+    parts.push(textEncoder.encode(`Content-Disposition: form-data; name="folderpath"\r\n\r\n`));
+    parts.push(textEncoder.encode(`root\\vouchers\r\n`));
     
     // Close boundary
     parts.push(textEncoder.encode(`--${boundary}--\r\n`));
@@ -73,8 +68,8 @@ Deno.serve(async (req) => {
       filePartSize: fileBytes.length
     });
 
-    // Upload attachment to Fortnox
-    const attachmentRes = await fetch('https://api.fortnox.se/3/voucherattachments', {
+    // Upload file to Fortnox archive (not voucherattachments)
+    const archiveUploadRes = await fetch('https://api.fortnox.se/3/archive', {
       method: 'POST',
       headers: {
         "Authorization": `Bearer ${accessToken}`,
@@ -83,37 +78,37 @@ Deno.serve(async (req) => {
       body: body
     });
 
-    const attachmentResponseText = await attachmentRes.text();
-    console.log('📤 Fortnox attachment response:', {
-      status: attachmentRes.status,
-      statusText: attachmentRes.statusText,
-      ok: attachmentRes.ok,
-      body: attachmentResponseText.substring(0, 500) + (attachmentResponseText.length > 500 ? '...' : '')
+    const archiveResponseText = await archiveUploadRes.text();
+    console.log('📤 Fortnox archive response:', {
+      status: archiveUploadRes.status,
+      statusText: archiveUploadRes.statusText,
+      ok: archiveUploadRes.ok,
+      body: archiveResponseText.substring(0, 500) + (archiveResponseText.length > 500 ? '...' : '')
     });
 
-    if (attachmentRes.ok) {
-      const attachmentData = JSON.parse(attachmentResponseText);
-      console.log('✅ Attachment uploaded successfully:', attachmentData);
+    if (archiveUploadRes.ok) {
+      const archiveData = JSON.parse(archiveResponseText);
+      console.log('✅ File uploaded to archive successfully:', archiveData);
       
       return new Response(
         JSON.stringify({ 
           success: true, 
-          data: attachmentData,
-          message: 'Attachment uploaded successfully to Fortnox'
+          data: archiveData, // contains Id for later linking
+          message: 'File uploaded to Fortnox archive'
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     } else {
-      console.log('⚠️ Failed to upload attachment:', attachmentResponseText);
+      console.log('⚠️ Failed to upload file to archive:', archiveResponseText);
       
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: `Fortnox attachment error: ${attachmentRes.status} - ${attachmentResponseText}`,
-          status: attachmentRes.status
+          error: `Fortnox archive error: ${archiveUploadRes.status} - ${archiveResponseText}`,
+          status: archiveUploadRes.status
         }),
         { 
-          status: attachmentRes.status,
+          status: archiveUploadRes.status,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       );
