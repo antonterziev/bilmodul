@@ -218,7 +218,7 @@ export const VehicleList = ({
       // If synced with Fortnox, create a correction voucher
       if (vehicle?.fortnox_sync_status === 'synced' && vehicle?.fortnox_verification_number) {
         try {
-          const { data, error } = await supabase.functions.invoke('makulering-verifikat', {
+          const { data, error } = await supabase.functions.invoke('fortnox-makulering-verifikat', {
             body: { 
               series: 'A',
               number: vehicle.fortnox_verification_number,
