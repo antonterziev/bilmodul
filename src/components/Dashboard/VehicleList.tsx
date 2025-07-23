@@ -210,6 +210,38 @@ export const VehicleList = ({
 
     try {
       setDeletingId(vehicleId);
+
+      // First check if vehicle is synced with Fortnox
+      const vehicle = vehicles.find(v => v.id === vehicleId);
+      
+      // If synced with Fortnox, delete the voucher first
+      if (vehicle?.fortnox_sync_status === 'synced' && vehicle?.fortnox_verification_number) {
+        try {
+          const { data, error } = await supabase.functions.invoke('fortnox-delete-voucher', {
+            body: { inventoryItemId: vehicleId }
+          });
+
+          if (error) throw error;
+
+          if (!data?.success) {
+            throw new Error(data?.error || 'Okänt fel vid borttagning från Fortnox');
+          }
+
+          toast({
+            title: "Fortnox-synkronisering uppdaterad",
+            description: `Verifikation ${vehicle.fortnox_verification_number} har tagits bort från Fortnox.`,
+          });
+        } catch (fortnoxError) {
+          console.error('Error deleting from Fortnox:', fortnoxError);
+          toast({
+            title: "Varning",
+            description: `Kunde inte ta bort verifikationen från Fortnox: ${fortnoxError.message}. Fordonet kommer ändå att tas bort från lagret.`,
+            variant: "destructive",
+          });
+        }
+      }
+
+      // Then delete the vehicle from local database
       const { error } = await supabase
         .from('inventory_items')
         .delete()
