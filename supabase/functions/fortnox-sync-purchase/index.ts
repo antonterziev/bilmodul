@@ -81,7 +81,7 @@ Deno.serve(async (req) => {
       fortnox_synced_at: new Date().toISOString()
     }).eq('id', inventoryItemId);
 
-    // Optional: Upload file if it exists
+    // Optional: Upload file if it exists using new attachment method
     let attachmentResult = null;
     if (inventoryItem.purchase_documentation) {
       const serviceClient = createClient(
@@ -92,21 +92,16 @@ Deno.serve(async (req) => {
       const filePath = inventoryItem.purchase_documentation.replace('purchase-docs/', '');
       const { data: fileData, error: fileError } = await serviceClient.storage.from('purchase-docs').download(filePath);
       if (!fileError && fileData) {
-        const fileBytes = new Uint8Array(await fileData.arrayBuffer());
-        const base64File = btoa(String.fromCharCode(...fileBytes));
+        const formData = new FormData();
+        formData.append('file', new Blob([fileData], { type: 'application/pdf' }), 'bokforingsunderlag.pdf');
+        formData.append('inventoryItemId', inventoryItemId);
 
-        const uploadResponse = await supabaseClient.functions.invoke('upload-fortnox-attachment', {
-          body: {
-            fileData: base64File,
-            voucherSeries: 'A',
-            voucherNumber: verificationNumber,
-            accessToken,
-            fileName: 'bokforingsunderlag.pdf'
-          }
+        const uploadResponse = await supabaseClient.functions.invoke('sync-verification-attachment', {
+          body: formData
         });
 
         if (uploadResponse?.data?.success) {
-          attachmentResult = { success: true, archiveFileId: uploadResponse.data.archiveFileId };
+          attachmentResult = { success: true, fileId: uploadResponse.data.fileId };
         } else {
           attachmentResult = { success: false, error: uploadResponse.data?.error || 'Upload failed' };
         }
