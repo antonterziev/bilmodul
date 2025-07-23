@@ -111,7 +111,6 @@ serve(async (req) => {
       VoucherSeries: correctionSeries,
       TransactionDate: correctionDate || orig.TransactionDate || new Date().toISOString().split("T")[0],
       Description: `Ändringsverifikation för verifikat ${series}-${number}`,
-      Reference: "Automatisk makulering",
       VoucherRows: correctionRows
     };
 
