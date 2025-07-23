@@ -65,14 +65,19 @@ serve(async (req) => {
       return errorResponse('Verifikatet har inga rader att makulera', 400);
     }
 
-    const correctionRows = orig.VoucherRows.filter(row => Number(row.Debit || 0) !== 0 || Number(row.Credit || 0) !== 0).map(row => ({
-      Account: row.Account,
-      Debit: row.Credit || undefined,
-      Credit: row.Debit || undefined,
-      CostCenter: row.CostCenter,
-      Project: row.Project,
-      TransactionInformation: `Makulerar rad från ${series}-${number}`
-    }));
+    const correctionRows = orig.VoucherRows
+      .filter((row) => Number(row.Debit || 0) !== 0 || Number(row.Credit || 0) !== 0)
+      .map((row) => {
+        const cleaned: Record<string, any> = {
+          Account: row.Account,
+          Debit: row.Credit || undefined,
+          Credit: row.Debit || undefined,
+          TransactionInformation: `Makulerar rad från ${series}-${number}`
+        };
+        if (row.CostCenter && row.CostCenter.trim() !== '') cleaned.CostCenter = row.CostCenter;
+        if (row.Project && row.Project.trim() !== '') cleaned.Project = row.Project;
+        return cleaned;
+      });
 
     if (correctionRows.length === 0) {
       await logError(userId, `No valid rows to correct in voucher ${series}-${number}`);
