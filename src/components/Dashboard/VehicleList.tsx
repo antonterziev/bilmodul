@@ -526,23 +526,25 @@ export const VehicleList = ({
                     <Eye className="h-4 w-4" />
                   </Button>
                   
-                  {/* Show sync button for vehicles not synced with Fortnox */}
-                  {(!vehicle.fortnox_sync_status || vehicle.fortnox_sync_status === 'pending' || vehicle.fortnox_sync_status === 'failed') && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleSync(vehicle.id, vehicle.registration_number)}
-                      disabled={syncingId === vehicle.id}
-                      className="text-blue-600 hover:bg-blue-600 hover:text-white w-10 h-10 p-0"
-                      title="Synkronisera med Fortnox"
-                    >
-                      {syncingId === vehicle.id ? (
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                      ) : (
-                        <RefreshCw className="h-4 w-4" />
-                      )}
-                    </Button>
-                  )}
+                   {/* Always show sync button but grey out if synced */}
+                   <Button
+                     variant="outline"
+                     size="sm"
+                     onClick={() => handleSync(vehicle.id, vehicle.registration_number)}
+                     disabled={syncingId === vehicle.id || vehicle.fortnox_sync_status === 'synced'}
+                     className={`w-10 h-10 p-0 ${
+                       vehicle.fortnox_sync_status === 'synced'
+                         ? 'text-gray-400 hover:bg-gray-100 hover:text-gray-400 cursor-not-allowed'
+                         : 'text-blue-600 hover:bg-blue-600 hover:text-white'
+                     }`}
+                     title={vehicle.fortnox_sync_status === 'synced' ? 'Redan synkroniserad med Fortnox' : 'Synkronisera med Fortnox'}
+                   >
+                     {syncingId === vehicle.id ? (
+                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                     ) : (
+                       <RefreshCw className="h-4 w-4" />
+                     )}
+                   </Button>
                   
                   <Button
                     variant="outline"
