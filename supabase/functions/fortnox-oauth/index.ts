@@ -279,9 +279,15 @@ serve(async (req) => {
         console.error(`❌ Error fetching company information for ${requestId}:`, companyError);
       }
       
-      const { error: upsertError } = await supabase
+      // Deactivate previous integrations for user
+      await supabase
         .from('fortnox_integrations')
-        .upsert({
+        .update({ is_active: false })
+        .eq('user_id', validState.user_id);
+
+      const { error: insertError } = await supabase
+        .from('fortnox_integrations')
+        .insert({
           user_id: validState.user_id,
           access_token: tokenData.access_token,
           refresh_token: tokenData.refresh_token,
@@ -294,8 +300,8 @@ serve(async (req) => {
           updated_at: new Date().toISOString()
         });
 
-      if (upsertError) {
-        console.error(`Error storing tokens for ${requestId}:`, upsertError);
+      if (insertError) {
+        console.error(`Error storing tokens for ${requestId}:`, insertError);
         const errorMessage = encodeURIComponent('Kunde inte spara anslutningsuppgifter. Försök igen.');
         return new Response(null, {
           status: 302,
