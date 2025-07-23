@@ -454,7 +454,7 @@ export const VehicleList = ({
 
                    {/* Column 3: Status 2 (Fortnox) */}
                    <div className="text-center">
-                     <p className="text-xs text-muted-foreground whitespace-nowrap">Status 2</p>
+                     <p className="text-xs text-muted-foreground whitespace-nowrap">Bokföring</p>
                      {vehicle.fortnox_sync_status && (
                        <Badge 
                          variant="outline"
