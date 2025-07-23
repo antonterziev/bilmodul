@@ -26,7 +26,7 @@ serve(async (req) => {
     // Get user's Fortnox integration details
     const { data: integration, error: integrationError } = await supabase
       .from('fortnox_integrations')
-      .select('access_token, client_secret, client_id')
+      .select('access_token')
       .eq('user_id', userId)
       .eq('is_active', true)
       .single();
@@ -39,12 +39,24 @@ serve(async (req) => {
       );
     }
 
+    // Get Fortnox credentials from environment
+    const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET');
+    const clientId = Deno.env.get('FORTNOX_CLIENT_ID');
+
+    if (!clientSecret || !clientId) {
+      console.error('❌ Missing Fortnox credentials in environment');
+      return new Response(
+        JSON.stringify({ error: 'Missing Fortnox credentials' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const headers = {
       "Content-Type": "application/json",
       "Accept": "application/json",
       "Access-Token": integration.access_token,
-      "Client-Secret": integration.client_secret,
-      "Client-Identifier": integration.client_id
+      "Client-Secret": clientSecret,
+      "Client-Identifier": clientId
     };
 
     console.log('🔍 Fetching original voucher:', `https://api.fortnox.se/3/vouchers/${series}/${number}`);
