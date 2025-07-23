@@ -348,10 +348,10 @@ export const VehicleList = ({
     console.log('🔍 handleOpenFortnoxVoucher called with verification number:', verificationNumber);
     
     try {
-      // Check if user has active Fortnox integration
+      // Get the user's Fortnox integration to find their company ID
       const { data: fortnoxIntegrations, error } = await supabase
         .from('fortnox_integrations')
-        .select('access_token')
+        .select('fortnox_company_id')
         .eq('user_id', user.id)
         .eq('is_active', true)
         .order('created_at', { ascending: false });
@@ -368,11 +368,15 @@ export const VehicleList = ({
         return;
       }
 
-      // For now, use a temporary company ID until we fix the OAuth to store the real one
-      // This should be replaced with the actual company ID from the database
-      const tempCompanyId = "5f62936af3d04f91ab0c51557bd8f4e7"; // Replace with actual company ID
+      const fortnoxIntegration = fortnoxIntegrations[0]; // Take the most recent active integration
+      console.log('🔍 Selected integration:', fortnoxIntegration);
+      
+      if (!fortnoxIntegration.fortnox_company_id) {
+        console.error('❌ Fortnox company ID is missing - please reconnect to Fortnox');
+        return;
+      }
 
-      const fortnoxUrl = `https://apps5.fortnox.se/app/${tempCompanyId}/bf/voucher/A-${verificationNumber}`;
+      const fortnoxUrl = `https://apps5.fortnox.se/app/${fortnoxIntegration.fortnox_company_id}/bf/voucher/A-${verificationNumber}`;
       console.log('🔍 Opening URL:', fortnoxUrl);
       
       window.open(fortnoxUrl, 'fortnox-voucher', 'width=1200,height=800,scrollbars=yes,resizable=yes');

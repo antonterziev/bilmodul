@@ -248,6 +248,37 @@ serve(async (req) => {
       // Store tokens in fortnox_integrations table (upsert for user)
       const expiresAt = new Date(Date.now() + (tokenData.expires_in * 1000));
       
+      console.log(`📊 Fetching company information for ${requestId}...`);
+      
+      // Fetch company information to get the company ID
+      let companyId = null;
+      let companyName = null;
+      
+      try {
+        const companyResponse = await fetch('https://api.fortnox.se/3/companyinformation', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${tokenData.access_token}`,
+            'Accept': 'application/json'
+          }
+        });
+
+        if (companyResponse.ok) {
+          const companyData = await companyResponse.json();
+          console.log(`📊 Company information received for ${requestId}:`, companyData);
+          
+          if (companyData.CompanyInformation) {
+            companyId = companyData.CompanyInformation.DatabaseNumber?.toString();
+            companyName = companyData.CompanyInformation.CompanyName;
+            console.log(`📊 Extracted company ID: ${companyId}, name: ${companyName}`);
+          }
+        } else {
+          console.warn(`⚠️ Failed to fetch company information for ${requestId}:`, companyResponse.status);
+        }
+      } catch (companyError) {
+        console.error(`❌ Error fetching company information for ${requestId}:`, companyError);
+      }
+      
       const { error: upsertError } = await supabase
         .from('fortnox_integrations')
         .upsert({
@@ -258,6 +289,8 @@ serve(async (req) => {
           oauth_code: code,
           code_used_at: new Date().toISOString(),
           is_active: true,
+          fortnox_company_id: companyId,
+          company_name: companyName,
           updated_at: new Date().toISOString()
         });
 
