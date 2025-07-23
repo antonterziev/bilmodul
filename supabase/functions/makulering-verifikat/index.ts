@@ -14,9 +14,9 @@ serve(async (req) => {
   }
 
   try {
-    const { series, number, userId } = await req.json();
+    const { series, number, userId, correctionSeries = 'Z' } = await req.json();
 
-    console.log('📝 Creating correction voucher for:', { series, number, userId });
+    console.log('📝 Creating correction voucher for:', { series, number, userId, correctionSeries });
 
     // Initialize Supabase client
     const supabase = createClient(
@@ -83,17 +83,30 @@ serve(async (req) => {
     console.log('📄 Original voucher fetched:', origVoucher);
 
     // 2. Bygg spegelverifikatet (swap debit and credit)
-    const correctionRows = origVoucher.VoucherRows.map((row: any) => ({
-      Account: row.Account,
-      Debit: row.Credit,
-      Credit: row.Debit
-    }));
+    const correctionRows = origVoucher.VoucherRows
+      .filter((row: any) => Number(row.Debit || 0) !== 0 || Number(row.Credit || 0) !== 0)
+      .map((row: any) => ({
+        Account: row.Account,
+        Debit: row.Credit || undefined,
+        Credit: row.Debit || undefined,
+        CostCenter: row.CostCenter,
+        Project: row.Project,
+        TransactionInformation: `Makulerar rad från ${series}-${number}`
+      }));
+
+    if (correctionRows.length === 0) {
+      console.error('❌ No valid rows found to create correction voucher');
+      return new Response(
+        JSON.stringify({ error: 'Inga giltiga rader att makulera' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     const body = {
-      VoucherSeries: series,
+      VoucherSeries: correctionSeries,
       TransactionDate: new Date().toISOString().split("T")[0],
-      Description: `Makulerar verifikat ${series}-${number}`,
-      Reference: "Ändringsverifikation",
+      Description: `Ändringsverifikation för verifikat ${series}-${number}`,
+      Reference: "Automatisk makulering",
       VoucherRows: correctionRows
     };
 
