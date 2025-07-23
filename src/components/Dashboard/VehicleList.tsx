@@ -347,15 +347,22 @@ export const VehicleList = ({
   const handleOpenFortnoxVoucher = async (verificationNumber: string) => {
     try {
       // Get the user's Fortnox integration to find their company ID
-      const { data: fortnoxIntegration, error } = await supabase
+      const { data: fortnoxIntegrations, error } = await supabase
         .from('fortnox_integrations')
         .select('fortnox_company_id')
         .eq('user_id', user.id)
         .eq('is_active', true)
-        .single();
+        .order('created_at', { ascending: false });
 
-      if (error || !fortnoxIntegration?.fortnox_company_id) {
+      if (error || !fortnoxIntegrations || fortnoxIntegrations.length === 0) {
         console.error('Could not find Fortnox company ID:', error);
+        return;
+      }
+
+      const fortnoxIntegration = fortnoxIntegrations[0]; // Take the most recent active integration
+      
+      if (!fortnoxIntegration.fortnox_company_id) {
+        console.error('Fortnox company ID is missing');
         return;
       }
 
