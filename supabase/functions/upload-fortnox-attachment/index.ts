@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
     
     console.log('📤 FormData created successfully');
 
-    // Upload file to Fortnox archive (not voucherattachments)
+    // Step 1: Upload file to Fortnox archive
     const archiveUploadRes = await fetch('https://api.fortnox.se/3/archive', {
       method: 'POST',
       headers: {
@@ -63,23 +63,7 @@ Deno.serve(async (req) => {
       body: archiveResponseText.substring(0, 500) + (archiveResponseText.length > 500 ? '...' : '')
     });
 
-    if (archiveUploadRes.ok) {
-      const archiveData = JSON.parse(archiveResponseText);
-      console.log('✅ File uploaded to archive successfully:', archiveData);
-      console.log('📋 Archive file ID for linking:', archiveData.File?.Id);
-      
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          data: {
-            ArchiveFileId: archiveData.File.ArchiveFileId,
-            FileName: archiveData.File.Name,
-          },
-          message: 'File uploaded to Fortnox archive'
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    } else {
+    if (!archiveUploadRes.ok) {
       console.log('⚠️ Failed to upload file to archive:', archiveResponseText);
       
       return new Response(
@@ -94,6 +78,61 @@ Deno.serve(async (req) => {
         }
       );
     }
+
+    const archiveData = JSON.parse(archiveResponseText);
+    const archiveFileId = archiveData?.File?.ArchiveFileId;
+    console.log('✅ Archive upload response:', archiveData);
+    console.log('📋 Archive file ID for linking:', archiveFileId);
+
+    // Step 2: Attach file to voucher using JSON payload
+    const attachRes = await fetch('https://api.fortnox.se/3/voucherattachments', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        VoucherAttachment: {
+          VoucherSeries: voucherSeries,
+          VoucherNumber: voucherNumber,
+          ArchiveFileId: archiveFileId,
+          Name: fileName || 'bokforingsunderlag.pdf'
+        }
+      })
+    });
+
+    const attachText = await attachRes.text();
+    console.log('📎 Attach response:', attachRes.status, attachText);
+
+    if (!attachRes.ok) {
+      console.log('⚠️ Failed to attach file to voucher:', attachText);
+      
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: `Fortnox attachment error: ${attachRes.status} - ${attachText}`,
+          status: attachRes.status
+        }),
+        { 
+          status: attachRes.status,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    console.log('✅ File successfully uploaded and attached to voucher');
+    
+    return new Response(
+      JSON.stringify({ 
+        success: true, 
+        data: {
+          ArchiveFileId: archiveFileId,
+          FileName: archiveData.File.Name,
+        },
+        message: 'File uploaded to archive and attached to voucher'
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
 
   } catch (error) {
     console.error('Error in upload-fortnox-attachment:', error)
