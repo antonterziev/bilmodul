@@ -65,13 +65,22 @@ serve(async (req) => {
       );
     }
 
-    // Set headers for OAuth authentication
+    // Set headers with proper authentication based on token type
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       "Accept": "application/json",
-      "Authorization": `Bearer ${integration.access_token}`,
-      "Client-Identifier": clientId
+      "Access-Token": integration.access_token,
+      "Client-Identifier": clientId  // Required for all token types
     };
+
+    if (!integration.access_token.startsWith("ey")) {
+      // Only for API-tokens (not OAuth-tokens)
+      headers["Client-Secret"] = clientSecret;
+      console.log("🔐 Detected API-token – including client-secret");
+    } else {
+      // OAuth-token (JWT) → Do not send client-secret
+      console.log("🔐 Detected OAuth-token – skipping client-secret");
+    }
 
     console.log('🔍 Fetching original voucher:', `https://api.fortnox.se/3/vouchers/${series}/${number}`);
 
