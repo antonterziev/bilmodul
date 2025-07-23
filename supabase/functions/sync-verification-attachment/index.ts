@@ -80,11 +80,25 @@ serve(async (req) => {
       body: uploadForm,
     });
 
+    console.log(`📤 Upload response status: ${inboxUploadRes.status}`);
+    console.log(`📤 Upload response headers:`, Object.fromEntries(inboxUploadRes.headers.entries()));
+    
     const inboxJson = await inboxUploadRes.json();
+    console.log('📤 Upload response JSON:', inboxJson);
+    
     const fileId = inboxJson?.InboxFile?.Id;
 
     if (!fileId) {
-      console.error("❌ Upload to Fortnox failed:", inboxJson);
+      console.error("❌ Upload to Fortnox failed:");
+      console.error("❌ Response status:", inboxUploadRes.status);
+      console.error("❌ Response body:", inboxJson);
+      
+      // Check for specific error types
+      if (inboxJson?.ErrorInformation?.code === 2000663) {
+        console.error("❌ Token saknar 'inbox' scope i Fortnox OAuth-applikationen");
+        return new Response("Token missing inbox scope", { status: 403, headers: corsHeaders });
+      }
+      
       return new Response("Failed to upload file to Fortnox", { status: 500, headers: corsHeaders });
     }
 
