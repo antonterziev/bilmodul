@@ -94,6 +94,7 @@ serve(async (req) => {
 
     console.log(`📤 Creating correction voucher with ${correctionRows.length} rows for series ${correctionSeries}`);
     console.log(`📅 Transaction date: ${body.TransactionDate}`);
+    console.log(`🔍 Request body:`, JSON.stringify(body, null, 2));
 
     const createRes = await fetch("https://api.fortnox.se/3/vouchers", {
       method: "POST",
