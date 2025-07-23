@@ -137,7 +137,7 @@ export const VehicleList = ({
   const getStatusVariant = (status: string) => {
     switch (status) {
       case 'på_lager':
-        return 'default' as const; // Will be styled green with custom CSS
+        return 'outline' as const; // Outline style like Bokförd
       case 'på_väg':
         return 'secondary' as const;
       case 'såld':
