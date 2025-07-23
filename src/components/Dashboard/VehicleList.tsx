@@ -223,7 +223,7 @@ export const VehicleList = ({
               series: 'A',
               number: vehicle.fortnox_verification_number,
               userId: user?.id,
-              correctionSeries: 'Z'
+              correctionSeries: 'A'
             }
           });
 

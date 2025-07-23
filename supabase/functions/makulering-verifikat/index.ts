@@ -14,7 +14,7 @@ serve(async (req) => {
   }
 
   try {
-    const { series, number, userId, correctionSeries = 'Z' } = await req.json();
+    const { series, number, userId, correctionSeries = 'A' } = await req.json();
 
     console.log('📝 Creating correction voucher for:', { series, number, userId, correctionSeries });
 
