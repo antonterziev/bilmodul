@@ -21,12 +21,24 @@ serve(async (req) => {
       return new Response("Unauthorized", { status: 401, headers: corsHeaders });
     }
 
+    console.log("📥 Processing formData...");
+    
     const formData = await req.formData();
+    console.log("📥 FormData entries:", Array.from(formData.entries()).map(([k, v]) => [k, typeof v, v instanceof File ? v.name : 'not a file']));
+    
     const file = formData.get("file") as File;
     const inventoryItemId = formData.get("inventoryItemId") as string;
 
+    console.log("📥 File details:", {
+      hasFile: !!file,
+      fileName: file?.name,
+      fileType: file?.type,
+      fileSize: file?.size,
+      inventoryItemId
+    });
+
     if (!file || !inventoryItemId) {
-      console.error("❌ Missing file or inventoryItemId");
+      console.error("❌ Missing file or inventoryItemId", { hasFile: !!file, inventoryItemId });
       return new Response("Missing file or inventoryItemId", { status: 400, headers: corsHeaders });
     }
 
