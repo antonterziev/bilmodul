@@ -363,43 +363,43 @@ Deno.serve(async (req) => {
               const archiveData = JSON.parse(archiveResponseText);
               console.log('✅ File uploaded to archive successfully:', archiveData);
               
-              // Step 2: Create voucher file connection
+              // Step 2: Connect archive file to voucher using inbox connectors
               const fileId = archiveData.File?.Id;
               if (fileId) {
-                console.log('📤 Step 2: Creating voucher file connection...');
-                
-                const voucherFileConnectionData = {
-                  VoucherFileConnection: {
-                    FileId: fileId,
-                    VoucherSeries: 'A',
-                    VoucherNumber: verificationNumber
-                  }
-                };
+                console.log('📎 Connecting archive file to voucher...');
 
-                const connectionRes = await fetch('https://api.fortnox.se/3/voucherfileconnections', {
+                const connectorResponse = await fetch('https://api.fortnox.se/3/inboxconnectors', {
                   method: 'POST',
                   headers: {
-                    "Authorization": `Bearer ${accessToken}`,
-                    "Content-Type": "application/json",
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Client-Secret': Deno.env.get('FORTNOX_CLIENT_SECRET') ?? '',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                   },
-                  body: JSON.stringify(voucherFileConnectionData)
+                  body: JSON.stringify({
+                    InboxFileId: fileId,
+                    EntityType: 'Voucher',
+                    EntityId: `A-${verificationNumber}`, // Use actual voucher series and number
+                  }),
                 });
 
-                const connectionResponseText = await connectionRes.text();
-                console.log('📤 Voucher file connection response:', {
-                  status: connectionRes.status,
-                  statusText: connectionRes.statusText,
-                  ok: connectionRes.ok,
-                  body: connectionResponseText.substring(0, 500) + (connectionResponseText.length > 500 ? '...' : '')
+                const connectorResult = await connectorResponse.json();
+                console.log('📤 Inbox connector response:', {
+                  status: connectorResponse.status,
+                  statusText: connectorResponse.statusText,
+                  ok: connectorResponse.ok,
+                  body: JSON.stringify(connectorResult).substring(0, 500) + (JSON.stringify(connectorResult).length > 500 ? '...' : '')
                 });
 
-                if (connectionRes.ok) {
-                  const connectionData = JSON.parse(connectionResponseText);
-                  console.log('✅ Voucher file connection created successfully:', connectionData);
-                  attachmentResult = { success: true, data: { archive: archiveData, connection: connectionData } };
+                if (!connectorResponse.ok) {
+                  console.error('❌ Failed to connect archive file:', connectorResult);
+                  attachmentResult = {
+                    success: false,
+                    error: `Could not link archive file to voucher: ${connectorResult.ErrorInformation?.message || connectorResponse.statusText}`
+                  };
                 } else {
-                  console.log('⚠️ Failed to create voucher file connection:', connectionResponseText);
-                  attachmentResult = { success: false, error: `Voucher file connection error: ${connectionRes.status} - ${connectionResponseText}` };
+                  console.log('✅ Archive file connected to voucher');
+                  attachmentResult = { success: true, data: { archive: archiveData, connection: connectorResult }, koppling: { success: true } };
                 }
               } else {
                 console.log('⚠️ No FileId returned from archive upload');
