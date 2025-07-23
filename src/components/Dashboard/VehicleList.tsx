@@ -424,9 +424,9 @@ export const VehicleList = ({
                 </div>
                 
                 {/* Vehicle main info */}
-                <div className="flex-1 grid grid-cols-5 gap-6 items-center text-sm">
+                <div className="flex-1 grid grid-cols-6 gap-6 items-center text-sm">
                    {/* Column 1: Brand & Model + Registration */}
-                   <div className="col-span-1">
+                   <div className="col-span-2">
                      <h3 className="font-medium truncate" title={`${vehicle.brand} ${vehicle.model || ''}`}>
                        {vehicle.brand} {vehicle.model || ''}
                      </h3>
