@@ -345,7 +345,7 @@ export const VehicleList = ({
   };
 
   const handleOpenFortnoxVoucher = (verificationNumber: string) => {
-    const fortnoxUrl = `https://apps.fortnox.se/3/vouchers/A/${verificationNumber}`;
+    const fortnoxUrl = `https://www.fortnox.se/bokforing/verifikationer/A/${verificationNumber}`;
     window.open(fortnoxUrl, 'fortnox-voucher', 'width=1200,height=800,scrollbars=yes,resizable=yes');
   };
 
