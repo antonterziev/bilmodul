@@ -345,7 +345,11 @@ export const VehicleList = ({
   };
 
   const handleOpenFortnoxVoucher = async (verificationNumber: string) => {
+    console.log('🔍 handleOpenFortnoxVoucher called with verification number:', verificationNumber);
+    
     try {
+      console.log('🔍 User ID:', user?.id);
+      
       // Get the user's Fortnox integration to find their company ID
       const { data: fortnoxIntegrations, error } = await supabase
         .from('fortnox_integrations')
@@ -354,22 +358,34 @@ export const VehicleList = ({
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
-      if (error || !fortnoxIntegrations || fortnoxIntegrations.length === 0) {
-        console.error('Could not find Fortnox company ID:', error);
+      console.log('🔍 Fortnox integrations query result:', { fortnoxIntegrations, error });
+
+      if (error) {
+        console.error('❌ Database error:', error);
+        return;
+      }
+
+      if (!fortnoxIntegrations || fortnoxIntegrations.length === 0) {
+        console.error('❌ No active Fortnox integrations found');
         return;
       }
 
       const fortnoxIntegration = fortnoxIntegrations[0]; // Take the most recent active integration
+      console.log('🔍 Selected integration:', fortnoxIntegration);
       
       if (!fortnoxIntegration.fortnox_company_id) {
-        console.error('Fortnox company ID is missing');
+        console.error('❌ Fortnox company ID is missing');
         return;
       }
 
       const fortnoxUrl = `https://apps5.fortnox.se/app/${fortnoxIntegration.fortnox_company_id}/bf/voucher/A-${verificationNumber}`;
+      console.log('🔍 Opening URL:', fortnoxUrl);
+      
       window.open(fortnoxUrl, 'fortnox-voucher', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+      console.log('✅ Window.open called successfully');
+      
     } catch (error) {
-      console.error('Error opening Fortnox voucher:', error);
+      console.error('❌ Error opening Fortnox voucher:', error);
     }
   };
 
