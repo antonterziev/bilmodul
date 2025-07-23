@@ -119,41 +119,46 @@ Deno.serve(async (req) => {
 
           if (inboxUploadRes.ok) {
             const inboxJson = await inboxUploadRes.json();
-            const fileId = inboxJson?.InboxFile?.Id;
+            console.log("📤 Inbox upload response:", JSON.stringify(inboxJson, null, 2));
+            
+            // Check if we have a File object (successful upload)
+            const fileId = inboxJson?.File?.Id;
 
             if (fileId) {
               console.log(`✅ Uploaded file to inbox. FileId: ${fileId}`);
 
-            // Connect file to voucher
-            const connectionRes = await fetch("https://api.fortnox.se/3/voucherfileconnections", {
-              method: "POST",
-              headers: {
-                "Access-Token": clientSecret,
-                "Authorization": `Bearer ${accessToken}`,
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                VoucherFileConnection: {
-                  FileId: fileId,
-                  VoucherSeries: "A",
-                  VoucherNumber: parseInt(verificationNumber),
-                  VoucherYear: new Date(purchaseDate).getFullYear(),
+              // Connect file to voucher
+              console.log(`🔗 Connecting file ${fileId} to voucher A-${verificationNumber}-${new Date(purchaseDate).getFullYear()}`);
+              const connectionRes = await fetch("https://api.fortnox.se/3/voucherfileconnections", {
+                method: "POST",
+                headers: {
+                  "Access-Token": clientSecret,
+                  "Authorization": `Bearer ${accessToken}`,
+                  "Accept": "application/json",
+                  "Content-Type": "application/json",
                 },
-              }),
-            });
+                body: JSON.stringify({
+                  VoucherFileConnection: {
+                    FileId: fileId,
+                    VoucherSeries: "A",
+                    VoucherNumber: parseInt(verificationNumber),
+                    VoucherYear: new Date(purchaseDate).getFullYear(),
+                  },
+                }),
+              });
 
-            if (connectionRes.ok) {
-              console.log(`✅ File successfully connected to voucher.`);
-              attachmentResult = { success: true, fileId };
+              if (connectionRes.ok) {
+                const connectionJson = await connectionRes.json();
+                console.log(`✅ File successfully connected to voucher:`, connectionJson);
+                attachmentResult = { success: true, fileId };
+              } else {
+                const connectionJson = await connectionRes.json();
+                console.error("❌ Could not connect file to voucher:", connectionJson);
+                attachmentResult = { success: false, error: `Voucher connection failed: ${JSON.stringify(connectionJson)}` };
+              }
             } else {
-              const connectionJson = await connectionRes.json();
-              console.error("❌ Could not connect file to voucher:", connectionJson);
-              attachmentResult = { success: false, error: 'Voucher connection failed' };
-            }
-            } else {
-              console.error("❌ Upload to Fortnox failed:", inboxJson);
-              attachmentResult = { success: false, error: inboxJson?.ErrorInformation?.message || 'Upload failed' };
+              console.error("❌ No FileId in upload response:", inboxJson);
+              attachmentResult = { success: false, error: 'No FileId in upload response' };
             }
           } else {
             console.error("❌ Upload request failed:", inboxUploadRes.status);
