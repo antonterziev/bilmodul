@@ -82,6 +82,42 @@ export type Database = {
           },
         ]
       }
+      fortnox_corrections: {
+        Row: {
+          correction_date: string
+          correction_number: string
+          correction_series: string
+          created_at: string
+          id: string
+          original_number: string
+          original_series: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          correction_date: string
+          correction_number: string
+          correction_series: string
+          created_at?: string
+          id?: string
+          original_number: string
+          original_series: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          correction_date?: string
+          correction_number?: string
+          correction_series?: string
+          created_at?: string
+          id?: string
+          original_number?: string
+          original_series?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       fortnox_integrations: {
         Row: {
           access_token: string

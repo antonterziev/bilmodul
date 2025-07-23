@@ -14,9 +14,9 @@ serve(async (req) => {
   }
 
   try {
-    const { series, number, userId, correctionSeries = 'A' } = await req.json();
+    const { series, number, userId, correctionSeries = 'A', correctionDate } = await req.json();
 
-    console.log('📝 Creating correction voucher for:', { series, number, userId, correctionSeries });
+    console.log('📝 Creating correction voucher for:', { series, number, userId, correctionSeries, correctionDate });
 
     // Initialize Supabase client
     const supabase = createClient(
@@ -102,9 +102,11 @@ serve(async (req) => {
       );
     }
 
+    const transactionDate = correctionDate || origVoucher.TransactionDate || new Date().toISOString().split("T")[0];
+    
     const body = {
       VoucherSeries: correctionSeries,
-      TransactionDate: new Date().toISOString().split("T")[0],
+      TransactionDate: transactionDate,
       Description: `Ändringsverifikation för verifikat ${series}-${number}`,
       Reference: "Automatisk makulering",
       VoucherRows: correctionRows
@@ -122,6 +124,15 @@ serve(async (req) => {
     if (!createRes.ok) {
       const errorText = await createRes.text();
       console.error('❌ Error creating correction voucher:', errorText);
+      
+      // Better error handling for closed periods
+      if (createRes.status === 400 && errorText.includes("Bokföringsperioden är stängd")) {
+        return new Response(
+          JSON.stringify({ error: "Bokföringsperioden är stängd för valt datum. Kontrollera din verifikationsserie eller datum." }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
       return new Response(
         JSON.stringify({ error: `Fel vid skapande: ${errorText}` }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -130,6 +141,25 @@ serve(async (req) => {
 
     const created = await createRes.json();
     console.log('✅ Correction voucher created:', created);
+
+    // Log the correction in database for traceability
+    try {
+      await supabase
+        .from('fortnox_corrections')
+        .insert({
+          user_id: userId,
+          original_series: series,
+          original_number: number,
+          correction_series: created.Voucher.VoucherSeries,
+          correction_number: created.Voucher.VoucherNumber.toString(),
+          correction_date: transactionDate
+        });
+      
+      console.log('✅ Correction logged in database');
+    } catch (logError) {
+      console.error('⚠️ Failed to log correction in database:', logError);
+      // Don't fail the entire operation if logging fails
+    }
 
     return new Response(
       JSON.stringify({ 
