@@ -17,29 +17,54 @@ serve(async (req) => {
 
   try {
     const { series, number, userId, correctionSeries = 'A', correctionDate } = await req.json();
+    
+    // Log the incoming request
+    console.log(`🔄 Starting correction for voucher ${series}-${number} for user ${userId}`);
+    
     const integration = await getActiveIntegration(userId);
-
     if (!integration) {
+      await logError(userId, 'No active Fortnox integration found');
       return errorResponse('No active Fortnox integration found', 404);
     }
 
     let headers = getHeaders(integration.access_token);
-
     let originalVoucher = await tryFetchVoucher(headers, series, number);
 
     if (originalVoucher.error === 'token') {
+      console.log(`🔄 Token expired, refreshing for user ${userId}`);
       const refreshOk = await refreshAccessToken(userId);
-      if (!refreshOk) return errorResponse('Autentisering misslyckades. Kontrollera din Fortnox-anslutning i inställningar.', 401);
+      if (!refreshOk) {
+        await logError(userId, 'Token refresh failed');
+        return errorResponse('Autentisering misslyckades. Kontrollera din Fortnox-anslutning i inställningar.', 401);
+      }
 
       const refreshedIntegration = await getActiveIntegration(userId);
-      if (!refreshedIntegration) return errorResponse('Token refresh lyckades men ingen integration hittades.', 404);
+      if (!refreshedIntegration) {
+        await logError(userId, 'No integration found after token refresh');
+        return errorResponse('Token refresh lyckades men ingen integration hittades.', 404);
+      }
 
       headers = getHeaders(refreshedIntegration.access_token);
       originalVoucher = await tryFetchVoucher(headers, series, number);
-      if (originalVoucher.error) return errorResponse('Misslyckades att hämta verifikatet även efter token refresh.', 401);
+      if (originalVoucher.error) {
+        await logError(userId, `Failed to fetch voucher after token refresh: ${originalVoucher.error}`);
+        return errorResponse('Misslyckades att hämta verifikatet även efter token refresh.', 401);
+      }
+    }
+
+    if (originalVoucher.error === 'fail') {
+      await logError(userId, `Failed to fetch voucher ${series}-${number}`);
+      return errorResponse(`Kunde inte hämta verifikat ${series}-${number}. Kontrollera att det existerar i Fortnox.`, 404);
     }
 
     const orig = originalVoucher.voucher;
+    console.log(`📋 Original voucher has ${orig.VoucherRows?.length || 0} rows`);
+
+    if (!orig.VoucherRows || orig.VoucherRows.length === 0) {
+      await logError(userId, `Voucher ${series}-${number} has no rows`);
+      return errorResponse('Verifikatet har inga rader att makulera', 400);
+    }
+
     const correctionRows = orig.VoucherRows.filter(row => Number(row.Debit || 0) !== 0 || Number(row.Credit || 0) !== 0).map(row => ({
       Account: row.Account,
       Debit: row.Credit || undefined,
@@ -49,7 +74,10 @@ serve(async (req) => {
       TransactionInformation: `Makulerar rad från ${series}-${number}`
     }));
 
-    if (correctionRows.length === 0) return errorResponse('Inga giltiga rader att makulera', 400);
+    if (correctionRows.length === 0) {
+      await logError(userId, `No valid rows to correct in voucher ${series}-${number}`);
+      return errorResponse('Inga giltiga rader att makulera (alla rader har 0 i debet och kredit)', 400);
+    }
 
     const body = {
       VoucherSeries: correctionSeries,
@@ -59,18 +87,52 @@ serve(async (req) => {
       VoucherRows: correctionRows
     };
 
+    console.log(`📤 Creating correction voucher with ${correctionRows.length} rows for series ${correctionSeries}`);
+    console.log(`📅 Transaction date: ${body.TransactionDate}`);
+
     const createRes = await fetch("https://api.fortnox.se/3/vouchers", {
       method: "POST",
       headers,
       body: JSON.stringify(body)
     });
 
+    const responseText = await createRes.text();
+    
     if (!createRes.ok) {
-      const errorText = await createRes.text();
-      return errorResponse(`Fel vid skapande: ${errorText}`, createRes.status);
+      console.error(`❌ Fortnox API error (${createRes.status}):`, responseText);
+      
+      // Parse error details if possible
+      let errorDetails = responseText;
+      try {
+        const errorObj = JSON.parse(responseText);
+        if (errorObj.ErrorInformation) {
+          errorDetails = errorObj.ErrorInformation.message || errorObj.ErrorInformation.error || responseText;
+        }
+      } catch (parseError) {
+        // Keep original text if parsing fails
+      }
+
+      await logError(userId, 'Fortnox API error during correction creation', {
+        status: createRes.status,
+        response: responseText,
+        requestBody: body,
+        originalVoucher: { series, number }
+      });
+
+      return errorResponse(`Fortnox fel (${createRes.status}): ${errorDetails}`, createRes.status);
     }
 
-    const created = await createRes.json();
+    let created;
+    try {
+      created = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('❌ Failed to parse Fortnox response:', responseText);
+      await logError(userId, 'Failed to parse Fortnox response', { response: responseText });
+      return errorResponse('Kunde inte tolka svaret från Fortnox', 500);
+    }
+
+    console.log(`✅ Correction voucher created: ${created.Voucher?.VoucherSeries}-${created.Voucher?.VoucherNumber}`);
+
     await supabase.from('fortnox_corrections').insert({
       user_id: userId,
       original_series: series,
@@ -80,12 +142,17 @@ serve(async (req) => {
       correction_date: body.TransactionDate
     });
 
-    return new Response(JSON.stringify({ success: true, correctionVoucher: created.Voucher }), {
+    return new Response(JSON.stringify({ 
+      success: true, 
+      correctionVoucher: created.Voucher,
+      message: `Ändringsverifikat ${created.Voucher.VoucherSeries}-${created.Voucher.VoucherNumber} skapat`
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200
     });
   } catch (e) {
-    console.error(e);
+    console.error('❌ Unexpected error in fortnox-makulering-verifikat:', e);
+    await logError(userId || 'unknown', 'Unexpected error', { error: e.message, stack: e.stack });
     return errorResponse('Ett oväntat fel inträffade', 500);
   }
 });
@@ -177,6 +244,20 @@ async function refreshAccessToken(userId: string) {
   }).eq('user_id', userId).eq('is_active', true);
 
   return true;
+}
+
+async function logError(userId: string, message: string, context = {}) {
+  try {
+    await supabase.from('fortnox_errors_log').insert({
+      user_id: userId,
+      type: 'correction_error',
+      message,
+      context: JSON.stringify(context),
+      timestamp: new Date().toISOString()
+    });
+  } catch (e) {
+    console.error('❌ Failed to log Fortnox error:', e);
+  }
 }
 
 async function logRefreshError(userId: string, message: string, context = {}) {
