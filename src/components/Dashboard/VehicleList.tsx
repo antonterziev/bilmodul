@@ -465,7 +465,7 @@ export const VehicleList = ({
                            }`}
                            title={vehicle.fortnox_verification_number ? `Verifikation: ${vehicle.fortnox_verification_number}` : undefined}
                          >
-                           {vehicle.fortnox_sync_status === 'synced' ? '✓ F' : 
+                           {vehicle.fortnox_sync_status === 'synced' ? 'Bokförd' : 
                             vehicle.fortnox_sync_status === 'failed' ? '✗ F' : '⏳ F'}
                          </Badge>
                        )}
