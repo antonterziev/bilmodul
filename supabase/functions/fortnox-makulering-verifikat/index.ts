@@ -65,12 +65,11 @@ serve(async (req) => {
       );
     }
 
+    // For OAuth tokens, only send Access-Token (not Client-Secret/Client-Identifier)
     const headers = {
       "Content-Type": "application/json",
       "Accept": "application/json",
-      "Access-Token": integration.access_token,
-      "Client-Secret": clientSecret,
-      "Client-Identifier": clientId
+      "Access-Token": integration.access_token
     };
 
     console.log('🔍 Fetching original voucher:', `https://api.fortnox.se/3/vouchers/${series}/${number}`);
