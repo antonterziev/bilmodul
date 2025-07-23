@@ -535,7 +535,7 @@ export const VehicleList = ({
                    
                    {/* Column 5: Purchaser */}
                    <div>
-                     <p className="text-xs text-muted-foreground whitespace-nowrap">Inköpare</p>
+                     <p className="text-xs text-muted-foreground whitespace-nowrap">Momstyp</p>
                      <p className="font-medium">{formatPurchaserName(vehicle.purchaser)}</p>
                    </div>
                    
