@@ -181,7 +181,7 @@ Deno.serve(async (req) => {
       TransactionDate: purchaseDate,
       VoucherRows: [
         {
-          Account: 1465, // Vehicle account (confirmed to exist)
+          Account: 4020, // Vehicle account
           Debit: inventoryItem.purchase_price,
           Description: `Inköp ${inventoryItem.brand} ${inventoryItem.model}`,
         },
