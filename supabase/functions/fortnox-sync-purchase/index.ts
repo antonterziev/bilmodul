@@ -110,8 +110,8 @@ Deno.serve(async (req) => {
           const inboxUploadRes = await fetch("https://api.fortnox.se/3/inbox", {
             method: "POST",
             headers: {
+              "Access-Token": accessToken,
               "Client-Secret": clientSecret,
-              "Authorization": `Bearer ${accessToken}`,
               "Accept": "application/json",
             },
             body: uploadForm,
@@ -128,8 +128,8 @@ Deno.serve(async (req) => {
             const connectionRes = await fetch("https://api.fortnox.se/3/voucherfileconnections", {
               method: "POST",
               headers: {
+                "Access-Token": accessToken,
                 "Client-Secret": clientSecret,
-                "Authorization": `Bearer ${accessToken}`,
                 "Accept": "application/json",
                 "Content-Type": "application/json",
               },
