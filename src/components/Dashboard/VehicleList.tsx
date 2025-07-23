@@ -460,13 +460,13 @@ export const VehicleList = ({
                              vehicle.fortnox_sync_status === 'synced' 
                                ? 'border-green-500 text-green-700 bg-green-50' 
                                : vehicle.fortnox_sync_status === 'failed'
-                               ? 'border-red-500 text-red-700 bg-red-50'
+                               ? 'border-gray-500 text-gray-700 bg-gray-50'
                                : 'border-orange-500 text-orange-700 bg-orange-50'
                            }`}
                            title={vehicle.fortnox_verification_number ? `Verifikation: ${vehicle.fortnox_verification_number}` : undefined}
                          >
-                           {vehicle.fortnox_sync_status === 'synced' ? 'Bokförd' : 
-                            vehicle.fortnox_sync_status === 'failed' ? '✗ F' : '⏳ F'}
+                            {vehicle.fortnox_sync_status === 'synced' ? 'Bokförd' : 
+                             vehicle.fortnox_sync_status === 'failed' ? 'Ej bokförd' : '⏳ F'}
                          </Badge>
                        )}
                     </div>
