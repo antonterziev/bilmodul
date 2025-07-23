@@ -521,7 +521,7 @@ export const VehicleList = ({
                           }}
                         >
                            {vehicle.fortnox_sync_status === 'synced' ? 'Bokförd' : 
-                            vehicle.fortnox_sync_status === 'failed' ? 'Ej bokförd' : '⏳ F'}
+                            vehicle.fortnox_sync_status === 'failed' ? 'Ej syncat' : '⏳ F'}
                         </Badge>
                       )}
                    </div>
