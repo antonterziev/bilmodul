@@ -310,18 +310,51 @@ Deno.serve(async (req) => {
             console.log('✅ File downloaded successfully, size:', fileData.size, 'bytes');
             console.log('📥 File type:', fileData.type);
             
-            // Create FormData for Fortnox upload
-            const formData = new FormData();
-            formData.append('file', fileData, 'bokforingsunderlag.pdf');
-            formData.append('voucherSeries', 'A');
-            formData.append('voucherNumber', verificationNumber.toString());
+            // Create manual multipart/form-data payload
+            const boundary = `----formdata-lovable-${Date.now()}`;
+            const fileBytes = new Uint8Array(await fileData.arrayBuffer());
+            
+            // Build multipart body manually
+            const textEncoder = new TextEncoder();
+            const parts = [];
+            
+            // Add file part
+            parts.push(textEncoder.encode(`--${boundary}\r\n`));
+            parts.push(textEncoder.encode(`Content-Disposition: form-data; name="file"; filename="bokforingsunderlag.pdf"\r\n`));
+            parts.push(textEncoder.encode(`Content-Type: application/pdf\r\n\r\n`));
+            parts.push(fileBytes);
+            parts.push(textEncoder.encode(`\r\n`));
+            
+            // Add voucherSeries part
+            parts.push(textEncoder.encode(`--${boundary}\r\n`));
+            parts.push(textEncoder.encode(`Content-Disposition: form-data; name="voucherSeries"\r\n\r\n`));
+            parts.push(textEncoder.encode(`A\r\n`));
+            
+            // Add voucherNumber part
+            parts.push(textEncoder.encode(`--${boundary}\r\n`));
+            parts.push(textEncoder.encode(`Content-Disposition: form-data; name="voucherNumber"\r\n\r\n`));
+            parts.push(textEncoder.encode(`${verificationNumber.toString()}\r\n`));
+            
+            // Close boundary
+            parts.push(textEncoder.encode(`--${boundary}--\r\n`));
+            
+            // Calculate total length and create final body
+            const totalLength = parts.reduce((sum, part) => sum + part.length, 0);
+            const body = new Uint8Array(totalLength);
+            let offset = 0;
+            for (const part of parts) {
+              body.set(part, offset);
+              offset += part.length;
+            }
 
             console.log('📤 Uploading attachment to Fortnox...');
             console.log('📤 Form data details:', {
               voucherSeries: 'A',
               voucherNumber: verificationNumber.toString(),
               fileName: 'bokforingsunderlag.pdf',
-              fileSize: fileData.size
+              fileSize: fileData.size,
+              boundary: boundary,
+              totalBodySize: body.length
             });
 
             // Upload attachment to Fortnox
@@ -329,9 +362,9 @@ Deno.serve(async (req) => {
               method: 'POST',
               headers: {
                 "Authorization": `Bearer ${accessToken}`,
-                // Note: Don't set Content-Type for FormData, let the browser set it
+                "Content-Type": `multipart/form-data; boundary=${boundary}`,
               },
-              body: formData
+              body: body
             });
 
             const attachmentResponseText = await attachmentRes.text();
