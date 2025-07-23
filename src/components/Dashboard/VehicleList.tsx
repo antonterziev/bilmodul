@@ -453,22 +453,22 @@ export const VehicleList = ({
                        >
                         {getStatusLabel(vehicle.status)}
                       </Badge>
-                      {vehicle.fortnox_sync_status && (
-                        <Badge 
-                          variant="outline"
-                          className={`text-xs px-1 ${
-                            vehicle.fortnox_sync_status === 'synced' 
-                              ? 'border-green-500 text-green-700 bg-green-50' 
-                              : vehicle.fortnox_sync_status === 'failed'
-                              ? 'border-red-500 text-red-700 bg-red-50'
-                              : 'border-orange-500 text-orange-700 bg-orange-50'
-                          }`}
-                          title={vehicle.fortnox_verification_number ? `Verifikation: ${vehicle.fortnox_verification_number}` : undefined}
-                        >
-                          {vehicle.fortnox_sync_status === 'synced' ? '✓ F' : 
-                           vehicle.fortnox_sync_status === 'failed' ? '✗ F' : '⏳ F'}
-                        </Badge>
-                      )}
+                       {vehicle.fortnox_sync_status && (
+                         <Badge 
+                           variant="outline"
+                           className={`text-xs px-1 w-16 justify-center ${
+                             vehicle.fortnox_sync_status === 'synced' 
+                               ? 'border-green-500 text-green-700 bg-green-50' 
+                               : vehicle.fortnox_sync_status === 'failed'
+                               ? 'border-red-500 text-red-700 bg-red-50'
+                               : 'border-orange-500 text-orange-700 bg-orange-50'
+                           }`}
+                           title={vehicle.fortnox_verification_number ? `Verifikation: ${vehicle.fortnox_verification_number}` : undefined}
+                         >
+                           {vehicle.fortnox_sync_status === 'synced' ? '✓ F' : 
+                            vehicle.fortnox_sync_status === 'failed' ? '✗ F' : '⏳ F'}
+                         </Badge>
+                       )}
                     </div>
                   </div>
                   
