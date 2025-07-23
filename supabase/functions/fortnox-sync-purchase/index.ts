@@ -336,10 +336,10 @@ Deno.serve(async (req) => {
       }
 
       const responseMessage = attachmentResult?.success 
-        ? `${inventoryItem.registration_number} har synkroniserats med Fortnox med bokföringsunderlag`
+        ? `${inventoryItem.registration_number} synkad till Fortnox med bokföringsunderlag`
         : attachmentResult?.error 
-        ? `${inventoryItem.registration_number} har synkroniserats med Fortnox (bilaga kunde inte laddas upp: ${attachmentResult.error})`
-        : `${inventoryItem.registration_number} har synkroniserats med Fortnox`;
+        ? `${inventoryItem.registration_number} synkad till Fortnox (varning: ${attachmentResult.error})`
+        : `${inventoryItem.registration_number} synkad till Fortnox`;
 
       return new Response(
         JSON.stringify({ 
