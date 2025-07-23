@@ -16,7 +16,7 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
   try {
-    const { series, number, userId, correctionSeries = 'A', correctionDate } = await req.json();
+    const { series, number, userId, correctionSeries = 'A', correctionDate, registrationNumber } = await req.json();
     
     // Log the incoming request
     console.log(`🔄 Starting correction for voucher ${series}-${number} for user ${userId}`);
@@ -75,7 +75,7 @@ serve(async (req) => {
     function cleanRow(row: any) {
       const cleaned: Record<string, any> = {
         Account: Number(row.Account),
-        TransactionInformation: `Makulerar rad från ${series}-${number}`
+        TransactionInformation: `Makulerar rad från ${series}${number}`
       };
       const debit = toAmount(row.Credit);
       const credit = toAmount(row.Debit);
@@ -110,7 +110,9 @@ serve(async (req) => {
     const body = {
       VoucherSeries: correctionSeries,
       TransactionDate: correctionDate || orig.TransactionDate || new Date().toISOString().split("T")[0],
-      Description: `Ändringsverifikation för verifikat ${series}-${number}`,
+      Description: registrationNumber 
+        ? `Ändringsverifikation för verifikat ${series}${number} (${registrationNumber})`
+        : `Ändringsverifikation för verifikat ${series}${number}`,
       VoucherRows: correctionRows
     };
 
