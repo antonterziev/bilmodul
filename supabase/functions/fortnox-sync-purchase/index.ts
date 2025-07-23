@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
       const { data: fileData, error: fileError } = await serviceClient.storage.from('purchase-docs').download(filePath);
       if (!fileError && fileData) {
         const formData = new FormData();
-        formData.append('file', new Blob([fileData], { type: 'application/pdf' }), 'bokforingsunderlag.pdf');
+        formData.append('file', new File([fileData], 'bokforingsunderlag.pdf', { type: 'application/pdf' }));
         formData.append('inventoryItemId', inventoryItemId);
 
         const uploadResponse = await supabaseClient.functions.invoke('sync-verification-attachment', {
