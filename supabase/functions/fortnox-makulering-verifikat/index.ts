@@ -35,11 +35,18 @@ serve(async (req) => {
 
     if (integrationError || !integration) {
       console.error('❌ No active Fortnox integration found:', integrationError);
+      console.log('🔍 Integration query details:', { userId, integrationError, integration });
       return new Response(
         JSON.stringify({ error: 'No active Fortnox integration found' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log('✅ Integration found:', { 
+      hasAccessToken: !!integration.access_token,
+      hasRefreshToken: !!integration.refresh_token,
+      tokenExpiresAt: integration.token_expires_at 
+    });
 
     // Get Fortnox credentials from environment
     const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET');
