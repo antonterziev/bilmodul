@@ -497,22 +497,6 @@ export const VehicleList = ({
                       {vehicle.expected_selling_price ? formatPrice(vehicle.expected_selling_price) : "-"}
                     </p>
                   </div>
-                  
-                  {/* Column 7: Gross Profit */}
-                  <div>
-                    <p className="text-xs text-muted-foreground whitespace-nowrap">Bruttovinst</p>
-                    <p className={`font-medium ${
-                      vehicle.expected_selling_price && (vehicle.expected_selling_price - vehicle.purchase_price) < 0 
-                        ? 'text-red-600' 
-                        : vehicle.expected_selling_price && (vehicle.expected_selling_price - vehicle.purchase_price) > 0
-                        ? 'text-green-600'
-                        : ''
-                    }`}>
-                      {vehicle.expected_selling_price 
-                        ? formatPrice(vehicle.expected_selling_price - vehicle.purchase_price)
-                        : "-"}
-                    </p>
-                  </div>
                 </div>
                 
                 {/* Action buttons */}
