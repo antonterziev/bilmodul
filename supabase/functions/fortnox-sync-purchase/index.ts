@@ -341,7 +341,7 @@ Deno.serve(async (req) => {
               offset += part.length;
             }
 
-            // Upload file to Fortnox archive with simpler approach
+            // Upload file to Fortnox archive
             const archiveRes = await fetch('https://api.fortnox.se/3/archive', {
               method: 'POST',
               headers: {
