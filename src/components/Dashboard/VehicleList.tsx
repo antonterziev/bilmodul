@@ -214,28 +214,32 @@ export const VehicleList = ({
       // First check if vehicle is synced with Fortnox
       const vehicle = vehicles.find(v => v.id === vehicleId);
       
-      // If synced with Fortnox, delete the voucher first
+      // If synced with Fortnox, create a correction voucher
       if (vehicle?.fortnox_sync_status === 'synced' && vehicle?.fortnox_verification_number) {
         try {
-          const { data, error } = await supabase.functions.invoke('fortnox-delete-voucher', {
-            body: { inventoryItemId: vehicleId }
+          const { data, error } = await supabase.functions.invoke('create-correction-voucher', {
+            body: { 
+              series: 'A',
+              number: vehicle.fortnox_verification_number,
+              userId: user?.id
+            }
           });
 
           if (error) throw error;
 
           if (!data?.success) {
-            throw new Error(data?.error || 'Okänt fel vid borttagning från Fortnox');
+            throw new Error(data?.error || 'Okänt fel vid skapande av ändringsverifikation');
           }
 
           toast({
-            title: "Fortnox-synkronisering uppdaterad",
-            description: `Verifikation ${vehicle.fortnox_verification_number} har tagits bort från Fortnox.`,
+            title: "Ändringsverifikation skapad",
+            description: `${data.message} för att makulera originalverifikatet.`,
           });
         } catch (fortnoxError) {
-          console.error('Error deleting from Fortnox:', fortnoxError);
+          console.error('Error creating correction voucher:', fortnoxError);
           toast({
             title: "Varning",
-            description: `Kunde inte ta bort verifikationen från Fortnox: ${fortnoxError.message}. Fordonet kommer ändå att tas bort från lagret.`,
+            description: `Kunde inte skapa ändringsverifikation i Fortnox: ${fortnoxError.message}. Fordonet kommer ändå att tas bort från lagret.`,
             variant: "destructive",
           });
         }
