@@ -75,6 +75,8 @@ Deno.serve(async (req) => {
 
     const voucherData = JSON.parse(voucherText);
     const verificationNumber = voucherData?.Voucher?.VoucherNumber;
+    const voucherSeries = voucherData?.Voucher?.VoucherSeries;
+    const voucherYear = voucherData?.Voucher?.VoucherYear;
 
     await supabaseClient.from('inventory_items').update({
       fortnox_sync_status: 'synced',
@@ -127,8 +129,8 @@ Deno.serve(async (req) => {
             if (fileId) {
               console.log(`✅ Uploaded file to inbox. FileId: ${fileId}`);
 
-              // Connect file to voucher
-              console.log(`🔗 Connecting file ${fileId} to voucher A-${verificationNumber}-${new Date(purchaseDate).getFullYear()}`);
+              // Connect file to voucher - use actual Fortnox values
+              console.log(`🔗 Connecting file ${fileId} to voucher ${voucherSeries}-${verificationNumber}-${voucherYear}`);
               const connectionRes = await fetch("https://api.fortnox.se/3/voucherfileconnections", {
                 method: "POST",
                 headers: {
@@ -140,9 +142,9 @@ Deno.serve(async (req) => {
                 body: JSON.stringify({
                   VoucherFileConnection: {
                     FileId: fileId,
-                    VoucherSeries: "A",
-                    VoucherNumber: parseInt(verificationNumber),
-                    VoucherYear: new Date(purchaseDate).getFullYear(),
+                    VoucherSeries: voucherSeries,
+                    VoucherNumber: verificationNumber,
+                    VoucherYear: voucherYear,
                   },
                 }),
               });
