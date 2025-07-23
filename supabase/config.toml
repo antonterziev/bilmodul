@@ -18,3 +18,6 @@ verify_jwt = true
 
 [functions.get-fortnox-app-id]
 verify_jwt = true
+
+[functions.upload-voucher-attachment]
+verify_jwt = true

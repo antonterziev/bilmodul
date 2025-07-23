@@ -276,11 +276,77 @@ Deno.serve(async (req) => {
           .eq('id', logEntry.id)
       }
 
+      // After successful voucher creation, try to upload PDF if it exists
+      let attachmentResult = null;
+      if (inventoryItem.purchase_documentation) {
+        console.log('📎 Found purchase documentation, uploading to Fortnox...');
+        
+        try {
+          const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET');
+          const clientId = Deno.env.get('FORTNOX_CLIENT_ID');
+          
+          // Create a service role client to access storage
+          const serviceClient = createClient(
+            Deno.env.get('SUPABASE_URL') ?? '',
+            Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+          );
+          
+          // Download file from Supabase Storage
+          const { data: fileData, error: fileError } = await serviceClient.storage
+            .from('down-payment-docs')
+            .download(inventoryItem.purchase_documentation);
+
+          if (fileError) {
+            console.log('⚠️ Could not download file from storage:', fileError);
+            attachmentResult = { success: false, error: fileError.message };
+          } else {
+            console.log('📥 File downloaded from storage, uploading to Fortnox...');
+            
+            // Create FormData for Fortnox upload
+            const formData = new FormData();
+            formData.append('file', fileData, 'bokforingsunderlag.pdf');
+            formData.append('voucherSeries', 'A');
+            formData.append('voucherNumber', verificationNumber.toString());
+
+            // Upload attachment to Fortnox
+            const attachmentRes = await fetch('https://api.fortnox.se/3/voucherattachments', {
+              method: 'POST',
+              headers: {
+                "Access-Token": accessToken,
+                "Client-Secret": clientSecret,
+                "Client-Identifier": clientId
+              },
+              body: formData
+            });
+
+            if (attachmentRes.ok) {
+              const attachmentData = await attachmentRes.json();
+              console.log('✅ Attachment uploaded successfully:', attachmentData);
+              attachmentResult = { success: true, data: attachmentData };
+            } else {
+              const attachmentError = await attachmentRes.text();
+              console.log('⚠️ Failed to upload attachment:', attachmentError);
+              attachmentResult = { success: false, error: attachmentError };
+            }
+          }
+        } catch (uploadError) {
+          console.log('⚠️ Error during file upload process:', uploadError);
+          attachmentResult = { success: false, error: uploadError.message };
+        }
+      }
+
+      const responseMessage = attachmentResult?.success 
+        ? `${inventoryItem.registration_number} har synkroniserats med Fortnox med bokföringsunderlag`
+        : attachmentResult?.error 
+        ? `${inventoryItem.registration_number} har synkroniserats med Fortnox (bilaga kunde inte laddas upp: ${attachmentResult.error})`
+        : `${inventoryItem.registration_number} har synkroniserats med Fortnox`;
+
       return new Response(
         JSON.stringify({ 
           success: true, 
           verificationNumber,
-          message: 'Vehicle successfully synced to Fortnox'
+          attachmentResult,
+          message: responseMessage
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )

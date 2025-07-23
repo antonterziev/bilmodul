@@ -47,6 +47,7 @@ export const VehicleList = ({
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [syncingId, setSyncingId] = useState<string | null>(null);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
   const [forceUpdate, setForceUpdate] = useState(0);
   
   // Use ref to track mounted state and cleanup timers
@@ -221,8 +222,7 @@ export const VehicleList = ({
             body: { 
               series: 'A',
               number: vehicle.fortnox_verification_number,
-              userId: user?.id,
-              vehicleId: vehicleId
+              userId: user?.id
             }
           });
 
@@ -338,6 +338,41 @@ export const VehicleList = ({
       });
     } finally {
       setSyncingId(null);
+    }
+  };
+
+  const handleUploadDocumentation = async (vehicleId: string, registrationNumber: string, verificationNumber: string) => {
+    try {
+      setUploadingId(vehicleId);
+      
+      const { data, error } = await supabase.functions.invoke('upload-voucher-attachment', {
+        body: { 
+          series: 'A',
+          number: verificationNumber,
+          userId: user?.id,
+          vehicleId: vehicleId
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        toast({
+          title: "Underlag uppladdat",
+          description: `Bokföringsunderlag har laddats upp till verifikat A-${verificationNumber}.`,
+        });
+      } else {
+        throw new Error(data?.error || 'Okänt fel vid uppladdning av underlag');
+      }
+    } catch (error) {
+      console.error('Error uploading documentation:', error);
+      toast({
+        title: "Uppladdningsfel",
+        description: `Kunde inte ladda upp underlag för ${registrationNumber}. Försök igen.`,
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingId(null);
     }
   };
 
@@ -557,25 +592,45 @@ export const VehicleList = ({
                     <Eye className="h-4 w-4" />
                   </Button>
                   
-                   {/* Always show sync button but grey out if synced */}
-                   <Button
-                     variant="outline"
-                     size="sm"
-                     onClick={() => handleSync(vehicle.id, vehicle.registration_number)}
-                     disabled={syncingId === vehicle.id || vehicle.fortnox_sync_status === 'synced'}
-                     className={`w-10 h-10 p-0 ${
-                       vehicle.fortnox_sync_status === 'synced'
-                         ? 'text-gray-400 hover:bg-gray-100 hover:text-gray-400 cursor-not-allowed'
-                         : 'text-blue-600 hover:bg-blue-600 hover:text-white'
-                     }`}
-                     title={vehicle.fortnox_sync_status === 'synced' ? 'Redan synkroniserad med Fortnox' : 'Synkronisera med Fortnox'}
-                   >
-                     {syncingId === vehicle.id ? (
-                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                     ) : (
-                       <RefreshCw className="h-4 w-4" />
-                     )}
-                   </Button>
+                  {/* Always show sync button but grey out if synced */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleSync(vehicle.id, vehicle.registration_number)}
+                    disabled={syncingId === vehicle.id || vehicle.fortnox_sync_status === 'synced'}
+                    className={`w-10 h-10 p-0 ${
+                      vehicle.fortnox_sync_status === 'synced'
+                        ? 'text-gray-400 hover:bg-gray-100 hover:text-gray-400 cursor-not-allowed'
+                        : 'text-blue-600 hover:bg-blue-600 hover:text-white'
+                    }`}
+                    title={vehicle.fortnox_sync_status === 'synced' ? 'Redan synkroniserad med Fortnox' : 'Synkronisera med Fortnox'}
+                  >
+                    {syncingId === vehicle.id ? (
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    ) : (
+                      <RefreshCw className="h-4 w-4" />
+                    )}
+                  </Button>
+
+                  {/* Upload documentation button - only show for synced vehicles */}
+                  {vehicle.fortnox_sync_status === 'synced' && vehicle.fortnox_verification_number && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleUploadDocumentation(vehicle.id, vehicle.registration_number, vehicle.fortnox_verification_number)}
+                      disabled={uploadingId === vehicle.id}
+                      className="text-purple-600 hover:bg-purple-600 hover:text-white w-10 h-10 p-0"
+                      title="Ladda upp bokföringsunderlag"
+                    >
+                      {uploadingId === vehicle.id ? (
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      ) : (
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                        </svg>
+                      )}
+                    </Button>
+                  )}
                   
                   <Button
                     variant="outline"
@@ -585,7 +640,6 @@ export const VehicleList = ({
                   >
                     <DollarSign className="h-4 w-4" />
                   </Button>
-                  
                   
                   <Button
                     variant="outline"

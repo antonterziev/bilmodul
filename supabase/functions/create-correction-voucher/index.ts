@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -13,9 +14,9 @@ serve(async (req) => {
   }
 
   try {
-    const { series, number, userId, vehicleId } = await req.json();
+    const { series, number, userId } = await req.json();
 
-    console.log('📝 Creating correction voucher for:', { series, number, userId, vehicleId });
+    console.log('📝 Creating correction voucher for:', { series, number, userId });
 
     // Initialize Supabase client
     const supabase = createClient(
@@ -115,85 +116,13 @@ serve(async (req) => {
     }
 
     const created = await createRes.json();
-    const newVoucherNumber = created.Voucher.VoucherNumber;
     console.log('✅ Correction voucher created:', created);
-
-    // 4. Om vehicleId finns, kolla om det finns bokföringsunderlag att ladda upp
-    let attachmentUploadResult = null;
-    if (vehicleId) {
-      console.log('🔍 Checking for purchase documentation for vehicle:', vehicleId);
-      
-      const { data: vehicle, error: vehicleError } = await supabase
-        .from('inventory_items')
-        .select('purchase_documentation')
-        .eq('id', vehicleId)
-        .single();
-
-      if (vehicleError) {
-        console.log('⚠️ Could not fetch vehicle data:', vehicleError);
-      } else if (vehicle?.purchase_documentation) {
-        console.log('📎 Found purchase documentation, uploading to Fortnox...');
-        
-        try {
-          // Hämta filen från Supabase Storage
-          const { data: fileData, error: fileError } = await supabase.storage
-            .from('down-payment-docs')
-            .download(vehicle.purchase_documentation);
-
-          if (fileError) {
-            console.log('⚠️ Could not download file from storage:', fileError);
-          } else {
-            console.log('📥 File downloaded from storage, uploading to Fortnox...');
-            
-            // Skapa FormData för att ladda upp till Fortnox
-            const formData = new FormData();
-            formData.append('file', fileData, 'bokforingsunderlag.pdf');
-            formData.append('voucherSeries', series);
-            formData.append('voucherNumber', newVoucherNumber.toString());
-
-            // Ladda upp bilagan till Fortnox
-            const attachmentRes = await fetch('https://api.fortnox.se/3/voucherattachments', {
-              method: 'POST',
-              headers: {
-                "Access-Token": integration.access_token,
-                "Client-Secret": clientSecret,
-                "Client-Identifier": clientId
-                // Notera: Inte Content-Type header för FormData
-              },
-              body: formData
-            });
-
-            if (attachmentRes.ok) {
-              const attachmentData = await attachmentRes.json();
-              console.log('✅ Attachment uploaded successfully:', attachmentData);
-              attachmentUploadResult = { success: true, data: attachmentData };
-            } else {
-              const attachmentError = await attachmentRes.text();
-              console.log('⚠️ Failed to upload attachment:', attachmentError);
-              attachmentUploadResult = { success: false, error: attachmentError };
-            }
-          }
-        } catch (uploadError) {
-          console.log('⚠️ Error during file upload process:', uploadError);
-          attachmentUploadResult = { success: false, error: uploadError.message };
-        }
-      } else {
-        console.log('ℹ️ No purchase documentation found for this vehicle');
-      }
-    }
-
-    const responseMessage = attachmentUploadResult?.success 
-      ? `Ändringsverifikation ${created.Voucher.VoucherSeries}-${created.Voucher.VoucherNumber} skapad med bilaga`
-      : attachmentUploadResult?.error 
-      ? `Ändringsverifikation ${created.Voucher.VoucherSeries}-${created.Voucher.VoucherNumber} skapad (bilaga kunde inte laddas upp: ${attachmentUploadResult.error})`
-      : `Ändringsverifikation ${created.Voucher.VoucherSeries}-${created.Voucher.VoucherNumber} skapad`;
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         correctionVoucher: created.Voucher,
-        attachmentResult: attachmentUploadResult,
-        message: responseMessage
+        message: `Ändringsverifikation ${created.Voucher.VoucherSeries}-${created.Voucher.VoucherNumber} skapad`
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
