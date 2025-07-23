@@ -17,6 +17,7 @@ serve(async (req) => {
     const { series, number, userId, correctionSeries = 'A', correctionDate } = await req.json();
 
     console.log('📝 Creating correction voucher for:', { series, number, userId, correctionSeries, correctionDate });
+    console.log('📍 Request received at:', new Date().toISOString());
 
     // Initialize Supabase client
     const supabase = createClient(
