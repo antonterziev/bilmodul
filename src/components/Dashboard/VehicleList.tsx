@@ -221,7 +221,8 @@ export const VehicleList = ({
             body: { 
               series: 'A',
               number: vehicle.fortnox_verification_number,
-              userId: user?.id
+              userId: user?.id,
+              vehicleId: vehicleId
             }
           });
 
