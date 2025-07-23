@@ -96,21 +96,14 @@ Deno.serve(async (req) => {
         formData.append('file', new File([fileData], 'bokforingsunderlag.pdf', { type: 'application/pdf' }));
         formData.append('inventoryItemId', inventoryItemId);
 
-        const uploadResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/sync-verification-attachment`, {
-          method: 'POST',
-          headers: {
-            'Authorization': req.headers.get('Authorization')!,
-            'apikey': Deno.env.get('SUPABASE_ANON_KEY')!
-          },
+        const uploadResponse = await supabaseClient.functions.invoke('sync-verification-attachment', {
           body: formData
         });
 
-        const uploadData = await uploadResponse.json();
-        
-        if (uploadResponse.ok && uploadData?.success) {
-          attachmentResult = { success: true, fileId: uploadData.fileId };
+        if (uploadResponse?.data?.success) {
+          attachmentResult = { success: true, fileId: uploadResponse.data.fileId };
         } else {
-          attachmentResult = { success: false, error: uploadData?.error || 'Upload failed' };
+          attachmentResult = { success: false, error: uploadResponse.data?.error || 'Upload failed' };
         }
       }
     }

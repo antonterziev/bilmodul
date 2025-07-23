@@ -7,6 +7,10 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log("🚀 sync-verification-attachment function started");
+  console.log("📥 Request method:", req.method);
+  console.log("📥 Request headers:", Object.fromEntries(req.headers.entries()));
+  
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
