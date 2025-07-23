@@ -138,7 +138,7 @@ Deno.serve(async (req) => {
                   FileId: fileId,
                   VoucherSeries: "A",
                   VoucherNumber: parseInt(verificationNumber),
-                  VoucherYear: new Date().getFullYear(),
+                  VoucherYear: new Date(purchaseDate).getFullYear(),
                 },
               }),
             });
