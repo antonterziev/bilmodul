@@ -53,11 +53,10 @@ const purchaseSchema = z.object({
 type PurchaseFormData = z.infer<typeof purchaseSchema>;
 interface PurchaseFormProps {
   onSuccess: () => void;
-  onNavigateToVehicle?: (vehicleId: string) => void;
 }
+
 export const PurchaseForm = ({
-  onSuccess,
-  onNavigateToVehicle
+  onSuccess
 }: PurchaseFormProps) => {
   const {
     user
@@ -636,9 +635,21 @@ export const PurchaseForm = ({
                   <p className="text-sm text-orange-800 mb-2">
                     Detta registreringsnummer finns redan registrerat i systemet.
                   </p>
-                  {duplicateVehicleId && onNavigateToVehicle && <Button type="button" variant="outline" size="sm" onClick={() => onNavigateToVehicle(duplicateVehicleId)} className="flex items-center gap-2">
+                  {duplicateVehicleId && <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => {
+                        // Just show a message since logistics view is removed
+                        toast({
+                          title: "Fordon finns redan",
+                          description: "Detta registreringsnummer är redan registrerat i systemet.",
+                        });
+                      }} 
+                      className="flex items-center gap-2"
+                    >
                       <Truck className="h-4 w-4" />
-                      Gå till fordonets transport
+                      Fordon redan registrerat
                     </Button>}
                 </div>}
                   {form.formState.errors.registration_number && <p className="text-sm text-destructive mt-1 absolute">

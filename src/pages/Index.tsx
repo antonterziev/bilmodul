@@ -8,8 +8,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { DashboardStats } from "@/components/Dashboard/DashboardStats";
 import { VehicleList } from "@/components/Dashboard/VehicleList";
 import { PurchaseForm } from "@/components/Dashboard/PurchaseForm";
-import { LogisticsList } from "@/components/Logistics/LogisticsList";
-import { LogisticsDetail } from "@/components/Logistics/LogisticsDetail";
 import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
 import { Statistics } from "@/components/Statistics/Statistics";
@@ -369,25 +367,7 @@ const Index = () => {
                 loadStats();
                 handleViewChange("lager_stock");
               }}
-              onNavigateToVehicle={(vehicleId) => {
-                setSelectedVehicleId(vehicleId);
-                handleViewChange("logistics");
-              }}
             />
-          </div>
-        );
-
-      case "logistics":
-        if (selectedVehicleId) {
-          return <LogisticsDetail 
-            vehicleId={selectedVehicleId} 
-            onBack={() => setSelectedVehicleId(null)} 
-          />;
-        }
-        return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold">Logistik</h2>
-            <LogisticsList onViewVehicle={(vehicleId) => setSelectedVehicleId(vehicleId)} />
           </div>
         );
 
