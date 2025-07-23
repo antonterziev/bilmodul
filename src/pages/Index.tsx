@@ -514,43 +514,6 @@ const Index = () => {
                 🧪 Test Fortnox Connection
               </Button>
 
-              <Button
-                onClick={async () => {
-                  try {
-                    // Use the first inventory item for testing
-                    const { data: items } = await supabase
-                      .from('inventory_items')
-                      .select('id')
-                      .eq('user_id', user.id)
-                      .limit(1);
-                    
-                    if (!items || items.length === 0) {
-                      alert('No vehicles found to test with');
-                      return;
-                    }
-
-                    const { data, error } = await supabase.functions.invoke('fortnox-simple-test', {
-                      body: { inventoryItemId: items[0].id }
-                    });
-
-                    console.log('Simple test result:', { data, error });
-                    
-                    if (error) {
-                      alert(`Simple test error: ${error.message}`);
-                    } else if (data?.success) {
-                      alert(`✅ Simple test worked!\nCompany info: ${data.companyInfoStatus}\nVoucher: ${data.voucherStatus}`);
-                    } else {
-                      alert(`❌ Simple test failed: ${data?.error || 'Unknown error'}`);
-                    }
-                  } catch (err) {
-                    console.error('Simple test error:', err);
-                    alert(`Error: ${err.message}`);
-                  }
-                }}
-                variant="outline"
-              >
-                🔧 Simple Sync Test
-              </Button>
 
             </div>
             

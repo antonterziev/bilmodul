@@ -13,12 +13,6 @@ verify_jwt = false
 [functions.fortnox-sync-purchase]
 verify_jwt = true
 
-[functions.create-correction-voucher]
-verify_jwt = true
-
 [functions.fortnox-makulering-verifikat]
-verify_jwt = true
-
-[functions.get-fortnox-app-id]
 verify_jwt = true
 
