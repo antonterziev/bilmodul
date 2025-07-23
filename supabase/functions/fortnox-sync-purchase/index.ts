@@ -292,11 +292,15 @@ Deno.serve(async (req) => {
             Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
           );
           
-          // Download file from Supabase Storage (using the path stored in the database)
-          console.log('📥 Downloading file from purchase-docs bucket with path:', inventoryItem.purchase_documentation);
+          // Download file from Supabase Storage (remove bucket prefix if present)
+          let filePath = inventoryItem.purchase_documentation;
+          if (filePath.startsWith('purchase-docs/')) {
+            filePath = filePath.replace('purchase-docs/', '');
+          }
+          console.log('📥 Downloading file from purchase-docs bucket with path:', filePath);
           const { data: fileData, error: fileError } = await serviceClient.storage
             .from('purchase-docs')
-            .download(inventoryItem.purchase_documentation);
+            .download(filePath);
 
           if (fileError) {
             console.log('⚠️ Could not download file from storage:', fileError);
