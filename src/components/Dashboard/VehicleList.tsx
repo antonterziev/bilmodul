@@ -424,9 +424,9 @@ export const VehicleList = ({
                 </div>
                 
                 {/* Vehicle main info */}
-                <div className="flex-1 grid grid-cols-8 gap-3 items-center text-sm">
+                <div className="flex-1 grid grid-cols-6 gap-6 items-center text-sm">
                   {/* Column 1: Brand & Model + Registration */}
-                  <div className="col-span-2">
+                  <div className="col-span-1">
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="font-medium">
                         {vehicle.brand} {vehicle.model || ''}
