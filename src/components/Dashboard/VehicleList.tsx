@@ -443,7 +443,7 @@ export const VehicleList = ({
                     <div className="flex flex-col gap-1 items-center">
                         <Badge 
                           variant={getStatusVariant(vehicle.status)} 
-                          className={`text-xs whitespace-nowrap px-2 justify-center w-16 ${
+                          className={`text-xs whitespace-nowrap px-2 justify-center w-20 ${
                             vehicle.status === 'på_lager' 
                               ? 'border-blue-500 text-blue-500 hover:border-blue-600 hover:text-blue-600' 
                               : vehicle.status === 'såld'
