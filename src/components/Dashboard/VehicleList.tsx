@@ -456,7 +456,7 @@ export const VehicleList = ({
                        {vehicle.fortnox_sync_status && (
                          <Badge 
                            variant="outline"
-                           className={`text-xs px-1 w-16 justify-center ${
+                           className={`text-xs px-1 w-20 justify-center whitespace-nowrap ${
                              vehicle.fortnox_sync_status === 'synced' 
                                ? 'border-green-500 text-green-700 bg-green-50' 
                                : vehicle.fortnox_sync_status === 'failed'
