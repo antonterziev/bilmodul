@@ -74,6 +74,8 @@ serve(async (req) => {
     };
 
     console.log('🔍 Fetching original voucher:', `https://api.fortnox.se/3/vouchers/${series}/${number}`);
+    console.log("🔐 HEADERS USED FOR REQUEST:", headers);
+    console.log("📡 URL:", `https://api.fortnox.se/3/vouchers/${series}/${number}`);
 
     // 1. Hämta originalverifikatet
     const originalRes = await fetch(
