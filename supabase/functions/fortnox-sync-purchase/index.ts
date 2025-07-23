@@ -143,9 +143,14 @@ Deno.serve(async (req) => {
         if (!fileError && fileData) {
           console.log(`📥 File downloaded successfully, size: ${fileData.size} bytes`);
 
-          // Upload to Fortnox inbox with original filename
+          // Upload to Fortnox inbox with original filename and correct MIME type
+          const fileExtension = originalFileName.toLowerCase().split('.').pop();
+          const mimeType = fileExtension === 'pdf' ? 'application/pdf' : 
+                          fileExtension === 'jpg' || fileExtension === 'jpeg' ? 'image/jpeg' :
+                          fileExtension === 'png' ? 'image/png' : 'application/octet-stream';
+          
           const uploadForm = new FormData();
-          uploadForm.append("file", new File([fileData], originalFileName, { type: 'application/pdf' }));
+          uploadForm.append("file", new File([fileData], originalFileName, { type: mimeType }));
 
           const inboxUploadRes = await fetch("https://api.fortnox.se/3/inbox", {
             method: "POST",
