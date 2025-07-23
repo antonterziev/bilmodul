@@ -25,13 +25,15 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Get user's Fortnox integration details
+    // Get user's Fortnox integration details (latest active integration)
     const { data: integration, error: integrationError } = await supabase
       .from('fortnox_integrations')
-      .select('access_token')
+      .select('access_token, fortnox_company_id, company_name')
       .eq('user_id', userId)
       .eq('is_active', true)
-      .maybeSingle();
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
 
     if (integrationError || !integration) {
       console.error('❌ No active Fortnox integration found:', integrationError);
@@ -48,10 +50,12 @@ serve(async (req) => {
     console.log("🔐 DEBUG env", {
       clientId: clientId ? "OK" : "MISSING",
       clientSecret: clientSecret ? "OK" : "MISSING",
-      token: integration.access_token ? "OK" : "MISSING"
+      token: integration.access_token ? "OK" : "MISSING",
+      companyId: integration.fortnox_company_id,
+      companyName: integration.company_name
     });
 
-    console.log("🧪 Access token (truncated):", integration.access_token?.slice(0, 10));
+    console.log("🧪 Full access token for debugging:", integration.access_token);
 
     if (!clientSecret || !clientId) {
       console.error('❌ Missing Fortnox credentials in environment');
