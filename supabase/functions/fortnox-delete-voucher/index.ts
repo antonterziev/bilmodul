@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
       throw new Error('Missing inventoryItemId')
     }
 
-    console.log('Starting Fortnox voucher deletion for inventory item:', inventoryItemId)
+    console.log('Starting Fortnox voucher cancellation for inventory item:', inventoryItemId)
 
     // Get the inventory item details
     const { data: inventoryItem, error: itemError } = await supabaseClient
@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
 
     // Check if item was synced with Fortnox
     if (!inventoryItem.fortnox_verification_number || inventoryItem.fortnox_sync_status !== 'synced') {
-      console.log('Item was not synced to Fortnox, no deletion needed')
+      console.log('Item was not synced to Fortnox, no cancellation needed')
       return new Response(
         JSON.stringify({ success: true, message: 'Item was not synced to Fortnox' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -149,23 +149,24 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Delete voucher from Fortnox
-    console.log('Deleting voucher from Fortnox:', {
+    // Cancel/void voucher in Fortnox instead of deleting
+    console.log('Cancelling voucher in Fortnox:', {
       voucherSeries: 'A',
       voucherNumber: inventoryItem.fortnox_verification_number
     })
 
-    const deleteUrl = `https://api.fortnox.se/3/vouchers/A/${inventoryItem.fortnox_verification_number}`
+    const cancelUrl = `https://api.fortnox.se/3/vouchers/A/${inventoryItem.fortnox_verification_number}/cancel`
     
-    const fortnoxResponse = await fetch(deleteUrl, {
-      method: 'DELETE',
+    const fortnoxResponse = await fetch(cancelUrl, {
+      method: 'PUT',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
       }
     })
 
-    console.log('Fortnox delete response:', {
+    console.log('Fortnox cancel response:', {
       status: fortnoxResponse.status,
       statusText: fortnoxResponse.statusText,
       ok: fortnoxResponse.ok
@@ -173,9 +174,9 @@ Deno.serve(async (req) => {
 
     if (!fortnoxResponse.ok) {
       const responseText = await fortnoxResponse.text()
-      console.error('Fortnox deletion error:', responseText)
+      console.error('Fortnox cancellation error:', responseText)
       
-      let errorMessage = `Fortnox deletion error: ${fortnoxResponse.status}`
+      let errorMessage = `Fortnox cancellation error: ${fortnoxResponse.status}`
       
       try {
         const errorData = JSON.parse(responseText)
@@ -183,13 +184,13 @@ Deno.serve(async (req) => {
           errorMessage = `Fortnox error: ${errorData.ErrorInformation.message || errorData.ErrorInformation.error}`
         }
       } catch (parseError) {
-        errorMessage = `Fortnox deletion error: ${fortnoxResponse.status} - ${responseText}`
+        errorMessage = `Fortnox cancellation error: ${fortnoxResponse.status} - ${responseText}`
       }
       
       throw new Error(errorMessage)
     }
 
-    console.log('Voucher successfully deleted from Fortnox')
+    console.log('Voucher successfully cancelled in Fortnox')
 
     // Update inventory item to remove Fortnox sync info
     await supabaseClient
@@ -201,25 +202,25 @@ Deno.serve(async (req) => {
       })
       .eq('id', inventoryItemId)
 
-    // Log the deletion
+    // Log the cancellation
     await supabaseClient
       .from('fortnox_sync_log')
       .insert({
         inventory_item_id: inventoryItemId,
         user_id: user.id,
-        sync_type: 'delete',
+        sync_type: 'cancel',
         sync_status: 'success',
         sync_data: {
           voucherSeries: 'A',
           voucherNumber: inventoryItem.fortnox_verification_number,
-          deletedAt: new Date().toISOString()
+          cancelledAt: new Date().toISOString()
         }
       })
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Voucher successfully deleted from Fortnox'
+        message: 'Voucher successfully cancelled in Fortnox'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
