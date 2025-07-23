@@ -283,9 +283,6 @@ Deno.serve(async (req) => {
         console.log('📄 Purchase documentation path:', inventoryItem.purchase_documentation);
         
         try {
-          const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET');
-          const clientId = Deno.env.get('FORTNOX_CLIENT_ID');
-          
           // Create a service role client to access storage
           const serviceClient = createClient(
             Deno.env.get('SUPABASE_URL') ?? '',
@@ -310,32 +307,70 @@ Deno.serve(async (req) => {
             console.log('✅ File downloaded successfully, size:', fileData.size, 'bytes');
             console.log('📥 File type:', fileData.type);
             
-            // Convert file to base64 for the upload function
+            // Convert file to bytes for upload
             const fileBytes = new Uint8Array(await fileData.arrayBuffer());
-            const base64File = btoa(String.fromCharCode(...fileBytes));
 
-            console.log('📤 Calling upload-fortnox-attachment function...');
+            console.log('📤 Uploading attachment directly to Fortnox...');
             
-            // Call the separate upload function
-            const uploadResponse = await supabaseClient.functions.invoke('upload-fortnox-attachment', {
-              body: {
-                fileData: base64File,
-                voucherSeries: 'A',
-                voucherNumber: verificationNumber,
-                accessToken: accessToken,
-                fileName: 'bokforingsunderlag.pdf'
-              }
+            // Create manual multipart/form-data payload
+            const boundary = `----formdata-lovable-${Date.now()}`;
+            const textEncoder = new TextEncoder();
+            const parts = [];
+            
+            // Add file part
+            parts.push(textEncoder.encode(`--${boundary}\r\n`));
+            parts.push(textEncoder.encode(`Content-Disposition: form-data; name="file"; filename="bokforingsunderlag.pdf"\r\n`));
+            parts.push(textEncoder.encode(`Content-Type: application/pdf\r\n\r\n`));
+            parts.push(fileBytes);
+            parts.push(textEncoder.encode(`\r\n`));
+            
+            // Add voucherSeries part
+            parts.push(textEncoder.encode(`--${boundary}\r\n`));
+            parts.push(textEncoder.encode(`Content-Disposition: form-data; name="voucherSeries"\r\n\r\n`));
+            parts.push(textEncoder.encode(`A\r\n`));
+            
+            // Add voucherNumber part
+            parts.push(textEncoder.encode(`--${boundary}\r\n`));
+            parts.push(textEncoder.encode(`Content-Disposition: form-data; name="voucherNumber"\r\n\r\n`));
+            parts.push(textEncoder.encode(`${verificationNumber.toString()}\r\n`));
+            
+            // Close boundary
+            parts.push(textEncoder.encode(`--${boundary}--\r\n`));
+            
+            // Calculate total length and create final body
+            const totalLength = parts.reduce((sum, part) => sum + part.length, 0);
+            const body = new Uint8Array(totalLength);
+            let offset = 0;
+            for (const part of parts) {
+              body.set(part, offset);
+              offset += part.length;
+            }
+
+            // Upload attachment to Fortnox
+            const attachmentRes = await fetch('https://api.fortnox.se/3/voucherattachments', {
+              method: 'POST',
+              headers: {
+                "Authorization": `Bearer ${accessToken}`,
+                "Content-Type": `multipart/form-data; boundary=${boundary}`,
+              },
+              body: body
             });
 
-            if (uploadResponse.error) {
-              console.log('⚠️ Upload function error:', uploadResponse.error);
-              attachmentResult = { success: false, error: `Upload function error: ${uploadResponse.error.message}` };
-            } else if (uploadResponse.data?.success) {
-              console.log('✅ Attachment uploaded via function:', uploadResponse.data);
-              attachmentResult = { success: true, data: uploadResponse.data.data };
+            const attachmentResponseText = await attachmentRes.text();
+            console.log('📤 Fortnox attachment response:', {
+              status: attachmentRes.status,
+              statusText: attachmentRes.statusText,
+              ok: attachmentRes.ok,
+              body: attachmentResponseText.substring(0, 500) + (attachmentResponseText.length > 500 ? '...' : '')
+            });
+
+            if (attachmentRes.ok) {
+              const attachmentData = JSON.parse(attachmentResponseText);
+              console.log('✅ Attachment uploaded successfully:', attachmentData);
+              attachmentResult = { success: true, data: attachmentData };
             } else {
-              console.log('⚠️ Upload function failed:', uploadResponse.data);
-              attachmentResult = { success: false, error: uploadResponse.data?.error || 'Unknown upload error' };
+              console.log('⚠️ Failed to upload attachment:', attachmentResponseText);
+              attachmentResult = { success: false, error: `Fortnox attachment error: ${attachmentRes.status} - ${attachmentResponseText}` };
             }
           }
         } catch (uploadError) {
