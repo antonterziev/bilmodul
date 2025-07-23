@@ -293,7 +293,7 @@ Deno.serve(async (req) => {
           
           // Download file from Supabase Storage
           const { data: fileData, error: fileError } = await serviceClient.storage
-            .from('down-payment-docs')
+            .from('purchase-docs')
             .download(inventoryItem.purchase_documentation);
 
           if (fileError) {

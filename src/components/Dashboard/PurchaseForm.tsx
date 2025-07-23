@@ -432,10 +432,10 @@ export const PurchaseForm = ({
       }, 200);
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-      const filePath = `purchase-docs/${fileName}`;
+      const filePath = fileName; // Store just the file path without bucket prefix
       const {
         error: uploadError
-      } = await supabase.storage.from('down-payment-docs').upload(fileName, file);
+      } = await supabase.storage.from('purchase-docs').upload(fileName, file);
       clearInterval(progressInterval);
       setUploadProgress(100);
       if (uploadError) throw uploadError;
