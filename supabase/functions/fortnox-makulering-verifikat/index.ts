@@ -133,10 +133,21 @@ serve(async (req) => {
       const errorText = await createRes.text();
       console.error('❌ Error creating correction voucher:', errorText);
       
+      console.log('📤 Status:', createRes.status);
+      console.log('📤 Response body:', errorText);
+      
       // Better error handling for closed periods
       if (createRes.status === 400 && errorText.includes("Bokföringsperioden är stängd")) {
         return new Response(
-          JSON.stringify({ error: "Bokföringsperioden är stängd för valt datum. Kontrollera din verifikationsserie eller datum." }),
+          JSON.stringify({ error: "Bokföringsperioden är stängd för valt datum. Kontrollera verifikationsserien eller datumet." }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      // Handle missing voucher series
+      if (createRes.status === 400 && errorText.includes("Verifikationsserien")) {
+        return new Response(
+          JSON.stringify({ error: "Verifikationsserien finns inte eller är stängd. Kontrollera att serien 'A' är tillgänglig i Fortnox." }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
