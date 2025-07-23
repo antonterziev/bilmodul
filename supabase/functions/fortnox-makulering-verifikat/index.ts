@@ -79,31 +79,35 @@ serve(async (req) => {
 
     if (!originalRes.ok) {
       const errorText = await originalRes.text();
-      console.error('❌ Could not fetch original voucher:', errorText);
+      console.error('❌ Could not fetch original voucher:', {
+        status: originalRes.status,
+        statusText: originalRes.statusText,
+        error: errorText,
+        headers: Object.fromEntries(originalRes.headers.entries())
+      });
       
       // Check if this is a token authentication error (Fortnox token expired/invalid)
-      if (errorText.includes("access-token eller client-secret saknas") || 
+      if (originalRes.status === 401 || 
+          errorText.includes("access-token eller client-secret saknas") || 
           errorText.includes("Kan inte logga in")) {
-        console.log('🔄 Token appears to be invalid, deactivating integration');
-        
-        // Deactivate the integration
-        await supabase
-          .from('fortnox_integrations')
-          .update({ is_active: false })
-          .eq('user_id', userId);
+        console.log('🔄 Token authentication failed, but keeping integration active for manual retry');
         
         return new Response(
           JSON.stringify({ 
-            error: 'Din Fortnox-anslutning har gått ut. Anslut på nytt via Inställningar → Integrationer.',
-            requiresReconnection: true 
+            error: 'Autentisering misslyckades. Kontrollera din Fortnox-anslutning i inställningar.',
+            tokenError: true,
+            details: errorText
           }),
           { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       
       return new Response(
-        JSON.stringify({ error: 'Kunde inte hämta originalverifikatet' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ 
+          error: 'Kunde inte hämta originalverifikatet',
+          details: errorText 
+        }),
+        { status: originalRes.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
