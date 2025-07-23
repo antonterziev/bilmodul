@@ -41,9 +41,6 @@ serve(async (req) => {
       );
     }
 
-    console.log('🔎 Integration record:', integration);
-    console.log('🧪 Token starts with:', integration.access_token?.slice(0, 10));
-
     // Get Fortnox credentials from environment
     const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET');
     const clientId = Deno.env.get('FORTNOX_CLIENT_ID');
