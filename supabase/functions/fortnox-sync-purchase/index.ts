@@ -339,57 +339,62 @@ Deno.serve(async (req) => {
               console.log('✅ File uploaded to archive successfully:', archiveData);
               console.log('📋 Full archive response structure:', JSON.stringify(archiveData, null, 2));
               
-              // Step 2: Connect archive file to voucher using inbox connectors
-              const fileId = archiveData.File?.Id;
-              console.log('📋 Extracted file ID for linking:', fileId);
+              // Step 2: Attach archive file to voucher using voucherattachments
+              const archiveFileId = archiveData.File?.ArchiveFileId;
+              console.log('📋 Extracted ArchiveFileId for attachment:', archiveFileId);
               
-              if (fileId) {
-                console.log('📎 Connecting archive file to voucher...');
-                const entityId = `A-${verificationNumber}`;
-                console.log('📋 Using EntityId:', entityId);
+              if (archiveFileId) {
+                console.log('📎 Attaching archive file to voucher...');
+                console.log('📋 Voucher details:', { series: 'A', number: verificationNumber });
 
-                const connectorResponse = await fetch('https://api.fortnox.se/3/inboxconnectors', {
+                const voucherAttachmentPayload = {
+                  VoucherAttachment: {
+                    VoucherSeries: 'A',
+                    VoucherNumber: verificationNumber,
+                    ArchiveFileId: archiveFileId,
+                    Name: `bokforingsunderlag_${verificationNumber}.pdf`
+                  }
+                };
+                
+                console.log('📬 Posting to voucherattachments:', JSON.stringify(voucherAttachmentPayload, null, 2));
+
+                const attachmentResponse = await fetch('https://api.fortnox.se/3/voucherattachments', {
                   method: 'POST',
                   headers: {
                     'Authorization': `Bearer ${accessToken}`,
-                    'Client-Secret': Deno.env.get('FORTNOX_CLIENT_SECRET') ?? '',
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
                   },
-                  body: JSON.stringify({
-                    InboxFileId: fileId,
-                    EntityType: 'Voucher',
-                    EntityId: entityId,
-                  }),
+                  body: JSON.stringify(voucherAttachmentPayload),
                 });
 
-                const connectorResponseText = await connectorResponse.text();
-                console.log('📤 Inbox connector response:', {
-                  status: connectorResponse.status,
-                  statusText: connectorResponse.statusText,
-                  ok: connectorResponse.ok,
-                  body: connectorResponseText.substring(0, 500) + (connectorResponseText.length > 500 ? '...' : '')
+                const attachmentResponseText = await attachmentResponse.text();
+                console.log('📤 Voucher attachment response:', {
+                  status: attachmentResponse.status,
+                  statusText: attachmentResponse.statusText,
+                  ok: attachmentResponse.ok,
+                  body: attachmentResponseText.substring(0, 500) + (attachmentResponseText.length > 500 ? '...' : '')
                 });
 
-                if (!connectorResponse.ok) {
-                  console.error('❌ Failed to connect archive file:', connectorResponseText);
-                  let errorMessage = `Could not link archive file to voucher: ${connectorResponse.statusText}`;
+                if (!attachmentResponse.ok) {
+                  console.error('❌ Failed to attach archive file to voucher:', attachmentResponseText);
+                  let errorMessage = `Could not attach file to voucher: ${attachmentResponse.statusText}`;
                   
                   try {
-                    const errorData = JSON.parse(connectorResponseText);
+                    const errorData = JSON.parse(attachmentResponseText);
                     if (errorData.ErrorInformation) {
-                      errorMessage = `Fortnox connector error: ${errorData.ErrorInformation.message || errorData.ErrorInformation.error}`;
+                      errorMessage = `Fortnox attachment error: ${errorData.ErrorInformation.message || errorData.ErrorInformation.error}`;
                     }
                   } catch (parseError) {
                     // Use the raw response if JSON parsing fails
-                    errorMessage = `Fortnox connector error: ${connectorResponse.status} - ${connectorResponseText}`;
+                    errorMessage = `Fortnox attachment error: ${attachmentResponse.status} - ${attachmentResponseText}`;
                   }
                   
                   attachmentResult = { success: false, error: errorMessage };
                 } else {
-                  console.log('✅ Archive file connected to voucher');
-                  const connectorResult = JSON.parse(connectorResponseText);
-                  attachmentResult = { success: true, data: { archive: archiveData, connection: connectorResult } };
+                  console.log('✅ Archive file attached to voucher successfully');
+                  const attachmentResult_data = JSON.parse(attachmentResponseText);
+                  attachmentResult = { success: true, data: { archive: archiveData, attachment: attachmentResult_data } };
                 }
               } else {
                 console.log('⚠️ No FileId returned from archive upload');
