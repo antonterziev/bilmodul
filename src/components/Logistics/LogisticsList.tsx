@@ -82,39 +82,41 @@ export const LogisticsList = ({ onViewVehicle }: LogisticsListProps) => {
         {vehicles.map((vehicle) => (
           <Card key={vehicle.id} className="hover:shadow-md transition-shadow">
             <CardContent className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-center">
-                <div>
-                  <div className="font-semibold">{vehicle.registration_number}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {getVehicleInfo(vehicle)}
+              <div className="flex items-center justify-between">
+                <div className="flex-1 space-y-1">
+                  <div className="flex items-center gap-4">
+                    <div>
+                      <div className="font-semibold text-lg">{vehicle.registration_number}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {getVehicleInfo(vehicle)}
+                      </div>
+                    </div>
+                    <Badge className={`${getStatusColor(vehicle.status)} text-white`}>
+                      {vehicle.status}
+                    </Badge>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                    <div>
+                      <div className="text-sm text-muted-foreground">Inköpare</div>
+                      <div className="font-medium">{vehicle.purchaser}</div>
+                    </div>
+
+                    <div>
+                      <div className="text-sm text-muted-foreground">Lagerplats</div>
+                      <div className="font-medium">{vehicle.current_location}</div>
+                    </div>
+
+                    <div>
+                      <div className="text-sm text-muted-foreground">Total påkostnad</div>
+                      <div className="font-semibold text-lg">
+                        {getTotalCost(vehicle).toLocaleString('sv-SE')} SEK
+                      </div>
+                    </div>
                   </div>
                 </div>
-                
-                <div>
-                  <div className="text-sm text-muted-foreground">Inköpare</div>
-                  <div>{vehicle.purchaser}</div>
-                </div>
 
-                <div>
-                  <div className="text-sm text-muted-foreground">Lagerplats</div>
-                  <div>{vehicle.current_location}</div>
-                </div>
-
-                <div>
-                  <div className="text-sm text-muted-foreground">Status</div>
-                  <Badge className={`${getStatusColor(vehicle.status)} text-white`}>
-                    {vehicle.status}
-                  </Badge>
-                </div>
-
-                <div>
-                  <div className="text-sm text-muted-foreground">Total påkostnad</div>
-                  <div className="font-semibold">
-                    {getTotalCost(vehicle).toLocaleString('sv-SE')} SEK
-                  </div>
-                </div>
-
-                <div className="flex justify-end">
+                <div className="flex flex-col items-end gap-2 ml-4">
                   <Button
                     variant="outline"
                     size="sm"
