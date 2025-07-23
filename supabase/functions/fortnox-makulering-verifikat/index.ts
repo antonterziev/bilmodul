@@ -65,19 +65,25 @@ serve(async (req) => {
       return errorResponse('Verifikatet har inga rader att makulera', 400);
     }
 
+    // Clean row function with explicit Number conversion
+    function cleanRow(row: any) {
+      const cleaned: Record<string, any> = {
+        Account: Number(row.Account),
+        TransactionInformation: `Makulerar rad från ${series}-${number}`
+      };
+
+      const debit = Number(row.Credit);
+      const credit = Number(row.Debit);
+
+      if (!isNaN(debit) && debit > 0) cleaned.Debit = debit;
+      if (!isNaN(credit) && credit > 0) cleaned.Credit = credit;
+
+      return cleaned;
+    }
+
     const correctionRows = orig.VoucherRows
       .filter((row) => Number(row.Debit || 0) !== 0 || Number(row.Credit || 0) !== 0)
-      .map((row) => {
-        const cleaned: Record<string, any> = {
-          Account: row.Account,
-          Debit: row.Credit || undefined,
-          Credit: row.Debit || undefined,
-          TransactionInformation: `Makulerar rad från ${series}-${number}`
-        };
-        if (row.CostCenter && row.CostCenter.trim() !== '') cleaned.CostCenter = row.CostCenter;
-        if (row.Project && row.Project.trim() !== '') cleaned.Project = row.Project;
-        return cleaned;
-      });
+      .map(cleanRow);
 
     if (correctionRows.length === 0) {
       await logError(userId, `No valid rows to correct in voucher ${series}-${number}`);
