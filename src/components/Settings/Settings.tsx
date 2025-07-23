@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { User, Lock, Settings as SettingsIcon, ExternalLink, Unlink } from "lucide-react";
+import { User, Lock } from "lucide-react";
 
 interface UserProfile {
   id: string;
@@ -22,24 +22,16 @@ interface UserProfile {
   company_name: string;
 }
 
-interface FortnoxIntegration {
-  id: string;
-  user_id: string;
-  company_name: string;
-  fortnox_company_id: string;
-  is_active: boolean;
-  created_at: string;
-}
 
 interface SettingsProps {}
 
 export const Settings = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [fortnoxIntegration, setFortnoxIntegration] = useState<FortnoxIntegration | null>(null);
+  
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
-  const [disconnectingFortnox, setDisconnectingFortnox] = useState(false);
+  
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -60,7 +52,7 @@ export const Settings = () => {
   useEffect(() => {
     if (user) {
       loadProfile();
-      loadFortnoxIntegration();
+      
     }
   }, [user]);
 
@@ -171,54 +163,6 @@ export const Settings = () => {
     }
   };
 
-  const loadFortnoxIntegration = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('fortnox_integrations')
-        .select('*')
-        .eq('user_id', user?.id)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false })
-        .maybeSingle();
-
-      if (error && error.code !== 'PGRST116') {
-        throw error;
-      }
-
-      setFortnoxIntegration(data);
-    } catch (error) {
-      console.error('Error loading Fortnox integration:', error);
-    }
-  };
-
-  const disconnectFortnox = async () => {
-    if (!fortnoxIntegration) return;
-
-    setDisconnectingFortnox(true);
-    try {
-      const { error } = await supabase
-        .from('fortnox_integrations')
-        .update({ is_active: false })
-        .eq('id', fortnoxIntegration.id);
-
-      if (error) throw error;
-
-      setFortnoxIntegration(null);
-      toast({
-        title: "Frånkopplad",
-        description: "Du har kopplats från Fortnox",
-      });
-    } catch (error) {
-      console.error('Error disconnecting Fortnox:', error);
-      toast({
-        title: "Fel",
-        description: "Kunde inte koppla från Fortnox",
-        variant: "destructive",
-      });
-    } finally {
-      setDisconnectingFortnox(false);
-    }
-  };
 
   const changePassword = async () => {
     if (!currentPassword) {
@@ -305,14 +249,10 @@ export const Settings = () => {
       <h2 className="text-2xl font-bold">Inställningar</h2>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="profile">
             <User className="h-4 w-4 mr-2" />
             Profil
-          </TabsTrigger>
-          <TabsTrigger value="integrations">
-            <SettingsIcon className="h-4 w-4 mr-2" />
-            Integrationer
           </TabsTrigger>
           <TabsTrigger value="security">
             <Lock className="h-4 w-4 mr-2" />
@@ -387,50 +327,6 @@ export const Settings = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="integrations">
-          <Card>
-            <CardHeader>
-              <CardTitle>Fortnox-integration</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {fortnoxIntegration ? (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h3 className="font-medium">Fortnox</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Kopplad till: {fortnoxIntegration.company_name || 'Okänt företag'}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Kopplad: {new Date(fortnoxIntegration.created_at).toLocaleDateString('sv-SE')}
-                      </p>
-                    </div>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={disconnectFortnox}
-                      disabled={disconnectingFortnox}
-                    >
-                      <Unlink className="h-4 w-4 mr-2" />
-                      {disconnectingFortnox ? "Kopplar från..." : "Koppla från"}
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground mb-4">
-                    Du har ingen aktiv Fortnox-integration
-                  </p>
-                  <Button asChild>
-                    <a href="/dashboard">
-                      Gå till Dashboard för att koppla Fortnox
-                    </a>
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         <TabsContent value="security">
           <Card>
