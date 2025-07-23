@@ -215,39 +215,30 @@ export const VehicleList = ({
       // First check if vehicle is synced with Fortnox
       const vehicle = vehicles.find(v => v.id === vehicleId);
       
-      // If synced with Fortnox, create a correction voucher
+      // If synced with Fortnox, create a correction voucher FIRST
       if (vehicle?.fortnox_sync_status === 'synced' && vehicle?.fortnox_verification_number) {
-        try {
-          const { data, error } = await supabase.functions.invoke('fortnox-makulering-verifikat', {
-            body: { 
-              series: 'A',
-              number: vehicle.fortnox_verification_number,
-              userId: user?.id,
-              correctionSeries: 'A'
-            }
-          });
-
-          if (error) throw error;
-
-          if (!data?.success) {
-            throw new Error(data?.error || 'Okänt fel vid skapande av ändringsverifikation');
+        const { data, error } = await supabase.functions.invoke('fortnox-makulering-verifikat', {
+          body: { 
+            series: 'A',
+            number: vehicle.fortnox_verification_number,
+            userId: user?.id,
+            correctionSeries: 'A'
           }
+        });
 
-          toast({
-            title: "Ändringsverifikation skapad",
-            description: `${data.message} för att makulera originalverifikatet.`,
-          });
-        } catch (fortnoxError) {
-          console.error('Error creating correction voucher:', fortnoxError);
-          toast({
-            title: "Varning",
-            description: `Kunde inte skapa ändringsverifikation i Fortnox: ${fortnoxError.message}. Fordonet kommer ändå att tas bort från lagret.`,
-            variant: "destructive",
-          });
+        if (error) throw error;
+
+        if (!data?.success) {
+          throw new Error(data?.error || 'Okänt fel vid skapande av ändringsverifikation');
         }
+
+        toast({
+          title: "Ändringsverifikation skapad",
+          description: `${data.message} för att makulera originalverifikatet.`,
+        });
       }
 
-      // Then delete the vehicle from local database
+      // Only delete the vehicle if Fortnox correction succeeded (or vehicle wasn't synced)
       const { error } = await supabase
         .from('inventory_items')
         .delete()
@@ -269,7 +260,7 @@ export const VehicleList = ({
       console.error('Error deleting vehicle:', error);
       toast({
         title: "Fel",
-        description: "Kunde inte ta bort fordonet. Försök igen.",
+        description: `Kunde inte ta bort fordonet. ${error.message || 'Försök igen.'}`,
         variant: "destructive",
       });
     } finally {
