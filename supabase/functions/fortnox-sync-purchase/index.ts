@@ -49,6 +49,43 @@ Deno.serve(async (req) => {
 
     let accessToken = integrations[0].access_token;
     const clientSecret = Deno.env.get("FORTNOX_CLIENT_SECRET")!;
+    
+    // Check if token is expired and refresh if needed
+    const tokenExpiresAt = new Date(integrations[0].token_expires_at);
+    const now = new Date();
+    
+    if (now >= tokenExpiresAt) {
+      console.log('🔄 Token expired, refreshing...');
+      const refreshResponse = await fetch('https://api.fortnox.se/oauth2/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          grant_type: 'refresh_token',
+          refresh_token: integrations[0].refresh_token,
+          client_id: 'uNVVMz2CA4VA',
+          client_secret: clientSecret,
+        }),
+      });
+
+      if (!refreshResponse.ok) {
+        throw new Error('Failed to refresh token');
+      }
+
+      const tokenData = await refreshResponse.json();
+      accessToken = tokenData.access_token;
+      
+      // Update the token in database
+      await supabaseClient.from('fortnox_integrations').update({
+        access_token: tokenData.access_token,
+        refresh_token: tokenData.refresh_token,
+        token_expires_at: new Date(Date.now() + tokenData.expires_in * 1000).toISOString(),
+        updated_at: new Date().toISOString()
+      }).eq('id', integrations[0].id);
+      
+      console.log('✅ Token refreshed successfully');
+    }
     const purchaseDate = new Date(inventoryItem.purchase_date).toISOString().split('T')[0];
     const verificationData = {
       VoucherSeries: 'A',
