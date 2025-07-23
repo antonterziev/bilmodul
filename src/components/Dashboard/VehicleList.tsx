@@ -368,10 +368,11 @@ export const VehicleList = ({
         return;
       }
 
-      const fortnoxIntegration = fortnoxIntegrations[0]; // Take the most recent active integration
+      // Find the first integration that has a company ID
+      const fortnoxIntegration = fortnoxIntegrations.find(integration => integration.fortnox_company_id);
       console.log('🔍 Selected integration:', fortnoxIntegration);
       
-      if (!fortnoxIntegration.fortnox_company_id) {
+      if (!fortnoxIntegration || !fortnoxIntegration.fortnox_company_id) {
         console.error('❌ Fortnox company ID is missing - please reconnect to Fortnox');
         return;
       }
