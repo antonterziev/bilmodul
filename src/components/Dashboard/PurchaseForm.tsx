@@ -20,7 +20,8 @@ import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
+import { cn, determineVatType } from "@/lib/utils";
+import { InfoPopup } from "@/components/ui/info-popup";
 import { sv } from "date-fns/locale";
 
 const carBrands = ["Annat", "Alfa Romeo", "Alpine", "Aston Martin", "Audi", "Bentley", "BMW", "BYD", "Cadillac", "Chevrolet", "Chrysler", "Citroën", "Dacia", "Daihatsu", "Dodge", "Ferrari", "Fiat", "Fisker, Karma", "Ford", "GMC", "Honda", "Hummer", "Hyundai", "Infiniti", "Isuzu", "Iveco", "Jaguar", "Jeep", "Kia", "Koenigsegg", "KTM", "Lada", "Lamborghini", "Lancia", "Land Rover", "Lexus", "Ligier", "Lincoln", "Lotus", "Maserati", "Mazda", "McLaren", "Mercedes-Benz", "Maybach", "Mini", "Mitsubishi", "Nissan", "Opel", "Peugeot", "Piaggio", "Pininfarina", "Polestar", "Pontiac, Asüna", "Porsche", "Renault", "Rivian", "Rolls-Royce", "Saab", "Santana", "Seat", "Shelby SuperCars", "Skoda", "smart", "SsangYong", "Subaru", "Suzuki", "Tesla", "Toyota", "Volkswagen", "Volvo"];
@@ -370,6 +371,29 @@ export const PurchaseForm = ({
       }
     }
   };
+
+  // Auto-determine VAT type when relevant fields change
+  useEffect(() => {
+    const mileage = form.watch('mileage');
+    const firstRegistrationDate = form.watch('first_registration_date');
+    const purchaseChannel = form.watch('purchase_channel');
+    const purchaseDate = form.watch('purchase_date');
+
+    // Only auto-determine if all required fields are filled
+    if (mileage && firstRegistrationDate && purchaseChannel && purchaseDate) {
+      try {
+        const vatType = determineVatType({
+          mileage,
+          firstRegistrationDate,
+          purchaseChannel,
+          purchaseDate
+        });
+        form.setValue('vat_type', vatType);
+      } catch (error) {
+        console.error('Error determining VAT type:', error);
+      }
+    }
+  }, [form.watch('mileage'), form.watch('first_registration_date'), form.watch('purchase_channel'), form.watch('purchase_date')]);
 
 
   // Handle file upload
@@ -889,9 +913,21 @@ export const PurchaseForm = ({
                     </p>}
                 </div>
 
-                {/* 5. Momsregel - Non-selectable */}
+                {/* 5. Momsregel - Auto-determined */}
                 <div>
-                  <Label className="text-muted-foreground">Momsregel*</Label>
+                  <div className="flex items-center gap-2">
+                    <Label className="text-muted-foreground">Momsregel*</Label>
+                    <InfoPopup title="Momsregel för köp från privatperson">
+                      <div className="space-y-2">
+                        <p><strong>Moms (25%)</strong> tillämpas när BÅDA följande villkor är uppfyllda:</p>
+                        <ul className="list-disc list-inside space-y-1 ml-2">
+                          <li>Fordonet har färdats högst 6000 km</li>
+                          <li>Fordonet har varit i trafik i högst 6 månader efter första registrering</li>
+                        </ul>
+                        <p className="mt-2"><strong>VMB (Vinstmarginalbeskattning)</strong> tillämpas i alla andra fall.</p>
+                      </div>
+                    </InfoPopup>
+                  </div>
                   <RadioGroup
                     value={form.watch("vat_type")}
                     onValueChange={() => {}} // No-op function to prevent changes
