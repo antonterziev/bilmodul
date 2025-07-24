@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Link, Unlink, FileCheck, RefreshCw } from "lucide-react";
+import { Link, Unlink, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useFortnoxConnection } from "@/hooks/useFortnoxConnection";
 
@@ -21,11 +21,6 @@ export const Integrations = () => {
   const [fortnoxIntegration, setFortnoxIntegration] = useState<FortnoxIntegration | null>(null);
   const [fortnoxConnected, setFortnoxConnected] = useState(false);
   const [disconnectingFortnox, setDisconnectingFortnox] = useState(false);
-  const [testingAttachment, setTestingAttachment] = useState(false);
-  const [attachmentTestResult, setAttachmentTestResult] = useState<{
-    success: boolean;
-    message: string;
-  } | null>(null);
   const [accountMappings, setAccountMappings] = useState({
     inkopVmbFordon: "",
     inkopMomsFordon: "",
@@ -95,56 +90,6 @@ export const Integrations = () => {
     }
   };
 
-  const testAttachment = async () => {
-    if (!fortnoxIntegration) return;
-
-    setTestingAttachment(true);
-    setAttachmentTestResult(null);
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('fortnox-test-attachment');
-
-      if (error) {
-        // Check if this is a token renewal error
-        const wasReconnectionError = await handleFortnoxError(error);
-        if (wasReconnectionError) {
-          return; // Let the error handler take care of redirection
-        }
-        throw error;
-      }
-
-      setAttachmentTestResult({
-        success: data.success,
-        message: data.message
-      });
-
-      toast({
-        title: data.success ? "Test lyckades" : "Test misslyckades",
-        description: data.message,
-        variant: data.success ? "default" : "destructive",
-      });
-    } catch (error: any) {
-      console.error('Error testing attachment:', error);
-      
-      // Check if this is a token renewal error
-      const wasReconnectionError = await handleFortnoxError(error);
-      if (wasReconnectionError) {
-        return; // Let the error handler take care of redirection
-      }
-      
-      setAttachmentTestResult({
-        success: false,
-        message: "Kunde inte testa bifogning. Försök igen senare."
-      });
-      toast({
-        title: "Fel",
-        description: "Kunde inte testa bifogning. Försök igen senare.",
-        variant: "destructive",
-      });
-    } finally {
-      setTestingAttachment(false);
-    }
-  };
 
   return (
     <div className="p-6">
@@ -190,33 +135,15 @@ export const Integrations = () => {
                   </div>
                   <div className="flex gap-2">
                     <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={testAttachment}
-                      disabled={testingAttachment || disconnectingFortnox}
-                    >
-                      <FileCheck className="h-4 w-4 mr-2" />
-                      {testingAttachment ? "Testar..." : "Testa bifogning"}
-                    </Button>
-                    <Button
                       variant="destructive"
                       size="sm"
                       onClick={disconnectFortnox}
-                      disabled={disconnectingFortnox || testingAttachment}
+                      disabled={disconnectingFortnox}
                     >
                       <Unlink className="h-4 w-4 mr-2" />
                       {disconnectingFortnox ? "Kopplar från..." : "Koppla från"}
                     </Button>
                   </div>
-                  {attachmentTestResult && (
-                    <div className={`text-xs mt-1 p-2 rounded ${
-                      attachmentTestResult.success 
-                        ? 'bg-green-50 text-green-700 border border-green-200' 
-                        : 'bg-red-50 text-red-700 border border-red-200'
-                    }`}>
-                      {attachmentTestResult.message}
-                    </div>
-                  )}
                 </div>
               ) : (
                 <Button
