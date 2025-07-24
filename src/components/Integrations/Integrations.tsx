@@ -260,8 +260,9 @@ export const Integrations = () => {
                       const checkClosed = setInterval(() => {
                         if (popup?.closed) {
                           clearInterval(checkClosed);
-                          // Refresh the page to check for updated connection status
-                          window.location.reload();
+                          // Force reload the integration data instead of full page refresh
+                          console.log('Popup closed, reloading Fortnox integration...');
+                          loadFortnoxIntegration();
                         }
                       }, 1000);
                       
