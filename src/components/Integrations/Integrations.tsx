@@ -113,10 +113,10 @@ export const Integrations = () => {
                 <span className="text-xs text-muted-foreground">Status</span>
                 <Badge 
                   variant="default"
-                  className={`text-xs whitespace-nowrap px-2 justify-center w-16 text-white ${
+                  className={`text-xs whitespace-nowrap px-2 justify-center w-16 text-white bg-gray-400 hover:bg-gray-400 ${
                     fortnoxConnected 
-                      ? 'bg-green-500' 
-                      : 'bg-gray-500'
+                      ? 'bg-green-500 hover:bg-green-500' 
+                      : 'bg-gray-400 hover:bg-gray-400'
                   }`}
                 >
                   {fortnoxConnected ? 'Aktiv' : 'Inaktiv'}
