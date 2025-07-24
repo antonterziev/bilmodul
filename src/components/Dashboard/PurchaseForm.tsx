@@ -708,7 +708,7 @@ export const PurchaseForm = ({
                 </div>
 
                 <div>
-                  <Label>Första datum i trafik</Label>
+                  <Label>Första datum i trafik *</Label>
                   <Popover open={firstRegOpen} onOpenChange={setFirstRegOpen}>
                     <PopoverTrigger asChild>
                       <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !form.watch("first_registration_date") && "text-muted-foreground")}>
