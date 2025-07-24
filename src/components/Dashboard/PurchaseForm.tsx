@@ -30,13 +30,13 @@ const purchaseSchema = z.object({
   // Vehicle data
   registration_number: z.string().min(1, "Registreringsnummer krävs"),
   chassis_number: z.string().optional(),
-  mileage: z.number().min(0, "Miltal kan inte vara negativt").max(500000, "Miltal kan inte vara över 500,000").optional(),
+  mileage: z.number().min(0, "Miltal kan inte vara negativt").max(500000, "Miltal kan inte vara över 500,000"),
   brand: z.string().optional(),
   brand_other: z.string().optional(),
   model: z.string().optional(),
   comment: z.string().optional(),
   year_model: z.preprocess((val) => val === "" || val === null || val === undefined ? undefined : Number(val), z.number().min(1981, "Modellår måste vara minst 1981").max(new Date().getFullYear() + 2, "Modellår kan inte vara mer än två år i framtiden").optional()),
-  first_registration_date: z.date().max(new Date(), "Första datum i trafik kan inte vara i framtiden").optional(),
+  first_registration_date: z.date().max(new Date(), "Första datum i trafik kan inte vara i framtiden"),
   vat_type: z.string().min(1, "Momsregel krävs"),
   // Purchase information
   purchaser: z.string().min(1, "Inköpare krävs"),
