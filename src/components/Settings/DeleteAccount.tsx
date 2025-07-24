@@ -18,6 +18,9 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
   const { user } = useAuth();
 
   const handleDeleteAccount = async () => {
+    console.log('Delete account started, confirmText:', confirmText);
+    console.log('User ID:', user?.id);
+    
     if (confirmText.toLowerCase() !== 'delete') {
       toast({
         title: "Fel",
@@ -28,6 +31,7 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
     }
 
     setIsDeleting(true);
+    console.log('Starting account deletion process...');
     try {
       // Delete user data first (profiles, inventory items, etc.)
       const { error: profileError } = await supabase
