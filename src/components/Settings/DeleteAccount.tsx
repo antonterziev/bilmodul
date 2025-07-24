@@ -21,10 +21,10 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
     console.log('Delete account started, confirmText:', confirmText);
     console.log('User ID:', user?.id);
     
-    if (confirmText.toLowerCase() !== 'delete') {
+    if (confirmText.toLowerCase() !== 'radera') {
       toast({
         title: "Fel",
-        description: "Du måste skriva 'delete' för att bekräfta",
+        description: "Du måste skriva 'radera' för att bekräfta",
         variant: "destructive",
       });
       return;
@@ -155,14 +155,14 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
 
           <div className="space-y-2">
             <label htmlFor="confirm-delete" className="text-sm font-medium">
-              Skriv "delete" för att bekräfta att du vill radera ditt konto:
+              Skriv "radera" för att bekräfta att du vill radera ditt konto:
             </label>
             <Input
               id="confirm-delete"
               type="text"
               value={confirmText}
               onChange={(e) => setConfirmText(e.target.value)}
-              placeholder="Skriv 'delete' här"
+              placeholder="Skriv 'radera' här"
               className="max-w-sm"
             />
           </div>
@@ -174,7 +174,7 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
             <Button
               variant="destructive"
               onClick={handleDeleteAccount}
-              disabled={confirmText.toLowerCase() !== 'delete' || isDeleting}
+              disabled={confirmText.toLowerCase() !== 'radera' || isDeleting}
             >
               {isDeleting ? 'Raderar...' : 'Radera konto permanent'}
             </Button>
