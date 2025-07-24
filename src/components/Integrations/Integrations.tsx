@@ -124,8 +124,8 @@ export const Integrations = () => {
               </div>
               
               {fortnoxConnected && fortnoxIntegration ? (
-                <div className="flex flex-col items-end gap-2">
-                  <div className="text-right">
+                <div className="flex items-center justify-between w-full">
+                  <div className="text-left">
                     <p className="text-sm font-medium">
                       {fortnoxIntegration.company_name || 'Okänt företag'}
                     </p>
@@ -133,17 +133,15 @@ export const Integrations = () => {
                       Kopplad: {new Date(fortnoxIntegration.created_at).toLocaleDateString('sv-SE')}
                     </p>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={disconnectFortnox}
-                      disabled={disconnectingFortnox}
-                    >
-                      <Unlink className="h-4 w-4 mr-2" />
-                      {disconnectingFortnox ? "Kopplar från..." : "Koppla från"}
-                    </Button>
-                  </div>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={disconnectFortnox}
+                    disabled={disconnectingFortnox}
+                  >
+                    <Unlink className="h-4 w-4 mr-2" />
+                    {disconnectingFortnox ? "Kopplar från..." : "Koppla från"}
+                  </Button>
                 </div>
               ) : (
                 <Button
@@ -210,71 +208,69 @@ export const Integrations = () => {
         {/* Account Mappings Module - Only shown when Fortnox is connected */}
         {fortnoxConnected && (
           <div className="bg-card border rounded-lg p-6">
-            <h3 className="text-lg font-semibold mb-4">Kopplingar</h3>
+            <h3 className="text-lg font-semibold mb-4">Kontoplan</h3>
             <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium">Inköp VMB-fordon</label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="text"
-                      value={accountMappings.inkopVmbFordon}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, ''); // Only allow numbers
-                        setAccountMappings(prev => ({ ...prev, inkopVmbFordon: value }));
-                      }}
-                      placeholder="Kontonummer"
-                      className="w-32"
-                    />
-                  </div>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Inköp VMB-fordon</label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="text"
+                    value={accountMappings.inkopVmbFordon}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, ''); // Only allow numbers
+                      setAccountMappings(prev => ({ ...prev, inkopVmbFordon: value }));
+                    }}
+                    placeholder="Kontonummer"
+                    className="w-32"
+                  />
                 </div>
+              </div>
 
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium">Inköp Moms-fordon</label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="text"
-                      value={accountMappings.inkopMomsFordon}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, ''); // Only allow numbers
-                        setAccountMappings(prev => ({ ...prev, inkopMomsFordon: value }));
-                      }}
-                      placeholder="Kontonummer"
-                      className="w-32"
-                    />
-                  </div>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Inköp Moms-fordon</label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="text"
+                    value={accountMappings.inkopMomsFordon}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, ''); // Only allow numbers
+                      setAccountMappings(prev => ({ ...prev, inkopMomsFordon: value }));
+                    }}
+                    placeholder="Kontonummer"
+                    className="w-32"
+                  />
                 </div>
+              </div>
 
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium">Kostnad Reparation</label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="text"
-                      value={accountMappings.kostnadReparation}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, ''); // Only allow numbers
-                        setAccountMappings(prev => ({ ...prev, kostnadReparation: value }));
-                      }}
-                      placeholder="Kontonummer"
-                      className="w-32"
-                    />
-                  </div>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Kostnad Reparation</label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="text"
+                    value={accountMappings.kostnadReparation}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, ''); // Only allow numbers
+                      setAccountMappings(prev => ({ ...prev, kostnadReparation: value }));
+                    }}
+                    placeholder="Kontonummer"
+                    className="w-32"
+                  />
                 </div>
+              </div>
 
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium">Intäkt Försäljning</label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="text"
-                      value={accountMappings.intaktForsaljning}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, ''); // Only allow numbers
-                        setAccountMappings(prev => ({ ...prev, intaktForsaljning: value }));
-                      }}
-                      placeholder="Kontonummer"
-                      className="w-32"
-                    />
-                  </div>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Intäkt Försäljning</label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="text"
+                    value={accountMappings.intaktForsaljning}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, ''); // Only allow numbers
+                      setAccountMappings(prev => ({ ...prev, intaktForsaljning: value }));
+                    }}
+                    placeholder="Kontonummer"
+                    className="w-32"
+                  />
                 </div>
               </div>
 
