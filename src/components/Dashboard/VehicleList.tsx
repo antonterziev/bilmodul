@@ -529,7 +529,7 @@ export const VehicleList = ({
                    {/* Column 5: Purchaser */}
                    <div>
                      <p className="text-xs text-muted-foreground whitespace-nowrap">Momstyp</p>
-                     <p className="font-medium">{vehicle.vat_type === "Vinstmarginalbeskattning (VMB)" ? "VMB" : vehicle.vat_type || "Ej angiven"}</p>
+                     <p className="font-medium whitespace-nowrap">{vehicle.vat_type === "Vinstmarginalbeskattning (VMB)" ? "VMB" : vehicle.vat_type || "Ej angiven"}</p>
                    </div>
                    
                     {/* Column 6: Purchase Price */}
