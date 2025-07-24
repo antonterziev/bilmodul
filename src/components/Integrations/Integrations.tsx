@@ -56,6 +56,8 @@ export const Integrations = () => {
         throw error;
       }
 
+      console.log('Fortnox integration data:', data);
+      console.log('Setting fortnoxConnected to:', !!data);
       setFortnoxIntegration(data);
       setFortnoxConnected(!!data);
     } catch (error) {
