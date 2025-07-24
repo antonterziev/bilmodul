@@ -11,6 +11,7 @@ import { PurchaseForm } from "@/components/Dashboard/PurchaseForm";
 import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
 import { Statistics } from "@/components/Statistics/Statistics";
+import { Integrations } from "@/components/Integrations/Integrations";
 import { AppSidebar } from "@/components/AppSidebar";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -483,150 +484,7 @@ const Index = () => {
         );
 
       case 'integrationer':
-        return (
-          <div className="p-6">
-            <h1 className="text-2xl font-bold mb-2">Integrationer</h1>
-            <p className="text-muted-foreground mb-6">Här hittar du alla integrationer som för närvarande finns i Veksla.</p>
-            
-            {/* Test buttons for easier debugging */}
-            <div className="mb-6 space-y-3">
-              <Button
-                onClick={async () => {
-                  try {
-                    const { data, error } = await supabase.functions.invoke('fortnox-test-connection');
-                    console.log('Test result:', { data, error });
-                    
-                    if (error) {
-                      alert(`Test error: ${error.message}`);
-                    } else if (data?.success) {
-                      alert(`✅ Fortnox connection works! API status: ${data.api_response_status}`);
-                    } else {
-                      alert(`❌ Test failed: ${data?.message || 'Unknown error'}`);
-                    }
-                  } catch (err) {
-                    console.error('Test error:', err);
-                    alert(`Error: ${err.message}`);
-                  }
-                }}
-                variant="outline"
-                className="mr-3"
-              >
-                🧪 Test Fortnox Connection
-              </Button>
-
-
-            </div>
-            
-            <div className="space-y-4">
-              <div className="bg-card border rounded-lg p-4">
-                  <div className="flex items-center justify-between">
-                   <div className="flex items-center space-x-4">
-                     <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-                       <img src="/lovable-uploads/06ce5fbb-cb35-47f9-9b24-5b51bdbe0647.png" alt="Fortnox" className="w-10 h-10 object-contain" />
-                     </div>
-                     <div className="flex-1">
-                       <h3 className="font-medium">Automatisk bokföring – Fortnox</h3>
-                       <p className="text-sm text-muted-foreground">Bokför dina fordonsaffärer smidigt och automatiskt med Fortnox</p>
-                     </div>
-                   </div>
-                     <div className="flex items-center gap-3">
-                       <div className="flex flex-col items-center gap-1">
-                         <span className="text-xs text-muted-foreground">Status</span>
-                         <Badge 
-                           variant="default"
-                           className={`text-xs whitespace-nowrap px-2 justify-center w-16 text-white ${
-                             fortnoxConnected 
-                               ? 'bg-green-500' 
-                               : 'bg-gray-500'
-                           }`}
-                         >
-                           {fortnoxConnected ? 'Aktiv' : 'Inaktiv'}
-                         </Badge>
-                       </div>
-                       
-                        {fortnoxConnected && fortnoxIntegration ? (
-                          <div className="flex items-center gap-3">
-                            <div className="text-right">
-                              <p className="text-sm font-medium">
-                                {fortnoxIntegration.company_name || 'Okänt företag'}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                Kopplad: {new Date(fortnoxIntegration.created_at).toLocaleDateString('sv-SE')}
-                              </p>
-                            </div>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={disconnectFortnox}
-                              disabled={disconnectingFortnox}
-                            >
-                              <Unlink className="h-4 w-4 mr-2" />
-                              {disconnectingFortnox ? "Kopplar från..." : "Koppla från"}
-                            </Button>
-                          </div>
-                       ) : (
-                         <Button
-                           variant="outline"
-                           onClick={async () => {
-                             if (!user?.id) {
-                               console.error('User not authenticated');
-                               return;
-                             }
-
-                             console.log('Koppla button clicked - initiating Fortnox connection for user:', user.id);
-                             try {
-                               console.log('Calling fortnox-oauth function...');
-                               const { data, error } = await supabase.functions.invoke('fortnox-oauth', {
-                                 body: { 
-                                   action: 'get_auth_url',
-                                   user_id: user.id
-                                 }
-                               });
-
-                               console.log('Fortnox OAuth response:', { data, error });
-
-                               if (error) {
-                                 console.error('Fortnox OAuth error:', error);
-                                 throw error;
-                               }
-
-                               if (!data?.auth_url) {
-                                 throw new Error('No auth URL received from Fortnox OAuth function');
-                               }
-
-                               console.log('Opening Fortnox OAuth in popup:', data.auth_url);
-                               // Open Fortnox OAuth in popup
-                               const popup = window.open(
-                                 data.auth_url, 
-                                 'fortnox-oauth', 
-                                 'width=600,height=700,scrollbars=yes,resizable=yes'
-                               );
-                               
-                               // Listen for popup completion
-                               const checkClosed = setInterval(() => {
-                                 if (popup?.closed) {
-                                   clearInterval(checkClosed);
-                                   // Refresh the page to check for updated connection status
-                                   window.location.reload();
-                                 }
-                               }, 1000);
-                               
-                             } catch (error: any) {
-                               console.error('Fortnox connection error:', error);
-                               alert('Kunde inte ansluta till Fortnox. Försök igen senare.');
-                             }
-                           }}
-                         >
-                           <Link className="h-4 w-4 mr-2" />
-                           Koppla
-                         </Button>
-                       )}
-                     </div>
-                 </div>
-               </div>
-             </div>
-           </div>
-         );
+        return <Integrations />;
 
       default:
         // Default overview content - includes both dashboard stats and statistics
