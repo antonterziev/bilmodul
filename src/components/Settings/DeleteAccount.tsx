@@ -108,7 +108,7 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
 
       // Sign out and redirect
       await supabase.auth.signOut();
-      window.location.href = '/auth';
+      window.location.href = '/';
       
     } catch (error: any) {
       console.error('Error deleting account:', error);
