@@ -280,8 +280,8 @@ export const Integrations = () => {
           </div>
         </div>
 
-        {/* Account Mappings Module - Only shown when Fortnox is connected */}
-        {fortnoxConnected && (
+        {/* Account Mappings Module - Always shown for authenticated users */}
+        {user && (
           <div className="bg-card border rounded-lg p-6">
             <h3 className="text-lg font-semibold mb-4">Kopplingar</h3>
             <div className="space-y-4">
