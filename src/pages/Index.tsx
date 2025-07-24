@@ -14,7 +14,7 @@ import { Statistics } from "@/components/Statistics/Statistics";
 import { AppSidebar } from "@/components/AppSidebar";
 
 import { supabase } from "@/integrations/supabase/client";
-import { Phone, MessageCircle, LogOut, Search, Download, FileText, File, FileCheck, Receipt, BookOpen, CheckSquare, User, ChevronDown, Bell, HelpCircle, Link, Filter, RotateCcw, ArrowUpDown, ArrowUp, ArrowDown, Triangle, Unlink } from "lucide-react";
+import { Phone, MessageCircle, LogOut, Search, Filter, RotateCcw, Triangle, Unlink, Link, Bell, HelpCircle, ChevronDown, User, FileText, File, CheckSquare, BookOpen, Download, FileCheck, Receipt } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -116,7 +116,7 @@ const Index = () => {
           filter: `user_id=eq.${user.id}`
         },
         () => {
-          console.log('Profile updated, refreshing...');
+          
           loadUserProfile();
         }
       )
@@ -176,7 +176,7 @@ const Index = () => {
         .single();
 
       if (!error && data) {
-        console.log('Profile data loaded:', data);
+        
         setUserProfile(data);
       } else if (error) {
         console.error('Profile loading error:', error);

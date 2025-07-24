@@ -343,7 +343,7 @@ export const VehicleList = ({
   };
 
   const handleOpenFortnoxVoucher = async (verificationNumber: string) => {
-    console.log('🔍 handleOpenFortnoxVoucher called with verification number:', verificationNumber);
+    
     
     try {
       // Get the user's Fortnox integration to find their company ID
@@ -354,7 +354,7 @@ export const VehicleList = ({
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
-      console.log('🔍 Fortnox integrations query result:', { fortnoxIntegrations, error });
+      
 
       if (error) {
         console.error('❌ Database error:', error);
@@ -368,7 +368,7 @@ export const VehicleList = ({
 
       // Find the first integration that has a company ID
       const fortnoxIntegration = fortnoxIntegrations.find(integration => integration.fortnox_company_id);
-      console.log('🔍 Selected integration:', fortnoxIntegration);
+      
       
       if (!fortnoxIntegration || !fortnoxIntegration.fortnox_company_id) {
         console.error('❌ Fortnox company ID is missing - please reconnect to Fortnox');
@@ -376,10 +376,10 @@ export const VehicleList = ({
       }
 
       const fortnoxUrl = `https://apps5.fortnox.se/app/${fortnoxIntegration.fortnox_company_id}/bf/voucher/A-${verificationNumber}`;
-      console.log('🔍 Opening URL:', fortnoxUrl);
+      
       
       window.open(fortnoxUrl, 'fortnox-voucher', 'width=1200,height=800,scrollbars=yes,resizable=yes');
-      console.log('✅ Window.open called successfully');
+      
       
     } catch (error) {
       console.error('❌ Error opening Fortnox voucher:', error);

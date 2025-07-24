@@ -164,10 +164,10 @@ export const PurchaseForm = ({
   // Fetch vehicle data from car info APIs via Edge Function
   const fetchCarInfo = async (regNumber: string) => {
     if (!regNumber.trim()) return;
-    console.log('fetchCarInfo called with:', regNumber);
+    
     setIsLoadingCarInfo(true);
     try {
-      console.log('Calling Supabase edge function with regNumber:', regNumber.trim());
+      
       const {
         data,
         error
@@ -176,13 +176,13 @@ export const PurchaseForm = ({
           registrationNumber: regNumber.trim()
         }
       });
-      console.log('Edge function response - data:', data, 'error:', error);
+      
       if (error) {
         console.error('Edge function error:', error);
         return;
       }
       if (data && !data.error) {
-        console.log('Auto-populating form with data:', data);
+        
 
         // Auto-populate form fields with data from car info APIs
         if (data.brand) {
@@ -208,7 +208,7 @@ export const PurchaseForm = ({
           if (regDate <= new Date()) {
             form.setValue('first_registration_date', regDate);
           } else {
-            console.log(`Registration date ${data.registrationDate} rejected - future date`);
+            
           }
         }
         if (data.vin) {
@@ -224,7 +224,7 @@ export const PurchaseForm = ({
           description: data.fromCache ? "Fordonsinformation hämtad från cachad data (inga tokens användes)" : "Fordonsinformation har hämtats automatiskt"
         });
       } else {
-        console.log('No data returned or data contains error:', data);
+        
       }
     } catch (error) {
       console.error('Error fetching car info:', error);
@@ -240,9 +240,7 @@ export const PurchaseForm = ({
 
   // Check for duplicate registration numbers
   const checkForDuplicateRegNumber = async (regNumber: string) => {
-    console.log('checkForDuplicateRegNumber called with:', regNumber);
     if (!user || !regNumber.trim()) {
-      console.log('Early return: no user or empty regNumber');
       setIsDuplicateRegNumber(false);
       setDuplicateVehicleId(null);
       return false;
@@ -254,9 +252,7 @@ export const PurchaseForm = ({
         error
       } = await supabase.from('inventory_items').select('id').eq('user_id', user.id).eq('registration_number', regNumber.trim()).limit(1);
       if (error) throw error;
-      console.log('Duplicate check response:', data);
       const isDuplicate = data && data.length > 0;
-      console.log('isDuplicate:', isDuplicate);
       setIsDuplicateRegNumber(isDuplicate);
       setDuplicateVehicleId(isDuplicate && data.length > 0 ? data[0].id : null);
       return isDuplicate;
@@ -340,15 +336,10 @@ export const PurchaseForm = ({
   // Handle mileage input change
   const handleMileageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[\s,]/g, ''); // Remove both spaces and commas
-    console.log('Mileage input value:', value);
     if (value === '' || /^\d+$/.test(value)) {
       const numValue = value === '' ? undefined : parseInt(value);
-      console.log('Parsed mileage number:', numValue);
-      console.log('Setting form value with:', numValue);
       form.setValue('mileage', numValue);
       setMileageDisplay(value === '' ? '' : formatWithThousands(value));
-    } else {
-      console.log('Mileage value rejected by regex:', value);
     }
   };
 
@@ -493,19 +484,13 @@ export const PurchaseForm = ({
     );
   };
   const onSubmit = async (data: PurchaseFormData) => {
-    console.log('Form submitted with data:', data);
-    console.log('isDuplicateRegNumber:', isDuplicateRegNumber);
-    console.log('duplicateVehicleId:', duplicateVehicleId);
-    
     if (!user) return;
 
     // Double-check for duplicates right before submission
     const finalDuplicateCheck = await checkForDuplicateRegNumber(data.registration_number);
-    console.log('Final duplicate check result:', finalDuplicateCheck);
 
     // Prevent submission if there's a duplicate registration number
     if (isDuplicateRegNumber || finalDuplicateCheck) {
-      console.log('Blocking submission due to duplicate registration number');
       toast({
         title: "Kan inte registrera",
         description: "Detta registreringsnummer finns redan. Du kan inte ha fler än ett fordon med samma registreringsnummer.",
@@ -538,8 +523,6 @@ export const PurchaseForm = ({
         purchase_channel_other: data.purchase_channel_other || null,
       };
       
-      // Log the data being sent to database for debugging
-      console.log('Inserting data to database:', insertData);
       
       const {
         data: insertedItem,
@@ -633,10 +616,7 @@ export const PurchaseForm = ({
               </TabsTrigger>
             </TabsList>
 
-              <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
-                console.log('Form validation errors:', errors);
-                console.log('Form values:', form.getValues());
-              })} className="space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <TabsContent value="fordonsdata" className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>

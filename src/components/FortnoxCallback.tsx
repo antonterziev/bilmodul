@@ -11,14 +11,12 @@ const FortnoxCallback = () => {
   const [message, setMessage] = useState('Processar anslutning...');
 
   useEffect(() => {
-    console.log('FortnoxCallback component mounted');
-    console.log('Current URL:', window.location.href);
     
     const handleCallback = () => {
       const statusParam = searchParams.get('status');
       const messageParam = searchParams.get('message');
 
-      console.log('Callback parameters:', { statusParam, messageParam });
+      
 
       if (statusParam === 'success') {
         setStatus('success');

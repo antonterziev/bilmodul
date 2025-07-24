@@ -44,7 +44,7 @@ export const useBrandLogo = (brandName: string): BrandLogoResult => {
         }
 
         // If not in database, call the edge function to fetch it
-        console.log('Fetching logo for brand:', brandName);
+        
         const { data, error: functionError } = await supabase.functions.invoke('fetch-brand-logo', {
           body: { brandName }
         });
