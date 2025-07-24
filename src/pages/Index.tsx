@@ -544,26 +544,26 @@ const Index = () => {
                          </Badge>
                        </div>
                        
-                       {fortnoxConnected && fortnoxIntegration ? (
-                         <div className="flex flex-col items-end gap-2">
-                           <div className="text-right">
-                             <p className="text-sm font-medium">
-                               {fortnoxIntegration.company_name || 'Okänt företag'}
-                             </p>
-                             <p className="text-xs text-muted-foreground">
-                               Kopplad: {new Date(fortnoxIntegration.created_at).toLocaleDateString('sv-SE')}
-                             </p>
-                           </div>
-                           <Button
-                             variant="destructive"
-                             size="sm"
-                             onClick={disconnectFortnox}
-                             disabled={disconnectingFortnox}
-                           >
-                             <Unlink className="h-4 w-4 mr-2" />
-                             {disconnectingFortnox ? "Kopplar från..." : "Koppla från"}
-                           </Button>
-                         </div>
+                        {fortnoxConnected && fortnoxIntegration ? (
+                          <div className="flex items-center gap-3">
+                            <div className="text-right">
+                              <p className="text-sm font-medium">
+                                {fortnoxIntegration.company_name || 'Okänt företag'}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                Kopplad: {new Date(fortnoxIntegration.created_at).toLocaleDateString('sv-SE')}
+                              </p>
+                            </div>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={disconnectFortnox}
+                              disabled={disconnectingFortnox}
+                            >
+                              <Unlink className="h-4 w-4 mr-2" />
+                              {disconnectingFortnox ? "Kopplar från..." : "Koppla från"}
+                            </Button>
+                          </div>
                        ) : (
                          <Button
                            variant="outline"
