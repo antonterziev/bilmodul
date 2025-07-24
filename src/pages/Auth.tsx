@@ -388,7 +388,7 @@ const Auth = () => {
               
               
               <div className="flex items-center space-x-2">
-                <Checkbox id="terms" checked={acceptedTerms} onCheckedChange={checked => setAcceptedTerms(checked as boolean)} disabled className="opacity-50" />
+                <Checkbox id="terms" checked={acceptedTerms} onCheckedChange={checked => setAcceptedTerms(checked as boolean)} />
                 <Label htmlFor="terms" className="text-sm text-gray-700">
                   Jag har läst och godkänner de{" "}
                   <button type="button" className="text-blue-600 hover:underline">
