@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Link, Unlink, FileCheck, RefreshCw } from "lucide-react";
@@ -25,6 +26,12 @@ export const Integrations = () => {
     success: boolean;
     message: string;
   } | null>(null);
+  const [accountMappings, setAccountMappings] = useState({
+    inkopVmbFordon: "",
+    inkopMomsFordon: "",
+    kostnadReparation: "",
+    intaktForsaljning: ""
+  });
   const { user } = useAuth();
   const { toast } = useToast();
   const { handleFortnoxError, reconnectFortnox } = useFortnoxConnection();
@@ -269,6 +276,87 @@ export const Integrations = () => {
             </div>
           </div>
         </div>
+
+        {/* Account Mappings Module - Only shown when Fortnox is connected */}
+        {fortnoxConnected && fortnoxIntegration && (
+          <div className="bg-card border rounded-lg p-6">
+            <h3 className="text-lg font-semibold mb-4">Kopplingar</h3>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">Inköp VMB-fordon</label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="text"
+                      value={accountMappings.inkopVmbFordon}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, ''); // Only allow numbers
+                        setAccountMappings(prev => ({ ...prev, inkopVmbFordon: value }));
+                      }}
+                      placeholder="Kontonummer"
+                      className="w-32"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">Inköp Moms-fordon</label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="text"
+                      value={accountMappings.inkopMomsFordon}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, ''); // Only allow numbers
+                        setAccountMappings(prev => ({ ...prev, inkopMomsFordon: value }));
+                      }}
+                      placeholder="Kontonummer"
+                      className="w-32"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">Kostnad Reparation</label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="text"
+                      value={accountMappings.kostnadReparation}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, ''); // Only allow numbers
+                        setAccountMappings(prev => ({ ...prev, kostnadReparation: value }));
+                      }}
+                      placeholder="Kontonummer"
+                      className="w-32"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">Intäkt Försäljning</label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="text"
+                      value={accountMappings.intaktForsaljning}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, ''); // Only allow numbers
+                        setAccountMappings(prev => ({ ...prev, intaktForsaljning: value }));
+                      }}
+                      placeholder="Kontonummer"
+                      className="w-32"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4 border-t">
+                <Button variant="outline" size="sm">
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Testa anslutning
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
