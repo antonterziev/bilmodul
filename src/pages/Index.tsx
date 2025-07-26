@@ -64,9 +64,7 @@ const Index = () => {
   const [stats, setStats] = useState({
     totalStock: 0,
     averageStorageDays: 0,
-    inventoryValue: 0,
-    grossProfit: 0,
-    grossMargin: 0
+    inventoryValue: 0
   });
 
   // Fortnox integration status
@@ -227,19 +225,7 @@ const Index = () => {
         averageStorageDays = Math.round(totalStorageDays / vehiclesInStock.length);
       }
       
-      // Calculate gross profit (sum of (expected_selling_price - purchase_price) for vehicles with status "på_lager")
-      const grossProfit = vehiclesInStock
-        .filter(item => item.expected_selling_price)
-        .reduce((sum, item) => sum + ((item.expected_selling_price || 0) - item.purchase_price), 0);
-
-      // Calculate gross margin (expected profit / expected selling price * 100)
-      const totalExpectedSellingPrice = vehiclesInStock
-        .filter(item => item.expected_selling_price)
-        .reduce((sum, item) => sum + (item.expected_selling_price || 0), 0);
-      
-      const grossMargin = totalExpectedSellingPrice > 0 ? (grossProfit / totalExpectedSellingPrice) * 100 : 0;
-
-      setStats({ totalStock, averageStorageDays, inventoryValue, grossProfit, grossMargin });
+      setStats({ totalStock, averageStorageDays, inventoryValue });
     } catch (error) {
       console.error('Error loading stats:', error);
     }
@@ -507,8 +493,6 @@ const Index = () => {
             totalStock={stats.totalStock}
             averageStorageDays={stats.averageStorageDays}
             inventoryValue={stats.inventoryValue}
-            grossProfit={stats.grossProfit}
-            grossMargin={stats.grossMargin}
           />
           </div>
         );

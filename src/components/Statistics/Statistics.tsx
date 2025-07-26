@@ -13,16 +13,12 @@ interface StatisticsProps {
   totalStock: number;
   averageStorageDays: number;
   inventoryValue: number;
-  grossProfit: number;
-  grossMargin: number;
 }
 export const Statistics = ({
   onBack,
   totalStock,
   averageStorageDays,
-  inventoryValue,
-  grossProfit,
-  grossMargin
+  inventoryValue
 }: StatisticsProps) => {
   const currentYear = new Date().getFullYear();
   const [startDate, setStartDate] = useState<Date>(new Date(currentYear, 0, 1)); // January 1st of current year
@@ -37,7 +33,7 @@ export const Statistics = ({
 
       
       {/* Dashboard Stats */}
-      <DashboardStats totalStock={totalStock} averageStorageDays={averageStorageDays} inventoryValue={inventoryValue} grossProfit={grossProfit} grossMargin={grossMargin} />
+      <DashboardStats totalStock={totalStock} averageStorageDays={averageStorageDays} inventoryValue={inventoryValue} />
 
       
     </div>;
