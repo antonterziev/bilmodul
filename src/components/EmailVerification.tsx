@@ -126,6 +126,34 @@ const EmailVerification = ({ email, firstName, lastName, onBack }: EmailVerifica
     }
   };
 
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text');
+    const digits = pastedData.replace(/\D/g, '').slice(0, 6); // Remove non-digits and limit to 6
+    
+    if (digits.length > 0) {
+      const newCode = [...verificationCode];
+      
+      // Fill the fields with pasted digits
+      for (let i = 0; i < 6; i++) {
+        newCode[i] = digits[i] || '';
+      }
+      
+      setVerificationCode(newCode);
+      
+      // Focus the last filled input or the next empty one
+      const lastFilledIndex = Math.min(digits.length - 1, 5);
+      inputRefs.current[lastFilledIndex]?.focus();
+      
+      // Auto-submit if all 6 digits are filled
+      if (digits.length === 6) {
+        setTimeout(() => {
+          handleVerifyCode({ preventDefault: () => {} } as React.FormEvent);
+        }, 100);
+      }
+    }
+  };
+
   const handleBackFromSetPassword = () => {
     setShowSetPassword(false);
   };
@@ -177,6 +205,7 @@ const EmailVerification = ({ email, firstName, lastName, onBack }: EmailVerifica
                       value={digit}
                       onChange={(e) => handleCodeChange(index, e.target.value)}
                       onKeyDown={(e) => handleKeyDown(index, e)}
+                      onPaste={handlePaste}
                       className="w-12 h-12 text-center border-gray-300 focus:border-blue-500 focus:ring-blue-500 font-mono text-lg"
                       maxLength={1}
                       autoComplete="off"
