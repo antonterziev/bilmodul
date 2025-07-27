@@ -158,6 +158,7 @@ export type Database = {
           id: string
           is_active: boolean
           oauth_code: string | null
+          organization_id: string
           refresh_token: string | null
           token_expires_at: string | null
           updated_at: string
@@ -172,6 +173,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           oauth_code?: string | null
+          organization_id: string
           refresh_token?: string | null
           token_expires_at?: string | null
           updated_at?: string
@@ -186,12 +188,21 @@ export type Database = {
           id?: string
           is_active?: boolean
           oauth_code?: string | null
+          organization_id?: string
           refresh_token?: string | null
           token_expires_at?: string | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fortnox_integrations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       fortnox_oauth_states: {
         Row: {
@@ -292,6 +303,7 @@ export type Database = {
           marketplace_channel_other: string | null
           mileage: number | null
           model: string | null
+          organization_id: string
           purchase_channel: string | null
           purchase_channel_other: string | null
           purchase_date: string
@@ -341,6 +353,7 @@ export type Database = {
           marketplace_channel_other?: string | null
           mileage?: number | null
           model?: string | null
+          organization_id: string
           purchase_channel?: string | null
           purchase_channel_other?: string | null
           purchase_date: string
@@ -390,6 +403,7 @@ export type Database = {
           marketplace_channel_other?: string | null
           mileage?: number | null
           model?: string | null
+          organization_id?: string
           purchase_channel?: string | null
           purchase_channel_other?: string | null
           purchase_date?: string
@@ -412,6 +426,35 @@ export type Database = {
           warranty_provided?: boolean | null
           year_model?: number | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_items_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
         Relationships: []
       }
       profiles: {
@@ -423,6 +466,7 @@ export type Database = {
           full_name: string | null
           id: string
           last_name: string | null
+          organization_id: string
           updated_at: string
           user_id: string
         }
@@ -434,6 +478,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           last_name?: string | null
+          organization_id: string
           updated_at?: string
           user_id: string
         }
@@ -445,10 +490,19 @@ export type Database = {
           full_name?: string | null
           id?: string
           last_name?: string | null
+          organization_id?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       scraped_car_cache: {
         Row: {
@@ -478,22 +532,33 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          organization_id: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
+          organization_id: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
+          organization_id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -512,12 +577,13 @@ export type Database = {
         Args: {
           _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _organization_id?: string
         }
         Returns: boolean
       }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role: "administrator" | "bilhandel" | "ekonomi"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -645,7 +711,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["administrator", "bilhandel", "ekonomi"],
     },
   },
 } as const
