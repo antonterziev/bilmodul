@@ -322,10 +322,10 @@ const Index = () => {
   };
 
   const getDisplayName = () => {
-    if (userProfile?.full_name) {
-      return userProfile.full_name;
+    if (userProfile?.first_name) {
+      return userProfile.first_name;
     }
-    return user?.email || 'Användare';
+    return user?.email?.split('@')[0] || 'Användare';
   };
 
   if (isLoading) {
