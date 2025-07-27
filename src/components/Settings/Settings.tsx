@@ -302,7 +302,7 @@ export const Settings = () => {
               </div>
 
               <div>
-                <Label htmlFor="companyName">Företagsnamn</Label>
+                <Label htmlFor="companyName">Organisation</Label>
                 <Input
                   id="companyName"
                   value={companyName}
