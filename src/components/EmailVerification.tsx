@@ -107,6 +107,17 @@ const EmailVerification = ({ email, firstName, lastName, onBack }: EmailVerifica
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
+    
+    // Auto-submit when all 6 digits are entered
+    if (value && index === 5) {
+      const fullCode = [...newCode];
+      if (fullCode.every(digit => digit !== "")) {
+        // Small delay to allow the UI to update
+        setTimeout(() => {
+          handleVerifyCode({ preventDefault: () => {} } as React.FormEvent);
+        }, 100);
+      }
+    }
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
