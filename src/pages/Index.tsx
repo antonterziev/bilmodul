@@ -553,9 +553,6 @@ const Index = () => {
                     <DropdownMenuItem onClick={() => setCurrentView('settings')}>
                       Inställningar
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setCurrentView('radera-kontot')}>
-                      Radera kontot
-                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleLogout} className="text-red-600">
                       <LogOut className="mr-2 h-4 w-4" />
                       Logga ut
