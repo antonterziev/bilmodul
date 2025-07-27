@@ -735,7 +735,7 @@ export const PurchaseForm = ({
                 </div>
 
                 <div>
-                  <Label htmlFor="mileage">Miltal (km) *</Label>
+                  <Label htmlFor="mileage">Miltal (mil) *</Label>
                   <Input id="mileage" type="text" min="0" value={mileageDisplay} onChange={handleMileageChange} placeholder="t.ex. 4,500" />
                   {form.formState.errors.mileage && <p className="text-sm text-destructive mt-1 absolute">
                       {form.formState.errors.mileage.message}
