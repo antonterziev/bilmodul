@@ -20,6 +20,16 @@ interface UserProfile {
   first_name: string;
   last_name: string;
   company_name: string;
+  organization_id: string;
+}
+
+interface UserRole {
+  role: string;
+}
+
+interface Organization {
+  id: string;
+  name: string;
 }
 
 
@@ -27,6 +37,8 @@ interface SettingsProps {}
 
 export const Settings = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [organization, setOrganization] = useState<Organization | null>(null);
+  const [userRole, setUserRole] = useState<string>("");
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -72,16 +84,29 @@ export const Settings = () => {
       setOriginalFirstName(firstNameValue);
       setOriginalLastName(lastNameValue);
 
-      // Try to load from profiles table
+      // Try to load from profiles table with organization
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select(`
+          *,
+          organizations!inner(
+            id,
+            name
+          )
+        `)
         .eq('user_id', user?.id)
         .single();
 
       if (error) {
         // If no profile exists, create one with data from user metadata
         if (error.code === 'PGRST116') {
+          // Get the default organization first
+          const { data: orgData } = await supabase
+            .from('organizations')
+            .select('id')
+            .eq('name', 'Veksla Bilhandel')
+            .single();
+
           const { data: newProfile, error: createError } = await supabase
             .from('profiles')
             .insert({
@@ -89,7 +114,8 @@ export const Settings = () => {
               email: user?.email || '',
               first_name: userMetadata.first_name || '',
               last_name: userMetadata.last_name || '',
-              company_name: userMetadata.company_name || ''
+              company_name: userMetadata.company_name || '',
+              organization_id: orgData?.id
             })
             .select()
             .single();
@@ -101,6 +127,11 @@ export const Settings = () => {
         }
       } else {
         setProfile(data);
+        // Set organization from the joined data
+        if (data.organizations) {
+          setOrganization(data.organizations);
+        }
+        
         // Override with profile data if it exists, but keep user metadata as fallback
         const firstNameValue = data.first_name || userMetadata.first_name || '';
         const lastNameValue = data.last_name || userMetadata.last_name || '';
@@ -111,6 +142,19 @@ export const Settings = () => {
         setCompanyName(companyNameValue);
         setOriginalFirstName(firstNameValue);
         setOriginalLastName(lastNameValue);
+      }
+
+      // Load user role
+      const { data: roleData, error: roleError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user?.id)
+        .single();
+
+      if (roleError) {
+        console.error('Error loading user role:', roleError);
+      } else {
+        setUserRole(roleData.role);
       }
     } catch (error) {
       console.error('Error loading profile:', error);
@@ -301,18 +345,31 @@ export const Settings = () => {
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="companyName">Organisation</Label>
-                <Input
-                  id="companyName"
-                  value={companyName}
-                  disabled
-                  className="bg-muted"
-                  placeholder="Företagsnamn från registrering"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Företagsnamnet kan inte ändras efter registrering
-                </p>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="organization">Organisation</Label>
+                  <Input
+                    id="organization"
+                    value={organization?.name || 'Laddar...'}
+                    disabled
+                    className="bg-muted"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Din nuvarande organisation
+                  </p>
+                </div>
+                <div>
+                  <Label htmlFor="userRole">Användare</Label>
+                  <Input
+                    id="userRole"
+                    value={userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1) : 'Laddar...'}
+                    disabled
+                    className="bg-muted"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Din roll i organisationen
+                  </p>
+                </div>
               </div>
 
 
