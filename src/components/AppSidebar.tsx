@@ -125,16 +125,6 @@ export function AppSidebar({
         { id: "bokforing", title: "Verifikation", icon: BookOpen, isPro: true },
       ]
     },
-    {
-      id: "direktfloden",
-      title: "Direktflöden",
-      icon: Zap,
-      children: [
-        { id: "direktatkomst", title: "Direktåtkomst", icon: Zap },
-        { id: "direktanmalan", title: "Direktanmälan", icon: FileCheck },
-        { id: "direktbetalningar", title: "Direktbetalningar", icon: CreditCard },
-      ]
-    },
   ];
 
   return (
@@ -215,16 +205,16 @@ export function AppSidebar({
                                   <span className="text-sm">{child.title}</span>
                                 </SidebarMenuButton>
                              ) : (
-                                 <SidebarMenuButton
-                                    onClick={(['finansiering', 'affarer', 'direktfloden', 'ekonomi'].includes(section.id) || child.isPro) ? undefined : () => onViewChange(child.id)}
-                                    className={(['finansiering', 'affarer', 'direktfloden', 'ekonomi'].includes(section.id) || child.isPro)
-                                      ? "cursor-not-allowed pointer-events-none text-muted-foreground hover:bg-muted/50 flex items-center justify-between" 
-                                      : getNavClass(child.id)
-                                    }
-                                    size="sm"
-                                 >
-                                   <span className="text-sm">{child.title}</span>
-                                   {((['finansiering', 'affarer', 'direktfloden', 'ekonomi'].includes(section.id) || child.isPro)) && (
+                                  <SidebarMenuButton
+                                     onClick={(['finansiering', 'affarer', 'ekonomi'].includes(section.id) || child.isPro) ? undefined : () => onViewChange(child.id)}
+                                     className={(['finansiering', 'affarer', 'ekonomi'].includes(section.id) || child.isPro)
+                                       ? "cursor-not-allowed pointer-events-none text-muted-foreground hover:bg-muted/50 flex items-center justify-between" 
+                                       : getNavClass(child.id)
+                                     }
+                                     size="sm"
+                                  >
+                                    <span className="text-sm">{child.title}</span>
+                                    {((['finansiering', 'affarer', 'ekonomi'].includes(section.id) || child.isPro)) && (
                                      <span className="inline-flex items-center rounded-full bg-yellow-200 px-1.5 py-0 text-[11px] font-medium text-yellow-900">
                                        PRO
                                      </span>
