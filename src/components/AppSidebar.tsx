@@ -89,7 +89,7 @@ export function AppSidebar({
   const expandableMenuItems = [
     {
       id: "lager",
-      title: "Lager",
+      title: "Lagerhantering",
       icon: Car,
       children: [
         { id: "purchase_form_sub", title: "Registrera fordon", icon: Car, isButton: true },
