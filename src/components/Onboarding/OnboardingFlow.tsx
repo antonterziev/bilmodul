@@ -19,10 +19,8 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [companySearch, setCompanySearch] = useState("");
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [selectedCompany, setSelectedCompany] = useState<any>(null);
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [orgNumber, setOrgNumber] = useState("");
   const [companyType, setCompanyType] = useState("Aktiebolag");
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
@@ -53,60 +51,10 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
         return;
       }
 
-      // Move to next step
+      // Move to next step (step 2, which is now company info)
       setCurrentStep(2);
     } catch (error: any) {
       toast.error("Ett fel uppstod");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleCompanySearch = async () => {
-    if (!companySearch.trim()) return;
-    
-    setIsLoading(true);
-    try {
-      // Check if input is an organization number (format: XXXXXX-XXXX)
-      const orgNumberRegex = /^\d{6}-?\d{4}$/;
-      const isOrgNumber = orgNumberRegex.test(companySearch.replace('-', ''));
-      
-      console.log('Searching for:', companySearch);
-      
-      // Call our edge function to scrape company data
-      const { data, error } = await supabase.functions.invoke('scrape-company-info', {
-        body: { searchTerm: companySearch }
-      });
-      
-      if (error) {
-        console.error('Edge function error:', error);
-        throw new Error(error.message || 'Failed to search companies');
-      }
-      
-      const companies = data?.companies || [];
-      console.log('Companies received:', companies);
-      
-      setSearchResults(companies);
-      
-      // If exact organization number is found and there's only one result, auto-select and proceed
-      if (isOrgNumber && companies.length === 1) {
-        setSelectedCompany(companies[0]);
-        toast.success(`Företag hittades: ${companies[0].name}`);
-        setTimeout(() => setCurrentStep(3), 1000);
-        return;
-      }
-      
-      if (companies.length === 0) {
-        toast.error("Inga företag hittades. Försök med ett annat sökord.");
-      } else {
-        // Auto-select the first (top) result
-        setSelectedCompany(companies[0]);
-        toast.success(`${companies.length} företag hittades. ${companies[0].name} valdes automatiskt.`);
-      }
-      
-    } catch (error) {
-      console.error('Search error:', error);
-      toast.error("Kunde inte söka företag. Försök igen eller kontakta support.");
     } finally {
       setIsLoading(false);
     }
@@ -117,13 +65,12 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
     
     try {
       // Mark onboarding as completed and save company info
-      const userData: any = { onboarding_completed: true };
-      if (selectedCompany) {
-        userData.company_name = selectedCompany.name;
-        userData.org_number = selectedCompany.orgNumber;
-        userData.phone_number = phoneNumber;
-        userData.company_type = companyType;
-      }
+      const userData: any = { 
+        onboarding_completed: true,
+        company_name: companyName,
+        org_number: orgNumber,
+        company_type: companyType
+      };
 
       const { error } = await supabase.auth.updateUser({
         data: userData
@@ -186,113 +133,44 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
   const renderStep2 = () => (
     <div>
       <h2 className="text-2xl font-semibold text-gray-900 mb-4 text-center">
-        Lägg till ditt företag
+        Företagsinformation
       </h2>
       <p className="text-gray-600 text-sm mb-6 text-center">
-        Vi hämtar dina företagsuppgifter från Bolagsverket.
-      </p>
-      
-      <div className="space-y-6">
-        <div className="space-y-4">
-          <Input
-            type="text"
-            placeholder="sveriges förbund"
-            value={companySearch}
-            onChange={(e) => setCompanySearch(e.target.value)}
-            className="w-full h-12 text-base"
-            onKeyPress={(e) => e.key === 'Enter' && handleCompanySearch()}
-          />
-          <Button 
-            onClick={handleCompanySearch}
-            disabled={isLoading || !companySearch.trim()}
-            className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white text-base font-medium"
-          >
-            {isLoading ? "Söker..." : "Hitta företag"}
-          </Button>
-        </div>
-
-        {searchResults.length > 0 && (
-          <div className="space-y-2 max-h-80 overflow-y-auto">
-            <p className="text-sm text-gray-600">{searchResults.length} hittade</p>
-            {searchResults.map((company, index) => (
-              <div 
-                key={index}
-                onClick={() => setSelectedCompany(company)}
-                className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                  selectedCompany?.orgNumber === company.orgNumber 
-                    ? 'border-blue-500 bg-blue-50' 
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <h3 className="font-medium text-gray-900">{company.name.length > 40 ? `${company.name.substring(0, 40)}...` : company.name}</h3>
-                <p className="text-sm text-gray-600">{company.orgNumber}</p>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {selectedCompany && (
-          <Button 
-            onClick={() => setCurrentStep(3)}
-            className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white mt-6"
-          >
-            Fortsätt med {selectedCompany.name}
-          </Button>
-        )}
-
-        <div className="text-center mt-4">
-          <span className="text-sm text-gray-500">
-            Kunde du inte hitta ditt företag? Inga problem, du kan{" "}
-            <span className="text-blue-600">
-              fortsätta utan att hämta dina uppgifter
-            </span>
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderStep3 = () => (
-    <div>
-      <h2 className="text-2xl font-semibold text-gray-900 mb-4 text-center">
-        Bra, detta var vad vi hittade
-      </h2>
-      <p className="text-gray-600 text-sm mb-6 text-center">
-        Du kan alltid ändra detta senare under inställningar.
+        Fyll i din företagsinformation. Du kan alltid ändra detta senare under inställningar.
       </p>
       
       <div className="space-y-4">
-        <p className="text-red-600 text-sm">* Obligatorisk information</p>
-        
-        <div>
-          <Label htmlFor="orgNumber" className="text-sm text-gray-700">
-            Organisationsnummer *
-          </Label>
-          <Input
-            id="orgNumber"
-            type="text"
-            value={selectedCompany?.orgNumber || ""}
-            disabled
-            className="mt-1 bg-gray-100"
-          />
-        </div>
-
         <div>
           <Label htmlFor="companyName" className="text-sm text-gray-700">
-            Företagsnamn *
+            Företagsnamn
           </Label>
           <Input
             id="companyName"
             type="text"
-            value={selectedCompany?.name || ""}
-            disabled
-            className="mt-1 bg-gray-100"
+            value={companyName}
+            onChange={(e) => setCompanyName(e.target.value)}
+            placeholder="Ange företagsnamn"
+            className="mt-1"
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="orgNumber" className="text-sm text-gray-700">
+            Organisationsnummer
+          </Label>
+          <Input
+            id="orgNumber"
+            type="text"
+            value={orgNumber}
+            onChange={(e) => setOrgNumber(e.target.value)}
+            placeholder="XXXXXX-XXXX"
+            className="mt-1"
           />
         </div>
 
         <div>
           <Label htmlFor="companyType" className="text-sm text-gray-700">
-            Företagstyp *
+            Företagstyp
           </Label>
           <Select value={companyType} onValueChange={setCompanyType}>
             <SelectTrigger className="mt-1">
@@ -308,11 +186,10 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
           </Select>
         </div>
 
-
         <div className="flex gap-3 pt-4">
           <Button 
             variant="outline"
-            onClick={() => setCurrentStep(2)}
+            onClick={() => setCurrentStep(1)}
             className="flex-1"
           >
             Gå tillbaka
@@ -329,31 +206,10 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
     </div>
   );
 
-  const renderStep4 = () => (
-    <div className="text-center">
-      <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-        Klart!
-      </h2>
-      <p className="text-gray-600 text-sm mb-8">
-        Ditt konto är nu konfigurerat och redo att användas.
-      </p>
-      
-      <Button 
-        onClick={handleCompleteOnboarding}
-        disabled={isLoading}
-        className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white"
-      >
-        {isLoading ? "Slutför..." : "Gå till Dashboard"}
-      </Button>
-    </div>
-  );
-
   const renderCurrentStep = () => {
     switch (currentStep) {
       case 1: return renderStep1();
       case 2: return renderStep2();
-      case 3: return renderStep3();
-      case 4: return renderStep4();
       default: return renderStep1();
     }
   };
@@ -363,7 +219,7 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
       <div className="w-full max-w-md">
         {/* Step indicator */}
         <div className="text-center mb-8">
-          <p className="text-gray-500 text-sm mb-4">Steg {currentStep} av 3</p>
+          <p className="text-gray-500 text-sm mb-4">Steg {currentStep} av 2</p>
           
           {/* Brand Logo */}
           <div className="mb-8">
