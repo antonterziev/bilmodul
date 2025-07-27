@@ -194,37 +194,40 @@ const EmailVerification = ({ email, firstName, lastName, onBack }: EmailVerifica
               </p>
               
               <form onSubmit={handleVerifyCode} className="space-y-4">
-                <div className="flex justify-center space-x-2 mb-4">
-                  {verificationCode.map((digit, index) => (
-                    <Input
-                      key={index}
-                      ref={(el) => inputRefs.current[index] = el}
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      value={digit}
-                      onChange={(e) => handleCodeChange(index, e.target.value)}
-                      onKeyDown={(e) => handleKeyDown(index, e)}
-                      onPaste={handlePaste}
-                      className="w-12 h-12 text-center border-gray-300 focus:border-blue-500 focus:ring-blue-500 font-mono text-lg"
-                      maxLength={1}
-                      autoComplete="off"
-                      data-1p-ignore="true"
-                      data-dashlane-rid=""
-                      data-form-type="other"
-                      data-lpignore="true"
-                      data-bitwarden-watching="false"
-                    />
-                  ))}
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="flex justify-center space-x-2">
+                    {verificationCode.map((digit, index) => (
+                      <Input
+                        key={index}
+                        ref={(el) => inputRefs.current[index] = el}
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        value={digit}
+                        onChange={(e) => handleCodeChange(index, e.target.value)}
+                        onKeyDown={(e) => handleKeyDown(index, e)}
+                        onPaste={handlePaste}
+                        className="w-12 h-12 text-center border-gray-300 focus:border-blue-500 focus:ring-blue-500 font-mono text-lg"
+                        maxLength={1}
+                        autoComplete="off"
+                        data-1p-ignore="true"
+                        data-dashlane-rid=""
+                        data-form-type="other"
+                        data-lpignore="true"
+                        data-bitwarden-watching="false"
+                      />
+                    ))}
+                  </div>
+                  
+                  <Button 
+                    type="submit" 
+                    disabled={isVerifying || verificationCode.join("").length !== 6}
+                    className="h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                    style={{ width: 'calc(6 * 3rem + 5 * 0.5rem)' }} // 6 inputs (w-12 = 3rem) + 5 gaps (space-x-2 = 0.5rem)
+                  >
+                    {isVerifying ? "Verifierar..." : "Fortsätt"}
+                  </Button>
                 </div>
-                
-                <Button 
-                  type="submit" 
-                  disabled={isVerifying || verificationCode.join("").length !== 6}
-                  className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium"
-                >
-                  {isVerifying ? "Verifierar..." : "Fortsätt"}
-                </Button>
               </form>
             </div>
             
