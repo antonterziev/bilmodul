@@ -513,9 +513,6 @@ const Index = () => {
                 <div className="text-xs text-muted-foreground">
                   Välkommen {userProfile?.first_name || user?.email?.split('@')[0] || 'Användare'}
                 </div>
-                <div className="text-xs text-muted-foreground truncate max-w-48 text-left">
-                  {userProfile?.company_name || ''}
-                </div>
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" className="flex items-center justify-center w-10">
