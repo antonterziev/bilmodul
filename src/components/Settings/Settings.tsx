@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -292,152 +291,132 @@ export const Settings = () => {
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Inställningar</h2>
 
-      <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="profile">
-            <User className="h-4 w-4 mr-2" />
-            Profil
-          </TabsTrigger>
-          <TabsTrigger value="security">
-            <Lock className="h-4 w-4 mr-2" />
-            Lösenord
-          </TabsTrigger>
-        </TabsList>
+      <Card>
+        <CardHeader>
+          <CardTitle>Profilinformation</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="email">E-postadress</Label>
+            <Input
+              id="email"
+              type="email"
+              value={user?.email || ''}
+              disabled
+              className="bg-muted"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              E-postadressen kan inte ändras
+            </p>
+          </div>
 
-        <TabsContent value="profile">
-          <Card>
-            <CardHeader>
-              <CardTitle>Profilinformation</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="email">E-postadress</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={user?.email || ''}
-                  disabled
-                  className="bg-muted"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  E-postadressen kan inte ändras
-                </p>
-              </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="firstName">Förnamn</Label>
+              <Input
+                id="firstName"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="Ange förnamn"
+              />
+            </div>
+            <div>
+              <Label htmlFor="lastName">Efternamn</Label>
+              <Input
+                id="lastName"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Ange efternamn"
+              />
+            </div>
+          </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="firstName">Förnamn</Label>
-                  <Input
-                    id="firstName"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="Ange förnamn"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="lastName">Efternamn</Label>
-                  <Input
-                    id="lastName"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Ange efternamn"
-                  />
-                </div>
-              </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="organization">Organisation</Label>
+              <Input
+                id="organization"
+                value={organization?.name || 'Laddar...'}
+                disabled
+                className="bg-muted"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Din nuvarande organisation
+              </p>
+            </div>
+            <div>
+              <Label htmlFor="userRole">Användare</Label>
+              <Input
+                id="userRole"
+                value={userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1) : 'Laddar...'}
+                disabled
+                className="bg-muted"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Din roll i organisationen
+              </p>
+            </div>
+          </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="organization">Organisation</Label>
-                  <Input
-                    id="organization"
-                    value={organization?.name || 'Laddar...'}
-                    disabled
-                    className="bg-muted"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Din nuvarande organisation
-                  </p>
-                </div>
-                <div>
-                  <Label htmlFor="userRole">Användare</Label>
-                  <Input
-                    id="userRole"
-                    value={userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1) : 'Laddar...'}
-                    disabled
-                    className="bg-muted"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Din roll i organisationen
-                  </p>
-                </div>
-              </div>
+          <Button 
+            onClick={saveProfile} 
+            disabled={saving || !hasChanges}
+            className={`w-full ${!hasChanges ? 'opacity-50' : ''}`}
+          >
+            {saving ? "Sparar..." : "Uppdatera profil"}
+          </Button>
+        </CardContent>
+      </Card>
 
+      <Separator />
 
-              <Button 
-                onClick={saveProfile} 
-                disabled={saving || !hasChanges}
-                className={`w-full ${!hasChanges ? 'opacity-50' : ''}`}
-              >
-                {saving ? "Sparar..." : "Uppdatera profil"}
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
+      <Card>
+        <CardHeader>
+          <CardTitle>Lösenord</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="currentPassword">Nuvarande lösenord</Label>
+            <Input
+              id="currentPassword"
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              placeholder="Ange nuvarande lösenord"
+            />
+          </div>
 
+          <div>
+            <Label htmlFor="newPassword">Nytt lösenord</Label>
+            <Input
+              id="newPassword"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Ange nytt lösenord"
+            />
+          </div>
 
-        <TabsContent value="security">
-          <Card>
-            <CardHeader>
-              <CardTitle>Ändra lösenord</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="currentPassword">Nuvarande lösenord</Label>
-                <Input
-                  id="currentPassword"
-                  type="password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  placeholder="Ange nuvarande lösenord"
-                />
-              </div>
+          <div>
+            <Label htmlFor="confirmPassword">Bekräfta nytt lösenord</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Bekräfta nytt lösenord"
+            />
+          </div>
 
-              <div>
-                <Label htmlFor="newPassword">Nytt lösenord</Label>
-                <Input
-                  id="newPassword"
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Ange nytt lösenord"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="confirmPassword">Bekräfta nytt lösenord</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Bekräfta nytt lösenord"
-                />
-              </div>
-
-              <Button 
-                onClick={changePassword} 
-                disabled={changingPassword || !currentPassword || !newPassword || !confirmPassword}
-                className="w-full"
-              >
-                {changingPassword ? "Ändrar..." : "Ändra lösenord"}
-              </Button>
-
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-
-      </Tabs>
+          <Button 
+            onClick={changePassword} 
+            disabled={changingPassword || !currentPassword || !newPassword || !confirmPassword}
+            className="w-full"
+          >
+            {changingPassword ? "Ändrar..." : "Ändra lösenord"}
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 };
