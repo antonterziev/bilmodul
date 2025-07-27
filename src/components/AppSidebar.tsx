@@ -107,15 +107,6 @@ export function AppSidebar({
         { id: "fakturor", title: "Fakturor", icon: Receipt },
       ]
     },
-    {
-      id: "ekonomi",
-      title: "Ekonomi",
-      icon: Calculator,
-      children: [
-        { id: "verifikat", title: "Bokföringsunderlag", icon: FileText, isPro: true },
-        { id: "bokforing", title: "Verifikation", icon: BookOpen, isPro: true },
-      ]
-    },
   ];
 
   return (
@@ -197,20 +188,20 @@ export function AppSidebar({
                                 </SidebarMenuButton>
                              ) : (
                                    <SidebarMenuButton
-                                      onClick={(['affarer', 'ekonomi'].includes(section.id) || child.isPro) ? undefined : () => onViewChange(child.id)}
-                                      className={(['affarer', 'ekonomi'].includes(section.id) || child.isPro)
+                                      onClick={section.id === 'affarer' ? undefined : () => onViewChange(child.id)}
+                                      className={section.id === 'affarer'
                                         ? "cursor-not-allowed pointer-events-none text-muted-foreground hover:bg-muted/50 flex items-center justify-between" 
                                         : getNavClass(child.id)
                                       }
                                       size="sm"
                                    >
                                      <span className="text-sm">{child.title}</span>
-                                     {((['affarer', 'ekonomi'].includes(section.id) || child.isPro)) && (
-                                     <span className="inline-flex items-center rounded-full bg-yellow-200 px-1.5 py-0 text-[11px] font-medium text-yellow-900">
-                                       PRO
-                                     </span>
-                                   )}
-                                </SidebarMenuButton>
+                                     {section.id === 'affarer' && (
+                                      <span className="inline-flex items-center rounded-full bg-yellow-200 px-1.5 py-0 text-[11px] font-medium text-yellow-900">
+                                        PRO
+                                      </span>
+                                    )}
+                                 </SidebarMenuButton>
                              )}
                            </SidebarMenuItem>
                          ))}
