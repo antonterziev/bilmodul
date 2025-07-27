@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { User, Lock } from "lucide-react";
+import { User, Lock, AlertTriangle } from "lucide-react";
 
 interface UserProfile {
   id: string;
@@ -59,6 +59,10 @@ export const Settings = () => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  // Delete account form state
+  const [confirmText, setConfirmText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -280,6 +284,41 @@ export const Settings = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    if (confirmText.toLowerCase() !== 'radera') {
+      toast({
+        title: "Fel",
+        description: "Du måste skriva 'radera' för att bekräfta",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      // With CASCADE DELETE constraints in place, we only need to sign out
+      // All user data will be automatically cleaned up when the user account is deleted
+      toast({
+        title: "Konto raderat",
+        description: "Ditt konto och all associerad data har raderats. Du loggas nu ut.",
+      });
+
+      // Sign out and redirect
+      await supabase.auth.signOut();
+      window.location.href = '/';
+      
+    } catch (error: any) {
+      console.error('Error deleting account:', error);
+      toast({
+        title: "Fel",
+        description: "Det gick inte att radera kontot. Försök igen senare.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   // Check if there are unsaved changes
   const hasChanges = firstName !== originalFirstName || lastName !== originalLastName;
   
@@ -414,6 +453,55 @@ export const Settings = () => {
             className="w-full"
           >
             {changingPassword ? "Ändrar..." : "Ändra lösenord"}
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Separator />
+
+      <Card className="border-destructive">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-destructive">
+            <AlertTriangle className="h-5 w-5" />
+            Radera konto
+          </CardTitle>
+          <CardDescription>
+            Detta kommer permanent radera ditt konto och all associerad data. Denna åtgärd kan inte ångras.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="bg-destructive/10 p-4 rounded-lg">
+            <h4 className="font-semibold text-destructive mb-2">Vad som kommer att raderas:</h4>
+            <ul className="text-sm space-y-1 text-muted-foreground">
+              <li>• Din profil och kontoinformation</li>
+              <li>• Alla registrerade fordon och lagerdata</li>
+              <li>• Fortnox-integrationer och synkroniseringshistorik</li>
+              <li>• Säljhistorik och dokumentation</li>
+              <li>• Alla uppladdade filer och dokument</li>
+            </ul>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="confirm-delete">
+              Skriv "radera" för att bekräfta att du vill radera ditt konto:
+            </Label>
+            <Input
+              id="confirm-delete"
+              type="text"
+              value={confirmText}
+              onChange={(e) => setConfirmText(e.target.value)}
+              placeholder="Skriv 'radera' här"
+              className="max-w-sm"
+            />
+          </div>
+
+          <Button
+            variant="destructive"
+            onClick={handleDeleteAccount}
+            disabled={confirmText.toLowerCase() !== 'radera' || isDeleting}
+            className="w-full"
+          >
+            {isDeleting ? 'Raderar...' : 'Radera konto permanent'}
           </Button>
         </CardContent>
       </Card>
