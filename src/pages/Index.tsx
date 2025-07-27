@@ -11,7 +11,7 @@ import { PurchaseForm } from "@/components/Dashboard/PurchaseForm";
 import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
 import { DeleteAccount } from "@/components/Settings/DeleteAccount";
-import { Statistics } from "@/components/Statistics/Statistics";
+
 import { Integrations } from "@/components/Integrations/Integrations";
 import { AppSidebar } from "@/components/AppSidebar";
 
@@ -488,12 +488,11 @@ const Index = () => {
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold">Översikt</h2>
-          <Statistics
-            onBack={() => {}}
-            totalStock={stats.totalStock}
-            averageStorageDays={stats.averageStorageDays}
-            inventoryValue={stats.inventoryValue}
-          />
+            <DashboardStats
+              totalStock={stats.totalStock}
+              averageStorageDays={stats.averageStorageDays}
+              inventoryValue={stats.inventoryValue}
+            />
           </div>
         );
     }
