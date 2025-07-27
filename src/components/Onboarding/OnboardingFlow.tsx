@@ -217,10 +217,7 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <div className="w-full max-w-md">
-        {/* Step indicator */}
         <div className="text-center mb-8">
-          <p className="text-gray-500 text-sm mb-4">Steg {currentStep} av 2</p>
-          
           {/* Brand Logo */}
           <div className="mb-8">
             <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-16 mx-auto" />
