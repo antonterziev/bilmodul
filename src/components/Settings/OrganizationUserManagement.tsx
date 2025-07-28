@@ -199,10 +199,6 @@ export const OrganizationUserManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <Users className="w-5 h-5" />
-        <h3 className="text-lg font-semibold">Användarhantering</h3>
-      </div>
 
       <Card>
         <CardHeader>
