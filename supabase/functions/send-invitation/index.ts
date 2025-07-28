@@ -84,30 +84,35 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Organization not found");
     }
 
-    // Check if invitation already exists
+    // Check if invitation already exists (any status)
     const { data: existingInvitation } = await supabase
       .from("invitations")
       .select("id, status")
       .eq("email", email)
       .eq("organization_id", organizationId)
-      .eq("status", "pending")
       .single();
 
     if (existingInvitation) {
-      // Update existing invitation
-      const { error: updateError } = await supabase
-        .from("invitations")
-        .update({
-          roles, // Use roles array instead of single role
-          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", existingInvitation.id);
+      if (existingInvitation.status === "accepted") {
+        // User has already accepted an invitation, they're already in the system
+        throw new Error("Användaren har redan ett konto i organisationen");
+      } else {
+        // Update existing pending invitation
+        const { error: updateError } = await supabase
+          .from("invitations")
+          .update({
+            roles, // Use roles array instead of single role
+            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+            updated_at: new Date().toISOString(),
+            status: "pending", // Reset to pending in case it was expired
+          })
+          .eq("id", existingInvitation.id);
 
-      if (updateError) {
-        throw new Error("Failed to update invitation");
+        if (updateError) {
+          throw new Error("Failed to update invitation");
+        }
+        console.log("Updated existing invitation");
       }
-      console.log("Updated existing invitation");
     } else {
       // Create new invitation
       const { error: insertError } = await supabase
