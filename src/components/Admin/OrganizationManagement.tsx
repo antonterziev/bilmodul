@@ -44,6 +44,10 @@ export const OrganizationManagement = () => {
 
   const loadOrganizations = async () => {
     try {
+      // Debug: Check current user role
+      const { data: roleData } = await supabase.rpc('get_current_user_role');
+      console.log('Current user role in org management:', roleData);
+      
       const { data, error } = await supabase
         .from('organizations')
         .select(`
@@ -54,7 +58,10 @@ export const OrganizationManagement = () => {
         `)
         .order('name');
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error loading organizations:', error);
+        throw error;
+      }
 
       const formattedOrgs: Organization[] = data?.map((org: any) => ({
         id: org.id,

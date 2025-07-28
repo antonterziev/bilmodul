@@ -37,6 +37,10 @@ export const UserManagement = () => {
 
   const loadUsers = async () => {
     try {
+      // Debug: Check current user role
+      const { data: roleData } = await supabase.rpc('get_current_user_role');
+      console.log('Current user role:', roleData);
+      
       const { data, error } = await supabase
         .from('profiles')
         .select(`
@@ -49,7 +53,10 @@ export const UserManagement = () => {
           user_roles!inner(role)
         `);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error loading users:', error);
+        throw error;
+      }
 
       const formattedUsers: UserWithProfile[] = data?.map((user: any) => ({
         user_id: user.user_id,
