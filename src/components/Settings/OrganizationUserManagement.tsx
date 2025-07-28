@@ -133,25 +133,29 @@ export const OrganizationUserManagement = () => {
     return user.email;
   };
 
-  const isLastAdmin = (userId: string) => {
-    const adminUsers = users.filter(user => user.roles.includes('admin'));
-    return adminUsers.length === 1 && adminUsers[0].user_id === userId;
+  const getAdminCount = () => {
+    return users.filter(user => user.roles.includes('admin')).length;
+  };
+
+  const wouldRemoveLastAdmin = (userId: string, role: string) => {
+    if (role === 'admin') {
+      const userToUpdate = users.find(u => u.user_id === userId);
+      const hasAdminRole = userToUpdate?.roles.includes('admin');
+      // If user currently has admin role and there's only 1 admin total, prevent removal
+      return hasAdminRole && getAdminCount() === 1;
+    }
+    return false;
   };
 
   const toggleUserRole = async (userId: string, role: string, organizationId: string) => {
     // Prevent removing the last admin
-    if (role === 'admin') {
-      const userToUpdate = users.find(u => u.user_id === userId);
-      const hasRole = userToUpdate?.roles.includes(role);
-      
-      if (hasRole && isLastAdmin(userId)) {
-        toast({
-          title: "Fel",
-          description: "Kan inte ta bort den sista administratören från organisationen",
-          variant: "destructive"
-        });
-        return;
-      }
+    if (wouldRemoveLastAdmin(userId, role)) {
+      toast({
+        title: "Fel",
+        description: "Kan inte ta bort den sista administratören från organisationen",
+        variant: "destructive"
+      });
+      return;
     }
 
     setUpdating(userId);
@@ -263,11 +267,11 @@ export const OrganizationUserManagement = () => {
                            onCheckedChange={() => toggleUserRole(userRow.user_id, role.key, userRow.organization_id)}
                            disabled={
                              updating === userRow.user_id || 
-                             (role.key === 'admin' && userRow.roles.includes('admin') && isLastAdmin(userRow.user_id))
+                             wouldRemoveLastAdmin(userRow.user_id, role.key)
                            }
                            className="w-5 h-5"
                            title={
-                             role.key === 'admin' && userRow.roles.includes('admin') && isLastAdmin(userRow.user_id)
+                             wouldRemoveLastAdmin(userRow.user_id, role.key)
                                ? "Kan inte ta bort den sista administratören"
                                : undefined
                            }
