@@ -565,6 +565,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_remove_admin_role: {
+        Args: { _user_id: string; _organization_id: string }
+        Returns: boolean
+      }
       cleanup_old_oauth_states: {
         Args: Record<PropertyKey, never>
         Returns: undefined

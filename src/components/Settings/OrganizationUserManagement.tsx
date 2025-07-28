@@ -173,9 +173,17 @@ export const OrganizationUserManagement = () => {
 
     } catch (error) {
       console.error('Error toggling user role:', error);
+      
+      let errorMessage = "Kunde inte uppdatera användarens behörigheter";
+      
+      // Check if error is about removing last admin
+      if (error?.message?.includes('Cannot remove the last admin')) {
+        errorMessage = "Kan inte ta bort den sista administratören från organisationen";
+      }
+      
       toast({
         title: "Fel",
-        description: "Kunde inte uppdatera användarens behörigheter",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
