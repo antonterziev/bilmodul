@@ -369,22 +369,6 @@ export const UserManagement = () => {
                                       <TableCell>
                                         <div className="flex gap-2">
                                           <Select
-                                            value={user.role}
-                                            onValueChange={(value) => updateUserRole(user.user_id, value as "administrator" | "bilhandel" | "ekonomi" | "superuser")}
-                                            disabled={updating === user.user_id}
-                                          >
-                                            <SelectTrigger className="w-32">
-                                              <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                              <SelectItem value="superuser">Superuser</SelectItem>
-                                              <SelectItem value="administrator">Administration</SelectItem>
-                                              <SelectItem value="ekonomi">Ekonomi</SelectItem>
-                                              <SelectItem value="bilhandel">Bilhandel</SelectItem>
-                                            </SelectContent>
-                                          </Select>
-
-                                          <Select
                                             value={user.organization_id}
                                             onValueChange={(value) => updateUserOrganization(user.user_id, value)}
                                             disabled={updating === user.user_id}
@@ -398,6 +382,22 @@ export const UserManagement = () => {
                                                   {orgOption.name}
                                                 </SelectItem>
                                               ))}
+                                            </SelectContent>
+                                          </Select>
+
+                                          <Select
+                                            value={user.role}
+                                            onValueChange={(value) => updateUserRole(user.user_id, value as "administrator" | "bilhandel" | "ekonomi" | "superuser")}
+                                            disabled={updating === user.user_id}
+                                          >
+                                            <SelectTrigger className="w-32">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="superuser">Superuser</SelectItem>
+                                              <SelectItem value="administrator">Administration</SelectItem>
+                                              <SelectItem value="ekonomi">Ekonomi</SelectItem>
+                                              <SelectItem value="bilhandel">Bilhandel</SelectItem>
                                             </SelectContent>
                                           </Select>
 
