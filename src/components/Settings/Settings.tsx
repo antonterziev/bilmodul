@@ -6,10 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { User, Lock, AlertTriangle } from "lucide-react";
+import { User, Lock, AlertTriangle, Users } from "lucide-react";
+import { OrganizationUserManagement } from "./OrganizationUserManagement";
 
 interface UserProfile {
   id: string;
@@ -330,181 +332,212 @@ export const Settings = () => {
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Inställningar</h2>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Profilinformation</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label htmlFor="email">E-postadress</Label>
-            <Input
-              id="email"
-              type="email"
-              value={user?.email || ''}
-              disabled
-              className="bg-muted"
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              E-postadressen kan inte ändras
-            </p>
-          </div>
+      <Tabs defaultValue="profile" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="profile" className="flex items-center gap-2">
+            <User className="w-4 h-4" />
+            Profil
+          </TabsTrigger>
+          <TabsTrigger value="password" className="flex items-center gap-2">
+            <Lock className="w-4 h-4" />
+            Lösenord
+          </TabsTrigger>
+          {(userRole === 'admin' || userRole === 'superuser') && (
+            <TabsTrigger value="users" className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              Användare
+            </TabsTrigger>
+          )}
+          <TabsTrigger value="danger" className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4" />
+            Farligt
+          </TabsTrigger>
+        </TabsList>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="firstName">Förnamn</Label>
-              <Input
-                id="firstName"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                placeholder="Ange förnamn"
-              />
-            </div>
-            <div>
-              <Label htmlFor="lastName">Efternamn</Label>
-              <Input
-                id="lastName"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                placeholder="Ange efternamn"
-              />
-            </div>
-          </div>
+        <TabsContent value="profile" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Profilinformation</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="email">E-postadress</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={user?.email || ''}
+                  disabled
+                  className="bg-muted"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  E-postadressen kan inte ändras
+                </p>
+              </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="organization">Organisation</Label>
-              <Input
-                id="organization"
-                value={organization?.name || 'Laddar...'}
-                disabled
-                className="bg-muted"
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                Din nuvarande organisation
-              </p>
-            </div>
-            <div>
-              <Label htmlFor="userRole">Användare</Label>
-              <Input
-                id="userRole"
-                value={userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1) : 'Laddar...'}
-                disabled
-                className="bg-muted"
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                Din roll i organisationen
-              </p>
-            </div>
-          </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="firstName">Förnamn</Label>
+                  <Input
+                    id="firstName"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="Ange förnamn"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="lastName">Efternamn</Label>
+                  <Input
+                    id="lastName"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Ange efternamn"
+                  />
+                </div>
+              </div>
 
-          <Button 
-            onClick={saveProfile} 
-            disabled={saving || !hasChanges}
-            className={`w-full ${!hasChanges ? 'opacity-50' : ''}`}
-          >
-            {saving ? "Sparar..." : "Uppdatera profil"}
-          </Button>
-        </CardContent>
-      </Card>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="organization">Organisation</Label>
+                  <Input
+                    id="organization"
+                    value={organization?.name || 'Laddar...'}
+                    disabled
+                    className="bg-muted"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Din nuvarande organisation
+                  </p>
+                </div>
+                <div>
+                  <Label htmlFor="userRole">Roll</Label>
+                  <Input
+                    id="userRole"
+                    value={userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1) : 'Laddar...'}
+                    disabled
+                    className="bg-muted"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Din roll i organisationen
+                  </p>
+                </div>
+              </div>
 
-      <Separator />
+              <Button 
+                onClick={saveProfile} 
+                disabled={saving || !hasChanges}
+                className={`w-full ${!hasChanges ? 'opacity-50' : ''}`}
+              >
+                {saving ? "Sparar..." : "Uppdatera profil"}
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Lösenord</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label htmlFor="currentPassword">Nuvarande lösenord</Label>
-            <Input
-              id="currentPassword"
-              type="password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              placeholder="Ange nuvarande lösenord"
-            />
-          </div>
+        <TabsContent value="password" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Lösenord</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="currentPassword">Nuvarande lösenord</Label>
+                <Input
+                  id="currentPassword"
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder="Ange nuvarande lösenord"
+                />
+              </div>
 
-          <div>
-            <Label htmlFor="newPassword">Nytt lösenord</Label>
-            <Input
-              id="newPassword"
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="Ange nytt lösenord"
-            />
-          </div>
+              <div>
+                <Label htmlFor="newPassword">Nytt lösenord</Label>
+                <Input
+                  id="newPassword"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Ange nytt lösenord"
+                />
+              </div>
 
-          <div>
-            <Label htmlFor="confirmPassword">Bekräfta nytt lösenord</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Bekräfta nytt lösenord"
-            />
-          </div>
+              <div>
+                <Label htmlFor="confirmPassword">Bekräfta nytt lösenord</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Bekräfta nytt lösenord"
+                />
+              </div>
 
-          <Button 
-            onClick={changePassword} 
-            disabled={changingPassword || !currentPassword || !newPassword || !confirmPassword}
-            className="w-full"
-          >
-            {changingPassword ? "Ändrar..." : "Ändra lösenord"}
-          </Button>
-        </CardContent>
-      </Card>
+              <Button 
+                onClick={changePassword} 
+                disabled={changingPassword || !currentPassword || !newPassword || !confirmPassword}
+                className="w-full"
+              >
+                {changingPassword ? "Ändrar..." : "Ändra lösenord"}
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-      <Separator />
+        {(userRole === 'admin' || userRole === 'superuser') && (
+          <TabsContent value="users" className="space-y-4">
+            <OrganizationUserManagement />
+          </TabsContent>
+        )}
 
-      <Card className="border-destructive">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-destructive">
-            <AlertTriangle className="h-5 w-5" />
-            Radera konto
-          </CardTitle>
-          <CardDescription>
-            Detta kommer permanent radera ditt konto och all associerad data. Denna åtgärd kan inte ångras.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="bg-destructive/10 p-4 rounded-lg">
-            <h4 className="font-semibold text-destructive mb-2">Vad som kommer att raderas:</h4>
-            <ul className="text-sm space-y-1 text-muted-foreground">
-              <li>• Din profil och kontoinformation</li>
-              <li>• Alla registrerade fordon och lagerdata</li>
-              <li>• Fortnox-integrationer och synkroniseringshistorik</li>
-              <li>• Säljhistorik och dokumentation</li>
-              <li>• Alla uppladdade filer och dokument</li>
-            </ul>
-          </div>
+        <TabsContent value="danger" className="space-y-4">
+          <Card className="border-destructive">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-destructive">
+                <AlertTriangle className="h-5 w-5" />
+                Radera konto
+              </CardTitle>
+              <CardDescription>
+                Detta kommer permanent radera ditt konto och all associerad data. Denna åtgärd kan inte ångras.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="bg-destructive/10 p-4 rounded-lg">
+                <h4 className="font-semibold text-destructive mb-2">Vad som kommer att raderas:</h4>
+                <ul className="text-sm space-y-1 text-muted-foreground">
+                  <li>• Din profil och kontoinformation</li>
+                  <li>• Alla registrerade fordon och lagerdata</li>
+                  <li>• Fortnox-integrationer och synkroniseringshistorik</li>
+                  <li>• Säljhistorik och dokumentation</li>
+                  <li>• Alla uppladdade filer och dokument</li>
+                </ul>
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="confirm-delete">
-              Skriv "radera" för att bekräfta att du vill radera ditt konto:
-            </Label>
-            <Input
-              id="confirm-delete"
-              type="text"
-              value={confirmText}
-              onChange={(e) => setConfirmText(e.target.value)}
-              placeholder="Skriv 'radera' här"
-              className="max-w-sm"
-            />
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirm-delete">
+                  Skriv "radera" för att bekräfta att du vill radera ditt konto:
+                </Label>
+                <Input
+                  id="confirm-delete"
+                  type="text"
+                  value={confirmText}
+                  onChange={(e) => setConfirmText(e.target.value)}
+                  placeholder="Skriv 'radera' här"
+                  className="max-w-sm"
+                />
+              </div>
 
-          <Button
-            variant="destructive"
-            onClick={handleDeleteAccount}
-            disabled={confirmText.toLowerCase() !== 'radera' || isDeleting}
-            className="w-full"
-          >
-            {isDeleting ? 'Raderar...' : 'Radera konto permanent'}
-          </Button>
-        </CardContent>
-      </Card>
+              <Button
+                variant="destructive"
+                onClick={handleDeleteAccount}
+                disabled={confirmText.toLowerCase() !== 'radera' || isDeleting}
+                className="w-full"
+              >
+                {isDeleting ? 'Raderar...' : 'Radera konto permanent'}
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
