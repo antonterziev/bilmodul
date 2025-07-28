@@ -140,7 +140,7 @@ const handler = async (req: Request): Promise<Response> => {
     const formattedRoles = roles.map(role => roleDisplayNames[role] || role).join(', ');
     
     const emailResponse = await resend.emails.send({
-      from: "Veksla Bilhandel <noreply@resend.dev>",
+      from: "Veksla Bilhandel <noreply@lagermodulen.se>",
       to: [email],
       subject: `Inbjudan till ${organization.name}`,
       html: `
