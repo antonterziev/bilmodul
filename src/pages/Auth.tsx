@@ -168,6 +168,8 @@ const Auth = () => {
     e.preventDefault();
     setIsLoading(true);
     setLoginError(""); // Clear previous errors
+    
+    console.log("Attempting login with email:", email);
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
