@@ -257,6 +257,7 @@ export const UserManagement = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Användare</TableHead>
+                <TableHead>E-post</TableHead>
                 <TableHead>Hantering</TableHead>
               </TableRow>
             </TableHeader>
@@ -270,6 +271,7 @@ export const UserManagement = () => {
                       </div>
                     </div>
                   </TableCell>
+                  <TableCell>{user.email}</TableCell>
                   
                   <TableCell>
                     <div className="flex gap-2">
