@@ -41,7 +41,8 @@ export const UserManagement = () => {
       const { data: roleData } = await supabase.rpc('get_current_user_role');
       console.log('Current user role:', roleData);
       
-      const { data, error } = await supabase
+      // First get profiles with organizations
+      const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select(`
           user_id,
@@ -49,24 +50,37 @@ export const UserManagement = () => {
           first_name,
           last_name,
           organization_id,
-          organizations!inner(name),
-          user_roles!inner(role)
+          organizations!inner(id, name)
         `);
 
-      if (error) {
-        console.error('Error loading users:', error);
-        throw error;
+      if (profilesError) {
+        console.error('Error loading profiles:', profilesError);
+        throw profilesError;
       }
 
-      const formattedUsers: UserWithProfile[] = data?.map((user: any) => ({
-        user_id: user.user_id,
-        email: user.email,
-        first_name: user.first_name || '',
-        last_name: user.last_name || '',
-        organization_name: user.organizations.name,
-        organization_id: user.organization_id,
-        role: user.user_roles.role
-      })) || [];
+      // Then get user roles
+      const { data: rolesData, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
+
+      if (rolesError) {
+        console.error('Error loading roles:', rolesError);
+        throw rolesError;
+      }
+
+      // Combine the data
+      const formattedUsers: UserWithProfile[] = profilesData?.map((profile: any) => {
+        const userRole = rolesData?.find(role => role.user_id === profile.user_id);
+        return {
+          user_id: profile.user_id,
+          email: profile.email,
+          first_name: profile.first_name || '',
+          last_name: profile.last_name || '',
+          organization_name: profile.organizations.name,
+          organization_id: profile.organization_id,
+          role: userRole?.role || 'bilhandel'
+        };
+      }) || [];
 
       setUsers(formattedUsers);
     } catch (error) {
