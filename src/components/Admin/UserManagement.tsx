@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Users, Building, Plus, RefreshCw, ChevronDown, ChevronRight } from "lucide-react";
+import { Loader2, Users, Building, Plus, RefreshCw, ChevronDown, ChevronRight, Trash2 } from "lucide-react";
 
 interface UserWithProfile {
   user_id: string;
@@ -268,6 +268,50 @@ export const UserManagement = () => {
     }
   };
 
+  const removeUser = async (userId: string, userName: string, organizationId: string) => {
+    setUpdating(userId);
+    try {
+      // First remove all user roles
+      const { error: rolesError } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId)
+        .eq('organization_id', organizationId);
+
+      if (rolesError) throw rolesError;
+
+      // Then remove the user's profile from the organization
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('user_id', userId)
+        .eq('organization_id', organizationId);
+
+      if (profileError) throw profileError;
+
+      // Update local state
+      setOrganizations(organizations.map(org => ({
+        ...org,
+        users: org.users.filter(user => user.user_id !== userId),
+        user_count: org.id === organizationId ? org.user_count - 1 : org.user_count
+      })));
+
+      toast({
+        title: "Användare borttagen",
+        description: `${userName} har tagits bort från organisationen`,
+      });
+    } catch (error) {
+      console.error('Error removing user:', error);
+      toast({
+        title: "Fel",
+        description: "Kunde inte ta bort användaren",
+        variant: "destructive",
+      });
+    } finally {
+      setUpdating(null);
+    }
+  };
+
   const createOrganization = async () => {
     if (!newOrgName.trim()) return;
     
@@ -382,7 +426,7 @@ export const UserManagement = () => {
                             {org.users.length > 0 ? (
                               <div className="space-y-4">
                                 {/* Matrix Header */}
-                                <div className="grid grid-cols-[200px_150px_1fr] gap-4 items-center border-b pb-2">
+                                <div className="grid grid-cols-[200px_150px_1fr_80px] gap-4 items-center border-b pb-2">
                                   <div className="font-medium">Användare</div>
                                   <div className="font-medium">Organisation</div>
                                   <div className="grid grid-cols-6 gap-2">
@@ -392,11 +436,12 @@ export const UserManagement = () => {
                                       </div>
                                     ))}
                                   </div>
+                                  <div className="font-medium text-center">Åtgärder</div>
                                 </div>
 
                                 {/* User Matrix */}
                                 {org.users.map((user) => (
-                                  <div key={user.user_id} className="grid grid-cols-[200px_150px_1fr] gap-4 items-center py-2 border-b border-muted">
+                                  <div key={user.user_id} className="grid grid-cols-[200px_150px_1fr_80px] gap-4 items-center py-2 border-b border-muted relative">
                                     <div>
                                       <div className="font-medium">{getDisplayName(user)}</div>
                                       <div className="text-sm text-muted-foreground">{user.email}</div>
@@ -430,6 +475,18 @@ export const UserManagement = () => {
                                           />
                                         </div>
                                       ))}
+                                    </div>
+
+                                    <div className="flex justify-center">
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => removeUser(user.user_id, getDisplayName(user), user.organization_id)}
+                                        disabled={updating === user.user_id}
+                                        className="text-destructive hover:text-destructive"
+                                      >
+                                        <Trash2 className="w-3 h-3" />
+                                      </Button>
                                     </div>
 
                                     {updating === user.user_id && (
