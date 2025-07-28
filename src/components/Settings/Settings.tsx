@@ -409,7 +409,7 @@ export const Settings = () => {
                   </p>
                 </div>
                 <div>
-                  <Label htmlFor="userRole">Roll</Label>
+                  <Label htmlFor="userRole">Behörigheter</Label>
                   <Input
                     id="userRole"
                     value={userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1) : 'Laddar...'}
