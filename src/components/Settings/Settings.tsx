@@ -34,6 +34,16 @@ interface Organization {
 
 interface SettingsProps {}
 
+// Role display mapping
+const ROLE_DISPLAY_NAMES: Record<string, string> = {
+  'admin': 'Admin',
+  'lager': 'Lager', 
+  'ekonomi': 'Ekonomi',
+  'inkop': 'Inköp',
+  'pakostnad': 'Påkostnad',
+  'forsaljning': 'Försäljning'
+};
+
 export const Settings = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [organization, setOrganization] = useState<Organization | null>(null);
@@ -425,7 +435,7 @@ export const Settings = () => {
                   <Label htmlFor="userRoles">Behörigheter</Label>
                   <Input
                     id="userRoles"
-                    value={userRoles.length > 0 ? userRoles.map(role => role.charAt(0).toUpperCase() + role.slice(1)).join(', ') : 'Laddar...'}
+                    value={userRoles.length > 0 ? userRoles.map(role => ROLE_DISPLAY_NAMES[role] || role.charAt(0).toUpperCase() + role.slice(1)).join(', ') : 'Laddar...'}
                     disabled
                     className="bg-muted"
                   />
