@@ -205,6 +205,11 @@ export const UserManagement = () => {
 
       if (roleError) throw roleError;
 
+      // Expand the target organization to show the moved user
+      const newExpanded = new Set(expandedOrgs);
+      newExpanded.add(newOrgId);
+      setExpandedOrgs(newExpanded);
+
       // Refresh organizations list
       await loadOrganizations();
 
