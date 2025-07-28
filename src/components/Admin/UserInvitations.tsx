@@ -58,6 +58,7 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
         .from('invitations')
         .select('*')
         .eq('organization_id', organizationId)
+        .neq('status', 'accepted') // Filter out accepted invitations
         .order('created_at', { ascending: false });
 
       if (error) throw error;
