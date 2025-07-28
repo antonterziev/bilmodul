@@ -298,117 +298,134 @@ export const UserManagement = () => {
         </Button>
       </div>
 
-      <div className="space-y-4">
-        {organizations.map((org) => (
-          <Card key={org.id}>
-            <Collapsible 
-              open={expandedOrgs.has(org.id)} 
-              onOpenChange={() => toggleOrganization(org.id)}
-            >
-              <CollapsibleTrigger asChild>
-                <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {expandedOrgs.has(org.id) ? (
-                        <ChevronDown className="w-4 h-4" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4" />
-                      )}
-                      <Building className="w-5 h-5" />
-                      <div>
-                        <CardTitle className="text-left">{org.name}</CardTitle>
-                        <p className="text-sm text-muted-foreground">
-                          {org.user_count} användare • Skapad {new Date(org.created_at).toLocaleDateString('sv-SE')}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </CardHeader>
-              </CollapsibleTrigger>
-              
-              <CollapsibleContent>
-                <CardContent className="pt-0">
-                  {org.users.length > 0 ? (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Användare</TableHead>
-                          <TableHead>E-post</TableHead>
-                          <TableHead>Roll</TableHead>
-                          <TableHead>Organisation</TableHead>
-                          <TableHead>Hantering</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {org.users.map((user) => (
-                          <TableRow key={user.user_id}>
-                            <TableCell>
-                              <div className="font-medium">
-                                {getDisplayName(user)}
-                              </div>
-                            </TableCell>
-                            <TableCell>{user.email}</TableCell>
-                            <TableCell>
-                              <Badge variant={getRoleBadgeVariant(user.role)}>
-                                {user.role}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>{user.organization_name}</TableCell>
-                            <TableCell>
-                              <div className="flex gap-2">
-                                <Select
-                                  value={user.role}
-                                  onValueChange={(value) => updateUserRole(user.user_id, value as "administrator" | "bilhandel" | "ekonomi" | "superuser")}
-                                  disabled={updating === user.user_id}
-                                >
-                                  <SelectTrigger className="w-32">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="superuser">Superuser</SelectItem>
-                                    <SelectItem value="administrator">Administration</SelectItem>
-                                    <SelectItem value="ekonomi">Ekonomi</SelectItem>
-                                    <SelectItem value="bilhandel">Bilhandel</SelectItem>
-                                  </SelectContent>
-                                </Select>
+      <Card>
+        <CardHeader>
+          <CardTitle>Organisationer</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead></TableHead>
+                <TableHead>Namn</TableHead>
+                <TableHead>Antal användare</TableHead>
+                <TableHead>Skapad</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {organizations.map((org) => (
+                <Collapsible 
+                  key={org.id}
+                  open={expandedOrgs.has(org.id)} 
+                  onOpenChange={() => toggleOrganization(org.id)}
+                  asChild
+                >
+                  <>
+                    <CollapsibleTrigger asChild>
+                      <TableRow className="cursor-pointer hover:bg-muted/50">
+                        <TableCell className="w-8">
+                          {expandedOrgs.has(org.id) ? (
+                            <ChevronDown className="w-4 h-4" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4" />
+                          )}
+                        </TableCell>
+                        <TableCell className="font-medium">{org.name}</TableCell>
+                        <TableCell>{org.user_count}</TableCell>
+                        <TableCell>
+                          {new Date(org.created_at).toLocaleDateString('sv-SE')}
+                        </TableCell>
+                      </TableRow>
+                    </CollapsibleTrigger>
+                    
+                    <CollapsibleContent asChild>
+                      <TableRow>
+                        <TableCell colSpan={4} className="p-0">
+                          <div className="border-t bg-muted/30 p-4">
+                            {org.users.length > 0 ? (
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead>Användare</TableHead>
+                                    <TableHead>E-post</TableHead>
+                                    <TableHead>Roll</TableHead>
+                                    <TableHead>Hantering</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {org.users.map((user) => (
+                                    <TableRow key={user.user_id}>
+                                      <TableCell>
+                                        <div className="font-medium">
+                                          {getDisplayName(user)}
+                                        </div>
+                                      </TableCell>
+                                      <TableCell>{user.email}</TableCell>
+                                      <TableCell>
+                                        <Badge variant={getRoleBadgeVariant(user.role)}>
+                                          {user.role}
+                                        </Badge>
+                                      </TableCell>
+                                      <TableCell>
+                                        <div className="flex gap-2">
+                                          <Select
+                                            value={user.role}
+                                            onValueChange={(value) => updateUserRole(user.user_id, value as "administrator" | "bilhandel" | "ekonomi" | "superuser")}
+                                            disabled={updating === user.user_id}
+                                          >
+                                            <SelectTrigger className="w-32">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="superuser">Superuser</SelectItem>
+                                              <SelectItem value="administrator">Administration</SelectItem>
+                                              <SelectItem value="ekonomi">Ekonomi</SelectItem>
+                                              <SelectItem value="bilhandel">Bilhandel</SelectItem>
+                                            </SelectContent>
+                                          </Select>
 
-                                <Select
-                                  value={user.organization_id}
-                                  onValueChange={(value) => updateUserOrganization(user.user_id, value)}
-                                  disabled={updating === user.user_id}
-                                >
-                                  <SelectTrigger className="w-40">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {organizations.map((orgOption) => (
-                                      <SelectItem key={orgOption.id} value={orgOption.id}>
-                                        {orgOption.name}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
+                                          <Select
+                                            value={user.organization_id}
+                                            onValueChange={(value) => updateUserOrganization(user.user_id, value)}
+                                            disabled={updating === user.user_id}
+                                          >
+                                            <SelectTrigger className="w-40">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              {organizations.map((orgOption) => (
+                                                <SelectItem key={orgOption.id} value={orgOption.id}>
+                                                  {orgOption.name}
+                                                </SelectItem>
+                                              ))}
+                                            </SelectContent>
+                                          </Select>
 
-                                {updating === user.user_id && (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                )}
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  ) : (
-                    <p className="text-muted-foreground text-center py-4">
-                      Inga användare i denna organisation
-                    </p>
-                  )}
-                </CardContent>
-              </CollapsibleContent>
-            </Collapsible>
-          </Card>
-        ))}
-      </div>
+                                          {updating === user.user_id && (
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                          )}
+                                        </div>
+                                      </TableCell>
+                                    </TableRow>
+                                  ))}
+                                </TableBody>
+                              </Table>
+                            ) : (
+                              <p className="text-muted-foreground text-center py-4">
+                                Inga användare i denna organisation
+                              </p>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    </CollapsibleContent>
+                  </>
+                </Collapsible>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       {userRole === 'superuser' && (
         <Card>
