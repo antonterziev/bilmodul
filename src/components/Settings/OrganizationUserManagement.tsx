@@ -67,8 +67,7 @@ export const OrganizationUserManagement = () => {
           first_name,
           last_name,
           organization_id,
-          created_at,
-          organizations!inner(id, name)
+          created_at
         `)
         .eq('organization_id', orgId);
 
@@ -86,17 +85,22 @@ export const OrganizationUserManagement = () => {
       // Combine the data
       const formattedUsers: UserWithProfile[] = profilesData?.map((profile: any) => {
         const userRoles = rolesData?.filter(role => role.user_id === profile.user_id).map(r => r.role) || [];
-        return {
+        const userData = {
           user_id: profile.user_id,
           email: profile.email,
           first_name: profile.first_name || '',
           last_name: profile.last_name || '',
-          organization_name: profile.organizations.name,
+          organization_name: '',
           organization_id: profile.organization_id,
           roles: userRoles,
           created_at: profile.created_at
         };
+        console.log('User data:', userData);
+        return userData;
       }).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) || [];
+
+      console.log('All roles data:', rolesData);
+      console.log('Final formatted users:', formattedUsers);
 
       setUsers(formattedUsers);
     } catch (error) {
