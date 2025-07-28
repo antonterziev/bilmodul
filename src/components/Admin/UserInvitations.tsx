@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { UserPlus, Mail, Clock, CheckCircle, XCircle, RotateCcw } from 'lucide-react';
+import { UserPlus, Mail, Clock, CheckCircle, XCircle, RotateCcw, Trash2 } from 'lucide-react';
 
 interface Invitation {
   id: string;
@@ -170,6 +170,31 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
     }
   };
 
+  const removeInvitation = async (invitationId: string, invitationEmail: string) => {
+    try {
+      const { error } = await supabase
+        .from('invitations')
+        .delete()
+        .eq('id', invitationId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Inbjudan borttagen",
+        description: `Inbjudan till ${invitationEmail} har tagits bort`,
+      });
+
+      loadInvitations(); // Refresh the list
+    } catch (error: any) {
+      console.error('Error removing invitation:', error);
+      toast({
+        title: "Fel",
+        description: error.message || "Kunde inte ta bort inbjudan",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getStatusBadge = (status: string, expiresAt: string) => {
     const isExpired = new Date(expiresAt) < new Date();
     
@@ -311,14 +336,25 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
                     {getStatusBadge(invitation.status, invitation.expires_at)}
                     
                     {invitation.status === 'pending' && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => resendInvitation(invitation.id, invitation.email)}
-                      >
-                        <RotateCcw className="w-3 h-3 mr-1" />
-                        Skicka igen
-                      </Button>
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => resendInvitation(invitation.id, invitation.email)}
+                        >
+                          <RotateCcw className="w-3 h-3 mr-1" />
+                          Skicka igen
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => removeInvitation(invitation.id, invitation.email)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="w-3 h-3 mr-1" />
+                          Ta bort
+                        </Button>
+                      </>
                     )}
                   </div>
                 </div>
