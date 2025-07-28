@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { User, Lock, AlertTriangle, Users } from "lucide-react";
 import { OrganizationUserManagement } from "./OrganizationUserManagement";
+import { UserInvitations } from "../Admin/UserInvitations";
 
 interface UserProfile {
   id: string;
@@ -502,6 +503,9 @@ export const Settings = () => {
 
         {(userRoles.includes('admin') || userRoles.includes('superuser')) && (
           <TabsContent value="users" className="space-y-4">
+            {profile?.organization_id && (
+              <UserInvitations organizationId={profile.organization_id} />
+            )}
             <OrganizationUserManagement />
           </TabsContent>
         )}

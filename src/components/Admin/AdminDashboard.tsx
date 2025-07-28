@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { UserManagement } from "./UserManagement";
+import { UserInvitations } from "./UserInvitations";
 import { useToast } from "@/hooks/use-toast";
 import { Shield, ArrowLeft } from "lucide-react";
 
@@ -15,10 +16,12 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
   const { user } = useAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
+  const [organizationId, setOrganizationId] = useState<string>("");
   const { toast } = useToast();
 
   useEffect(() => {
     checkAdminStatus();
+    loadOrganizationId();
   }, [user]);
 
   const checkAdminStatus = async () => {
@@ -29,7 +32,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
-        .in('role', ['administrator', 'superuser'])
+        .in('role', ['admin', 'administrator', 'superuser'])
         .maybeSingle();
 
       if (error) throw error;
@@ -45,6 +48,25 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadOrganizationId = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error) throw error;
+      if (data?.organization_id) {
+        setOrganizationId(data.organization_id);
+      }
+    } catch (error) {
+      console.error('Error loading organization ID:', error);
     }
   };
 
@@ -85,6 +107,8 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
         <h2 className="text-2xl font-bold">Administratörsområde</h2>
       </div>
 
+      {organizationId && <UserInvitations organizationId={organizationId} />}
+      
       <UserManagement />
     </div>
   );
