@@ -133,7 +133,27 @@ export const OrganizationUserManagement = () => {
     return user.email;
   };
 
+  const isLastAdmin = (userId: string) => {
+    const adminUsers = users.filter(user => user.roles.includes('admin'));
+    return adminUsers.length === 1 && adminUsers[0].user_id === userId;
+  };
+
   const toggleUserRole = async (userId: string, role: string, organizationId: string) => {
+    // Prevent removing the last admin
+    if (role === 'admin') {
+      const userToUpdate = users.find(u => u.user_id === userId);
+      const hasRole = userToUpdate?.roles.includes(role);
+      
+      if (hasRole && isLastAdmin(userId)) {
+        toast({
+          title: "Fel",
+          description: "Kan inte ta bort den sista administratören från organisationen",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+
     setUpdating(userId);
     try {
       const userToUpdate = users.find(u => u.user_id === userId);
@@ -238,12 +258,20 @@ export const OrganizationUserManagement = () => {
                   <div className="grid grid-cols-6 gap-2 relative">
                     {AVAILABLE_ROLES.map((role) => (
                       <div key={role.key} className="flex justify-center">
-                        <Checkbox
-                          checked={userRow.roles.includes(role.key)}
-                          onCheckedChange={() => toggleUserRole(userRow.user_id, role.key, userRow.organization_id)}
-                          disabled={updating === userRow.user_id}
-                          className="w-5 h-5"
-                        />
+                         <Checkbox
+                           checked={userRow.roles.includes(role.key)}
+                           onCheckedChange={() => toggleUserRole(userRow.user_id, role.key, userRow.organization_id)}
+                           disabled={
+                             updating === userRow.user_id || 
+                             (role.key === 'admin' && userRow.roles.includes('admin') && isLastAdmin(userRow.user_id))
+                           }
+                           className="w-5 h-5"
+                           title={
+                             role.key === 'admin' && userRow.roles.includes('admin') && isLastAdmin(userRow.user_id)
+                               ? "Kan inte ta bort den sista administratören"
+                               : undefined
+                           }
+                         />
                       </div>
                     ))}
 
