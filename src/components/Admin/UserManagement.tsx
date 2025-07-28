@@ -257,7 +257,6 @@ export const UserManagement = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Användare</TableHead>
-                <TableHead>Organisation</TableHead>
                 <TableHead>Hantering</TableHead>
               </TableRow>
             </TableHeader>
@@ -272,12 +271,6 @@ export const UserManagement = () => {
                     </div>
                   </TableCell>
                   
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Building className="w-4 h-4" />
-                      {user.organization_name}
-                    </div>
-                  </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Select
