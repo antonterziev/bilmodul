@@ -24,9 +24,7 @@ interface UserProfile {
   organization_id: string;
 }
 
-interface UserRole {
-  role: string;
-}
+// Removed unused UserRole interface
 
 interface Organization {
   id: string;
