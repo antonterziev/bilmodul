@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Users, Building, Plus } from "lucide-react";
+import { Loader2, Users, Building, Plus, RefreshCw } from "lucide-react";
 
 interface UserWithProfile {
   user_id: string;
@@ -268,7 +268,18 @@ export const UserManagement = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Alla användare</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Alla användare</CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={loadUsers}
+              disabled={loading}
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Uppdatera
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
