@@ -39,7 +39,7 @@ interface SettingsProps {}
 export const Settings = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [organization, setOrganization] = useState<Organization | null>(null);
-  const [userRole, setUserRole] = useState<string>("");
+  const [userRoles, setUserRoles] = useState<string[]>([]);
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -170,12 +170,11 @@ export const Settings = () => {
       if (roleError) {
         console.error('Error loading user role:', roleError);
       } else {
-        // Set the first role as userRole, or 'admin' if user has admin role
+        // Store all user roles
         const roles = roleData?.map(r => r.role) || [];
-        const hasAdmin = roles.includes('admin');
-        console.log('User roles:', roles, 'hasAdmin:', hasAdmin);
-        setUserRole(hasAdmin ? 'admin' : roles[0] || '');
-        console.log('Final userRole set to:', hasAdmin ? 'admin' : roles[0] || '');
+        console.log('User roles:', roles);
+        setUserRoles(roles);
+        console.log('Final userRoles set to:', roles);
       }
     } catch (error) {
       console.error('Error loading profile:', error);
@@ -358,7 +357,7 @@ export const Settings = () => {
             <Lock className="w-4 h-4" />
             Lösenord
           </TabsTrigger>
-          {(userRole === 'admin' || userRole === 'superuser') && (
+           {(userRoles.includes('admin') || userRoles.includes('superuser')) && (
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
               Användare
@@ -425,15 +424,15 @@ export const Settings = () => {
                   </p>
                 </div>
                 <div>
-                  <Label htmlFor="userRole">Behörigheter</Label>
+                  <Label htmlFor="userRoles">Behörigheter</Label>
                   <Input
-                    id="userRole"
-                    value={userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1) : 'Laddar...'}
+                    id="userRoles"
+                    value={userRoles.length > 0 ? userRoles.map(role => role.charAt(0).toUpperCase() + role.slice(1)).join(', ') : 'Laddar...'}
                     disabled
                     className="bg-muted"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Din roll i organisationen
+                    Dina roller i organisationen
                   </p>
                 </div>
               </div>
@@ -499,7 +498,7 @@ export const Settings = () => {
           </Card>
         </TabsContent>
 
-        {(userRole === 'admin' || userRole === 'superuser') && (
+        {(userRoles.includes('admin') || userRoles.includes('superuser')) && (
           <TabsContent value="users" className="space-y-4">
             <OrganizationUserManagement />
           </TabsContent>
