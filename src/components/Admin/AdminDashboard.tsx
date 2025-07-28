@@ -3,11 +3,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserManagement } from "./UserManagement";
-import { OrganizationManagement } from "./OrganizationManagement";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Users, Building, ArrowLeft } from "lucide-react";
+import { Shield, ArrowLeft } from "lucide-react";
 
 interface AdminDashboardProps {
   onBack: () => void;
@@ -93,26 +91,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
         </Button>
       </div>
 
-      <Tabs defaultValue="users" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="users" className="flex items-center gap-2">
-            <Users className="w-4 h-4" />
-            Användare
-          </TabsTrigger>
-          <TabsTrigger value="organizations" className="flex items-center gap-2">
-            <Building className="w-4 h-4" />
-            Organisationer
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="users" className="space-y-4">
-          <UserManagement />
-        </TabsContent>
-
-        <TabsContent value="organizations" className="space-y-4">
-          <OrganizationManagement />
-        </TabsContent>
-      </Tabs>
+      <UserManagement />
     </div>
   );
 };
