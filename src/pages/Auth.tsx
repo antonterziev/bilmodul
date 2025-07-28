@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import EmailVerification from "@/components/EmailVerification";
+
 import RecoveryEmailSent from "@/components/RecoveryEmailSent";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -29,7 +29,6 @@ const Auth = () => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [showEmailExists, setShowEmailExists] = useState(false);
-  const [showEmailVerification, setShowEmailVerification] = useState(false);
   const [showRecoveryEmailSent, setShowRecoveryEmailSent] = useState(false);
   const [emailSentSuccess, setEmailSentSuccess] = useState(false);
   const [loginError, setLoginError] = useState("");
@@ -58,12 +57,6 @@ const Auth = () => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        // Check if email is verified
-        if (!session.user.email_confirmed_at) {
-          // Email not verified, stay on auth page
-          return;
-        }
-        
         // Check if onboarding is completed
         const hasCompletedOnboarding = session.user.user_metadata?.onboarding_completed;
         if (!hasCompletedOnboarding) {
@@ -78,12 +71,6 @@ const Auth = () => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
-        // Check if email is verified
-        if (!session.user.email_confirmed_at) {
-          // Email not verified, stay on auth page
-          return;
-        }
-        
         // Check if onboarding is completed
         const hasCompletedOnboarding = session.user.user_metadata?.onboarding_completed;
         if (!hasCompletedOnboarding) {
@@ -150,7 +137,9 @@ const Auth = () => {
         }
         return;
       }
-      setShowEmailVerification(true);
+      
+      // Navigate directly to onboarding after successful signup
+      navigate("/onboarding");
     } catch (error: any) {
       toast({
         title: "Fel vid registrering",
@@ -160,9 +149,6 @@ const Auth = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-  const handleBackFromVerification = () => {
-    setShowEmailVerification(false);
   };
   const handleLoginFromEmailExists = () => {
     setShowEmailExists(false);
@@ -308,11 +294,6 @@ const Auth = () => {
       isResending={isResettingPassword}
       emailSentSuccess={emailSentSuccess}
     />;
-  }
-
-  // Email verification screen
-  if (showEmailVerification) {
-    return <EmailVerification email={email} firstName={firstName} lastName={lastName} onBack={handleBackFromVerification} />;
   }
 
   // Email exists confirmation screen
