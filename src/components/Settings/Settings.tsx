@@ -92,13 +92,7 @@ export const Settings = () => {
       // Try to load from profiles table with organization
       const { data, error } = await supabase
         .from('profiles')
-        .select(`
-          *,
-          organizations!inner(
-            id,
-            name
-          )
-        `)
+        .select('*')
         .eq('user_id', user?.id)
         .single();
 
@@ -132,9 +126,18 @@ export const Settings = () => {
         }
       } else {
         setProfile(data);
-        // Set organization from the joined data
-        if (data.organizations) {
-          setOrganization(data.organizations);
+        
+        // Load organization separately using organization_id from profile
+        if (data.organization_id) {
+          const { data: orgData } = await supabase
+            .from('organizations')
+            .select('*')
+            .eq('id', data.organization_id)
+            .single();
+          
+          if (orgData) {
+            setOrganization(orgData);
+          }
         }
         
         // Override with profile data if it exists, but keep user metadata as fallback
@@ -149,17 +152,19 @@ export const Settings = () => {
         setOriginalLastName(lastNameValue);
       }
 
-      // Load user role
+      // Load user roles (can be multiple)
       const { data: roleData, error: roleError } = await supabase
         .from('user_roles')
         .select('role')
-        .eq('user_id', user?.id)
-        .single();
+        .eq('user_id', user?.id);
 
       if (roleError) {
         console.error('Error loading user role:', roleError);
       } else {
-        setUserRole(roleData.role);
+        // Set the first role as userRole, or 'admin' if user has admin role
+        const roles = roleData?.map(r => r.role) || [];
+        const hasAdmin = roles.includes('admin');
+        setUserRole(hasAdmin ? 'admin' : roles[0] || '');
       }
     } catch (error) {
       console.error('Error loading profile:', error);
