@@ -1,5 +1,8 @@
 
 import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   Home, 
   BarChart3, 
@@ -22,7 +25,8 @@ import {
   Search,
   Link,
   Calculator,
-  FileText
+  FileText,
+  Shield
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -63,6 +67,32 @@ export function AppSidebar({
   hasVehicles
 }: AppSidebarProps) {
   const location = useLocation();
+  const { user } = useAuth();
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      loadUserRole();
+    }
+  }, [user]);
+
+  const loadUserRole = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (!error && data) {
+        setUserRole(data.role);
+      }
+    } catch (error) {
+      console.error('Error loading user role:', error);
+    }
+  };
 
   const isActive = (view: string) => currentView === view;
   
@@ -230,6 +260,19 @@ export function AppSidebar({
                     <span>Inställningar</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+
+                {/* Admin - Only show for administrators */}
+                {userRole === 'administrator' && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={() => onViewChange("admin")}
+                      className={getNavClass("admin")}
+                    >
+                      <Shield className="h-4 w-4" />
+                      <span>Administratör</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
               </SidebarMenu>
             </div>
           </SidebarGroupContent>

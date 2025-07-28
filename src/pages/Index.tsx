@@ -11,6 +11,7 @@ import { PurchaseForm } from "@/components/Dashboard/PurchaseForm";
 import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
 import { DeleteAccount } from "@/components/Settings/DeleteAccount";
+import { AdminDashboard } from "@/components/Admin/AdminDashboard";
 
 import { Integrations } from "@/components/Integrations/Integrations";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -375,6 +376,9 @@ const Index = () => {
 
       case "radera-kontot":
         return <DeleteAccount onBack={() => handleViewChange("settings")} />;
+
+      case "admin":
+        return <AdminDashboard onBack={() => handleViewChange("overview")} />;
 
       case "lager_all":
       case "lager_stock":
