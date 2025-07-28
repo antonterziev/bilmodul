@@ -5,8 +5,10 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Users, Building } from "lucide-react";
+import { Loader2, Users, Building, Plus } from "lucide-react";
 
 interface UserWithProfile {
   user_id: string;
@@ -28,12 +30,25 @@ export const UserManagement = () => {
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [newOrgName, setNewOrgName] = useState("");
+  const [creatingOrg, setCreatingOrg] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     loadUsers();
     loadOrganizations();
+    checkUserRole();
   }, []);
+
+  const checkUserRole = async () => {
+    try {
+      const { data: roleData } = await supabase.rpc('get_current_user_role');
+      setUserRole(roleData);
+    } catch (error) {
+      console.error('Error checking user role:', error);
+    }
+  };
 
   const loadUsers = async () => {
     try {
@@ -177,6 +192,36 @@ export const UserManagement = () => {
     }
   };
 
+  const createOrganization = async () => {
+    if (!newOrgName.trim()) return;
+    
+    setCreatingOrg(true);
+    try {
+      const { error } = await supabase
+        .from('organizations')
+        .insert({ name: newOrgName.trim() });
+
+      if (error) throw error;
+
+      await loadOrganizations();
+      setNewOrgName("");
+      
+      toast({
+        title: "Skapat",
+        description: "Ny organisation har skapats"
+      });
+    } catch (error) {
+      console.error('Error creating organization:', error);
+      toast({
+        title: "Fel",
+        description: "Kunde inte skapa organisation",
+        variant: "destructive"
+      });
+    } finally {
+      setCreatingOrg(false);
+    }
+  };
+
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
       case 'superuser': return 'destructive';
@@ -213,9 +258,9 @@ export const UserManagement = () => {
               <TableRow>
                 <TableHead>Användare</TableHead>
                 <TableHead>E-post</TableHead>
-                <TableHead>Organisation</TableHead>
                 <TableHead>Roll</TableHead>
-                <TableHead>Åtgärder</TableHead>
+                <TableHead>Organisation</TableHead>
+                <TableHead>Hantering</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -230,17 +275,17 @@ export const UserManagement = () => {
                   </TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Building className="w-4 h-4" />
-                      {user.organization_name}
-                    </div>
-                  </TableCell>
-                  <TableCell>
                     <Badge variant={getRoleBadgeVariant(user.role)}>
                       {user.role === 'superuser' ? 'Superuser' :
                        user.role === 'administrator' ? 'Administration' :
                        user.role === 'ekonomi' ? 'Ekonomi' : 'Bilhandel'}
                     </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Building className="w-4 h-4" />
+                      {user.organization_name}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
@@ -288,6 +333,44 @@ export const UserManagement = () => {
           </Table>
         </CardContent>
       </Card>
+
+      {userRole === 'superuser' && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Building className="w-5 h-5" />
+              Organisation
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-2 items-end">
+              <div className="flex-1">
+                <label htmlFor="orgName" className="text-sm font-medium">
+                  Skapa ny organisation
+                </label>
+                <Input
+                  id="orgName"
+                  value={newOrgName}
+                  onChange={(e) => setNewOrgName(e.target.value)}
+                  placeholder="Organisationsnamn"
+                  disabled={creatingOrg}
+                />
+              </div>
+              <Button 
+                onClick={createOrganization}
+                disabled={!newOrgName.trim() || creatingOrg}
+              >
+                {creatingOrg ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : (
+                  <Plus className="w-4 h-4 mr-2" />
+                )}
+                Skapa
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
