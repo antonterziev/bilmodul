@@ -127,7 +127,8 @@ export const UserManagement = () => {
               role: userRole?.role || 'bilhandel',
               created_at: profile.created_at
             };
-          }) || [];
+          })
+          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) || [];
 
         return {
           id: org.id,
