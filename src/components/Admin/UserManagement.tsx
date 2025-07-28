@@ -358,7 +358,6 @@ export const UserManagement = () => {
                                     <TableHead>E-post</TableHead>
                                     <TableHead>Skapad</TableHead>
                                     <TableHead>Hantering</TableHead>
-                                    <TableHead>Roll</TableHead>
                                   </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -392,15 +391,26 @@ export const UserManagement = () => {
                                             </SelectContent>
                                           </Select>
 
+                                          <Select
+                                            value={user.role}
+                                            onValueChange={(value) => updateUserRole(user.user_id, value as "administrator" | "bilhandel" | "ekonomi" | "superuser")}
+                                            disabled={updating === user.user_id}
+                                          >
+                                            <SelectTrigger className="w-32">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="superuser">Superuser</SelectItem>
+                                              <SelectItem value="administrator">Administration</SelectItem>
+                                              <SelectItem value="ekonomi">Ekonomi</SelectItem>
+                                              <SelectItem value="bilhandel">Bilhandel</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+
                                           {updating === user.user_id && (
                                             <Loader2 className="w-4 h-4 animate-spin" />
                                           )}
                                         </div>
-                                      </TableCell>
-                                      <TableCell>
-                                        <Badge variant={getRoleBadgeVariant(user.role)}>
-                                          {user.role}
-                                        </Badge>
                                       </TableCell>
                                     </TableRow>
                                   ))}
