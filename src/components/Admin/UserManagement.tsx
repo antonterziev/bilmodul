@@ -358,6 +358,7 @@ export const UserManagement = () => {
                                     <TableHead>E-post</TableHead>
                                     <TableHead>Skapad</TableHead>
                                     <TableHead>Hantering</TableHead>
+                                    <TableHead>Roll</TableHead>
                                   </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -395,6 +396,11 @@ export const UserManagement = () => {
                                             <Loader2 className="w-4 h-4 animate-spin" />
                                           )}
                                         </div>
+                                      </TableCell>
+                                      <TableCell>
+                                        <Badge variant={getRoleBadgeVariant(user.role)}>
+                                          {user.role}
+                                        </Badge>
                                       </TableCell>
                                     </TableRow>
                                   ))}
