@@ -19,6 +19,7 @@ interface UserWithProfile {
   organization_name: string;
   organization_id: string;
   role: string;
+  created_at: string;
 }
 
 interface Organization {
@@ -97,6 +98,7 @@ export const UserManagement = () => {
           first_name,
           last_name,
           organization_id,
+          created_at,
           organizations!inner(id, name)
         `);
 
@@ -122,7 +124,8 @@ export const UserManagement = () => {
               last_name: profile.last_name || '',
               organization_name: profile.organizations.name,
               organization_id: profile.organization_id,
-              role: userRole?.role || 'bilhandel'
+              role: userRole?.role || 'bilhandel',
+              created_at: profile.created_at
             };
           }) || [];
 
@@ -348,7 +351,7 @@ export const UserManagement = () => {
                                   <TableRow>
                                     <TableHead>Användare</TableHead>
                                     <TableHead>E-post</TableHead>
-                                    <TableHead>Roll</TableHead>
+                                    <TableHead>Skapad</TableHead>
                                     <TableHead>Hantering</TableHead>
                                   </TableRow>
                                 </TableHeader>
@@ -362,9 +365,7 @@ export const UserManagement = () => {
                                       </TableCell>
                                       <TableCell>{user.email}</TableCell>
                                       <TableCell>
-                                        <Badge variant={getRoleBadgeVariant(user.role)}>
-                                          {user.role}
-                                        </Badge>
+                                        {user.created_at ? new Date(user.created_at).toLocaleDateString('sv-SE') : 'Okänt'}
                                       </TableCell>
                                       <TableCell>
                                         <div className="flex gap-2">
@@ -382,22 +383,6 @@ export const UserManagement = () => {
                                                   {orgOption.name}
                                                 </SelectItem>
                                               ))}
-                                            </SelectContent>
-                                          </Select>
-
-                                          <Select
-                                            value={user.role}
-                                            onValueChange={(value) => updateUserRole(user.user_id, value as "administrator" | "bilhandel" | "ekonomi" | "superuser")}
-                                            disabled={updating === user.user_id}
-                                          >
-                                            <SelectTrigger className="w-32">
-                                              <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                              <SelectItem value="superuser">Superuser</SelectItem>
-                                              <SelectItem value="administrator">Administration</SelectItem>
-                                              <SelectItem value="ekonomi">Ekonomi</SelectItem>
-                                              <SelectItem value="bilhandel">Bilhandel</SelectItem>
                                             </SelectContent>
                                           </Select>
 
