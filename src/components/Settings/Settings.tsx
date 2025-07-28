@@ -91,11 +91,14 @@ export const Settings = () => {
       setOriginalLastName(lastNameValue);
 
       // Try to load from profiles table with organization
+      console.log('Attempting to load profile for user:', user?.id);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', user?.id)
         .single();
+      
+      console.log('Profile query result:', { data, error });
 
       if (error) {
         // If no profile exists, create one with data from user metadata
