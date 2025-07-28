@@ -48,6 +48,7 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
           email: email,
           password: password,
           options: {
+            emailRedirectTo: `${window.location.origin}/dashboard`,
             data: {
               first_name: finalFirstName,
               last_name: finalLastName,
@@ -58,12 +59,18 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
         });
 
         if (error) {
+          console.error("Signup error:", error);
           toast.error("Kunde inte skapa konto: " + error.message);
           return;
         }
 
-        toast.success("Välkommen! Ditt konto har skapats.");
-        window.location.href = "/dashboard";
+        // For invitations, we'll still need email confirmation unless admin disables it
+        if (data.user && !data.user.email_confirmed_at) {
+          toast.success("Konto skapat! Kontrollera din e-post för att verifiera ditt konto.");
+        } else {
+          toast.success("Välkommen! Ditt konto har skapats.");
+          window.location.href = "/dashboard";
+        }
       } else {
         // For existing users, update their password and mark onboarding as completed
         const { error } = await supabase.auth.updateUser({
