@@ -257,7 +257,6 @@ export const UserManagement = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Användare</TableHead>
-                <TableHead>E-post</TableHead>
                 <TableHead>Roll</TableHead>
                 <TableHead>Organisation</TableHead>
                 <TableHead>Hantering</TableHead>
@@ -273,7 +272,7 @@ export const UserManagement = () => {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>{user.email}</TableCell>
+                  
                   <TableCell>
                     <Badge variant={getRoleBadgeVariant(user.role)}>
                       {user.role === 'superuser' ? 'Superuser' :
