@@ -396,32 +396,30 @@ export const OrganizationUserManagement = () => {
                     </div>}
                 </div>)}
               
-              {/* Save/Discard buttons */}
-              {hasUnsavedChanges && (
-                <div className="flex gap-3 pt-4 border-t">
-                  <Button 
-                    onClick={saveChanges}
-                    disabled={saving}
-                    className="flex-1"
-                  >
-                    {saving ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                        Sparar...
-                      </>
-                    ) : (
-                      'Spara ändringar'
-                    )}
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    onClick={discardChanges}
-                    disabled={saving}
-                  >
-                    Ångra
-                  </Button>
-                </div>
-              )}
+              {/* Save/Discard buttons - always visible */}
+              <div className="flex gap-3 pt-4 border-t">
+                <Button 
+                  onClick={saveChanges}
+                  disabled={saving || !hasUnsavedChanges}
+                  className="flex-1"
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      Sparar...
+                    </>
+                  ) : (
+                    'Spara ändringar'
+                  )}
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={discardChanges}
+                  disabled={saving || !hasUnsavedChanges}
+                >
+                  Ångra
+                </Button>
+              </div>
             </div> : <p className="text-muted-foreground text-center py-8">
               Inga användare hittades i din organisation
             </p>}
