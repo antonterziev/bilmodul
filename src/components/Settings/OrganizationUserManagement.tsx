@@ -43,6 +43,9 @@ export const OrganizationUserManagement = () => {
   const [updating, setUpdating] = useState<string | null>(null);
   const [currentUserOrgId, setCurrentUserOrgId] = useState<string | null>(null);
   const [isCurrentUserAdmin, setIsCurrentUserAdmin] = useState(false);
+  const [pendingChanges, setPendingChanges] = useState<{[userId: string]: string[]}>({});
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [saving, setSaving] = useState(false);
   const {
     user
   } = useAuth();
@@ -148,7 +151,7 @@ export const OrganizationUserManagement = () => {
     }
     return false;
   };
-  const toggleUserRole = async (userId: string, role: string, organizationId: string) => {
+  const toggleUserRole = (userId: string, role: string) => {
     // Prevent removing the last admin
     if (wouldRemoveLastAdmin(userId, role)) {
       toast({
@@ -158,56 +161,115 @@ export const OrganizationUserManagement = () => {
       });
       return;
     }
-    setUpdating(userId);
+
+    const userToUpdate = users.find(u => u.user_id === userId);
+    if (!userToUpdate) return;
+
+    const currentRoles = pendingChanges[userId] || userToUpdate.roles;
+    const hasRole = currentRoles.includes(role);
+    
+    let newRoles;
+    if (hasRole) {
+      newRoles = currentRoles.filter(r => r !== role);
+    } else {
+      newRoles = [...currentRoles, role];
+    }
+
+    setPendingChanges(prev => ({
+      ...prev,
+      [userId]: newRoles
+    }));
+    
+    setHasUnsavedChanges(true);
+  };
+
+  const saveChanges = async () => {
+    setSaving(true);
+    let hasErrors = false;
+
     try {
-      const userToUpdate = users.find(u => u.user_id === userId);
-      if (!userToUpdate) return;
-      const hasRole = userToUpdate.roles.includes(role);
-      if (hasRole) {
-        // Remove role
-        const {
-          error
-        } = await supabase.from('user_roles').delete().eq('user_id', userId).eq('role', role as any).eq('organization_id', organizationId);
-        if (error) throw error;
-      } else {
-        // Add role
-        const {
-          error
-        } = await supabase.from('user_roles').insert({
-          user_id: userId,
-          role: role as any,
-          organization_id: organizationId
-        } as any);
-        if (error) throw error;
-      }
+      // Process each user's role changes
+      for (const [userId, newRoles] of Object.entries(pendingChanges)) {
+        const userToUpdate = users.find(u => u.user_id === userId);
+        if (!userToUpdate || !currentUserOrgId) continue;
 
-      // Update local state
-      setUsers(users.map(user => {
-        if (user.user_id === userId) {
-          const newRoles = hasRole ? user.roles.filter(r => r !== role) : [...user.roles, role];
-          return {
-            ...user,
-            roles: newRoles
-          };
+        const originalRoles = userToUpdate.roles;
+        const rolesToAdd = newRoles.filter(role => !originalRoles.includes(role));
+        const rolesToRemove = originalRoles.filter(role => !newRoles.includes(role));
+
+        // Remove roles
+        for (const role of rolesToRemove) {
+          const { error } = await supabase
+            .from('user_roles')
+            .delete()
+            .eq('user_id', userId)
+            .eq('role', role as any)
+            .eq('organization_id', currentUserOrgId);
+
+          if (error) {
+            console.error('Error removing role:', error);
+            hasErrors = true;
+          }
         }
-        return user;
-      }));
-    } catch (error) {
-      console.error('Error toggling user role:', error);
-      let errorMessage = "Kunde inte uppdatera användarens behörigheter";
 
-      // Check if error is about removing last admin
-      if (error?.message?.includes('Cannot remove the last admin')) {
-        errorMessage = "Kan inte ta bort den sista administratören från organisationen";
+        // Add roles
+        for (const role of rolesToAdd) {
+          const { error } = await supabase
+            .from('user_roles')
+            .insert({
+              user_id: userId,
+              role: role as any,
+              organization_id: currentUserOrgId
+            } as any);
+
+          if (error) {
+            console.error('Error adding role:', error);
+            hasErrors = true;
+          }
+        }
+
+        // Update local state
+        setUsers(prev => prev.map(user => {
+          if (user.user_id === userId) {
+            return { ...user, roles: newRoles };
+          }
+          return user;
+        }));
       }
+
+      if (!hasErrors) {
+        setPendingChanges({});
+        setHasUnsavedChanges(false);
+        toast({
+          title: "Ändringar sparade",
+          description: "Behörigheterna har uppdaterats",
+        });
+      } else {
+        toast({
+          title: "Delvis fel",
+          description: "Vissa ändringar kunde inte sparas",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error saving changes:', error);
       toast({
         title: "Fel",
-        description: errorMessage,
-        variant: "destructive"
+        description: "Kunde inte spara ändringar",
+        variant: "destructive",
       });
     } finally {
-      setUpdating(null);
+      setSaving(false);
     }
+  };
+
+  const discardChanges = () => {
+    setPendingChanges({});
+    setHasUnsavedChanges(false);
+    toast({
+      title: "Ändringar borttagna",
+      description: "Alla osparade ändringar har tagits bort",
+    });
   };
 
   const removeUser = async (userId: string, userName: string) => {
@@ -304,7 +366,13 @@ export const OrganizationUserManagement = () => {
 
                   <div className="grid grid-cols-6 gap-2">
                     {AVAILABLE_ROLES.map(role => <div key={role.key} className="flex justify-center">
-                         <Checkbox checked={userRow.roles.includes(role.key)} onCheckedChange={() => toggleUserRole(userRow.user_id, role.key, userRow.organization_id)} disabled={updating === userRow.user_id || wouldRemoveLastAdmin(userRow.user_id, role.key)} className="w-5 h-5" title={wouldRemoveLastAdmin(userRow.user_id, role.key) ? "Kan inte ta bort den sista administratören" : undefined} />
+                         <Checkbox 
+                           checked={(pendingChanges[userRow.user_id] || userRow.roles).includes(role.key)} 
+                           onCheckedChange={() => toggleUserRole(userRow.user_id, role.key)} 
+                           disabled={updating === userRow.user_id || wouldRemoveLastAdmin(userRow.user_id, role.key)} 
+                           className="w-5 h-5" 
+                           title={wouldRemoveLastAdmin(userRow.user_id, role.key) ? "Kan inte ta bort den sista administratören" : undefined} 
+                         />
                       </div>)}
                   </div>
 
@@ -327,6 +395,33 @@ export const OrganizationUserManagement = () => {
                       <Loader2 className="w-4 h-4 animate-spin" />
                     </div>}
                 </div>)}
+              
+              {/* Save/Discard buttons */}
+              {hasUnsavedChanges && (
+                <div className="flex gap-3 pt-4 border-t">
+                  <Button 
+                    onClick={saveChanges}
+                    disabled={saving}
+                    className="flex-1"
+                  >
+                    {saving ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        Sparar...
+                      </>
+                    ) : (
+                      'Spara ändringar'
+                    )}
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={discardChanges}
+                    disabled={saving}
+                  >
+                    Ångra
+                  </Button>
+                </div>
+              )}
             </div> : <p className="text-muted-foreground text-center py-8">
               Inga användare hittades i din organisation
             </p>}
