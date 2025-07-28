@@ -153,7 +153,7 @@ export const UserManagement = () => {
   };
 
 
-  const updateUserRole = async (userId: string, newRole: "administrator" | "bilhandel" | "ekonomi" | "superuser") => {
+  const updateUserRole = async (userId: string, newRole: "admin" | "lager" | "ekonomi" | "inkop" | "pakostnad" | "forsaljning" | "superuser") => {
     setUpdating(userId);
     try {
       const { error } = await supabase
@@ -273,9 +273,12 @@ export const UserManagement = () => {
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
       case 'superuser': return 'destructive';
-      case 'administrator': return 'destructive';
+      case 'admin': return 'destructive';
       case 'ekonomi': return 'secondary';
-      case 'bilhandel': return 'default';
+      case 'lager': return 'default';
+      case 'inkop': return 'outline';
+      case 'pakostnad': return 'outline';
+      case 'forsaljning': return 'outline';
       default: return 'outline';
     }
   };
@@ -392,21 +395,24 @@ export const UserManagement = () => {
                                             </SelectContent>
                                           </Select>
 
-                                          <Select
-                                            value={user.role}
-                                            onValueChange={(value) => updateUserRole(user.user_id, value as "administrator" | "bilhandel" | "ekonomi" | "superuser")}
-                                            disabled={updating === user.user_id}
-                                          >
-                                            <SelectTrigger className="w-32">
-                                              <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                              <SelectItem value="superuser">Superuser</SelectItem>
-                                              <SelectItem value="administrator">Administration</SelectItem>
-                                              <SelectItem value="ekonomi">Ekonomi</SelectItem>
-                                              <SelectItem value="bilhandel">Bilhandel</SelectItem>
-                                            </SelectContent>
-                                          </Select>
+                                           <Select
+                                             value={user.role}
+                                             onValueChange={(value) => updateUserRole(user.user_id, value as "admin" | "lager" | "ekonomi" | "inkop" | "pakostnad" | "forsaljning" | "superuser")}
+                                             disabled={updating === user.user_id}
+                                           >
+                                             <SelectTrigger className="w-32">
+                                               <SelectValue />
+                                             </SelectTrigger>
+                                             <SelectContent>
+                                               <SelectItem value="superuser">Superuser</SelectItem>
+                                               <SelectItem value="admin">Admin</SelectItem>
+                                               <SelectItem value="lager">Lager</SelectItem>
+                                               <SelectItem value="ekonomi">Ekonomi</SelectItem>
+                                               <SelectItem value="inkop">Inköp</SelectItem>
+                                               <SelectItem value="pakostnad">Påkostnad</SelectItem>
+                                               <SelectItem value="forsaljning">Försäljning</SelectItem>
+                                             </SelectContent>
+                                           </Select>
 
                                           {updating === user.user_id && (
                                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -434,7 +440,7 @@ export const UserManagement = () => {
         </CardContent>
       </Card>
 
-      {userRole === 'superuser' && (
+      {(userRole === 'superuser' || userRole === 'admin') && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
