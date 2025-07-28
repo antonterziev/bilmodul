@@ -74,6 +74,7 @@ export const Settings = () => {
   }, [user]);
 
   const loadProfile = async () => {
+    console.log('Loading profile for user:', user?.id);
     try {
       // First load data from user metadata (from onboarding)
       const userMetadata = user?.user_metadata || {};
@@ -122,6 +123,7 @@ export const Settings = () => {
           if (createError) throw createError;
           setProfile(newProfile);
         } else {
+          console.error('Error loading profile:', error);
           throw error;
         }
       } else {
@@ -136,6 +138,7 @@ export const Settings = () => {
             .single();
           
           if (orgData) {
+            console.log('Loaded organization:', orgData);
             setOrganization(orgData);
           }
         }
@@ -164,7 +167,9 @@ export const Settings = () => {
         // Set the first role as userRole, or 'admin' if user has admin role
         const roles = roleData?.map(r => r.role) || [];
         const hasAdmin = roles.includes('admin');
+        console.log('User roles:', roles, 'hasAdmin:', hasAdmin);
         setUserRole(hasAdmin ? 'admin' : roles[0] || '');
+        console.log('Final userRole set to:', hasAdmin ? 'admin' : roles[0] || '');
       }
     } catch (error) {
       console.error('Error loading profile:', error);
