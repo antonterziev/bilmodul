@@ -427,9 +427,6 @@ export const Settings = () => {
                     disabled
                     className="bg-muted"
                   />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Din nuvarande organisation
-                  </p>
                 </div>
                 <div>
                   <Label htmlFor="userRoles">Behörigheter</Label>
