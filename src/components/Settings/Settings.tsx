@@ -67,9 +67,12 @@ export const Settings = () => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
+    console.log('Settings component useEffect triggered, user:', user);
     if (user) {
+      console.log('User exists, calling loadProfile');
       loadProfile();
-      
+    } else {
+      console.log('No user found, not loading profile');
     }
   }, [user]);
 
