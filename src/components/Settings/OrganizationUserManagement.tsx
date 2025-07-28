@@ -292,7 +292,7 @@ export const OrganizationUserManagement = () => {
                       {role.label}
                     </div>)}
                 </div>
-                {isCurrentUserAdmin && <div className="font-medium text-center">Åtgärder</div>}
+                {isCurrentUserAdmin && <div className="font-medium text-center text-sm">Åtgärder</div>}
               </div>
 
               {/* User Matrix */}
