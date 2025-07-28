@@ -124,7 +124,7 @@ export const UserManagement = () => {
               last_name: profile.last_name || '',
               organization_name: profile.organizations.name,
               organization_id: profile.organization_id,
-              role: userRole?.role || 'bilhandel',
+              role: userRole?.role || 'lager',
               created_at: profile.created_at
             };
           })
