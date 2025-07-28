@@ -202,7 +202,7 @@ export const OrganizationUserManagement = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Organisationsmedlemmar och Behörigheter</CardTitle>
+          <CardTitle>Användare</CardTitle>
         </CardHeader>
         <CardContent>
           {users.length > 0 ? (
