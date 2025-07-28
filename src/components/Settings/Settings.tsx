@@ -350,7 +350,7 @@ export const Settings = () => {
           )}
           <TabsTrigger value="danger" className="flex items-center gap-2">
             <AlertTriangle className="w-4 h-4" />
-            Farligt
+            Radera Konto
           </TabsTrigger>
         </TabsList>
 
