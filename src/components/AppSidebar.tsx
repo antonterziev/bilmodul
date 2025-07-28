@@ -103,7 +103,6 @@ export function AppSidebar({
       children: [
         { id: "sales", title: "Försäljning", icon: Receipt },
         { id: "avtal", title: "Avtal", icon: FileCheck },
-        { id: "dokument", title: "Dokument", icon: File },
         { id: "fakturor", title: "Fakturor", icon: Receipt },
       ]
     },
