@@ -357,7 +357,7 @@ export const Settings = () => {
       <h2 className="text-2xl font-bold">Inställningar</h2>
 
       <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className={`grid w-full ${(userRoles.includes('admin') || userRoles.includes('superuser')) ? 'grid-cols-4' : 'grid-cols-3'}`}>
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <User className="w-4 h-4" />
             Profil
@@ -366,7 +366,7 @@ export const Settings = () => {
             <Lock className="w-4 h-4" />
             Lösenord
           </TabsTrigger>
-           {(userRoles.includes('admin') || userRoles.includes('superuser')) && (
+          {(userRoles.includes('admin') || userRoles.includes('superuser')) && (
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
               Användare
