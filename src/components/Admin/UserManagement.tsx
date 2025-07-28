@@ -356,7 +356,7 @@ export const UserManagement = () => {
                                   {org.users.map((user) => (
                                     <TableRow key={user.user_id}>
                                       <TableCell>
-                                        <div className="font-medium">
+                                        <div>
                                           {getDisplayName(user)}
                                         </div>
                                       </TableCell>
