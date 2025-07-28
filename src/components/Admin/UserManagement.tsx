@@ -267,7 +267,10 @@ export const UserManagement = () => {
                   <TableCell>
                     <div>
                       <div className="font-medium">
-                        {user.first_name} {user.last_name}
+                        {user.first_name && user.last_name 
+                          ? `${user.first_name} ${user.last_name}`
+                          : user.email
+                        }
                       </div>
                     </div>
                   </TableCell>
