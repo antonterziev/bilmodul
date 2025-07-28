@@ -63,6 +63,21 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
           return;
         }
 
+        // Update invitation status to accepted
+        const { error: inviteError } = await supabase
+          .from('invitations')
+          .update({ 
+            status: 'accepted',
+            accepted_at: new Date().toISOString()
+          })
+          .eq('email', email)
+          .eq('status', 'pending');
+
+        if (inviteError) {
+          console.error("Error updating invitation:", inviteError);
+          // Don't show error to user since account was created successfully
+        }
+
         toast.success("Välkommen! Ditt konto har skapats.");
         window.location.href = "/dashboard";
       } else {
