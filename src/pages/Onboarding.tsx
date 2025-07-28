@@ -35,6 +35,17 @@ const Onboarding = () => {
   useEffect(() => {
     const handleEmailVerification = async () => {
       try {
+        // Check if this is an invitation flow
+        const isInvite = searchParams.get('invite') === 'true';
+        const email = searchParams.get('email');
+
+        if (isInvite && email) {
+          // For invitations, we only have email and users will enter their names
+          setUserInfo({ email, firstName: '', lastName: '' });
+          setIsLoading(false);
+          return;
+        }
+
         // Get the current session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
@@ -46,7 +57,6 @@ const Onboarding = () => {
 
         if (!session?.user) {
           // Try to get user from URL params if available
-          const email = searchParams.get('email');
           const firstName = searchParams.get('firstName');
           const lastName = searchParams.get('lastName');
 
@@ -67,7 +77,7 @@ const Onboarding = () => {
             return;
           }
           
-          const email = user.email || '';
+          const userEmail = user.email || '';
           const firstName = user.user_metadata?.first_name || '';
           const lastName = user.user_metadata?.last_name || '';
 
@@ -78,7 +88,7 @@ const Onboarding = () => {
             return;
           }
 
-          setUserInfo({ email, firstName, lastName });
+          setUserInfo({ email: userEmail, firstName, lastName });
         }
       } catch (error) {
         console.error("Error handling email verification:", error);
