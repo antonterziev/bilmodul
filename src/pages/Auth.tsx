@@ -130,16 +130,11 @@ const Auth = () => {
         return;
       }
 
-      // Create account with email only (no password yet)
-      const {
-        data,
-        error
-      } = await supabase.auth.signUp({
+      // Create account directly without email verification
+      const { data, error } = await supabase.auth.signUp({
         email,
-        password: crypto.randomUUID(),
-        // Temporary password, will be set later
+        password: crypto.randomUUID(), // Temporary password
         options: {
-          emailRedirectTo: `https://lagermodulen.se/onboarding`,
           data: {
             first_name: firstName,
             last_name: lastName,

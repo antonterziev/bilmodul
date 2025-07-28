@@ -43,12 +43,11 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
       const finalLastName = isInvitation ? userLastName.trim() : lastName;
       
       if (isInvitation) {
-        // For invitations, create a new user account
+        // For invitations, create a new user account without email verification
         const { data, error } = await supabase.auth.signUp({
           email: email,
           password: password,
           options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`,
             data: {
               first_name: finalFirstName,
               last_name: finalLastName,
@@ -64,13 +63,8 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
           return;
         }
 
-        // For invitations, we'll still need email confirmation unless admin disables it
-        if (data.user && !data.user.email_confirmed_at) {
-          toast.success("Konto skapat! Kontrollera din e-post för att verifiera ditt konto.");
-        } else {
-          toast.success("Välkommen! Ditt konto har skapats.");
-          window.location.href = "/dashboard";
-        }
+        toast.success("Välkommen! Ditt konto har skapats.");
+        window.location.href = "/dashboard";
       } else {
         // For existing users, update their password and mark onboarding as completed
         const { error } = await supabase.auth.updateUser({
