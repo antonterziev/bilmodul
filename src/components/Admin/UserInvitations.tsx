@@ -14,7 +14,7 @@ import { UserPlus, Mail, Clock, CheckCircle, XCircle, RotateCcw } from 'lucide-r
 interface Invitation {
   id: string;
   email: string;
-  role: string;
+  roles: string[]; // Changed to array
   status: string;
   expires_at: string;
   created_at: string;
