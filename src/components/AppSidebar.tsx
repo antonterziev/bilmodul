@@ -261,8 +261,8 @@ export function AppSidebar({
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
-                {/* Admin - Only show for administrators */}
-                {userRole === 'administrator' && (
+                {/* Admin - Only show for administrators and superusers */}
+                {(userRole === 'administrator' || userRole === 'superuser') && (
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       onClick={() => onViewChange("admin")}

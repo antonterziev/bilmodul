@@ -31,7 +31,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
-        .eq('role', 'administrator')
+        .in('role', ['administrator', 'superuser'])
         .maybeSingle();
 
       if (error) throw error;
