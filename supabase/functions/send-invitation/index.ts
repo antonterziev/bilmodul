@@ -126,7 +126,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Send invitation email
-    const inviteUrl = `${supabaseUrl.replace('supabase.co', 'lovable.app')}/auth?invite=true&email=${encodeURIComponent(email)}`;
+    const inviteUrl = `https://lagermodulen.se/onboarding?invite=true&email=${encodeURIComponent(email)}`;
     
     // Format roles for email
     const roleDisplayNames: Record<string, string> = {
