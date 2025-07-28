@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,8 +14,67 @@ interface DeleteAccountProps {
 export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
   const [confirmText, setConfirmText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isLastAdmin, setIsLastAdmin] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [organizationName, setOrganizationName] = useState('');
   const { toast } = useToast();
   const { user } = useAuth();
+
+  useEffect(() => {
+    checkAdminStatus();
+  }, [user]);
+
+  const checkAdminStatus = async () => {
+    if (!user) return;
+
+    try {
+      setIsLoading(true);
+
+      // Get user's organization and check if they're an admin
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('organization_id, organizations(name)')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profileError) throw profileError;
+
+      const organizationId = profile?.organization_id;
+      setOrganizationName(profile?.organizations?.name || '');
+
+      // Check if current user is an admin
+      const { data: userRoles, error: userRolesError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('organization_id', organizationId);
+
+      if (userRolesError) throw userRolesError;
+
+      const isAdmin = userRoles?.some(role => role.role === 'admin');
+
+      if (isAdmin) {
+        // Count total admins in the organization
+        const { data: allAdmins, error: adminsError } = await supabase
+          .from('user_roles')
+          .select('user_id')
+          .eq('role', 'admin')
+          .eq('organization_id', organizationId);
+
+        if (adminsError) throw adminsError;
+
+        // If there's only one admin and it's the current user, prevent deletion
+        setIsLastAdmin(allAdmins?.length === 1);
+      } else {
+        setIsLastAdmin(false);
+      }
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      setIsLastAdmin(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleDeleteAccount = async () => {
     console.log('Delete account started, confirmText:', confirmText);
@@ -25,6 +84,16 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
       toast({
         title: "Fel",
         description: "Du måste skriva 'radera' för att bekräfta",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if user is the last admin in their organization
+    if (isLastAdmin) {
+      toast({
+        title: "Kan inte radera konto",
+        description: "Du är den enda administratören i din organisation. Tilldela administratörsrättigheter till någon annan användare innan du raderar ditt konto.",
         variant: "destructive",
       });
       return;
@@ -78,6 +147,28 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {isLastAdmin && (
+            <div className="bg-orange-50 border-l-4 border-orange-400 p-4 rounded">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <AlertTriangle className="h-5 w-5 text-orange-400" />
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-orange-800">
+                    Du kan inte radera ditt konto
+                  </h3>
+                  <div className="mt-2 text-sm text-orange-700">
+                    <p>
+                      Du är den enda administratören i organisationen "{organizationName}". 
+                      För att kunna radera ditt konto måste du först tilldela administratörsrättigheter 
+                      till någon annan användare i organisationen.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="bg-destructive/10 p-4 rounded-lg">
             <h4 className="font-semibold text-destructive mb-2">Vad som kommer att raderas:</h4>
             <ul className="text-sm space-y-1 text-muted-foreground">
@@ -110,7 +201,7 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
             <Button
               variant="destructive"
               onClick={handleDeleteAccount}
-              disabled={confirmText.toLowerCase() !== 'radera' || isDeleting}
+              disabled={confirmText.toLowerCase() !== 'radera' || isDeleting || isLastAdmin}
             >
               {isDeleting ? 'Raderar...' : 'Radera konto permanent'}
             </Button>
