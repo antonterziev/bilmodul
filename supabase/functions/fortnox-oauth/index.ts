@@ -279,14 +279,14 @@ serve(async (req) => {
         console.error(`❌ Error fetching company information for ${requestId}:`, companyError);
       }
       
-      // Get user's organization_id from profile
+      // Get user's organization_id from profile using service role to bypass RLS
       const { data: userProfile, error: profileError } = await supabase
         .from('profiles')
         .select('organization_id')
         .eq('user_id', validState.user_id)
         .single();
 
-      if (profileError || !userProfile?.organization_id) {
+      if (profileError) {
         console.error(`Error fetching user profile for ${requestId}:`, profileError);
         const errorMessage = encodeURIComponent('Kunde inte hitta användarorganisation. Kontakta support.');
         return new Response(null, {
@@ -296,6 +296,19 @@ serve(async (req) => {
           }
         });
       }
+
+      if (!userProfile?.organization_id) {
+        console.error(`User profile missing organization_id for ${requestId}:`, userProfile);
+        const errorMessage = encodeURIComponent('Användarorganisation saknas. Kontakta support.');
+        return new Response(null, {
+          status: 302,
+          headers: {
+            'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+          }
+        });
+      }
+
+      console.log(`✅ Found organization_id for user ${validState.user_id}:`, userProfile.organization_id);
 
       // Deactivate previous integrations for user
       await supabase
