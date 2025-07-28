@@ -3,10 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Users, Building, Plus, RefreshCw, ChevronDown, ChevronRight } from "lucide-react";
@@ -18,7 +17,7 @@ interface UserWithProfile {
   last_name: string;
   organization_name: string;
   organization_id: string;
-  role: string;
+  roles: string[];
   created_at: string;
 }
 
@@ -29,6 +28,15 @@ interface Organization {
   user_count: number;
   users: UserWithProfile[];
 }
+
+const AVAILABLE_ROLES = [
+  { key: 'admin', label: 'Admin' },
+  { key: 'lager', label: 'Lager' },
+  { key: 'ekonomi', label: 'Ekonomi' },
+  { key: 'inkop', label: 'Inköp' },
+  { key: 'pakostnad', label: 'Påkostnad' },
+  { key: 'forsaljning', label: 'Försäljning' }
+];
 
 export const UserManagement = () => {
   const [organizations, setOrganizations] = useState<Organization[]>([]);
@@ -116,7 +124,7 @@ export const UserManagement = () => {
         const orgUsers = profilesData
           ?.filter((profile: any) => profile.organization_id === org.id)
           .map((profile: any) => {
-            const userRole = rolesData?.find(role => role.user_id === profile.user_id);
+            const userRoles = rolesData?.filter(role => role.user_id === profile.user_id).map(r => r.role) || [];
             return {
               user_id: profile.user_id,
               email: profile.email,
@@ -124,7 +132,7 @@ export const UserManagement = () => {
               last_name: profile.last_name || '',
               organization_name: profile.organizations.name,
               organization_id: profile.organization_id,
-              role: userRole?.role || 'lager',
+              roles: userRoles,
               created_at: profile.created_at
             };
           })
@@ -152,34 +160,64 @@ export const UserManagement = () => {
     }
   };
 
-
-  const updateUserRole = async (userId: string, newRole: "admin" | "lager" | "ekonomi" | "inkop" | "pakostnad" | "forsaljning" | "superuser") => {
+  const toggleUserRole = async (userId: string, role: string, organizationId: string) => {
     setUpdating(userId);
     try {
-      const { error } = await supabase
-        .from('user_roles')
-        .update({ role: newRole })
-        .eq('user_id', userId);
+      // Check if user already has this role
+      const user = organizations
+        .flatMap(org => org.users)
+        .find(u => u.user_id === userId);
+      
+      if (!user) return;
 
-      if (error) throw error;
+      const hasRole = user.roles.includes(role);
 
-      // Update the user in the organizations state
+      if (hasRole) {
+        // Remove role
+        const { error } = await supabase
+          .from('user_roles')
+          .delete()
+          .eq('user_id', userId)
+          .eq('role', role as any)
+          .eq('organization_id', organizationId);
+
+        if (error) throw error;
+      } else {
+        // Add role
+        const { error } = await supabase
+          .from('user_roles')
+          .insert({
+            user_id: userId,
+            role: role as any,
+            organization_id: organizationId
+          } as any);
+
+        if (error) throw error;
+      }
+
+      // Update local state
       setOrganizations(organizations.map(org => ({
         ...org,
-        users: org.users.map(user => 
-          user.user_id === userId ? { ...user, role: newRole } : user
-        )
+        users: org.users.map(user => {
+          if (user.user_id === userId) {
+            const newRoles = hasRole 
+              ? user.roles.filter(r => r !== role)
+              : [...user.roles, role];
+            return { ...user, roles: newRoles };
+          }
+          return user;
+        })
       })));
 
       toast({
         title: "Uppdaterat",
-        description: "Användarens roll har uppdaterats"
+        description: `Användarens ${role} behörighet har ${hasRole ? 'tagits bort' : 'lagts till'}`
       });
     } catch (error) {
-      console.error('Error updating user role:', error);
+      console.error('Error toggling user role:', error);
       toast({
         title: "Fel",
-        description: "Kunde inte uppdatera användarens roll",
+        description: "Kunde inte uppdatera användarens behörigheter",
         variant: "destructive"
       });
     } finally {
@@ -270,19 +308,6 @@ export const UserManagement = () => {
     setExpandedOrgs(newExpanded);
   };
 
-  const getRoleBadgeVariant = (role: string) => {
-    switch (role) {
-      case 'superuser': return 'destructive';
-      case 'admin': return 'destructive';
-      case 'ekonomi': return 'secondary';
-      case 'lager': return 'default';
-      case 'inkop': return 'outline';
-      case 'pakostnad': return 'outline';
-      case 'forsaljning': return 'outline';
-      default: return 'outline';
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -297,7 +322,7 @@ export const UserManagement = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Users className="w-5 h-5" />
-          <h3 className="text-lg font-semibold">Organisationer och Användare</h3>
+          <h3 className="text-lg font-semibold">Användarhantering</h3>
         </div>
         <Button
           variant="outline"
@@ -312,7 +337,7 @@ export const UserManagement = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Organisationer</CardTitle>
+          <CardTitle>Organisationer och Behörigheter</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -355,74 +380,66 @@ export const UserManagement = () => {
                         <TableCell colSpan={4} className="p-0">
                           <div className="border-t bg-muted/30 p-4">
                             {org.users.length > 0 ? (
-                              <Table>
-                                <TableHeader>
-                                  <TableRow>
-                                    <TableHead>Användare</TableHead>
-                                    <TableHead>E-post</TableHead>
-                                    <TableHead>Skapad</TableHead>
-                                    <TableHead>Hantering</TableHead>
-                                  </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                  {org.users.map((user) => (
-                                    <TableRow key={user.user_id}>
-                                      <TableCell>
-                                        <div>
-                                          {getDisplayName(user)}
-                                        </div>
-                                      </TableCell>
-                                      <TableCell>{user.email}</TableCell>
-                                      <TableCell>
-                                        {user.created_at ? new Date(user.created_at).toLocaleDateString('sv-SE') : 'Okänt'}
-                                      </TableCell>
-                                      <TableCell>
-                                        <div className="flex gap-2">
-                                          <Select
-                                            value={user.organization_id}
-                                            onValueChange={(value) => updateUserOrganization(user.user_id, value)}
+                              <div className="space-y-4">
+                                {/* Matrix Header */}
+                                <div className="grid grid-cols-[200px_150px_1fr] gap-4 items-center border-b pb-2">
+                                  <div className="font-medium">Användare</div>
+                                  <div className="font-medium">Organisation</div>
+                                  <div className="grid grid-cols-6 gap-2">
+                                    {AVAILABLE_ROLES.map((role) => (
+                                      <div key={role.key} className="text-center font-medium text-sm">
+                                        {role.label}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+
+                                {/* User Matrix */}
+                                {org.users.map((user) => (
+                                  <div key={user.user_id} className="grid grid-cols-[200px_150px_1fr] gap-4 items-center py-2 border-b border-muted">
+                                    <div>
+                                      <div className="font-medium">{getDisplayName(user)}</div>
+                                      <div className="text-sm text-muted-foreground">{user.email}</div>
+                                    </div>
+                                    
+                                    <Select
+                                      value={user.organization_id}
+                                      onValueChange={(value) => updateUserOrganization(user.user_id, value)}
+                                      disabled={updating === user.user_id}
+                                    >
+                                      <SelectTrigger className="w-full">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {organizations.map((orgOption) => (
+                                          <SelectItem key={orgOption.id} value={orgOption.id}>
+                                            {orgOption.name}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+
+                                    <div className="grid grid-cols-6 gap-2">
+                                      {AVAILABLE_ROLES.map((role) => (
+                                        <div key={role.key} className="flex justify-center">
+                                          <Checkbox
+                                            checked={user.roles.includes(role.key)}
+                                            onCheckedChange={() => toggleUserRole(user.user_id, role.key, user.organization_id)}
                                             disabled={updating === user.user_id}
-                                          >
-                                            <SelectTrigger className="w-40">
-                                              <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                              {organizations.map((orgOption) => (
-                                                <SelectItem key={orgOption.id} value={orgOption.id}>
-                                                  {orgOption.name}
-                                                </SelectItem>
-                                              ))}
-                                            </SelectContent>
-                                          </Select>
-
-                                           <Select
-                                             value={user.role}
-                                             onValueChange={(value) => updateUserRole(user.user_id, value as "admin" | "lager" | "ekonomi" | "inkop" | "pakostnad" | "forsaljning" | "superuser")}
-                                             disabled={updating === user.user_id}
-                                           >
-                                             <SelectTrigger className="w-32">
-                                               <SelectValue />
-                                             </SelectTrigger>
-                                             <SelectContent>
-                                               <SelectItem value="superuser">Superuser</SelectItem>
-                                               <SelectItem value="admin">Admin</SelectItem>
-                                               <SelectItem value="lager">Lager</SelectItem>
-                                               <SelectItem value="ekonomi">Ekonomi</SelectItem>
-                                               <SelectItem value="inkop">Inköp</SelectItem>
-                                               <SelectItem value="pakostnad">Påkostnad</SelectItem>
-                                               <SelectItem value="forsaljning">Försäljning</SelectItem>
-                                             </SelectContent>
-                                           </Select>
-
-                                          {updating === user.user_id && (
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                          )}
+                                            className="w-5 h-5"
+                                          />
                                         </div>
-                                      </TableCell>
-                                    </TableRow>
-                                  ))}
-                                </TableBody>
-                              </Table>
+                                      ))}
+                                    </div>
+
+                                    {updating === user.user_id && (
+                                      <div className="absolute right-4">
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
                             ) : (
                               <p className="text-muted-foreground text-center py-4">
                                 Inga användare i denna organisation
@@ -445,20 +462,20 @@ export const UserManagement = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Building className="w-5 h-5" />
-              Organisation
+              Skapa Organisation
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex gap-2 items-end">
               <div className="flex-1">
                 <label htmlFor="orgName" className="text-sm font-medium">
-                  Skapa ny organisation
+                  Organisationsnamn
                 </label>
                 <Input
                   id="orgName"
                   value={newOrgName}
                   onChange={(e) => setNewOrgName(e.target.value)}
-                  placeholder="Organisationsnamn"
+                  placeholder="Ange organisationsnamn"
                   disabled={creatingOrg}
                 />
               </div>
