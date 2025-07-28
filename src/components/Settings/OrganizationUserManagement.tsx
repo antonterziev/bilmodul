@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Users } from "lucide-react";
+import { Loader2, Users, Trash2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 interface UserWithProfile {
   user_id: string;
@@ -42,6 +42,7 @@ export const OrganizationUserManagement = () => {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
   const [currentUserOrgId, setCurrentUserOrgId] = useState<string | null>(null);
+  const [isCurrentUserAdmin, setIsCurrentUserAdmin] = useState(false);
   const {
     user
   } = useAuth();
@@ -105,6 +106,10 @@ export const OrganizationUserManagement = () => {
       console.log('All roles data:', rolesData);
       console.log('Final formatted users:', formattedUsers);
       setUsers(formattedUsers);
+      
+      // Check if current user is admin
+      const currentUserRoles = rolesData?.filter(role => role.user_id === user?.id).map(r => r.role) || [];
+      setIsCurrentUserAdmin(currentUserRoles.includes('admin'));
     } catch (error) {
       console.error('Error loading users:', error);
       toast({
@@ -204,6 +209,67 @@ export const OrganizationUserManagement = () => {
       setUpdating(null);
     }
   };
+
+  const removeUser = async (userId: string, userName: string) => {
+    // Prevent removing the last admin
+    const userToRemove = users.find(u => u.user_id === userId);
+    if (userToRemove?.roles.includes('admin') && getAdminCount() === 1) {
+      toast({
+        title: "Fel",
+        description: "Kan inte ta bort den sista administratören från organisationen",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Don't allow users to remove themselves
+    if (userId === user?.id) {
+      toast({
+        title: "Fel",
+        description: "Du kan inte ta bort dig själv",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setUpdating(userId);
+    try {
+      // First remove all user roles
+      const { error: rolesError } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId)
+        .eq('organization_id', currentUserOrgId);
+
+      if (rolesError) throw rolesError;
+
+      // Then remove the user's profile from the organization
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('user_id', userId)
+        .eq('organization_id', currentUserOrgId);
+
+      if (profileError) throw profileError;
+
+      // Update local state
+      setUsers(users.filter(u => u.user_id !== userId));
+
+      toast({
+        title: "Användare borttagen",
+        description: `${userName} har tagits bort från organisationen`,
+      });
+    } catch (error) {
+      console.error('Error removing user:', error);
+      toast({
+        title: "Fel",
+        description: "Kunde inte ta bort användaren",
+        variant: "destructive",
+      });
+    } finally {
+      setUpdating(null);
+    }
+  };
   if (loading) {
     return <div className="flex items-center justify-center p-8">
         <Loader2 className="w-6 h-6 animate-spin mr-2" />
@@ -219,31 +285,47 @@ export const OrganizationUserManagement = () => {
         <CardContent>
           {users.length > 0 ? <div className="space-y-4">
               {/* Matrix Header */}
-              <div className="grid grid-cols-[200px_1fr] gap-4 items-center border-b pb-2">
+              <div className={`grid gap-4 items-center border-b pb-2 ${isCurrentUserAdmin ? 'grid-cols-[200px_1fr_80px]' : 'grid-cols-[200px_1fr]'}`}>
                 <div className="font-medium">Namn</div>
                 <div className="grid grid-cols-6 gap-2">
                   {AVAILABLE_ROLES.map(role => <div key={role.key} className="text-center font-medium text-sm">
                       {role.label}
                     </div>)}
                 </div>
+                {isCurrentUserAdmin && <div className="font-medium text-center">Åtgärder</div>}
               </div>
 
               {/* User Matrix */}
-              {users.map(userRow => <div key={userRow.user_id} className="grid grid-cols-[200px_1fr] gap-4 items-center py-2 border-b border-muted">
+              {users.map(userRow => <div key={userRow.user_id} className={`grid gap-4 items-center py-2 border-b border-muted relative ${isCurrentUserAdmin ? 'grid-cols-[200px_1fr_80px]' : 'grid-cols-[200px_1fr]'}`}>
                   <div>
                     <div className="font-medium">{getDisplayName(userRow)}</div>
                     <div className="text-sm text-muted-foreground">{userRow.email}</div>
                   </div>
 
-                  <div className="grid grid-cols-6 gap-2 relative">
+                  <div className="grid grid-cols-6 gap-2">
                     {AVAILABLE_ROLES.map(role => <div key={role.key} className="flex justify-center">
                          <Checkbox checked={userRow.roles.includes(role.key)} onCheckedChange={() => toggleUserRole(userRow.user_id, role.key, userRow.organization_id)} disabled={updating === userRow.user_id || wouldRemoveLastAdmin(userRow.user_id, role.key)} className="w-5 h-5" title={wouldRemoveLastAdmin(userRow.user_id, role.key) ? "Kan inte ta bort den sista administratören" : undefined} />
                       </div>)}
-
-                    {updating === userRow.user_id && <div className="absolute -right-8 top-1/2 -translate-y-1/2">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      </div>}
                   </div>
+
+                  {isCurrentUserAdmin && (
+                    <div className="flex justify-center">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeUser(userRow.user_id, getDisplayName(userRow))}
+                        disabled={updating === userRow.user_id || userRow.user_id === user?.id}
+                        className="text-destructive hover:text-destructive"
+                        title={userRow.user_id === user?.id ? "Du kan inte ta bort dig själv" : "Ta bort användare"}
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  )}
+
+                  {updating === userRow.user_id && <div className="absolute -right-8 top-1/2 -translate-y-1/2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    </div>}
                 </div>)}
             </div> : <p className="text-muted-foreground text-center py-8">
               Inga användare hittades i din organisation
