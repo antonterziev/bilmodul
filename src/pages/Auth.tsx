@@ -169,19 +169,25 @@ const Auth = () => {
     setIsLoading(true);
     setLoginError(""); // Clear previous errors
     try {
-      const {
-        error
-      } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
-      if (error) throw error;
+      
+      if (error) {
+        console.error("Login error:", error);
+        throw error;
+      }
+      
       navigate("/dashboard");
     } catch (error: any) {
+      console.error("Sign in failed:", error);
       if (error.message.includes('Invalid login credentials')) {
-        setLoginError("Felaktigt lösenord");
+        setLoginError("Felaktigt e-post eller lösenord");
+      } else if (error.message.includes('Email not confirmed')) {
+        setLoginError("Du måste verifiera din e-post först");
       } else {
-        setLoginError("Ett fel uppstod vid inloggning");
+        setLoginError("Ett fel uppstod vid inloggning: " + error.message);
       }
     } finally {
       setIsLoading(false);
