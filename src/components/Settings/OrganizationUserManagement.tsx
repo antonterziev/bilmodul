@@ -31,7 +31,6 @@ const AVAILABLE_ROLES = [
 
 export const OrganizationUserManagement = () => {
   const [users, setUsers] = useState<UserWithProfile[]>([]);
-  const [organizations, setOrganizations] = useState<{id: string, name: string}[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
   const [currentUserOrgId, setCurrentUserOrgId] = useState<string | null>(null);
@@ -40,22 +39,8 @@ export const OrganizationUserManagement = () => {
 
   useEffect(() => {
     loadUsers();
-    loadOrganizations();
   }, []);
 
-  const loadOrganizations = async () => {
-    try {
-      const { data: orgData, error } = await supabase
-        .from('organizations')
-        .select('id, name')
-        .order('name');
-
-      if (error) throw error;
-      setOrganizations(orgData || []);
-    } catch (error) {
-      console.error('Error loading organizations:', error);
-    }
-  };
 
   const loadUsers = async () => {
     try {
@@ -202,43 +187,6 @@ export const OrganizationUserManagement = () => {
     }
   };
 
-  const updateUserOrganization = async (userId: string, newOrgId: string) => {
-    setUpdating(userId);
-    try {
-      // Update profile organization
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ organization_id: newOrgId })
-        .eq('user_id', userId);
-
-      if (profileError) throw profileError;
-
-      // Update user role organization
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .update({ organization_id: newOrgId })
-        .eq('user_id', userId);
-
-      if (roleError) throw roleError;
-
-      // Refresh users list
-      await loadUsers();
-
-      toast({
-        title: "Uppdaterat",
-        description: "Användarens organisation har uppdaterats"
-      });
-    } catch (error) {
-      console.error('Error updating user organization:', error);
-      toast({
-        title: "Fel",
-        description: "Kunde inte uppdatera användarens organisation",
-        variant: "destructive"
-      });
-    } finally {
-      setUpdating(null);
-    }
-  };
 
   if (loading) {
     return (
@@ -264,9 +212,8 @@ export const OrganizationUserManagement = () => {
           {users.length > 0 ? (
             <div className="space-y-4">
               {/* Matrix Header */}
-              <div className="grid grid-cols-[200px_150px_1fr] gap-4 items-center border-b pb-2">
+              <div className="grid grid-cols-[200px_1fr] gap-4 items-center border-b pb-2">
                 <div className="font-medium">Användare</div>
-                <div className="font-medium">Organisation</div>
                 <div className="grid grid-cols-6 gap-2">
                   {AVAILABLE_ROLES.map((role) => (
                     <div key={role.key} className="text-center font-medium text-sm">
@@ -278,28 +225,11 @@ export const OrganizationUserManagement = () => {
 
               {/* User Matrix */}
               {users.map((userRow) => (
-                <div key={userRow.user_id} className="grid grid-cols-[200px_150px_1fr] gap-4 items-center py-2 border-b border-muted">
+                <div key={userRow.user_id} className="grid grid-cols-[200px_1fr] gap-4 items-center py-2 border-b border-muted">
                   <div>
                     <div className="font-medium">{getDisplayName(userRow)}</div>
                     <div className="text-sm text-muted-foreground">{userRow.email}</div>
                   </div>
-                  
-                  <Select
-                    value={userRow.organization_id}
-                    onValueChange={(value) => updateUserOrganization(userRow.user_id, value)}
-                    disabled={updating === userRow.user_id}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {organizations.map((orgOption) => (
-                        <SelectItem key={orgOption.id} value={orgOption.id}>
-                          {orgOption.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
 
                   <div className="grid grid-cols-6 gap-2 relative">
                     {AVAILABLE_ROLES.map((role) => (
