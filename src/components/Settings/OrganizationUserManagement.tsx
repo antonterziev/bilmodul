@@ -14,7 +14,6 @@ interface UserWithProfile {
   email: string;
   first_name: string;
   last_name: string;
-  organization_name: string;
   organization_id: string;
   roles: string[];
   created_at: string;
@@ -67,8 +66,7 @@ export const OrganizationUserManagement = () => {
           first_name,
           last_name,
           organization_id,
-          created_at,
-          organizations!inner(id, name)
+          created_at
         `)
         .eq('organization_id', orgId);
 
@@ -91,7 +89,6 @@ export const OrganizationUserManagement = () => {
           email: profile.email,
           first_name: profile.first_name || '',
           last_name: profile.last_name || '',
-          organization_name: profile.organizations.name,
           organization_id: profile.organization_id,
           roles: userRoles,
           created_at: profile.created_at
