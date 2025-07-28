@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Users, Trash2 } from "lucide-react";
@@ -46,6 +47,8 @@ export const OrganizationUserManagement = () => {
   const [pendingChanges, setPendingChanges] = useState<{[userId: string]: string[]}>({});
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<{id: string, name: string} | null>(null);
   const {
     user
   } = useAuth();
@@ -272,7 +275,7 @@ export const OrganizationUserManagement = () => {
     });
   };
 
-  const removeUser = async (userId: string, userName: string) => {
+  const handleDeleteUser = (userId: string, userName: string) => {
     // Prevent removing the last admin
     const userToRemove = users.find(u => u.user_id === userId);
     if (userToRemove?.roles.includes('admin') && getAdminCount() === 1) {
@@ -294,7 +297,16 @@ export const OrganizationUserManagement = () => {
       return;
     }
 
+    setUserToDelete({ id: userId, name: userName });
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!userToDelete) return;
+    
+    const { id: userId, name: userName } = userToDelete;
     setUpdating(userId);
+    
     try {
       // First remove all user roles
       const { error: rolesError } = await supabase
@@ -314,12 +326,20 @@ export const OrganizationUserManagement = () => {
 
       if (profileError) throw profileError;
 
+      // Finally, delete the user from Supabase auth
+      const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+      
+      if (authError) {
+        console.error('Error deleting user from auth:', authError);
+        // Continue execution as the user has been removed from the organization
+      }
+
       // Update local state
       setUsers(users.filter(u => u.user_id !== userId));
 
       toast({
         title: "Användare borttagen",
-        description: `${userName} har tagits bort från organisationen`,
+        description: `${userName} har tagits bort från systemet`,
       });
     } catch (error) {
       console.error('Error removing user:', error);
@@ -330,6 +350,8 @@ export const OrganizationUserManagement = () => {
       });
     } finally {
       setUpdating(null);
+      setDeleteDialogOpen(false);
+      setUserToDelete(null);
     }
   };
   if (loading) {
@@ -381,7 +403,7 @@ export const OrganizationUserManagement = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => removeUser(userRow.user_id, getDisplayName(userRow))}
+                        onClick={() => handleDeleteUser(userRow.user_id, getDisplayName(userRow))}
                         disabled={updating === userRow.user_id || userRow.user_id === user?.id}
                         className="text-destructive hover:text-destructive"
                         title={userRow.user_id === user?.id ? "Du kan inte ta bort dig själv" : "Ta bort användare"}
@@ -425,5 +447,29 @@ export const OrganizationUserManagement = () => {
             </p>}
         </CardContent>
       </Card>
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Ta bort användare</AlertDialogTitle>
+            <AlertDialogDescription>
+              Är du säker på att du vill ta bort <strong>{userToDelete?.name}</strong> från systemet? 
+              Denna åtgärd kommer att permanent ta bort användarens konto och alla relaterade data.
+              <br /><br />
+              <strong>Denna åtgärd kan inte ångras.</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Avbryt</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteUser}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Ta bort användare
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>;
 };
