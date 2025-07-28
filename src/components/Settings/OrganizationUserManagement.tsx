@@ -171,10 +171,6 @@ export const OrganizationUserManagement = () => {
         return user;
       }));
 
-      toast({
-        title: "Uppdaterat",
-        description: `Användarens ${role} behörighet har ${hasRole ? 'tagits bort' : 'lagts till'}`
-      });
     } catch (error) {
       console.error('Error toggling user role:', error);
       toast({
