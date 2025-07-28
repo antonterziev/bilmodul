@@ -308,6 +308,10 @@ export const OrganizationUserManagement = () => {
     setUpdating(userId);
     
     try {
+      // Get user's email for invitation cleanup
+      const userToRemove = users.find(u => u.user_id === userId);
+      const userEmail = userToRemove?.email;
+
       // First remove all user roles
       const { error: rolesError } = await supabase
         .from('user_roles')
@@ -316,6 +320,21 @@ export const OrganizationUserManagement = () => {
         .eq('organization_id', currentUserOrgId);
 
       if (rolesError) throw rolesError;
+
+      // Remove any accepted invitations for this user's email
+      if (userEmail) {
+        const { error: invitationsError } = await supabase
+          .from('invitations')
+          .delete()
+          .eq('email', userEmail)
+          .eq('organization_id', currentUserOrgId)
+          .eq('status', 'accepted');
+
+        if (invitationsError) {
+          console.error('Error removing accepted invitations:', invitationsError);
+          // Continue execution as this is not critical
+        }
+      }
 
       // Then remove the user's profile from the organization
       const { error: profileError } = await supabase
