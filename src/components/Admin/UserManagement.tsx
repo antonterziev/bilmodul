@@ -257,7 +257,6 @@ export const UserManagement = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Användare</TableHead>
-                <TableHead>Roll</TableHead>
                 <TableHead>Organisation</TableHead>
                 <TableHead>Hantering</TableHead>
               </TableRow>
@@ -273,13 +272,6 @@ export const UserManagement = () => {
                     </div>
                   </TableCell>
                   
-                  <TableCell>
-                    <Badge variant={getRoleBadgeVariant(user.role)}>
-                      {user.role === 'superuser' ? 'Superuser' :
-                       user.role === 'administrator' ? 'Administration' :
-                       user.role === 'ekonomi' ? 'Ekonomi' : 'Bilhandel'}
-                    </Badge>
-                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Building className="w-4 h-4" />
