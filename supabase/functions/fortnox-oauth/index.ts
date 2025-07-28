@@ -279,6 +279,24 @@ serve(async (req) => {
         console.error(`❌ Error fetching company information for ${requestId}:`, companyError);
       }
       
+      // Get user's organization_id from profile
+      const { data: userProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('user_id', validState.user_id)
+        .single();
+
+      if (profileError || !userProfile?.organization_id) {
+        console.error(`Error fetching user profile for ${requestId}:`, profileError);
+        const errorMessage = encodeURIComponent('Kunde inte hitta användarorganisation. Kontakta support.');
+        return new Response(null, {
+          status: 302,
+          headers: {
+            'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+          }
+        });
+      }
+
       // Deactivate previous integrations for user
       await supabase
         .from('fortnox_integrations')
@@ -289,6 +307,7 @@ serve(async (req) => {
         .from('fortnox_integrations')
         .insert({
           user_id: validState.user_id,
+          organization_id: userProfile.organization_id,
           access_token: tokenData.access_token,
           refresh_token: tokenData.refresh_token,
           token_expires_at: expiresAt.toISOString(),
