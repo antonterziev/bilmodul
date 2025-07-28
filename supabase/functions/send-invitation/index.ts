@@ -84,6 +84,18 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Organization not found");
     }
 
+    // Check if user already exists in the system
+    const { data: existingUser } = await supabase
+      .from("profiles")
+      .select("user_id, organization_id")
+      .eq("email", email)
+      .eq("organization_id", organizationId)
+      .single();
+
+    if (existingUser) {
+      throw new Error("Användaren finns redan i organisationen");
+    }
+
     // Check if invitation already exists (any status)
     const { data: existingInvitation } = await supabase
       .from("invitations")
