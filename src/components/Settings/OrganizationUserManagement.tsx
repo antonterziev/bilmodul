@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Users, RefreshCw } from "lucide-react";
+import { Loader2, Users } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 interface UserWithProfile {
@@ -251,20 +251,9 @@ export const OrganizationUserManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Users className="w-5 h-5" />
-          <h3 className="text-lg font-semibold">Användarhantering</h3>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={loadUsers}
-          disabled={loading}
-        >
-          <RefreshCw className="w-4 h-4 mr-2" />
-          Uppdatera
-        </Button>
+      <div className="flex items-center gap-2">
+        <Users className="w-5 h-5" />
+        <h3 className="text-lg font-semibold">Användarhantering</h3>
       </div>
 
       <Card>
