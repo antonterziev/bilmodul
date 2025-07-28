@@ -209,7 +209,7 @@ export const OrganizationUserManagement = () => {
             <div className="space-y-4">
               {/* Matrix Header */}
               <div className="grid grid-cols-[200px_1fr] gap-4 items-center border-b pb-2">
-                <div className="font-medium">Användare</div>
+                <div className="font-medium">Namn</div>
                 <div className="grid grid-cols-6 gap-2">
                   {AVAILABLE_ROLES.map((role) => (
                     <div key={role.key} className="text-center font-medium text-sm">
