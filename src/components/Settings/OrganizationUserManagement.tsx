@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Users } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-
 interface UserWithProfile {
   user_id: string;
   email: string;
@@ -19,67 +18,72 @@ interface UserWithProfile {
   roles: string[];
   created_at: string;
 }
-
-const AVAILABLE_ROLES = [
-  { key: 'admin', label: 'Admin' },
-  { key: 'lager', label: 'Lager' },
-  { key: 'ekonomi', label: 'Ekonomi' },
-  { key: 'inkop', label: 'Inköp' },
-  { key: 'pakostnad', label: 'Påkostnad' },
-  { key: 'forsaljning', label: 'Försäljning' }
-];
-
+const AVAILABLE_ROLES = [{
+  key: 'admin',
+  label: 'Admin'
+}, {
+  key: 'lager',
+  label: 'Lager'
+}, {
+  key: 'ekonomi',
+  label: 'Ekonomi'
+}, {
+  key: 'inkop',
+  label: 'Inköp'
+}, {
+  key: 'pakostnad',
+  label: 'Påkostnad'
+}, {
+  key: 'forsaljning',
+  label: 'Försäljning'
+}];
 export const OrganizationUserManagement = () => {
   const [users, setUsers] = useState<UserWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
   const [currentUserOrgId, setCurrentUserOrgId] = useState<string | null>(null);
-  const { user } = useAuth();
-  const { toast } = useToast();
-
+  const {
+    user
+  } = useAuth();
+  const {
+    toast
+  } = useToast();
   useEffect(() => {
     loadUsers();
   }, []);
-
-
   const loadUsers = async () => {
     try {
       setLoading(true);
-      
-      // First get current user's organization
-      const { data: currentUserProfile, error: profileError } = await supabase
-        .from('profiles')
-        .select('organization_id')
-        .eq('user_id', user?.id)
-        .single();
 
+      // First get current user's organization
+      const {
+        data: currentUserProfile,
+        error: profileError
+      } = await supabase.from('profiles').select('organization_id').eq('user_id', user?.id).single();
       if (profileError) throw profileError;
-      
       const orgId = currentUserProfile?.organization_id;
       setCurrentUserOrgId(orgId);
 
       // Get all profiles in the same organization
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select(`
+      const {
+        data: profilesData,
+        error: profilesError
+      } = await supabase.from('profiles').select(`
           user_id,
           email,
           first_name,
           last_name,
           organization_id,
           created_at
-        `)
-        .eq('organization_id', orgId);
-
+        `).eq('organization_id', orgId);
       if (profilesError) throw profilesError;
 
       // Get user roles for all users in the organization
       const userIds = profilesData?.map(p => p.user_id) || [];
-      const { data: rolesData, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('user_id, role')
-        .in('user_id', userIds);
-
+      const {
+        data: rolesData,
+        error: rolesError
+      } = await supabase.from('user_roles').select('user_id, role').in('user_id', userIds);
       if (rolesError) throw rolesError;
 
       // Combine the data
@@ -98,10 +102,8 @@ export const OrganizationUserManagement = () => {
         console.log('User data:', userData);
         return userData;
       }).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) || [];
-
       console.log('All roles data:', rolesData);
       console.log('Final formatted users:', formattedUsers);
-
       setUsers(formattedUsers);
     } catch (error) {
       console.error('Error loading users:', error);
@@ -114,29 +116,24 @@ export const OrganizationUserManagement = () => {
       setLoading(false);
     }
   };
-
   const getDisplayName = (user: UserWithProfile) => {
     if (user.first_name && user.last_name) {
       return `${user.first_name} ${user.last_name}`;
     }
-    
+
     // Extract name from email if database fields are empty
     const emailPart = user.email.split('@')[0];
     const nameParts = emailPart.split('.');
-    
     if (nameParts.length >= 2) {
       const firstName = nameParts[0].charAt(0).toUpperCase() + nameParts[0].slice(1);
       const lastName = nameParts[1].charAt(0).toUpperCase() + nameParts[1].slice(1);
       return `${firstName} ${lastName}`;
     }
-    
     return user.email;
   };
-
   const getAdminCount = () => {
     return users.filter(user => user.roles.includes('admin')).length;
   };
-
   const wouldRemoveLastAdmin = (userId: string, role: string) => {
     if (role === 'admin') {
       const userToUpdate = users.find(u => u.user_id === userId);
@@ -146,7 +143,6 @@ export const OrganizationUserManagement = () => {
     }
     return false;
   };
-
   const toggleUserRole = async (userId: string, role: string, organizationId: string) => {
     // Prevent removing the last admin
     if (wouldRemoveLastAdmin(userId, role)) {
@@ -157,58 +153,48 @@ export const OrganizationUserManagement = () => {
       });
       return;
     }
-
     setUpdating(userId);
     try {
       const userToUpdate = users.find(u => u.user_id === userId);
       if (!userToUpdate) return;
-
       const hasRole = userToUpdate.roles.includes(role);
-
       if (hasRole) {
         // Remove role
-        const { error } = await supabase
-          .from('user_roles')
-          .delete()
-          .eq('user_id', userId)
-          .eq('role', role as any)
-          .eq('organization_id', organizationId);
-
+        const {
+          error
+        } = await supabase.from('user_roles').delete().eq('user_id', userId).eq('role', role as any).eq('organization_id', organizationId);
         if (error) throw error;
       } else {
         // Add role
-        const { error } = await supabase
-          .from('user_roles')
-          .insert({
-            user_id: userId,
-            role: role as any,
-            organization_id: organizationId
-          } as any);
-
+        const {
+          error
+        } = await supabase.from('user_roles').insert({
+          user_id: userId,
+          role: role as any,
+          organization_id: organizationId
+        } as any);
         if (error) throw error;
       }
 
       // Update local state
       setUsers(users.map(user => {
         if (user.user_id === userId) {
-          const newRoles = hasRole 
-            ? user.roles.filter(r => r !== role)
-            : [...user.roles, role];
-          return { ...user, roles: newRoles };
+          const newRoles = hasRole ? user.roles.filter(r => r !== role) : [...user.roles, role];
+          return {
+            ...user,
+            roles: newRoles
+          };
         }
         return user;
       }));
-
     } catch (error) {
       console.error('Error toggling user role:', error);
-      
       let errorMessage = "Kunde inte uppdatera användarens behörigheter";
-      
+
       // Check if error is about removing last admin
       if (error?.message?.includes('Cannot remove the last admin')) {
         errorMessage = "Kan inte ta bort den sista administratören från organisationen";
       }
-      
       toast({
         title: "Fel",
         description: errorMessage,
@@ -218,83 +204,51 @@ export const OrganizationUserManagement = () => {
       setUpdating(null);
     }
   };
-
-
   if (loading) {
-    return (
-      <div className="flex items-center justify-center p-8">
+    return <div className="flex items-center justify-center p-8">
         <Loader2 className="w-6 h-6 animate-spin mr-2" />
         <span>Laddar användare...</span>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
 
       <Card>
         <CardHeader>
-          <CardTitle>Användare</CardTitle>
+          <CardTitle>Behörigheter</CardTitle>
         </CardHeader>
         <CardContent>
-          {users.length > 0 ? (
-            <div className="space-y-4">
+          {users.length > 0 ? <div className="space-y-4">
               {/* Matrix Header */}
               <div className="grid grid-cols-[200px_1fr] gap-4 items-center border-b pb-2">
                 <div className="font-medium">Namn</div>
                 <div className="grid grid-cols-6 gap-2">
-                  {AVAILABLE_ROLES.map((role) => (
-                    <div key={role.key} className="text-center font-medium text-sm">
+                  {AVAILABLE_ROLES.map(role => <div key={role.key} className="text-center font-medium text-sm">
                       {role.label}
-                    </div>
-                  ))}
+                    </div>)}
                 </div>
               </div>
 
               {/* User Matrix */}
-              {users.map((userRow) => (
-                <div key={userRow.user_id} className="grid grid-cols-[200px_1fr] gap-4 items-center py-2 border-b border-muted">
+              {users.map(userRow => <div key={userRow.user_id} className="grid grid-cols-[200px_1fr] gap-4 items-center py-2 border-b border-muted">
                   <div>
                     <div className="font-medium">{getDisplayName(userRow)}</div>
                     <div className="text-sm text-muted-foreground">{userRow.email}</div>
                   </div>
 
                   <div className="grid grid-cols-6 gap-2 relative">
-                    {AVAILABLE_ROLES.map((role) => (
-                      <div key={role.key} className="flex justify-center">
-                         <Checkbox
-                           checked={userRow.roles.includes(role.key)}
-                           onCheckedChange={() => toggleUserRole(userRow.user_id, role.key, userRow.organization_id)}
-                           disabled={
-                             updating === userRow.user_id || 
-                             wouldRemoveLastAdmin(userRow.user_id, role.key)
-                           }
-                           className="w-5 h-5"
-                           title={
-                             wouldRemoveLastAdmin(userRow.user_id, role.key)
-                               ? "Kan inte ta bort den sista administratören"
-                               : undefined
-                           }
-                         />
-                      </div>
-                    ))}
+                    {AVAILABLE_ROLES.map(role => <div key={role.key} className="flex justify-center">
+                         <Checkbox checked={userRow.roles.includes(role.key)} onCheckedChange={() => toggleUserRole(userRow.user_id, role.key, userRow.organization_id)} disabled={updating === userRow.user_id || wouldRemoveLastAdmin(userRow.user_id, role.key)} className="w-5 h-5" title={wouldRemoveLastAdmin(userRow.user_id, role.key) ? "Kan inte ta bort den sista administratören" : undefined} />
+                      </div>)}
 
-                    {updating === userRow.user_id && (
-                      <div className="absolute -right-8 top-1/2 -translate-y-1/2">
+                    {updating === userRow.user_id && <div className="absolute -right-8 top-1/2 -translate-y-1/2">
                         <Loader2 className="w-4 h-4 animate-spin" />
-                      </div>
-                    )}
+                      </div>}
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-muted-foreground text-center py-8">
+                </div>)}
+            </div> : <p className="text-muted-foreground text-center py-8">
               Inga användare hittades i din organisation
-            </p>
-          )}
+            </p>}
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 };
