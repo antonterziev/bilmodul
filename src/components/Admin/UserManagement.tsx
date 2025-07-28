@@ -50,6 +50,24 @@ export const UserManagement = () => {
     }
   };
 
+  const getDisplayName = (user: UserWithProfile) => {
+    if (user.first_name && user.last_name) {
+      return `${user.first_name} ${user.last_name}`;
+    }
+    
+    // Extract name from email if database fields are empty
+    const emailPart = user.email.split('@')[0];
+    const nameParts = emailPart.split('.');
+    
+    if (nameParts.length >= 2) {
+      const firstName = nameParts[0].charAt(0).toUpperCase() + nameParts[0].slice(1);
+      const lastName = nameParts[1].charAt(0).toUpperCase() + nameParts[1].slice(1);
+      return `${firstName} ${lastName}`;
+    }
+    
+    return user.email;
+  };
+
   const loadUsers = async () => {
     try {
       // Debug: Check current user role
@@ -267,10 +285,7 @@ export const UserManagement = () => {
                   <TableCell>
                     <div>
                       <div className="font-medium">
-                        {user.first_name && user.last_name 
-                          ? `${user.first_name} ${user.last_name}`
-                          : user.email
-                        }
+                        {getDisplayName(user)}
                       </div>
                     </div>
                   </TableCell>
