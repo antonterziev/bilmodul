@@ -9,7 +9,7 @@ const corsHeaders = {
 
 interface InvitationRequest {
   email: string;
-  role: string;
+  roles: string[]; // Changed to array
   organizationId: string;
 }
 
@@ -38,8 +38,8 @@ const handler = async (req: Request): Promise<Response> => {
     const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
     // Get request data
-    const { email, role, organizationId }: InvitationRequest = await req.json();
-    console.log("Invitation request:", { email, role, organizationId });
+    const { email, roles, organizationId }: InvitationRequest = await req.json();
+    console.log("Invitation request:", { email, roles, organizationId });
 
     // Get the authorization header to identify the current user
     const authHeader = req.headers.get("Authorization");
@@ -98,7 +98,7 @@ const handler = async (req: Request): Promise<Response> => {
       const { error: updateError } = await supabase
         .from("invitations")
         .update({
-          role,
+          roles, // Use roles array instead of single role
           expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
           updated_at: new Date().toISOString(),
         })
@@ -116,7 +116,7 @@ const handler = async (req: Request): Promise<Response> => {
           email,
           organization_id: organizationId,
           invited_by_user_id: user.id,
-          role,
+          roles, // Use roles array instead of single role
         });
 
       if (insertError) {
@@ -128,6 +128,17 @@ const handler = async (req: Request): Promise<Response> => {
     // Send invitation email
     const inviteUrl = `${supabaseUrl.replace('supabase.co', 'lovable.app')}/auth?invite=true&email=${encodeURIComponent(email)}`;
     
+    // Format roles for email
+    const roleDisplayNames: Record<string, string> = {
+      'admin': 'Admin',
+      'lager': 'Lager', 
+      'ekonomi': 'Ekonomi',
+      'inkop': 'Inköp',
+      'pakostnad': 'Påkostnad',
+      'forsaljning': 'Försäljning'
+    };
+    const formattedRoles = roles.map(role => roleDisplayNames[role] || role).join(', ');
+    
     const emailResponse = await resend.emails.send({
       from: "Veksla Bilhandel <noreply@resend.dev>",
       to: [email],
@@ -135,7 +146,7 @@ const handler = async (req: Request): Promise<Response> => {
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h1 style="color: #333;">Du har blivit inbjuden!</h1>
-          <p>Du har blivit inbjuden att gå med i <strong>${organization.name}</strong> med rollen <strong>${role}</strong>.</p>
+          <p>Du har blivit inbjuden att gå med i <strong>${organization.name}</strong> med behörigheterna <strong>${formattedRoles}</strong>.</p>
           <p>Klicka på länken nedan för att skapa ditt konto och gå med i organisationen:</p>
           <a href="${inviteUrl}" style="display: inline-block; padding: 12px 24px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 6px; margin: 20px 0;">Acceptera inbjudan</a>
           <p style="color: #666; font-size: 14px;">Denna inbjudan är giltig i 7 dagar.</p>

@@ -446,7 +446,7 @@ export type Database = {
           invitation_token: string
           invited_by_user_id: string
           organization_id: string
-          role: Database["public"]["Enums"]["app_role"]
+          roles: Database["public"]["Enums"]["app_role"][] | null
           status: string
           updated_at: string
         }
@@ -459,7 +459,7 @@ export type Database = {
           invitation_token?: string
           invited_by_user_id: string
           organization_id: string
-          role?: Database["public"]["Enums"]["app_role"]
+          roles?: Database["public"]["Enums"]["app_role"][] | null
           status?: string
           updated_at?: string
         }
@@ -472,7 +472,7 @@ export type Database = {
           invitation_token?: string
           invited_by_user_id?: string
           organization_id?: string
-          role?: Database["public"]["Enums"]["app_role"]
+          roles?: Database["public"]["Enums"]["app_role"][] | null
           status?: string
           updated_at?: string
         }

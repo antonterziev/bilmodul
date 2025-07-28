@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -14,7 +14,7 @@ import { UserPlus, Mail, Clock, CheckCircle, XCircle, RotateCcw } from 'lucide-r
 interface Invitation {
   id: string;
   email: string;
-  roles: string[]; // Changed to array
+  roles: string[];
   status: string;
   expires_at: string;
   created_at: string;
@@ -25,15 +25,15 @@ interface UserInvitationsProps {
   organizationId: string;
 }
 
-// Role display mapping
-const ROLE_DISPLAY_NAMES: Record<string, string> = {
-  'admin': 'Admin',
-  'lager': 'Lager', 
-  'ekonomi': 'Ekonomi',
-  'inkop': 'Inköp',
-  'pakostnad': 'Påkostnad',
-  'forsaljning': 'Försäljning'
-};
+// Available roles
+const AVAILABLE_ROLES = [
+  { key: 'admin', label: 'Admin' },
+  { key: 'lager', label: 'Lager' },
+  { key: 'ekonomi', label: 'Ekonomi' },
+  { key: 'inkop', label: 'Inköp' },
+  { key: 'pakostnad', label: 'Påkostnad' },
+  { key: 'forsaljning', label: 'Försäljning' }
+];
 
 export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId }) => {
   const [invitations, setInvitations] = useState<Invitation[]>([]);
@@ -41,9 +41,9 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
   const [sending, setSending] = useState(false);
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   
-  // Form state
+  // Form state - now using array for multiple roles
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState('lager');
+  const [selectedRoles, setSelectedRoles] = useState<string[]>(['lager']);
   
   const { user } = useAuth();
   const { toast } = useToast();
@@ -74,6 +74,19 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
     }
   };
 
+  const toggleRole = (roleKey: string) => {
+    setSelectedRoles(prev => {
+      if (prev.includes(roleKey)) {
+        // Remove role, but ensure at least one role is selected
+        const newRoles = prev.filter(r => r !== roleKey);
+        return newRoles.length > 0 ? newRoles : prev;
+      } else {
+        // Add role
+        return [...prev, roleKey];
+      }
+    });
+  };
+
   const sendInvitation = async () => {
     if (!email.trim()) {
       toast({
@@ -84,12 +97,21 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
       return;
     }
 
+    if (selectedRoles.length === 0) {
+      toast({
+        title: "Fel",
+        description: "Minst en behörighet måste väljas",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSending(true);
     try {
       const { data, error } = await supabase.functions.invoke('send-invitation', {
         body: {
           email: email.trim(),
-          role,
+          roles: selectedRoles, // Send array of roles
           organizationId
         }
       });
@@ -102,7 +124,7 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
       });
 
       setEmail('');
-      setRole('lager');
+      setSelectedRoles(['lager']);
       setShowInviteDialog(false);
       loadInvitations(); // Refresh the list
     } catch (error: any) {
@@ -125,7 +147,7 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
       const { data, error } = await supabase.functions.invoke('send-invitation', {
         body: {
           email: invitation.email,
-          role: invitation.role,
+          roles: invitation.roles, // Send array of roles
           organizationId
         }
       });
@@ -176,6 +198,13 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
     });
   };
 
+  const formatRoles = (roles: string[]) => {
+    return roles.map(role => {
+      const roleData = AVAILABLE_ROLES.find(r => r.key === role);
+      return roleData ? roleData.label : role;
+    }).join(', ');
+  };
+
   if (loading) {
     return <div className="text-center p-4">Laddar inbjudningar...</div>;
   }
@@ -192,7 +221,7 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
               Bjud in användare
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>Bjud in ny användare</DialogTitle>
             </DialogHeader>
@@ -209,26 +238,30 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
               </div>
               
               <div>
-                <Label htmlFor="role">Roll</Label>
-                <Select value={role} onValueChange={setRole}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="lager">Lager</SelectItem>
-                    <SelectItem value="ekonomi">Ekonomi</SelectItem>
-                    <SelectItem value="inkop">Inköp</SelectItem>
-                    <SelectItem value="pakostnad">Påkostnad</SelectItem>
-                    <SelectItem value="forsaljning">Försäljning</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label>Behörigheter</Label>
+                <div className="grid grid-cols-2 gap-3 mt-2 p-3 border rounded-lg">
+                  {AVAILABLE_ROLES.map((role) => (
+                    <div key={role.key} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={role.key}
+                        checked={selectedRoles.includes(role.key)}
+                        onCheckedChange={() => toggleRole(role.key)}
+                      />
+                      <Label htmlFor={role.key} className="text-sm font-normal">
+                        {role.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Välj minst en behörighet
+                </p>
               </div>
               
               <div className="flex gap-2">
                 <Button 
                   onClick={sendInvitation} 
-                  disabled={sending}
+                  disabled={sending || selectedRoles.length === 0}
                   className="flex-1"
                 >
                   {sending ? "Skickar..." : "Skicka inbjudan"}
@@ -264,7 +297,7 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
                       <div>
                         <p className="font-medium">{invitation.email}</p>
                         <p className="text-sm text-muted-foreground">
-                          Roll: {ROLE_DISPLAY_NAMES[invitation.role] || invitation.role}
+                          Behörigheter: {formatRoles(invitation.roles)}
                         </p>
                       </div>
                     </div>
