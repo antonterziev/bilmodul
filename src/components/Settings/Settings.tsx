@@ -439,9 +439,6 @@ export const Settings = () => {
                     disabled
                     className="bg-muted"
                   />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Dina roller i organisationen
-                  </p>
                 </div>
               </div>
 
