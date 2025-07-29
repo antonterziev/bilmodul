@@ -340,6 +340,7 @@ export const Integrations = () => {
                           <TableRow>
                             <TableHead className="w-32">Kontonummer</TableHead>
                             <TableHead>Kontonamn</TableHead>
+                            <TableHead>Kontonamn i Fortnox</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -355,6 +356,15 @@ export const Integrations = () => {
                                 />
                               </TableCell>
                               <TableCell>{account.name}</TableCell>
+                              <TableCell>
+                                <Input
+                                  type="text"
+                                  value={account.name}
+                                  disabled
+                                  className="h-8 bg-muted text-muted-foreground cursor-not-allowed"
+                                  readOnly
+                                />
+                              </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
