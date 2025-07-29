@@ -35,6 +35,7 @@ export const Integrations = () => {
   const [accountNumbers, setAccountNumbers] = useState<{[key: string]: string}>({});
   const [fortnoxAccountNames, setFortnoxAccountNames] = useState<{[key: string]: string}>({});
   const [checkingAccounts, setCheckingAccounts] = useState<{[key: string]: boolean}>({});
+  const [autoCheckingAccounts, setAutoCheckingAccounts] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
   const { handleFortnoxError, reconnectFortnox } = useFortnoxConnection();
@@ -218,6 +219,50 @@ export const Integrations = () => {
     }
   };
 
+  // Function to check all accounts automatically
+  const checkAllAccountsInFortnox = async () => {
+    if (!user?.id) return;
+    
+    setAutoCheckingAccounts(true);
+    
+    // Get all account names from all categories
+    const allAccountNames: string[] = [];
+    accountCategories.forEach(category => {
+      category.accounts.forEach(account => {
+        allAccountNames.push(account.name);
+      });
+    });
+
+    // Check accounts in batches to avoid overwhelming the API
+    const batchSize = 3;
+    for (let i = 0; i < allAccountNames.length; i += batchSize) {
+      const batch = allAccountNames.slice(i, i + batchSize);
+      
+      // Check accounts in parallel within each batch
+      await Promise.all(
+        batch.map(async (accountName) => {
+          try {
+            await checkAccountInFortnox(accountName);
+          } catch (error) {
+            console.error(`Error checking account ${accountName}:`, error);
+          }
+        })
+      );
+      
+      // Small delay between batches to be nice to the API
+      if (i + batchSize < allAccountNames.length) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
+    
+    setAutoCheckingAccounts(false);
+    
+    toast({
+      title: "Kontokontroll slutförd",
+      description: "Alla konton har kontrollerats mot Fortnox",
+    });
+  };
+
   useEffect(() => {
     if (user) {
       loadFortnoxIntegration();
@@ -240,8 +285,22 @@ export const Integrations = () => {
 
       console.log('Fortnox integration data:', data);
       console.log('Setting fortnoxConnected to:', !!data);
+      
+      // Check if we just connected (was not connected before but now is)
+      const wasConnected = fortnoxConnected;
+      const isNowConnected = !!data;
+      
       setFortnoxIntegration(data);
-      setFortnoxConnected(!!data);
+      setFortnoxConnected(isNowConnected);
+      
+      // If we just established a connection, automatically check all accounts
+      if (!wasConnected && isNowConnected) {
+        console.log('New Fortnox connection detected, checking all accounts...');
+        // Small delay to ensure UI is updated before starting checks
+        setTimeout(() => {
+          checkAllAccountsInFortnox();
+        }, 1000);
+      }
     } catch (error) {
       console.error('Error loading Fortnox integration:', error);
     }
@@ -429,6 +488,12 @@ export const Integrations = () => {
                   Kollaps alla
                 </Button>
               </div>
+              {autoCheckingAccounts && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  Kontrollerar alla konton...
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               {accountCategories.map((category) => (
