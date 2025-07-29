@@ -450,9 +450,13 @@ export const Integrations = () => {
                               <TableCell>
                                 <Badge 
                                   variant="default"
-                                  className="text-xs whitespace-nowrap px-2 justify-center w-16 text-white bg-gray-400 hover:bg-gray-400"
+                                  className={`text-xs whitespace-nowrap px-2 justify-center w-16 text-white ${
+                                    fortnoxAccountNames[account.name] && fortnoxAccountNames[account.name] !== "Kontonummer ej aktivt"
+                                      ? 'bg-green-500 hover:bg-green-500'
+                                      : 'bg-gray-400 hover:bg-gray-400'
+                                  }`}
                                 >
-                                  Inaktiv
+                                  {fortnoxAccountNames[account.name] && fortnoxAccountNames[account.name] !== "Kontonummer ej aktivt" ? 'Aktiv' : 'Inaktiv'}
                                 </Badge>
                               </TableCell>
                                <TableCell className="text-center">
