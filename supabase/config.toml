@@ -16,6 +16,6 @@ verify_jwt = true
 [functions.fortnox-makulering-verifikat]
 verify_jwt = true
 
-[functions.fortnox-vmb-inköp]
+[functions.fortnox-vmb-inkop]
 verify_jwt = true
 
