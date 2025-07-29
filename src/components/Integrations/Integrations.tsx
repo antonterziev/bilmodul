@@ -306,7 +306,12 @@ export const Integrations = () => {
         console.log(`🔄 Bulk checking account ${i + 1}/${allAccountNames.length}: ${accountName}`);
         
         try {
+          console.log(`🔄 About to check account: ${accountName}`);
+          console.log(`📊 Current fortnoxAccountNames before check:`, fortnoxAccountNames[accountName]);
+          
           const result = await checkAccountInFortnox(accountName);
+          
+          console.log(`📊 Current fortnoxAccountNames after check:`, fortnoxAccountNames[accountName]);
           console.log(`✅ Bulk check result for ${accountName}:`, result);
         } catch (error: any) {
           console.error(`❌ Error checking account ${accountName}:`, error);
