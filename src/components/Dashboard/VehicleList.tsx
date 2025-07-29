@@ -22,6 +22,8 @@ interface Vehicle {
   fortnox_sync_status?: string;
   fortnox_verification_number?: string;
   vat_type?: string;
+  user_id: string;
+  registered_by?: string; // User's name who registered the vehicle
 }
 
 interface VehicleListProps {
@@ -116,7 +118,12 @@ export const VehicleList = ({
       setLoading(true);
       let query = supabase
         .from('inventory_items')
-        .select('id, registration_number, brand, model, purchase_date, selling_date, purchaser, purchase_price, expected_selling_price, status, fortnox_sync_status, fortnox_verification_number, vat_type');
+        .select(`
+          id, registration_number, brand, model, purchase_date, selling_date, 
+          purchaser, purchase_price, expected_selling_price, status, 
+          fortnox_sync_status, fortnox_verification_number, vat_type, user_id,
+          profiles!inner(full_name, first_name, last_name)
+        `);
 
       // Apply status filter if not 'all'
       if (filter !== 'all') {
@@ -126,7 +133,16 @@ export const VehicleList = ({
       const { data, error } = await query.order('purchase_date', { ascending: false });
 
       if (error) throw error;
-      setVehicles(data || []);
+      
+      // Transform data to include registered_by field
+      const vehiclesWithRegisteredBy = (data || []).map((item: any) => ({
+        ...item,
+        registered_by: item.profiles?.full_name || 
+                      `${item.profiles?.first_name || ''} ${item.profiles?.last_name || ''}`.trim() ||
+                      'Okänd användare'
+      }));
+      
+      setVehicles(vehiclesWithRegisteredBy);
     } catch (error) {
       console.error('Error loading vehicles:', error);
     } finally {
@@ -463,8 +479,8 @@ export const VehicleList = ({
                   />
                 </div>
                 
-                {/* Vehicle main info */}
-                <div className="flex-1 grid grid-cols-7 gap-6 items-center text-sm">
+                 {/* Vehicle main info */}
+                 <div className="flex-1 grid grid-cols-8 gap-4 items-center text-sm">
                    {/* Column 1: Brand & Model + Registration */}
                    <div className="col-span-2">
                      <h3 className="font-medium truncate" title={`${vehicle.brand} ${vehicle.model || ''}`}>
@@ -524,13 +540,21 @@ export const VehicleList = ({
                      <p className="font-medium text-sm whitespace-nowrap">{calculateStorageDays(vehicle.purchase_date, vehicle.status, vehicle.selling_date)} dagar</p>
                    </div>
                    
-                   {/* Column 5: Purchaser */}
+                   {/* Column 5: VAT Type */}
                    <div>
                      <p className="text-xs text-muted-foreground whitespace-nowrap">Momstyp</p>
                      <p className="font-medium whitespace-nowrap">{vehicle.vat_type === "Vinstmarginalbeskattning (VMB)" ? "VMB" : vehicle.vat_type || "Ej angiven"}</p>
                    </div>
                    
-                    {/* Column 6: Purchase Price */}
+                   {/* Column 6: Registered By (Inköpare) */}
+                   <div>
+                     <p className="text-xs text-muted-foreground whitespace-nowrap">Inköpare</p>
+                     <p className="font-medium whitespace-nowrap text-sm" title={vehicle.registered_by}>
+                       {formatPurchaserName(vehicle.registered_by || 'Okänd')}
+                     </p>
+                   </div>
+                   
+                    {/* Column 7: Purchase Price */}
                     <div className="w-16">
                       <p className="text-xs text-muted-foreground whitespace-nowrap">Inköpspris</p>
                       <p className="font-medium">{formatPrice(vehicle.purchase_price)}</p>
