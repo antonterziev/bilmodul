@@ -294,21 +294,8 @@ export const Integrations = () => {
       console.log('Fortnox integration data:', data);
       console.log('Setting fortnoxConnected to:', !!data);
       
-      // Check if we just connected (was not connected before but now is)
-      const wasConnected = fortnoxConnected;
-      const isNowConnected = !!data;
-      
       setFortnoxIntegration(data);
-      setFortnoxConnected(isNowConnected);
-      
-      // If we just established a connection, automatically check all accounts
-      if (!wasConnected && isNowConnected) {
-        console.log('New Fortnox connection detected, checking all accounts...');
-        // Small delay to ensure UI is updated before starting checks
-        setTimeout(() => {
-          checkAllAccountsInFortnox();
-        }, 1000);
-      }
+      setFortnoxConnected(!!data);
     } catch (error) {
       console.error('Error loading Fortnox integration:', error);
     }
