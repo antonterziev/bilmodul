@@ -395,7 +395,41 @@ export const Integrations = () => {
         {/* Chart of Accounts - Only shown when Fortnox is connected */}
         {fortnoxConnected && (
           <div className="bg-card border rounded-lg p-6">
-            <h3 className="text-lg font-semibold mb-4">Kontoplan</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Kontoplan</h3>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const newOpenCategories = { ...openCategories };
+                    accountCategories.forEach(category => {
+                      newOpenCategories[category.key] = true;
+                    });
+                    setOpenCategories(newOpenCategories);
+                  }}
+                  className="text-xs"
+                >
+                  <ChevronDown className="h-3 w-3 mr-1" />
+                  Expandera alla
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const newOpenCategories = { ...openCategories };
+                    accountCategories.forEach(category => {
+                      newOpenCategories[category.key] = false;
+                    });
+                    setOpenCategories(newOpenCategories);
+                  }}
+                  className="text-xs"
+                >
+                  <ChevronRight className="h-3 w-3 mr-1" />
+                  Kollaps alla
+                </Button>
+              </div>
+            </div>
             <div className="space-y-2">
               {accountCategories.map((category) => (
                 <Collapsible 
