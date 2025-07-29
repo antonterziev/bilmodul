@@ -85,6 +85,8 @@ serve(async (req) => {
     }
 
     console.log(`📞 Making request to Fortnox API for account ${accountNumber}`);
+    console.log(`🔑 Using access token: ${accessToken.substring(0, 20)}...`);
+    console.log(`🔑 Using client secret: ${clientSecret.substring(0, 10)}...`);
 
     // Check account in Fortnox
     const fortnoxResponse = await fetch(`https://api.fortnox.se/3/accounts/${accountNumber}`, {
