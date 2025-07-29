@@ -227,13 +227,15 @@ export const Integrations = () => {
         });
       }
 
-      // Set error message in the Fortnox name field
-      const newAccountNames = {
-        ...fortnoxAccountNames,
-        [accountName]: "Fel vid kontroll"
-      };
-      setFortnoxAccountNames(newAccountNames);
-      localStorage.setItem('fortnoxAccountNames', JSON.stringify(newAccountNames));
+      // Only set error message for non-API errors since the edge function handles account status properly
+      if (!error.message?.includes('accountName')) {
+        const newAccountNames = {
+          ...fortnoxAccountNames,
+          [accountName]: "Fel vid kontroll"
+        };
+        setFortnoxAccountNames(newAccountNames);
+        localStorage.setItem('fortnoxAccountNames', JSON.stringify(newAccountNames));
+      }
     } finally {
       setCheckingAccounts(prev => ({ ...prev, [accountName]: false }));
     }
@@ -676,7 +678,7 @@ export const Integrations = () => {
                                   disabled
                                   className="h-8 bg-muted text-muted-foreground cursor-not-allowed"
                                   readOnly
-                                  placeholder="Ej kontrollerat"
+                                  placeholder="Konto ej kontrollerat"
                                 />
                               </TableCell>
                               <TableCell>
