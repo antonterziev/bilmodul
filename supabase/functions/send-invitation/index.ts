@@ -58,18 +58,18 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Authenticated user:", user.id);
 
-    // Check if user is admin
-    const { data: userRoles, error: roleError } = await supabase
-      .from("user_roles")
-      .select("role")
+    // Check if user has admin permission
+    const { data: userPermissions, error: permissionError } = await supabase
+      .from("user_permissions")
+      .select("permission")
       .eq("user_id", user.id);
 
-    if (roleError) {
+    if (permissionError) {
       throw new Error("Failed to check user permissions");
     }
 
-    const isAdmin = userRoles?.some(r => r.role === "admin" || r.role === "administrator");
-    if (!isAdmin) {
+    const hasAdminPermission = userPermissions?.some(p => p.permission === "admin");
+    if (!hasAdminPermission) {
       throw new Error("Insufficient permissions");
     }
 
