@@ -116,13 +116,14 @@ export const VehicleList = ({
 
     try {
       setLoading(true);
+      
+      // First get all vehicles
       let query = supabase
         .from('inventory_items')
         .select(`
           id, registration_number, brand, model, purchase_date, selling_date, 
-          purchaser, purchase_price, expected_selling_price, status, 
-          fortnox_sync_status, fortnox_verification_number, vat_type, user_id,
-          profiles!inner(full_name, first_name, last_name)
+          purchaser, purchase_price, selling_price, status, 
+          fortnox_sync_status, fortnox_verification_number, vat_type, user_id
         `);
 
       // Apply status filter if not 'all'
@@ -130,17 +131,40 @@ export const VehicleList = ({
         query = query.eq('status', filter);
       }
 
-      const { data, error } = await query.order('purchase_date', { ascending: false });
+      const { data: vehicles, error: vehiclesError } = await query.order('purchase_date', { ascending: false });
 
-      if (error) throw error;
+      if (vehiclesError) throw vehiclesError;
+      
+      // Get all unique user IDs from vehicles
+      const userIds = [...new Set((vehicles || []).map((v: any) => v.user_id))];
+      
+      // Fetch user profiles for these user IDs
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, first_name, last_name')
+        .in('user_id', userIds);
+
+      if (profilesError) {
+        console.error('Error loading profiles:', profilesError);
+      }
+
+      // Create a map of user_id to profile for quick lookup
+      const profileMap = new Map();
+      (profiles || []).forEach((profile: any) => {
+        profileMap.set(profile.user_id, profile);
+      });
       
       // Transform data to include registered_by field
-      const vehiclesWithRegisteredBy = (data || []).map((item: any) => ({
-        ...item,
-        registered_by: item.profiles?.full_name || 
-                      `${item.profiles?.first_name || ''} ${item.profiles?.last_name || ''}`.trim() ||
-                      'Okänd användare'
-      }));
+      const vehiclesWithRegisteredBy = (vehicles || []).map((item: any) => {
+        const profile = profileMap.get(item.user_id);
+        return {
+          ...item,
+          expected_selling_price: item.selling_price, // Map selling_price to expected_selling_price for compatibility
+          registered_by: profile?.full_name || 
+                        `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() ||
+                        'Okänd användare'
+        };
+      });
       
       setVehicles(vehiclesWithRegisteredBy);
     } catch (error) {
