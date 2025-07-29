@@ -733,25 +733,39 @@ export const Integrations = () => {
                                 <Input
                                   type="text"
                                   value={
-                                    fortnoxAccountNames[account.name] || 
-                                    ((!accountNumbers[account.name] && !account.number) ? "Kontonummer saknas" : "")
+                                    // Show the actual account name from Fortnox, or appropriate status message
+                                    fortnoxAccountNames[account.name] && 
+                                    !["Konto ej kontrollerat", "Kontonummer ej aktivt"].includes(fortnoxAccountNames[account.name])
+                                      ? fortnoxAccountNames[account.name] // Real account name from Fortnox
+                                      : "" // Empty if no real name found
                                   }
                                   disabled
                                   className="h-8 bg-muted text-muted-foreground cursor-not-allowed"
                                   readOnly
-                                  placeholder="Konto ej kontrollerat"
+                                  placeholder={
+                                    !accountNumbers[account.name] && !account.number 
+                                      ? "Kontonummer saknas"
+                                      : fortnoxAccountNames[account.name] === "Kontonummer ej aktivt"
+                                        ? "Kontonummer ej aktivt"
+                                        : "Konto ej kontrollerat"
+                                  }
                                 />
                               </TableCell>
                               <TableCell>
                                 <Badge 
                                   variant="default"
                                   className={`text-xs whitespace-nowrap px-2 justify-center w-16 text-white ${
-                                    fortnoxAccountNames[account.name] && fortnoxAccountNames[account.name] !== "Kontonummer ej aktivt"
+                                    // Only show green/Aktiv if we have a real account name (not error messages)
+                                    fortnoxAccountNames[account.name] && 
+                                    !["Konto ej kontrollerat", "Kontonummer ej aktivt", "Kontonummer saknas", "Fel vid kontroll"].includes(fortnoxAccountNames[account.name])
                                       ? 'bg-green-500 hover:bg-green-500'
                                       : 'bg-gray-400 hover:bg-gray-400'
                                   }`}
                                 >
-                                  {fortnoxAccountNames[account.name] && fortnoxAccountNames[account.name] !== "Kontonummer ej aktivt" ? 'Aktiv' : 'Inaktiv'}
+                                  {/* Only show Aktiv if we have a real account name from Fortnox */}
+                                  {fortnoxAccountNames[account.name] && 
+                                   !["Konto ej kontrollerat", "Kontonummer ej aktivt", "Kontonummer saknas", "Fel vid kontroll"].includes(fortnoxAccountNames[account.name]) 
+                                    ? 'Aktiv' : 'Inaktiv'}
                                 </Badge>
                               </TableCell>
                                <TableCell className="text-center">
