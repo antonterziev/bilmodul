@@ -17,7 +17,7 @@ interface Vehicle {
   selling_date?: string;
   purchaser: string;
   purchase_price: number;
-  expected_selling_price: number | null;
+  selling_price: number | null;
   status: string;
   fortnox_sync_status?: string;
   fortnox_verification_number?: string;
@@ -159,7 +159,6 @@ export const VehicleList = ({
         const profile = profileMap.get(item.user_id);
         return {
           ...item,
-          expected_selling_price: item.selling_price, // Map selling_price to expected_selling_price for compatibility
           registered_by: profile?.full_name || 
                         `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() ||
                         'Okänd användare'
@@ -463,12 +462,12 @@ export const VehicleList = ({
         valueB = b.purchase_price;
         break;
       case 'selling-price':
-        valueA = a.expected_selling_price || 0;
-        valueB = b.expected_selling_price || 0;
+        valueA = a.selling_price || 0;
+        valueB = b.selling_price || 0;
         break;
       case 'gross-profit':
-        valueA = (a.expected_selling_price || 0) - a.purchase_price;
-        valueB = (b.expected_selling_price || 0) - b.purchase_price;
+        valueA = (a.selling_price || 0) - a.purchase_price;
+        valueB = (b.selling_price || 0) - b.purchase_price;
         break;
       default:
         return 0;
