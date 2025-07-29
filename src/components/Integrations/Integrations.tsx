@@ -238,6 +238,28 @@ export const Integrations = () => {
   const checkAllAccountsInFortnox = async () => {
     if (!user?.id) return;
     
+    // First, test the connection to make sure we have a valid token
+    try {
+      const { data, error } = await supabase.functions.invoke('fortnox-test-connection');
+      
+      if (error || !data?.success) {
+        toast({
+          title: "Anslutning krävs",
+          description: "Fortnox-anslutningen är inte aktiv. Vänligen anslut igen.",
+          variant: "destructive",
+        });
+        return;
+      }
+    } catch (error) {
+      console.error('Token validation error:', error);
+      toast({
+        title: "Anslutning krävs", 
+        description: "Kunde inte validera Fortnox-anslutningen. Vänligen anslut igen.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setAutoCheckingAccounts(true);
     
     // Get all account names from all categories
