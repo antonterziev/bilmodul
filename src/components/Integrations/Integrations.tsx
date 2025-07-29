@@ -32,6 +32,7 @@ export const Integrations = () => {
     forsaljning: false,
     inkop: false
   });
+  const [accountNumbers, setAccountNumbers] = useState<{[key: string]: string}>({});
   const { user } = useAuth();
   const { toast } = useToast();
   const { handleFortnoxError, reconnectFortnox } = useFortnoxConnection();
@@ -114,6 +115,26 @@ export const Integrations = () => {
     setOpenCategories(prev => ({
       ...prev,
       [categoryKey]: !prev[categoryKey]
+    }));
+  };
+
+  // Initialize account numbers when component mounts
+  useEffect(() => {
+    const initialAccountNumbers: {[key: string]: string} = {};
+    accountCategories.forEach(category => {
+      category.accounts.forEach(account => {
+        initialAccountNumbers[account.name] = account.number;
+      });
+    });
+    setAccountNumbers(initialAccountNumbers);
+  }, []);
+
+  const handleAccountNumberChange = (accountName: string, value: string) => {
+    // Only allow numbers
+    const numericValue = value.replace(/\D/g, '');
+    setAccountNumbers(prev => ({
+      ...prev,
+      [accountName]: numericValue
     }));
   };
 
@@ -324,7 +345,15 @@ export const Integrations = () => {
                         <TableBody>
                           {category.accounts.map((account) => (
                             <TableRow key={account.number}>
-                              <TableCell className="font-medium">{account.number}</TableCell>
+                              <TableCell>
+                                <Input
+                                  type="text"
+                                  value={accountNumbers[account.name] || account.number}
+                                  onChange={(e) => handleAccountNumberChange(account.name, e.target.value)}
+                                  className="w-24 h-8 text-center font-medium"
+                                  placeholder="Kontonummer"
+                                />
+                              </TableCell>
                               <TableCell>{account.name}</TableCell>
                             </TableRow>
                           ))}
