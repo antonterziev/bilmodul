@@ -283,11 +283,11 @@ export const Integrations = () => {
       for (let i = 0; i < allAccountNames.length; i += batchSize) {
         const batch = allAccountNames.slice(i, i + batchSize);
         
-        // Check accounts in parallel within each batch (silent mode)
+        // Check accounts in parallel within each batch (same as individual buttons)
         const results = await Promise.allSettled(
           batch.map(async (accountName) => {
             console.log(`🔄 Bulk checking account: ${accountName}`);
-            const result = await checkAccountInFortnox(accountName, true);
+            const result = await checkAccountInFortnox(accountName);
             console.log(`✅ Bulk check result for ${accountName}:`, result);
             return result;
           })
