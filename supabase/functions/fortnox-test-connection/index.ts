@@ -68,11 +68,20 @@ Deno.serve(async (req) => {
     const isTokenExpired = tokenExpiresAt <= now
 
     // Test a simple Fortnox API call (get company info)
+    const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET');
+    if (!clientSecret) {
+      throw new Error('Missing FORTNOX_CLIENT_SECRET');
+    }
+
     try {
+      console.log(`🔑 Using access token: ${fortnoxIntegration.access_token.substring(0, 20)}...`);
+      console.log(`🔑 Using client secret: ${clientSecret.substring(0, 10)}...`);
+      
       const testResponse = await fetch('https://api.fortnox.se/3/companyinformation', {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${fortnoxIntegration.access_token}`,
+          'Access-Token': fortnoxIntegration.access_token,
+          'Client-Secret': clientSecret,
           'Accept': 'application/json'
         }
       })
