@@ -116,8 +116,7 @@ export const VehicleList = ({
       setLoading(true);
       let query = supabase
         .from('inventory_items')
-        .select('id, registration_number, brand, model, purchase_date, selling_date, purchaser, purchase_price, expected_selling_price, status, fortnox_sync_status, fortnox_verification_number, vat_type')
-        .eq('user_id', user.id);
+        .select('id, registration_number, brand, model, purchase_date, selling_date, purchaser, purchase_price, expected_selling_price, status, fortnox_sync_status, fortnox_verification_number, vat_type');
 
       // Apply status filter if not 'all'
       if (filter !== 'all') {
@@ -242,8 +241,7 @@ export const VehicleList = ({
       const { error } = await supabase
         .from('inventory_items')
         .delete()
-        .eq('id', vehicleId)
-        .eq('user_id', user?.id);
+        .eq('id', vehicleId);
 
       if (error) throw error;
 
