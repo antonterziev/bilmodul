@@ -116,13 +116,14 @@ export const VehicleList = ({
 
     try {
       setLoading(true);
+      console.log('Loading vehicles with filter:', filter);
+      
       let query = supabase
         .from('inventory_items')
         .select(`
           id, registration_number, brand, model, purchase_date, selling_date, 
           purchaser, purchase_price, expected_selling_price, status, 
-          fortnox_sync_status, fortnox_verification_number, vat_type, user_id,
-          profiles(full_name, first_name, last_name)
+          fortnox_sync_status, fortnox_verification_number, vat_type, user_id, organization_id
         `);
 
       // Apply status filter if not 'all'
@@ -130,18 +131,23 @@ export const VehicleList = ({
         query = query.eq('status', filter);
       }
 
+      console.log('Executing query...');
       const { data, error } = await query.order('purchase_date', { ascending: false });
 
-      if (error) throw error;
+      console.log('Query result:', { data, error });
+
+      if (error) {
+        console.error('Database error:', error);
+        throw error;
+      }
       
-      // Transform data to include registered_by field
+      // For now, set registered_by to a placeholder since we need to fetch user names separately
       const vehiclesWithRegisteredBy = (data || []).map((item: any) => ({
         ...item,
-        registered_by: item.profiles?.full_name || 
-                      `${item.profiles?.first_name || ''} ${item.profiles?.last_name || ''}`.trim() ||
-                      'Okänd användare'
+        registered_by: 'Laddar...' // Temporary placeholder
       }));
       
+      console.log('Processed vehicles:', vehiclesWithRegisteredBy);
       setVehicles(vehiclesWithRegisteredBy);
     } catch (error) {
       console.error('Error loading vehicles:', error);
