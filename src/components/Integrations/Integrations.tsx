@@ -33,6 +33,8 @@ export const Integrations = () => {
     inkop: false
   });
   const [accountNumbers, setAccountNumbers] = useState<{[key: string]: string}>({});
+  const [fortnoxAccountNames, setFortnoxAccountNames] = useState<{[key: string]: string}>({});
+  const [checkingAccounts, setCheckingAccounts] = useState<{[key: string]: boolean}>({});
   const { user } = useAuth();
   const { toast } = useToast();
   const { handleFortnoxError, reconnectFortnox } = useFortnoxConnection();
@@ -136,6 +138,84 @@ export const Integrations = () => {
       ...prev,
       [accountName]: numericValue
     }));
+  };
+
+  const checkAccountInFortnox = async (accountName: string) => {
+    if (!user?.id) {
+      toast({
+        title: "Fel",
+        description: "Ingen användare inloggad",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const accountNumber = accountNumbers[accountName];
+    if (!accountNumber) {
+      toast({
+        title: "Fel", 
+        description: "Inget kontonummer angivet",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setCheckingAccounts(prev => ({ ...prev, [accountName]: true }));
+
+    try {
+      const { data, error } = await supabase.functions.invoke('fortnox-check-account', {
+        body: {
+          accountNumber: accountNumber,
+          userId: user.id
+        }
+      });
+
+      if (error) {
+        console.error('Error checking account:', error);
+        
+        if (error.message?.includes('Token expired') || error.message?.includes('needsReconnection')) {
+          const shouldReconnect = await handleFortnoxError(error);
+          if (shouldReconnect) {
+            await reconnectFortnox(user.id);
+          }
+          return;
+        }
+        
+        throw error;
+      }
+
+      if (data?.success) {
+        setFortnoxAccountNames(prev => ({
+          ...prev,
+          [accountName]: data.accountName
+        }));
+
+        toast({
+          title: "Kontroll slutförd",
+          description: data.exists 
+            ? `Kontot hittades: ${data.accountName}`
+            : "Kontot hittades inte eller är inaktivt",
+        });
+      } else {
+        throw new Error(data?.error || 'Okänt fel vid kontokontroll');
+      }
+
+    } catch (error: any) {
+      console.error('Error checking account:', error);
+      toast({
+        title: "Fel vid kontokontroll",
+        description: error.message || "Kunde inte kontrollera kontot",
+        variant: "destructive",
+      });
+
+      // Set error message in the Fortnox name field
+      setFortnoxAccountNames(prev => ({
+        ...prev,
+        [accountName]: "Fel vid kontroll"
+      }));
+    } finally {
+      setCheckingAccounts(prev => ({ ...prev, [accountName]: false }));
+    }
   };
 
   useEffect(() => {
@@ -361,7 +441,7 @@ export const Integrations = () => {
                               <TableCell>
                                 <Input
                                   type="text"
-                                  value={account.name}
+                                  value={fortnoxAccountNames[account.name] || account.name}
                                   disabled
                                   className="h-8 bg-muted text-muted-foreground cursor-not-allowed"
                                   readOnly
@@ -375,15 +455,21 @@ export const Integrations = () => {
                                   Inaktiv
                                 </Badge>
                               </TableCell>
-                              <TableCell className="text-center">
-                                <Button 
-                                  variant="outline" 
-                                  size="sm" 
-                                  className="w-10 h-10 p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
-                                >
-                                  <ArrowUpDown className="h-4 w-4" />
-                                </Button>
-                              </TableCell>
+                               <TableCell className="text-center">
+                                 <Button 
+                                   variant="outline" 
+                                   size="sm" 
+                                   className="w-10 h-10 p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
+                                   onClick={() => checkAccountInFortnox(account.name)}
+                                   disabled={checkingAccounts[account.name]}
+                                 >
+                                   {checkingAccounts[account.name] ? (
+                                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                                   ) : (
+                                     <ArrowUpDown className="h-4 w-4" />
+                                   )}
+                                 </Button>
+                               </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
