@@ -68,31 +68,33 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const location = useLocation();
   const { user } = useAuth();
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userPermissions, setUserPermissions] = useState<string[]>([]);
 
   useEffect(() => {
     if (user) {
-      loadUserRole();
+      loadUserPermissions();
     }
   }, [user]);
 
-  const loadUserRole = async () => {
+  const loadUserPermissions = async () => {
     if (!user) return;
 
     try {
       const { data, error } = await supabase
         .from('user_permissions')
         .select('permission')
-        .eq('user_id', user.id)
-        .maybeSingle();
+        .eq('user_id', user.id);
 
       if (!error && data) {
-        setUserRole(data.permission);
+        setUserPermissions(data.map(p => p.permission));
       }
     } catch (error) {
-      console.error('Error loading user role:', error);
+      console.error('Error loading user permissions:', error);
     }
   };
+
+  // Check if user has specific permission
+  const hasPermission = (permission: string) => userPermissions.includes(permission);
 
   const isActive = (view: string) => currentView === view;
   
@@ -145,18 +147,20 @@ export function AppSidebar({
         <SidebarGroup>
           <SidebarGroupContent>
             <div className="p-4 pb-2 space-y-3">
-              <Button 
-                className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 font-medium w-full"
-                onClick={() => {
-                  onViewChange("purchase_form");
-                  // Expand the lager section when registering a vehicle
-                  if (!expandedSections.lager) {
-                    onSectionToggle("lager");
-                  }
-                }}
-              >
-                Registrera fordon
-              </Button>
+              {hasPermission('lager') && (
+                <Button 
+                  className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 font-medium w-full"
+                  onClick={() => {
+                    onViewChange("purchase_form");
+                    // Expand the lager section when registering a vehicle
+                    if (!expandedSections.lager) {
+                      onSectionToggle("lager");
+                    }
+                  }}
+                >
+                  Registrera fordon
+                </Button>
+              )}
               <div className="relative">
                 <Input
                   type="text"
@@ -188,7 +192,15 @@ export function AppSidebar({
                   </SidebarMenuItem>
                 ))}
                 
-                {expandableMenuItems.map((section) => (
+                {expandableMenuItems
+                  .filter((section) => {
+                    // Only show "Lagerhantering" if user has "lager" permission
+                    if (section.id === 'lager') {
+                      return hasPermission('lager');
+                    }
+                    return true;
+                  })
+                  .map((section) => (
                   <SidebarMenuItem key={section.id}>
                     <SidebarMenuButton
                       onClick={() => handleSectionToggle(section.id)}
@@ -262,7 +274,7 @@ export function AppSidebar({
                 </SidebarMenuItem>
 
                 {/* Admin - Only show for administrators and superusers */}
-                {(userRole === 'administrator' || userRole === 'superuser') && (
+                {hasPermission('admin') && (
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       onClick={() => onViewChange("admin")}
