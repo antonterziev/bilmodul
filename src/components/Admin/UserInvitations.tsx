@@ -14,7 +14,7 @@ import { UserPlus, Mail, Clock, CheckCircle, XCircle, RotateCcw, Trash2 } from '
 interface Invitation {
   id: string;
   email: string;
-  roles: string[];
+  permissions: string[]; // Changed from roles to permissions
   status: string;
   expires_at: string;
   created_at: string;
@@ -41,9 +41,9 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
   const [sending, setSending] = useState(false);
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   
-  // Form state - now using array for multiple roles
+  // Form state - now using array for multiple permissions
   const [email, setEmail] = useState('');
-  const [selectedRoles, setSelectedRoles] = useState<string[]>(['lager']);
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>(['lager']);
   
   const { user } = useAuth();
   const { toast } = useToast();
@@ -62,10 +62,10 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      // Map the data to include roles array (which exists in the database)
+      // Map the data to include permissions array (which exists in the database)
       const mappedInvitations = (data || []).map((invitation: any) => ({
         ...invitation,
-        roles: invitation.roles || []
+        permissions: invitation.permissions || []
       }));
       setInvitations(mappedInvitations);
     } catch (error) {
@@ -80,15 +80,15 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
     }
   };
 
-  const toggleRole = (roleKey: string) => {
-    setSelectedRoles(prev => {
-      if (prev.includes(roleKey)) {
-        // Remove role, but ensure at least one role is selected
-        const newRoles = prev.filter(r => r !== roleKey);
-        return newRoles.length > 0 ? newRoles : prev;
+  const togglePermission = (permissionKey: string) => {
+    setSelectedPermissions(prev => {
+      if (prev.includes(permissionKey)) {
+        // Remove permission, but ensure at least one permission is selected
+        const newPermissions = prev.filter(p => p !== permissionKey);
+        return newPermissions.length > 0 ? newPermissions : prev;
       } else {
-        // Add role
-        return [...prev, roleKey];
+        // Add permission
+        return [...prev, permissionKey];
       }
     });
   };
@@ -103,7 +103,7 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
       return;
     }
 
-    if (selectedRoles.length === 0) {
+    if (selectedPermissions.length === 0) {
       toast({
         title: "Fel",
         description: "Minst en behörighet måste väljas",
@@ -117,7 +117,7 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
       const { data, error } = await supabase.functions.invoke('send-invitation', {
         body: {
           email: email.trim(),
-          roles: selectedRoles, // Send array of roles
+          permissions: selectedPermissions, // Send array of permissions
           organizationId
         }
       });
@@ -130,7 +130,7 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
       });
 
       setEmail('');
-      setSelectedRoles(['lager']);
+      setSelectedPermissions(['lager']);
       setShowInviteDialog(false);
       loadInvitations(); // Refresh the list
     } catch (error: any) {
@@ -153,7 +153,7 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
       const { data, error } = await supabase.functions.invoke('send-invitation', {
         body: {
           email: invitation.email,
-          roles: invitation.roles, // Send array of roles
+          permissions: invitation.permissions, // Send array of permissions
           organizationId
         }
       });
@@ -229,10 +229,10 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
     });
   };
 
-  const formatRoles = (roles: string[]) => {
-    return roles.map(role => {
-      const roleData = AVAILABLE_PERMISSIONS.find(r => r.key === role);
-      return roleData ? roleData.label : role;
+  const formatPermissions = (permissions: string[]) => {
+    return permissions.map(permission => {
+      const permissionData = AVAILABLE_PERMISSIONS.find(p => p.key === permission);
+      return permissionData ? permissionData.label : permission;
     }).join(', ');
   };
 
@@ -271,15 +271,15 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
               <div>
                 <Label>Behörigheter</Label>
                  <div className="grid grid-cols-2 gap-3 mt-2 p-3 border rounded-lg">
-                   {AVAILABLE_PERMISSIONS.map((role) => (
-                    <div key={role.key} className="flex items-center space-x-2">
+                   {AVAILABLE_PERMISSIONS.map((permission) => (
+                    <div key={permission.key} className="flex items-center space-x-2">
                       <Checkbox
-                        id={role.key}
-                        checked={selectedRoles.includes(role.key)}
-                        onCheckedChange={() => toggleRole(role.key)}
+                        id={permission.key}
+                        checked={selectedPermissions.includes(permission.key)}
+                        onCheckedChange={() => togglePermission(permission.key)}
                       />
-                      <Label htmlFor={role.key} className="text-sm font-normal">
-                        {role.label}
+                      <Label htmlFor={permission.key} className="text-sm font-normal">
+                        {permission.label}
                       </Label>
                     </div>
                   ))}
@@ -292,7 +292,7 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
               <div className="flex gap-2">
                 <Button 
                   onClick={sendInvitation} 
-                  disabled={sending || selectedRoles.length === 0}
+                  disabled={sending || selectedPermissions.length === 0}
                   className="flex-1"
                 >
                   {sending ? "Skickar..." : "Skicka inbjudan"}
@@ -328,7 +328,7 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
                       <div>
                         <p className="font-medium">{invitation.email}</p>
                         <p className="text-sm text-muted-foreground">
-                          Behörigheter: {formatRoles(invitation.roles)}
+                          Behörigheter: {formatPermissions(invitation.permissions)}
                         </p>
                       </div>
                     </div>
