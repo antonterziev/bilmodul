@@ -122,7 +122,7 @@ export const VehicleList = ({
           id, registration_number, brand, model, purchase_date, selling_date, 
           purchaser, purchase_price, expected_selling_price, status, 
           fortnox_sync_status, fortnox_verification_number, vat_type, user_id,
-          profiles(full_name, first_name, last_name)
+          profiles!inner(full_name, first_name, last_name)
         `);
 
       // Apply status filter if not 'all'
