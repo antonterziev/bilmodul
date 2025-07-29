@@ -241,34 +241,55 @@ export const Integrations = () => {
       });
     });
 
-    // Check accounts in batches to avoid overwhelming the API
-    const batchSize = 3;
-    for (let i = 0; i < allAccountNames.length; i += batchSize) {
-      const batch = allAccountNames.slice(i, i + batchSize);
-      
-      // Check accounts in parallel within each batch (silent mode)
-      await Promise.all(
-        batch.map(async (accountName) => {
-          try {
-            await checkAccountInFortnox(accountName, true);
-          } catch (error) {
-            console.error(`Error checking account ${accountName}:`, error);
-          }
-        })
-      );
-      
-      // Small delay between batches to be nice to the API
-      if (i + batchSize < allAccountNames.length) {
-        await new Promise(resolve => setTimeout(resolve, 500));
+    try {
+      // Check accounts in batches to avoid overwhelming the API
+      const batchSize = 3;
+      for (let i = 0; i < allAccountNames.length; i += batchSize) {
+        const batch = allAccountNames.slice(i, i + batchSize);
+        
+        // Check accounts in parallel within each batch (silent mode)
+        const results = await Promise.allSettled(
+          batch.map(async (accountName) => {
+            return await checkAccountInFortnox(accountName, true);
+          })
+        );
+        
+        // Check if any failed due to token expiration
+        const hasTokenError = results.some(result => 
+          result.status === 'rejected' && 
+          result.reason?.message?.includes('Token expired')
+        );
+        
+        if (hasTokenError) {
+          setAutoCheckingAccounts(false);
+          toast({
+            title: "Anslutning krävs",
+            description: "Fortnox-token har gått ut. Vänligen anslut igen.",
+            variant: "destructive"
+          });
+          return;
+        }
+        
+        // Small delay between batches to be nice to the API
+        if (i + batchSize < allAccountNames.length) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
       }
+      
+      toast({
+        title: "Kontokontroll slutförd",
+        description: "Alla konton har kontrollerats mot Fortnox",
+      });
+    } catch (error) {
+      console.error('Error during bulk account check:', error);
+      toast({
+        title: "Fel vid kontokontroll",
+        description: "Ett fel uppstod under kontrollen av kontona",
+        variant: "destructive"
+      });
+    } finally {
+      setAutoCheckingAccounts(false);
     }
-    
-    setAutoCheckingAccounts(false);
-    
-    toast({
-      title: "Kontokontroll slutförd",
-      description: "Alla konton har kontrollerats mot Fortnox",
-    });
   };
 
   useEffect(() => {
