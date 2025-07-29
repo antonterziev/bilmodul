@@ -291,40 +291,32 @@ export const Integrations = () => {
     console.log(`🔢 Total accounts to check: ${allAccountNames.length}`, allAccountNames);
 
     try {
-      // Check accounts in batches to avoid overwhelming the API
-      const batchSize = 3;
-      for (let i = 0; i < allAccountNames.length; i += batchSize) {
-        const batch = allAccountNames.slice(i, i + batchSize);
+      // Check accounts one by one sequentially
+      for (let i = 0; i < allAccountNames.length; i++) {
+        const accountName = allAccountNames[i];
+        console.log(`🔄 Bulk checking account ${i + 1}/${allAccountNames.length}: ${accountName}`);
         
-        // Check accounts in parallel within each batch (same as individual buttons)
-        const results = await Promise.allSettled(
-          batch.map(async (accountName) => {
-            console.log(`🔄 Bulk checking account: ${accountName}`);
-            const result = await checkAccountInFortnox(accountName);
-            console.log(`✅ Bulk check result for ${accountName}:`, result);
-            return result;
-          })
-        );
-        
-        // Check if any failed due to token expiration
-        const hasTokenError = results.some(result => 
-          result.status === 'rejected' && 
-          result.reason?.message?.includes('Token expired')
-        );
-        
-        if (hasTokenError) {
-          setAutoCheckingAccounts(false);
-          toast({
-            title: "Anslutning krävs",
-            description: "Fortnox-token har gått ut. Vänligen anslut igen.",
-            variant: "destructive"
-          });
-          return;
+        try {
+          const result = await checkAccountInFortnox(accountName);
+          console.log(`✅ Bulk check result for ${accountName}:`, result);
+        } catch (error: any) {
+          console.error(`❌ Error checking account ${accountName}:`, error);
+          
+          // Check if it's a token expiration error
+          if (error?.message?.includes('Token expired')) {
+            setAutoCheckingAccounts(false);
+            toast({
+              title: "Anslutning krävs",
+              description: "Fortnox-token har gått ut. Vänligen anslut igen.",
+              variant: "destructive"
+            });
+            return;
+          }
         }
         
-        // Small delay between batches to be nice to the API
-        if (i + batchSize < allAccountNames.length) {
-          await new Promise(resolve => setTimeout(resolve, 500));
+        // Small delay between each account to be API-friendly
+        if (i < allAccountNames.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 300));
         }
       }
       
