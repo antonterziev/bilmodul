@@ -617,6 +617,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_permission"]
       }
+      get_user_organization_id: {
+        Args: { _user_id?: string }
+        Returns: string
+      }
       has_permission: {
         Args: {
           _user_id: string
