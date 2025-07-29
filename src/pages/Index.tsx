@@ -513,6 +513,7 @@ const Index = () => {
           <div className="flex-1 px-4 py-4 flex justify-end items-center">
             <div className="flex items-center gap-4">
               <div className="text-right">
+                <span className="text-sm font-medium">{userProfile?.first_name || user?.email?.split('@')[0] || 'Användare'}</span>
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" className="flex items-center justify-center w-10">
