@@ -446,6 +446,7 @@ export type Database = {
           invitation_token: string
           invited_by_user_id: string
           organization_id: string
+          permissions: string[] | null
           status: string
           updated_at: string
         }
@@ -458,6 +459,7 @@ export type Database = {
           invitation_token?: string
           invited_by_user_id: string
           organization_id: string
+          permissions?: string[] | null
           status?: string
           updated_at?: string
         }
@@ -470,6 +472,7 @@ export type Database = {
           invitation_token?: string
           invited_by_user_id?: string
           organization_id?: string
+          permissions?: string[] | null
           status?: string
           updated_at?: string
         }
