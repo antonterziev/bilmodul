@@ -263,10 +263,9 @@ export const Integrations = () => {
   const checkAllAccountsInFortnox = async () => {
     if (!user?.id) return;
     
-    // First, test the connection to make sure we have a valid token
+    // Test connection first
     try {
       const { data, error } = await supabase.functions.invoke('fortnox-test-connection');
-      
       if (error || !data?.success) {
         toast({
           title: "Anslutning krävs",
@@ -287,63 +286,100 @@ export const Integrations = () => {
     
     setAutoCheckingAccounts(true);
     
-    // Get all account names from all categories
-    const allAccountNames: string[] = [];
+    // Get all accounts from all categories
+    const allAccounts: Array<{name: string, number?: string}> = [];
     accountCategories.forEach(category => {
-      console.log(`📋 Processing category: ${category.name}`);
       category.accounts.forEach(account => {
-        console.log(`📝 Adding account to bulk sync: ${account.name} (${account.number})`);
-        allAccountNames.push(account.name);
+        allAccounts.push({
+          name: account.name,
+          number: account.number
+        });
       });
     });
-    
-    console.log(`🔢 Total accounts to check: ${allAccountNames.length}`, allAccountNames);
+
+    const newAccountNames = {...fortnoxAccountNames};
 
     try {
-      // Check accounts one by one sequentially
-      for (let i = 0; i < allAccountNames.length; i++) {
-        const accountName = allAccountNames[i];
-        console.log(`🔄 Bulk checking account ${i + 1}/${allAccountNames.length}: ${accountName}`);
+      for (let i = 0; i < allAccounts.length; i++) {
+        const account = allAccounts[i];
+        const accountNumber = accountNumbers[account.name] || account.number;
         
-        try {
-          console.log(`🔄 About to check account: ${accountName}`);
-          console.log(`📊 Current fortnoxAccountNames before check:`, fortnoxAccountNames[accountName]);
-          
-          const result = await checkAccountInFortnox(accountName);
-          
-          console.log(`📊 Current fortnoxAccountNames after check:`, fortnoxAccountNames[accountName]);
-          console.log(`✅ Bulk check result for ${accountName}:`, result);
-        } catch (error: any) {
-          console.error(`❌ Error checking account ${accountName}:`, error);
-          
-          // Check if it's a token expiration error
-          if (error?.message?.includes('Token expired')) {
-            setAutoCheckingAccounts(false);
-            toast({
-              title: "Anslutning krävs",
-              description: "Fortnox-token har gått ut. Vänligen anslut igen.",
-              variant: "destructive"
-            });
-            return;
-          }
+        console.log(`🔄 Bulk sync ${i + 1}/${allAccounts.length}: ${account.name}`);
+        
+        // 1. If no account number, set as "Konto ej kontrollerat"
+        if (!accountNumber) {
+          newAccountNames[account.name] = "Konto ej kontrollerat";
+          console.log(`📝 No number for ${account.name}, set to "Konto ej kontrollerat"`);
+          continue;
         }
-        
-        // Small delay between each account to be API-friendly
-        if (i < allAccountNames.length - 1) {
+
+        // 2. Check account in Fortnox API
+        try {
+          const { data, error } = await supabase.functions.invoke('fortnox-check-account', {
+            body: {
+              accountNumber: accountNumber,
+              userId: user.id
+            }
+          });
+
+          if (error) {
+            console.error(`❌ API error for ${account.name}:`, error);
+            if (error.message?.includes('Token expired')) {
+              setAutoCheckingAccounts(false);
+              toast({
+                title: "Token utgått",
+                description: "Fortnox-token har gått ut. Vänligen anslut igen.",
+                variant: "destructive"
+              });
+              return;
+            }
+            // On other errors, mark as "Konto ej kontrollerat"
+            newAccountNames[account.name] = "Konto ej kontrollerat";
+            continue;
+          }
+
+          // 3. Save the result from API
+          if (data?.success) {
+            if (data.exists && data.active) {
+              // Account exists and is active - save the actual name
+              newAccountNames[account.name] = data.accountName;
+              console.log(`✅ ${account.name}: Found active account "${data.accountName}"`);
+            } else {
+              // Account exists but is inactive, or doesn't exist
+              newAccountNames[account.name] = "Kontonummer ej aktivt";
+              console.log(`⚠️ ${account.name}: Account inactive or not found`);
+            }
+          } else {
+            // API call failed
+            newAccountNames[account.name] = "Konto ej kontrollerat";
+            console.log(`❌ ${account.name}: API call failed`);
+          }
+        } catch (error) {
+          console.error(`❌ Exception for ${account.name}:`, error);
+          newAccountNames[account.name] = "Konto ej kontrollerat";
+        }
+
+        // Small delay between API calls
+        if (i < allAccounts.length - 1) {
           await new Promise(resolve => setTimeout(resolve, 300));
         }
       }
+
+      // Save all results at once
+      setFortnoxAccountNames(newAccountNames);
+      localStorage.setItem('fortnoxAccountNames', JSON.stringify(newAccountNames));
       
       toast({
-        title: "Kontokontroll slutförd",
-        description: "Alla konton har kontrollerats mot Fortnox",
+        title: "Bulk-synkronisering slutförd",
+        description: `Kontrollerade ${allAccounts.length} konton`,
       });
+
     } catch (error) {
-      console.error('Error during bulk account check:', error);
+      console.error('Bulk sync error:', error);
       toast({
-        title: "Fel vid kontokontroll",
-        description: "Ett fel uppstod under kontrollen av kontona",
-        variant: "destructive"
+        title: "Fel vid bulk-synkronisering",
+        description: "Ett fel uppstod under synkroniseringen",
+        variant: "destructive",
       });
     } finally {
       setAutoCheckingAccounts(false);
