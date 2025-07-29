@@ -376,8 +376,12 @@ export const Integrations = () => {
                                 </Badge>
                               </TableCell>
                               <TableCell className="text-center">
-                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                  <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="w-10 h-10 p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
+                                >
+                                  <ArrowUpDown className="h-4 w-4" />
                                 </Button>
                               </TableCell>
                             </TableRow>
