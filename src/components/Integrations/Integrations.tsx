@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Link, Unlink, RefreshCw } from "lucide-react";
+import { Link, Unlink, RefreshCw, ChevronDown, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useFortnoxConnection } from "@/hooks/useFortnoxConnection";
 
@@ -22,41 +23,99 @@ export const Integrations = () => {
   const [fortnoxIntegration, setFortnoxIntegration] = useState<FortnoxIntegration | null>(null);
   const [fortnoxConnected, setFortnoxConnected] = useState(false);
   const [disconnectingFortnox, setDisconnectingFortnox] = useState(false);
+  const [openCategories, setOpenCategories] = useState<{[key: string]: boolean}>({
+    lager: false,
+    fordringar: false,
+    likvidaMedel: false,
+    skulder: false,
+    moms: false,
+    forsaljning: false,
+    inkop: false
+  });
   const { user } = useAuth();
   const { toast } = useToast();
   const { handleFortnoxError, reconnectFortnox } = useFortnoxConnection();
 
-  // Chart of accounts with account numbers and names
-  const accountChart = [
-    { number: "1410", name: "Lager - VMB-bilar" },
-    { number: "1411", name: "Lager - Momsbilar" },
-    { number: "1412", name: "Lager - Momsbilar - EU" },
-    { number: "1413", name: "Lager - VMB-bilar - EU" },
-    { number: "1414", name: "Lager - Påkostnader" },
-    { number: "1510", name: "Kundfordringar" },
-    { number: "1930", name: "Bankkonto 1" },
-    { number: "1931", name: "Bankkonto 2" },
-    { number: "1932", name: "Bankkonto 3" },
-    { number: "2440", name: "Leverantörsskulder" },
-    { number: "2611", name: "Utgående moms" },
-    { number: "2614", name: "Omvänd utgående moms - matchas 2645" },
-    { number: "2616", name: "Moms inköpsmarginalbeskattning" },
-    { number: "2641", name: "Ingående moms" },
-    { number: "2645", name: "Omvänd ingående moms - matchas 2614" },
-    { number: "3020", name: "Försäljning VMB" },
-    { number: "3028", name: "Beskattningsunderlag" },
-    { number: "3030", name: "Omföringskonto beskattningsunderlag" },
-    { number: "3051", name: "Försäljning Momsbil" },
-    { number: "3058", name: "Försäljning inom EU" },
-    { number: "3590", name: "Övrig försäljning" },
-    { number: "4010", name: "Inköp - Momsbil" },
-    { number: "4011", name: "Inköp - Momsbil EU" },
-    { number: "4020", name: "Inköp - VMB" },
-    { number: "4021", name: "Inköp - VMB EU" },
-    { number: "4030", name: "Påkostnader" },
-    { number: "4531", name: "Inköp av varor från EU" },
-    { number: "4539", name: "Motkonto inköp av varor från EU" }
+  // Organized chart of accounts by category
+  const accountCategories = [
+    {
+      key: "lager",
+      name: "Lager",
+      accounts: [
+        { number: "1410", name: "Lager - VMB-bilar" },
+        { number: "1411", name: "Lager - Momsbilar" },
+        { number: "1412", name: "Lager - Momsbilar - EU" },
+        { number: "1413", name: "Lager - VMB-bilar - EU" },
+        { number: "1414", name: "Lager - Påkostnader" }
+      ]
+    },
+    {
+      key: "fordringar",
+      name: "Fordringar",
+      accounts: [
+        { number: "1510", name: "Kundfordringar" }
+      ]
+    },
+    {
+      key: "likvidaMedel",
+      name: "Likvida medel",
+      accounts: [
+        { number: "1930", name: "Bankkonto 1" },
+        { number: "1931", name: "Bankkonto 2" },
+        { number: "1932", name: "Bankkonto 3" }
+      ]
+    },
+    {
+      key: "skulder", 
+      name: "Skulder",
+      accounts: [
+        { number: "2440", name: "Leverantörsskulder" }
+      ]
+    },
+    {
+      key: "moms",
+      name: "Moms",
+      accounts: [
+        { number: "2611", name: "Utgående moms" },
+        { number: "2614", name: "Omvänd utgående moms - matchas 2645" },
+        { number: "2616", name: "Moms inköpsmarginalbeskattning" },
+        { number: "2641", name: "Ingående moms" },
+        { number: "2645", name: "Omvänd ingående moms - matchas 2614" }
+      ]
+    },
+    {
+      key: "forsaljning",
+      name: "Försäljning", 
+      accounts: [
+        { number: "3020", name: "Försäljning VMB" },
+        { number: "3028", name: "Beskattningsunderlag" },
+        { number: "3030", name: "Omföringskonto beskattningsunderlag" },
+        { number: "3051", name: "Försäljning Momsbil" },
+        { number: "3058", name: "Försäljning inom EU" },
+        { number: "3590", name: "Övrig försäljning" }
+      ]
+    },
+    {
+      key: "inkop",
+      name: "Inköp",
+      accounts: [
+        { number: "4010", name: "Inköp - Momsbil" },
+        { number: "4011", name: "Inköp - Momsbil EU" },
+        { number: "4020", name: "Inköp - VMB" },
+        { number: "4021", name: "Inköp - VMB EU" },
+        { number: "4030", name: "Påkostnader" },
+        { number: "4531", name: "Inköp av varor från EU" },
+        { number: "4539", name: "Motkonto inköp av varor från EU" }
+      ]
+    }
   ];
+
+  const toggleCategory = (categoryKey: string) => {
+    setOpenCategories(prev => ({
+      ...prev,
+      [categoryKey]: !prev[categoryKey]
+    }));
+  };
 
   useEffect(() => {
     if (user) {
@@ -236,23 +295,45 @@ export const Integrations = () => {
         {fortnoxConnected && (
           <div className="bg-card border rounded-lg p-6">
             <h3 className="text-lg font-semibold mb-4">Kontoplan</h3>
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-32">Kontonummer</TableHead>
-                    <TableHead>Kontonamn</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {accountChart.map((account) => (
-                    <TableRow key={account.number}>
-                      <TableCell className="font-medium">{account.number}</TableCell>
-                      <TableCell>{account.name}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+            <div className="space-y-2">
+              {accountCategories.map((category) => (
+                <Collapsible 
+                  key={category.key}
+                  open={openCategories[category.key]}
+                  onOpenChange={() => toggleCategory(category.key)}
+                >
+                  <CollapsibleTrigger className="w-full">
+                    <div className="flex items-center justify-between w-full p-3 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
+                      <span className="font-medium text-left">{category.name}</span>
+                      {openCategories[category.key] ? (
+                        <ChevronDown className="h-4 w-4" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4" />
+                      )}
+                    </div>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="mt-2 ml-4 border rounded-md">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-32">Kontonummer</TableHead>
+                            <TableHead>Kontonamn</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {category.accounts.map((account) => (
+                            <TableRow key={account.number}>
+                              <TableCell className="font-medium">{account.number}</TableCell>
+                              <TableCell>{account.name}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              ))}
             </div>
             <div className="flex justify-end pt-4 border-t mt-4">
               <Button variant="outline" size="sm">
