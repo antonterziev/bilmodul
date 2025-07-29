@@ -111,6 +111,16 @@ serve(async (req) => {
     if (!fortnoxResponse.ok) {
       console.error(`❌ Fortnox API error: ${fortnoxResponse.status}`);
       
+      // Try to get more details about the error
+      let errorDetails = '';
+      try {
+        const errorBody = await fortnoxResponse.text();
+        console.error(`❌ Fortnox API error body: ${errorBody}`);
+        errorDetails = errorBody;
+      } catch (e) {
+        console.error('❌ Could not read error response body');
+      }
+      
       // Check if it's a token expiration error
       if (fortnoxResponse.status === 401) {
         return new Response(JSON.stringify({ 
@@ -122,8 +132,21 @@ serve(async (req) => {
         });
       }
 
+      // For 403, provide more specific error message
+      if (fortnoxResponse.status === 403) {
+        return new Response(JSON.stringify({ 
+          error: 'Åtkomst nekad - kontrollera att din Fortnox-integration har rätt behörigheter för att läsa kontoplan',
+          details: errorDetails,
+          needsReconnection: true 
+        }), {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
       return new Response(JSON.stringify({ 
-        error: `Fortnox API error: ${fortnoxResponse.status}` 
+        error: `Fortnox API error: ${fortnoxResponse.status}`,
+        details: errorDetails
       }), {
         status: fortnoxResponse.status,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
