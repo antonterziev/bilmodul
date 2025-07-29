@@ -340,17 +340,18 @@ export const Integrations = () => {
 
           // 3. Save the result from API
           if (data?.success) {
-            if (data.exists && data.active) {
+            // The API succeeded, now check what it found
+            if (data.exists) {
               // Account exists and is active - save the actual name
               newAccountNames[account.name] = data.accountName;
               console.log(`✅ ${account.name}: Found active account "${data.accountName}"`);
             } else {
-              // Account exists but is inactive, or doesn't exist
+              // Account exists but is inactive
               newAccountNames[account.name] = "Kontonummer ej aktivt";
-              console.log(`⚠️ ${account.name}: Account inactive or not found`);
+              console.log(`⚠️ ${account.name}: Account inactive`);
             }
           } else {
-            // API call failed
+            // API call failed for unknown reason
             newAccountNames[account.name] = "Konto ej kontrollerat";
             console.log(`❌ ${account.name}: API call failed`);
           }
