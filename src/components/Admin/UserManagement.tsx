@@ -29,7 +29,7 @@ interface Organization {
   users: UserWithProfile[];
 }
 
-const AVAILABLE_ROLES = [
+const AVAILABLE_PERMISSIONS = [
   { key: 'admin', label: 'Admin' },
   { key: 'lager', label: 'Lager' },
   { key: 'ekonomi', label: 'Ekonomi' },
@@ -55,10 +55,10 @@ export const UserManagement = () => {
 
   const checkUserRole = async () => {
     try {
-      const { data: roleData } = await supabase.rpc('get_current_user_role');
-      setUserRole(roleData);
+      const { data: permissionData } = await supabase.rpc('get_current_user_permission');
+      setUserRole(permissionData);
     } catch (error) {
-      console.error('Error checking user role:', error);
+      console.error('Error checking user permission:', error);
     }
   };
 
@@ -112,19 +112,19 @@ export const UserManagement = () => {
 
       if (profilesError) throw profilesError;
 
-      // Get user roles
-      const { data: rolesData, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
+      // Get user permissions
+      const { data: permissionsData, error: permissionsError } = await supabase
+        .from('user_permissions')
+        .select('user_id, permission');
 
-      if (rolesError) throw rolesError;
+      if (permissionsError) throw permissionsError;
 
       // Group users by organization
       const formattedOrgs: Organization[] = orgData?.map((org: any) => {
         const orgUsers = profilesData
           ?.filter((profile: any) => profile.organization_id === org.id)
           .map((profile: any) => {
-            const userRoles = rolesData?.filter(role => role.user_id === profile.user_id).map(r => r.role) || [];
+            const userPermissions = permissionsData?.filter(perm => perm.user_id === profile.user_id).map(r => r.permission) || [];
             return {
               user_id: profile.user_id,
               email: profile.email,
@@ -132,7 +132,7 @@ export const UserManagement = () => {
               last_name: profile.last_name || '',
               organization_name: profile.organizations.name,
               organization_id: profile.organization_id,
-              roles: userRoles,
+              roles: userPermissions,
               created_at: profile.created_at
             };
           })
@@ -160,36 +160,34 @@ export const UserManagement = () => {
     }
   };
 
-  const toggleUserRole = async (userId: string, role: string, organizationId: string) => {
+  const toggleUserPermission = async (userId: string, permission: string) => {
     setUpdating(userId);
     try {
-      // Check if user already has this role
+      // Check if user already has this permission
       const user = organizations
         .flatMap(org => org.users)
         .find(u => u.user_id === userId);
       
       if (!user) return;
 
-      const hasRole = user.roles.includes(role);
+      const hasPermission = user.roles.includes(permission);
 
-      if (hasRole) {
-        // Remove role
+      if (hasPermission) {
+        // Remove permission
         const { error } = await supabase
-          .from('user_roles')
+          .from('user_permissions')
           .delete()
           .eq('user_id', userId)
-          .eq('role', role as any)
-          .eq('organization_id', organizationId);
+          .eq('permission', permission as any);
 
         if (error) throw error;
       } else {
-        // Add role
+        // Add permission
         const { error } = await supabase
-          .from('user_roles')
+          .from('user_permissions')
           .insert({
             user_id: userId,
-            role: role as any,
-            organization_id: organizationId
+            permission: permission as any
           } as any);
 
         if (error) throw error;
@@ -200,9 +198,9 @@ export const UserManagement = () => {
         ...org,
         users: org.users.map(user => {
           if (user.user_id === userId) {
-            const newRoles = hasRole 
-              ? user.roles.filter(r => r !== role)
-              : [...user.roles, role];
+            const newRoles = hasPermission 
+              ? user.roles.filter(r => r !== permission)
+              : [...user.roles, permission];
             return { ...user, roles: newRoles };
           }
           return user;
@@ -211,10 +209,10 @@ export const UserManagement = () => {
 
       toast({
         title: "Uppdaterat",
-        description: `Användarens ${role} behörighet har ${hasRole ? 'tagits bort' : 'lagts till'}`
+        description: `Användarens ${permission} behörighet har ${hasPermission ? 'tagits bort' : 'lagts till'}`
       });
     } catch (error) {
-      console.error('Error toggling user role:', error);
+      console.error('Error toggling user permission:', error);
       toast({
         title: "Fel",
         description: "Kunde inte uppdatera användarens behörigheter",
@@ -236,13 +234,7 @@ export const UserManagement = () => {
 
       if (profileError) throw profileError;
 
-      // Update user role organization
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .update({ organization_id: newOrgId })
-        .eq('user_id', userId);
-
-      if (roleError) throw roleError;
+      // User permissions don't have organization_id anymore since users belong to one org
 
       // Expand the target organization to show the moved user
       const newExpanded = new Set(expandedOrgs);
@@ -271,14 +263,13 @@ export const UserManagement = () => {
   const removeUser = async (userId: string, userName: string, organizationId: string) => {
     setUpdating(userId);
     try {
-      // First remove all user roles
-      const { error: rolesError } = await supabase
-        .from('user_roles')
+      // First remove all user permissions
+      const { error: permissionsError } = await supabase
+        .from('user_permissions')
         .delete()
-        .eq('user_id', userId)
-        .eq('organization_id', organizationId);
+        .eq('user_id', userId);
 
-      if (rolesError) throw rolesError;
+      if (permissionsError) throw permissionsError;
 
       // Then remove the user's profile from the organization
       const { error: profileError } = await supabase
@@ -430,11 +421,11 @@ export const UserManagement = () => {
                                   <div className="font-medium">Användare</div>
                                   <div className="font-medium">Organisation</div>
                                   <div className="grid grid-cols-6 gap-2">
-                                    {AVAILABLE_ROLES.map((role) => (
-                                      <div key={role.key} className="text-center font-medium text-sm">
-                                        {role.label}
-                                      </div>
-                                    ))}
+                                     {AVAILABLE_PERMISSIONS.map((permission) => (
+                                       <div key={permission.key} className="text-center font-medium text-sm">
+                                         {permission.label}
+                                       </div>
+                                     ))}
                                   </div>
                                   <div className="font-medium text-center">Åtgärder</div>
                                 </div>
@@ -464,18 +455,18 @@ export const UserManagement = () => {
                                       </SelectContent>
                                     </Select>
 
-                                    <div className="grid grid-cols-6 gap-2">
-                                      {AVAILABLE_ROLES.map((role) => (
-                                        <div key={role.key} className="flex justify-center">
-                                          <Checkbox
-                                            checked={user.roles.includes(role.key)}
-                                            onCheckedChange={() => toggleUserRole(user.user_id, role.key, user.organization_id)}
-                                            disabled={updating === user.user_id}
-                                            className="w-5 h-5"
-                                          />
-                                        </div>
-                                      ))}
-                                    </div>
+                                     <div className="grid grid-cols-6 gap-2">
+                                       {AVAILABLE_PERMISSIONS.map((permission) => (
+                                         <div key={permission.key} className="flex justify-center">
+                                           <Checkbox
+                                             checked={user.roles.includes(permission.key)}
+                                             onCheckedChange={() => toggleUserPermission(user.user_id, permission.key)}
+                                             disabled={updating === user.user_id}
+                                             className="w-5 h-5"
+                                           />
+                                         </div>
+                                       ))}
+                                     </div>
 
                                     <div className="flex justify-center">
                                       <Button

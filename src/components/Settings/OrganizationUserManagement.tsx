@@ -19,7 +19,7 @@ interface UserWithProfile {
   roles: string[];
   created_at: string;
 }
-const AVAILABLE_ROLES = [{
+const AVAILABLE_PERMISSIONS = [{
   key: 'admin',
   label: 'Admin'
 }, {
@@ -85,17 +85,17 @@ export const OrganizationUserManagement = () => {
         `).eq('organization_id', orgId);
       if (profilesError) throw profilesError;
 
-      // Get user roles for all users in the organization
+      // Get user permissions for all users in the organization
       const userIds = profilesData?.map(p => p.user_id) || [];
       const {
-        data: rolesData,
-        error: rolesError
-      } = await supabase.from('user_roles').select('user_id, role').in('user_id', userIds);
-      if (rolesError) throw rolesError;
+        data: permissionsData,
+        error: permissionsError
+      } = await supabase.from('user_permissions').select('user_id, permission').in('user_id', userIds);
+      if (permissionsError) throw permissionsError;
 
       // Combine the data
       const formattedUsers: UserWithProfile[] = profilesData?.map((profile: any) => {
-        const userRoles = rolesData?.filter(role => role.user_id === profile.user_id).map(r => r.role) || [];
+        const userPermissions = permissionsData?.filter(perm => perm.user_id === profile.user_id).map(r => r.permission) || [];
         const userData = {
           user_id: profile.user_id,
           email: profile.email,
@@ -103,19 +103,19 @@ export const OrganizationUserManagement = () => {
           last_name: profile.last_name || '',
           organization_name: '',
           organization_id: profile.organization_id,
-          roles: userRoles,
+          roles: userPermissions,
           created_at: profile.created_at
         };
         console.log('User data:', userData);
         return userData;
       }).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) || [];
-      console.log('All roles data:', rolesData);
+      console.log('All permissions data:', permissionsData);
       console.log('Final formatted users:', formattedUsers);
       setUsers(formattedUsers);
       
       // Check if current user is admin
-      const currentUserRoles = rolesData?.filter(role => role.user_id === user?.id).map(r => r.role) || [];
-      setIsCurrentUserAdmin(currentUserRoles.includes('admin'));
+      const currentUserPermissions = permissionsData?.filter(perm => perm.user_id === user?.id).map(r => r.permission) || [];
+      setIsCurrentUserAdmin(currentUserPermissions.includes('admin'));
     } catch (error) {
       console.error('Error loading users:', error);
       toast({
@@ -200,14 +200,13 @@ export const OrganizationUserManagement = () => {
         const rolesToAdd = newRoles.filter(role => !originalRoles.includes(role));
         const rolesToRemove = originalRoles.filter(role => !newRoles.includes(role));
 
-        // Remove roles
+        // Remove permissions
         for (const role of rolesToRemove) {
           const { error } = await supabase
-            .from('user_roles')
+            .from('user_permissions')
             .delete()
             .eq('user_id', userId)
-            .eq('role', role as any)
-            .eq('organization_id', currentUserOrgId);
+            .eq('permission', role as any);
 
           if (error) {
             console.error('Error removing role:', error);
@@ -215,14 +214,13 @@ export const OrganizationUserManagement = () => {
           }
         }
 
-        // Add roles
+        // Add permissions
         for (const role of rolesToAdd) {
           const { error } = await supabase
-            .from('user_roles')
+            .from('user_permissions')
             .insert({
               user_id: userId,
-              role: role as any,
-              organization_id: currentUserOrgId
+              permission: role as any
             } as any);
 
           if (error) {
@@ -312,14 +310,13 @@ export const OrganizationUserManagement = () => {
       const userToRemove = users.find(u => u.user_id === userId);
       const userEmail = userToRemove?.email;
 
-      // First remove all user roles
-      const { error: rolesError } = await supabase
-        .from('user_roles')
+      // First remove all user permissions
+      const { error: permissionsError } = await supabase
+        .from('user_permissions')
         .delete()
-        .eq('user_id', userId)
-        .eq('organization_id', currentUserOrgId);
+        .eq('user_id', userId);
 
-      if (rolesError) throw rolesError;
+      if (permissionsError) throw permissionsError;
 
       // Remove any accepted invitations for this user's email
       if (userEmail) {
@@ -391,8 +388,8 @@ export const OrganizationUserManagement = () => {
               <div className={`grid gap-4 items-center border-b pb-2 ${isCurrentUserAdmin ? 'grid-cols-[200px_1fr_80px]' : 'grid-cols-[200px_1fr]'}`}>
                 <div className="font-medium">Namn</div>
                 <div className="grid grid-cols-6 gap-2">
-                  {AVAILABLE_ROLES.map(role => <div key={role.key} className="text-center font-medium text-sm">
-                      {role.label}
+                  {AVAILABLE_PERMISSIONS.map(permission => <div key={permission.key} className="text-center font-medium text-sm">
+                      {permission.label}
                     </div>)}
                 </div>
                 {isCurrentUserAdmin && <div className="font-medium text-center text-sm">Åtgärder</div>}
@@ -406,13 +403,13 @@ export const OrganizationUserManagement = () => {
                   </div>
 
                   <div className="grid grid-cols-6 gap-2">
-                    {AVAILABLE_ROLES.map(role => <div key={role.key} className="flex justify-center">
+                    {AVAILABLE_PERMISSIONS.map(permission => <div key={permission.key} className="flex justify-center">
                          <Checkbox 
-                           checked={(pendingChanges[userRow.user_id] || userRow.roles).includes(role.key)} 
-                           onCheckedChange={() => toggleUserRole(userRow.user_id, role.key)} 
-                           disabled={updating === userRow.user_id || wouldRemoveLastAdmin(userRow.user_id, role.key)} 
+                           checked={(pendingChanges[userRow.user_id] || userRow.roles).includes(permission.key)} 
+                           onCheckedChange={() => toggleUserRole(userRow.user_id, permission.key)} 
+                           disabled={updating === userRow.user_id || wouldRemoveLastAdmin(userRow.user_id, permission.key)} 
                            className="w-5 h-5" 
-                           title={wouldRemoveLastAdmin(userRow.user_id, role.key) ? "Kan inte ta bort den sista administratören" : undefined} 
+                           title={wouldRemoveLastAdmin(userRow.user_id, permission.key) ? "Kan inte ta bort den sista administratören" : undefined} 
                          />
                       </div>)}
                   </div>

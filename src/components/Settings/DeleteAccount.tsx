@@ -43,23 +43,21 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
       setOrganizationName(profile?.organizations?.name || '');
 
       // Check if current user is an admin
-      const { data: userRoles, error: userRolesError } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .eq('organization_id', organizationId);
+      const { data: userPermissions, error: userPermissionsError } = await supabase
+        .from('user_permissions')
+        .select('permission')
+        .eq('user_id', user.id);
 
-      if (userRolesError) throw userRolesError;
+      if (userPermissionsError) throw userPermissionsError;
 
-      const isAdmin = userRoles?.some(role => role.role === 'admin');
+      const isAdmin = userPermissions?.some(perm => perm.permission === 'admin');
 
       if (isAdmin) {
         // Count total admins in the organization
         const { data: allAdmins, error: adminsError } = await supabase
-          .from('user_roles')
+          .from('user_permissions')
           .select('user_id')
-          .eq('role', 'admin')
-          .eq('organization_id', organizationId);
+          .eq('permission', 'admin');
 
         if (adminsError) throw adminsError;
 

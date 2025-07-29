@@ -170,17 +170,17 @@ export const Settings = () => {
         setOriginalLastName(lastNameValue);
       }
 
-      // Load user roles (can be multiple)
-      const { data: roleData, error: roleError } = await supabase
-        .from('user_roles')
-        .select('role')
+      // Load user permissions (can be multiple)
+      const { data: permissionData, error: permissionError } = await supabase
+        .from('user_permissions')
+        .select('permission')
         .eq('user_id', user?.id);
 
-      if (roleError) {
-        console.error('Error loading user role:', roleError);
+      if (permissionError) {
+        console.error('Error loading user permission:', permissionError);
       } else {
-        // Store all user roles
-        const roles = roleData?.map(r => r.role) || [];
+        // Store all user permissions
+        const roles = permissionData?.map(r => r.permission) || [];
         console.log('User roles:', roles);
         setUserRoles(roles);
         console.log('Final userRoles set to:', roles);

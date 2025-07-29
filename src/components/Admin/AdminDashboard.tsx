@@ -29,10 +29,10 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
 
     try {
       const { data, error } = await supabase
-        .from('user_roles')
-        .select('role')
+        .from('user_permissions')
+        .select('permission')
         .eq('user_id', user.id)
-        .in('role', ['admin', 'administrator', 'superuser'])
+        .eq('permission', 'admin')
         .maybeSingle();
 
       if (error) throw error;

@@ -446,7 +446,6 @@ export type Database = {
           invitation_token: string
           invited_by_user_id: string
           organization_id: string
-          roles: Database["public"]["Enums"]["app_role"][] | null
           status: string
           updated_at: string
         }
@@ -459,7 +458,6 @@ export type Database = {
           invitation_token?: string
           invited_by_user_id: string
           organization_id: string
-          roles?: Database["public"]["Enums"]["app_role"][] | null
           status?: string
           updated_at?: string
         }
@@ -472,7 +470,6 @@ export type Database = {
           invitation_token?: string
           invited_by_user_id?: string
           organization_id?: string
-          roles?: Database["public"]["Enums"]["app_role"][] | null
           status?: string
           updated_at?: string
         }
@@ -578,43 +575,36 @@ export type Database = {
         }
         Relationships: []
       }
-      user_roles: {
+      user_permissions: {
         Row: {
           created_at: string
           id: string
-          organization_id: string
-          role: Database["public"]["Enums"]["app_role"]
+          permission: Database["public"]["Enums"]["app_permission"]
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
-          organization_id: string
-          role: Database["public"]["Enums"]["app_role"]
+          permission: Database["public"]["Enums"]["app_permission"]
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
-          organization_id?: string
-          role?: Database["public"]["Enums"]["app_role"]
+          permission?: Database["public"]["Enums"]["app_permission"]
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_roles_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      can_remove_admin_permission: {
+        Args: { _user_id: string; _organization_id: string }
+        Returns: boolean
+      }
       can_remove_admin_role: {
         Args: { _user_id: string; _organization_id: string }
         Returns: boolean
@@ -623,15 +613,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
-      get_current_user_role: {
+      get_current_user_permission: {
         Args: Record<PropertyKey, never>
-        Returns: Database["public"]["Enums"]["app_role"]
+        Returns: Database["public"]["Enums"]["app_permission"]
       }
-      has_role: {
+      has_permission: {
         Args: {
           _user_id: string
-          _role: Database["public"]["Enums"]["app_role"]
-          _organization_id?: string
+          _permission: Database["public"]["Enums"]["app_permission"]
         }
         Returns: boolean
       }
@@ -641,13 +630,10 @@ export type Database = {
       }
     }
     Enums: {
-      app_role:
-        | "administrator"
-        | "bilhandel"
-        | "ekonomi"
-        | "superuser"
+      app_permission:
         | "admin"
         | "lager"
+        | "ekonomi"
         | "inkop"
         | "pakostnad"
         | "forsaljning"
@@ -778,13 +764,10 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: [
-        "administrator",
-        "bilhandel",
-        "ekonomi",
-        "superuser",
+      app_permission: [
         "admin",
         "lager",
+        "ekonomi",
         "inkop",
         "pakostnad",
         "forsaljning",

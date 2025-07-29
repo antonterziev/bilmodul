@@ -81,13 +81,13 @@ export function AppSidebar({
 
     try {
       const { data, error } = await supabase
-        .from('user_roles')
-        .select('role')
+        .from('user_permissions')
+        .select('permission')
         .eq('user_id', user.id)
         .maybeSingle();
 
       if (!error && data) {
-        setUserRole(data.role);
+        setUserRole(data.permission);
       }
     } catch (error) {
       console.error('Error loading user role:', error);

@@ -25,8 +25,8 @@ interface UserInvitationsProps {
   organizationId: string;
 }
 
-// Available roles
-const AVAILABLE_ROLES = [
+// Available permissions (renamed from roles)
+const AVAILABLE_PERMISSIONS = [
   { key: 'admin', label: 'Admin' },
   { key: 'lager', label: 'Lager' },
   { key: 'ekonomi', label: 'Ekonomi' },
@@ -62,7 +62,12 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setInvitations(data || []);
+      // Map the data to include roles array (which exists in the database)
+      const mappedInvitations = (data || []).map((invitation: any) => ({
+        ...invitation,
+        roles: invitation.roles || []
+      }));
+      setInvitations(mappedInvitations);
     } catch (error) {
       console.error('Error loading invitations:', error);
       toast({
@@ -226,7 +231,7 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
 
   const formatRoles = (roles: string[]) => {
     return roles.map(role => {
-      const roleData = AVAILABLE_ROLES.find(r => r.key === role);
+      const roleData = AVAILABLE_PERMISSIONS.find(r => r.key === role);
       return roleData ? roleData.label : role;
     }).join(', ');
   };
@@ -265,8 +270,8 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
               
               <div>
                 <Label>Behörigheter</Label>
-                <div className="grid grid-cols-2 gap-3 mt-2 p-3 border rounded-lg">
-                  {AVAILABLE_ROLES.map((role) => (
+                 <div className="grid grid-cols-2 gap-3 mt-2 p-3 border rounded-lg">
+                   {AVAILABLE_PERMISSIONS.map((role) => (
                     <div key={role.key} className="flex items-center space-x-2">
                       <Checkbox
                         id={role.key}

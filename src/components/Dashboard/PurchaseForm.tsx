@@ -524,19 +524,20 @@ export const PurchaseForm = ({
     }
     setIsSubmitting(true);
     try {
-      // Get the user's organization_id
-      const { data: userRoleData, error: roleError } = await supabase
-        .from('user_roles')
+      // Get the user's organization_id from profiles table
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
         .select('organization_id')
         .eq('user_id', user.id)
         .single();
 
-      if (roleError || !userRoleData?.organization_id) {
+      if (profileError || !profileData?.organization_id) {
+        console.error('Organization lookup error:', profileError);
         throw new Error('Kunde inte hitta din organisation');
       }
       const insertData = {
         user_id: user.id,
-        organization_id: userRoleData.organization_id,
+        organization_id: profileData.organization_id,
         status: 'på_lager' as const,
         registration_number: data.registration_number,
         chassis_number: data.chassis_number || null,
