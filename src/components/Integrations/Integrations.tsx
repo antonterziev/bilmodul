@@ -145,7 +145,10 @@ export const Integrations = () => {
   };
 
   const checkAccountInFortnox = async (accountName: string, silent = false) => {
+    console.log(`🔍 Starting check for account: ${accountName}, silent: ${silent}`);
+    
     if (!user?.id) {
+      console.log(`❌ No user ID for account: ${accountName}`);
       if (!silent) {
         toast({
           title: "Fel",
@@ -161,8 +164,13 @@ export const Integrations = () => {
       .flatMap(cat => cat.accounts)
       .find(acc => acc.name === accountName);
     
+    console.log(`🔍 Account definition for ${accountName}:`, accountDef);
+    
     const accountNumber = accountNumbers[accountName] || accountDef?.number;
+    console.log(`🔍 Account number for ${accountName}: ${accountNumber} (from state: ${accountNumbers[accountName]}, from def: ${accountDef?.number})`);
+    
     if (!accountNumber) {
+      console.log(`❌ No account number found for: ${accountName}`);
       if (!silent) {
         toast({
           title: "Fel", 
@@ -174,6 +182,7 @@ export const Integrations = () => {
     }
 
     setCheckingAccounts(prev => ({ ...prev, [accountName]: true }));
+    console.log(`🚀 Making API call for account: ${accountName} with number: ${accountNumber}`);
 
     try {
       const { data, error } = await supabase.functions.invoke('fortnox-check-account', {
