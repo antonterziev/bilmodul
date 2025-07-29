@@ -194,8 +194,7 @@ const Index = () => {
       // Get inventory counts by status
       const { data: inventoryData, error } = await supabase
         .from('inventory_items')
-        .select('status, registration_number, created_at, purchase_price, selling_price, purchase_date')
-        .eq('user_id', user.id);
+        .select('status, registration_number, created_at, purchase_price, selling_price, purchase_date');
 
       if (error) throw error;
 
