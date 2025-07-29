@@ -298,6 +298,22 @@ export const Integrations = () => {
     }
   }, [user]);
 
+  // Refresh connection status when component becomes visible or integrations tab is accessed
+  useEffect(() => {
+    const refreshConnection = () => {
+      if (user) {
+        loadFortnoxIntegration();
+      }
+    };
+    
+    // Listen for visibility changes (when user switches tabs)
+    document.addEventListener('visibilitychange', refreshConnection);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', refreshConnection);
+    };
+  }, [user]);
+
   const loadFortnoxIntegration = async () => {
     try {
       const { data, error } = await supabase
