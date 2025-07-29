@@ -341,6 +341,7 @@ export const Integrations = () => {
                             <TableHead className="w-32">Kontonummer</TableHead>
                             <TableHead>Kontonamn</TableHead>
                             <TableHead>Kontonamn i Fortnox</TableHead>
+                            <TableHead className="w-20">Status</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -364,6 +365,14 @@ export const Integrations = () => {
                                   className="h-8 bg-muted text-muted-foreground cursor-not-allowed"
                                   readOnly
                                 />
+                              </TableCell>
+                              <TableCell>
+                                <Badge 
+                                  variant="default"
+                                  className="text-xs whitespace-nowrap px-2 justify-center w-16 text-white bg-gray-400 hover:bg-gray-400"
+                                >
+                                  Inaktiv
+                                </Badge>
                               </TableCell>
                             </TableRow>
                           ))}
