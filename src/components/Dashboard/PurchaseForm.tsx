@@ -69,6 +69,13 @@ export const PurchaseForm = ({
   const [userProfile, setUserProfile] = useState<{
     full_name?: string;
   } | null>(null);
+  
+  // Organization users state
+  const [organizationUsers, setOrganizationUsers] = useState<Array<{
+    user_id: string;
+    full_name: string;
+    email: string;
+  }>>([]);
   const [open, setOpen] = useState(false);
   const [firstRegOpen, setFirstRegOpen] = useState(false);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -141,25 +148,50 @@ export const PurchaseForm = ({
     resetForm();
   }, []);
 
-  // Fetch user profile and auto-populate purchaser field
+  // Fetch user profile and organization users
   useEffect(() => {
-    const fetchUserProfile = async () => {
+    const fetchUserProfileAndOrgUsers = async () => {
       if (!user) return;
       try {
-        const {
-          data,
-          error
-        } = await supabase.from('profiles').select('full_name').eq('user_id', user.id).single();
-        if (error) throw error;
-        if (data?.full_name) {
-          setUserProfile(data);
-          form.setValue('purchaser', data.full_name);
+        // First get user's profile and organization
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('full_name, organization_id')
+          .eq('user_id', user.id)
+          .single();
+          
+        if (profileError) throw profileError;
+        
+        if (profileData?.full_name) {
+          setUserProfile(profileData);
+          // Set current user as default purchaser
+          form.setValue('purchaser', profileData.full_name);
+        }
+        
+        // Fetch all users in the same organization
+        if (profileData?.organization_id) {
+          const { data: orgUsersData, error: orgUsersError } = await supabase
+            .from('profiles')
+            .select('user_id, full_name, email, first_name, last_name')
+            .eq('organization_id', profileData.organization_id)
+            .not('full_name', 'is', null);
+            
+          if (orgUsersError) throw orgUsersError;
+          
+          // Format the users data
+          const formattedUsers = (orgUsersData || []).map(user => ({
+            user_id: user.user_id,
+            full_name: user.full_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email,
+            email: user.email
+          })).filter(user => user.full_name);
+          
+          setOrganizationUsers(formattedUsers);
         }
       } catch (error) {
-        console.error('Error fetching user profile:', error);
+        console.error('Error fetching user profile and organization users:', error);
       }
     };
-    fetchUserProfile();
+    fetchUserProfileAndOrgUsers();
   }, [user, form]);
 
   // Fetch vehicle data from car info APIs via Edge Function
@@ -832,10 +864,30 @@ export const PurchaseForm = ({
                 {/* 1. Inköpare */}
                 <div>
                   <Label htmlFor="purchaser">Inköpare*</Label>
-                  <Input id="purchaser" {...form.register("purchaser")} className={form.formState.errors.purchaser ? "border-destructive" : ""} />
-                  {form.formState.errors.purchaser && <p className="text-sm text-destructive mt-1 absolute">
+                  <Select
+                    value={form.watch("purchaser") || ""}
+                    onValueChange={(value) => form.setValue("purchaser", value)}
+                  >
+                    <SelectTrigger className={cn("w-full bg-background", form.formState.errors.purchaser ? "border-destructive" : "")}>
+                      <SelectValue placeholder="Välj inköpare" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border shadow-lg z-50">
+                      {organizationUsers.map((user) => (
+                        <SelectItem 
+                          key={user.user_id} 
+                          value={user.full_name}
+                          className="cursor-pointer hover:bg-accent"
+                        >
+                          {user.full_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {form.formState.errors.purchaser && (
+                    <p className="text-sm text-destructive mt-1 absolute">
                       {form.formState.errors.purchaser.message}
-                    </p>}
+                    </p>
+                  )}
                 </div>
 
                 {/* 2. Inköpsdatum */}
