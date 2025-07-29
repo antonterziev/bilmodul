@@ -156,7 +156,12 @@ export const Integrations = () => {
       return;
     }
 
-    const accountNumber = accountNumbers[accountName];
+    // Find the account definition to get the default number
+    const accountDef = accountCategories
+      .flatMap(cat => cat.accounts)
+      .find(acc => acc.name === accountName);
+    
+    const accountNumber = accountNumbers[accountName] || accountDef?.number;
     if (!accountNumber) {
       if (!silent) {
         toast({
