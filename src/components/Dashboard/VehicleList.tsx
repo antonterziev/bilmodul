@@ -341,22 +341,38 @@ export const VehicleList = ({
     try {
       setSyncingId(vehicleId);
       
-      const { data, error } = await supabase.functions.invoke('fortnox-sync-purchase', {
-        body: { inventoryItemId: vehicleId }
-      });
+      // Find the vehicle to check its status
+      const vehicle = vehicles.find(v => v.id === vehicleId);
+      
+      if (!vehicle) {
+        throw new Error('Fordon hittades inte');
+      }
 
-      if (error) throw error;
-
-      if (data?.success) {
-        toast({
-          title: "Synkronisering lyckad",
-          description: `${registrationNumber} har synkroniserats med Fortnox.`,
+      // Only call fortnox-vmb-inköp if the vehicle status is VMB
+      if (vehicle.status === 'VMB') {
+        const { data, error } = await supabase.functions.invoke('fortnox-vmb-inköp', {
+          body: { inventoryItemId: vehicleId }
         });
-        
-        // Reload vehicles to show updated sync status
-        loadVehicles();
+
+        if (error) throw error;
+
+        if (data?.success) {
+          toast({
+            title: "VMB projekt skapat",
+            description: `VMB projekt har skapats i Fortnox för ${registrationNumber}.`,
+          });
+          
+          // Reload vehicles to show updated sync status
+          loadVehicles();
+        } else {
+          throw new Error(data?.error || 'Okänt fel vid skapande av VMB projekt');
+        }
       } else {
-        throw new Error(data?.error || 'Okänt fel vid synkronisering');
+        toast({
+          title: "Synkronisering ej tillgänglig",
+          description: `Synkronisering är endast tillgänglig för VMB fordon. ${registrationNumber} har status: ${getStatusLabel(vehicle.status)}.`,
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error('Error syncing vehicle:', error);
