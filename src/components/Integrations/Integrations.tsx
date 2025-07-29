@@ -141,23 +141,27 @@ export const Integrations = () => {
     }));
   };
 
-  const checkAccountInFortnox = async (accountName: string) => {
+  const checkAccountInFortnox = async (accountName: string, silent = false) => {
     if (!user?.id) {
-      toast({
-        title: "Fel",
-        description: "Ingen användare inloggad",
-        variant: "destructive",
-      });
+      if (!silent) {
+        toast({
+          title: "Fel",
+          description: "Ingen användare inloggad",
+          variant: "destructive",
+        });
+      }
       return;
     }
 
     const accountNumber = accountNumbers[accountName];
     if (!accountNumber) {
-      toast({
-        title: "Fel", 
-        description: "Inget kontonummer angivet",
-        variant: "destructive",
-      });
+      if (!silent) {
+        toast({
+          title: "Fel", 
+          description: "Inget kontonummer angivet",
+          variant: "destructive",
+        });
+      }
       return;
     }
 
@@ -191,23 +195,27 @@ export const Integrations = () => {
           [accountName]: data.accountName
         }));
 
-        toast({
-          title: "Kontroll slutförd",
-          description: data.exists 
-            ? `Kontot hittades: ${data.accountName}`
-            : "Kontot hittades inte eller är inaktivt",
-        });
+        if (!silent) {
+          toast({
+            title: "Kontroll slutförd",
+            description: data.exists 
+              ? `Kontot hittades: ${data.accountName}`
+              : "Kontot hittades inte eller är inaktivt",
+          });
+        }
       } else {
         throw new Error(data?.error || 'Okänt fel vid kontokontroll');
       }
 
     } catch (error: any) {
       console.error('Error checking account:', error);
-      toast({
-        title: "Fel vid kontokontroll",
-        description: error.message || "Kunde inte kontrollera kontot",
-        variant: "destructive",
-      });
+      if (!silent) {
+        toast({
+          title: "Fel vid kontokontroll",
+          description: error.message || "Kunde inte kontrollera kontot",
+          variant: "destructive",
+        });
+      }
 
       // Set error message in the Fortnox name field
       setFortnoxAccountNames(prev => ({
@@ -238,11 +246,11 @@ export const Integrations = () => {
     for (let i = 0; i < allAccountNames.length; i += batchSize) {
       const batch = allAccountNames.slice(i, i + batchSize);
       
-      // Check accounts in parallel within each batch
+      // Check accounts in parallel within each batch (silent mode)
       await Promise.all(
         batch.map(async (accountName) => {
           try {
-            await checkAccountInFortnox(accountName);
+            await checkAccountInFortnox(accountName, true);
           } catch (error) {
             console.error(`Error checking account ${accountName}:`, error);
           }
