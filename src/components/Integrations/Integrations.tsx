@@ -171,6 +171,15 @@ export const Integrations = () => {
     
     if (!accountNumber) {
       console.log(`❌ No account number found for: ${accountName}`);
+      
+      // Set status to "Kontonummer saknas" for accounts without numbers
+      const newAccountNames = {
+        ...fortnoxAccountNames,
+        [accountName]: "Kontonummer saknas"
+      };
+      setFortnoxAccountNames(newAccountNames);
+      localStorage.setItem('fortnoxAccountNames', JSON.stringify(newAccountNames));
+      
       if (!silent) {
         toast({
           title: "Fel", 
