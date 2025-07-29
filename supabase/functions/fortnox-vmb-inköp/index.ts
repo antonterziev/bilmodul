@@ -44,11 +44,11 @@ serve(async (req) => {
       )
     }
 
-    // Check if vehicle status is VMB
-    if (inventoryItem.status !== 'VMB') {
-      console.log(`ℹ️ Vehicle status is ${inventoryItem.status}, not VMB. Skipping project creation.`)
+    // Check if vehicle vat_type is VMB
+    if (inventoryItem.vat_type !== 'Vinstmarginalbeskattning (VMB)') {
+      console.log(`ℹ️ Vehicle vat_type is ${inventoryItem.vat_type}, not VMB. Skipping project creation.`)
       return new Response(
-        JSON.stringify({ message: 'Vehicle status is not VMB, project creation skipped' }),
+        JSON.stringify({ message: 'Vehicle vat_type is not VMB, project creation skipped' }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
