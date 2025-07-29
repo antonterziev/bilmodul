@@ -350,7 +350,7 @@ export const VehicleList = ({
 
       // Only call fortnox-vmb-inköp if the vehicle vat_type is VMB
       if (vehicle.vat_type === 'Vinstmarginalbeskattning (VMB)') {
-        const { data, error } = await supabase.functions.invoke('fortnox-vmb-inköp', {
+        const { data, error } = await supabase.functions.invoke('fortnox-vmb-inkop', {
           body: { inventoryItemId: vehicleId }
         });
 
