@@ -33,7 +33,10 @@ export const Integrations = () => {
     inkop: false
   });
   const [accountNumbers, setAccountNumbers] = useState<{[key: string]: string}>({});
-  const [fortnoxAccountNames, setFortnoxAccountNames] = useState<{[key: string]: string}>({});
+  const [fortnoxAccountNames, setFortnoxAccountNames] = useState<{[key: string]: string}>(() => {
+    const saved = localStorage.getItem('fortnoxAccountNames');
+    return saved ? JSON.parse(saved) : {};
+  });
   const [checkingAccounts, setCheckingAccounts] = useState<{[key: string]: boolean}>({});
   const [autoCheckingAccounts, setAutoCheckingAccounts] = useState(false);
   const { user } = useAuth();
@@ -190,10 +193,12 @@ export const Integrations = () => {
       }
 
       if (data?.success) {
-        setFortnoxAccountNames(prev => ({
-          ...prev,
+        const newAccountNames = {
+          ...fortnoxAccountNames,
           [accountName]: data.accountName
-        }));
+        };
+        setFortnoxAccountNames(newAccountNames);
+        localStorage.setItem('fortnoxAccountNames', JSON.stringify(newAccountNames));
 
         if (!silent) {
           toast({
@@ -218,10 +223,12 @@ export const Integrations = () => {
       }
 
       // Set error message in the Fortnox name field
-      setFortnoxAccountNames(prev => ({
-        ...prev,
+      const newAccountNames = {
+        ...fortnoxAccountNames,
         [accountName]: "Fel vid kontroll"
-      }));
+      };
+      setFortnoxAccountNames(newAccountNames);
+      localStorage.setItem('fortnoxAccountNames', JSON.stringify(newAccountNames));
     } finally {
       setCheckingAccounts(prev => ({ ...prev, [accountName]: false }));
     }
@@ -638,10 +645,11 @@ export const Integrations = () => {
                               <TableCell>
                                 <Input
                                   type="text"
-                                  value={fortnoxAccountNames[account.name] || account.name}
+                                  value={fortnoxAccountNames[account.name] || ""}
                                   disabled
                                   className="h-8 bg-muted text-muted-foreground cursor-not-allowed"
                                   readOnly
+                                  placeholder="Ej kontrollerat"
                                 />
                               </TableCell>
                               <TableCell>
