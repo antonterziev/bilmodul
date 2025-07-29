@@ -341,15 +341,15 @@ export const VehicleList = ({
     try {
       setSyncingId(vehicleId);
       
-      // Find the vehicle to check its status
+      // Find the vehicle to check its vat_type
       const vehicle = vehicles.find(v => v.id === vehicleId);
       
       if (!vehicle) {
         throw new Error('Fordon hittades inte');
       }
 
-      // Only call fortnox-vmb-inköp if the vehicle status is VMB
-      if (vehicle.status === 'VMB') {
+      // Only call fortnox-vmb-inköp if the vehicle vat_type is VMB
+      if (vehicle.vat_type === 'VMB') {
         const { data, error } = await supabase.functions.invoke('fortnox-vmb-inköp', {
           body: { inventoryItemId: vehicleId }
         });
@@ -370,7 +370,7 @@ export const VehicleList = ({
       } else {
         toast({
           title: "Synkronisering ej tillgänglig",
-          description: `Synkronisering är endast tillgänglig för VMB fordon. ${registrationNumber} har status: ${getStatusLabel(vehicle.status)}.`,
+          description: `Synkronisering är endast tillgänglig för VMB fordon. ${registrationNumber} har moms-typ: ${vehicle.vat_type || 'okänd'}.`,
           variant: "destructive",
         });
       }
