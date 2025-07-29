@@ -93,9 +93,10 @@ serve(async (req) => {
     // Check account in Fortnox
     const fortnoxResponse = await fetch(`https://api.fortnox.se/3/accounts/${accountNumber}`, {
       headers: {
-        'Access-Token': accessToken,
+        'Authorization': `Bearer ${accessToken}`,
         'Client-Secret': clientSecret,
         'Accept': 'application/json',
+        'Content-Type': 'application/json'
       },
     });
 

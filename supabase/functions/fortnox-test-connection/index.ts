@@ -80,9 +80,10 @@ Deno.serve(async (req) => {
       const testResponse = await fetch('https://api.fortnox.se/3/companyinformation', {
         method: 'GET',
         headers: {
-          'Access-Token': fortnoxIntegration.access_token,
+          'Authorization': `Bearer ${fortnoxIntegration.access_token}`,
           'Client-Secret': clientSecret,
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
         }
       })
 
