@@ -97,6 +97,10 @@ serve(async (req) => {
 
     console.log(`📞 Fortnox API response status: ${fortnoxResponse.status}`);
 
+    // Get the response body for detailed error logging
+    const responseBody = await fortnoxResponse.text();
+    console.log(`📞 Fortnox API response body: ${responseBody}`);
+
     if (fortnoxResponse.status === 404) {
       console.log('📞 Account not found in Fortnox');
       return new Response(JSON.stringify({ 
@@ -109,23 +113,14 @@ serve(async (req) => {
     }
 
     if (!fortnoxResponse.ok) {
-      console.error(`❌ Fortnox API error: ${fortnoxResponse.status}`);
-      
-      // Try to get more details about the error
-      let errorDetails = '';
-      try {
-        const errorBody = await fortnoxResponse.text();
-        console.error(`❌ Fortnox API error body: ${errorBody}`);
-        errorDetails = errorBody;
-      } catch (e) {
-        console.error('❌ Could not read error response body');
-      }
+      console.error(`❌ Fortnox API error [${fortnoxResponse.status}]:`, responseBody);
       
       // Check if it's a token expiration error
       if (fortnoxResponse.status === 401) {
         return new Response(JSON.stringify({ 
           error: 'Token expired',
-          needsReconnection: true 
+          needsReconnection: true,
+          details: responseBody
         }), {
           status: 401,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -136,7 +131,7 @@ serve(async (req) => {
       if (fortnoxResponse.status === 403) {
         return new Response(JSON.stringify({ 
           error: 'Åtkomst nekad - kontrollera att din Fortnox-integration har rätt behörigheter för att läsa kontoplan',
-          details: errorDetails,
+          details: responseBody,
           needsReconnection: true 
         }), {
           status: 403,
@@ -146,14 +141,26 @@ serve(async (req) => {
 
       return new Response(JSON.stringify({ 
         error: `Fortnox API error: ${fortnoxResponse.status}`,
-        details: errorDetails
+        details: responseBody
       }), {
         status: fortnoxResponse.status,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    const data = await fortnoxResponse.json();
+    // Parse the successful response
+    let data;
+    try {
+      data = JSON.parse(responseBody);
+    } catch (e) {
+      console.error('❌ Failed to parse Fortnox response as JSON:', responseBody);
+      return new Response(JSON.stringify({ 
+        error: 'Invalid response format from Fortnox API' 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
     const account = data.Account;
 
     console.log(`✅ Account found: ${account.Description}, Active: ${account.Active}`);
