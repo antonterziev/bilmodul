@@ -95,6 +95,8 @@ const Index = () => {
 
   useEffect(() => {
     if (user) {
+      console.log('User object:', user);
+      console.log('User metadata:', user.user_metadata);
       loadStats();
       loadUserProfile();
       loadInventoryItems();
@@ -170,14 +172,17 @@ const Index = () => {
     if (!user) return;
 
     try {
+      console.log('Loading user profile for user:', user.id);
       const { data, error } = await supabase
         .from('profiles')
         .select('first_name, last_name, full_name, company_name')
         .eq('user_id', user.id)
         .single();
 
+      console.log('Profile query result:', { data, error });
+      
       if (!error && data) {
-        
+        console.log('Setting userProfile:', data);
         setUserProfile(data);
       } else if (error) {
         console.error('Profile loading error:', error);
