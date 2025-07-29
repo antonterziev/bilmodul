@@ -691,7 +691,10 @@ export const Integrations = () => {
                               <TableCell>
                                 <Input
                                   type="text"
-                                  value={fortnoxAccountNames[account.name] || ""}
+                                  value={
+                                    fortnoxAccountNames[account.name] || 
+                                    ((!accountNumbers[account.name] && !account.number) ? "Kontonummer saknas" : "")
+                                  }
                                   disabled
                                   className="h-8 bg-muted text-muted-foreground cursor-not-allowed"
                                   readOnly
