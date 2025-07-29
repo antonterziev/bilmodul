@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Link, Unlink, RefreshCw, ChevronDown, ChevronRight } from "lucide-react";
+import { Link, Unlink, RefreshCw, ChevronDown, ChevronRight, ArrowUpDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useFortnoxConnection } from "@/hooks/useFortnoxConnection";
 
@@ -342,6 +342,7 @@ export const Integrations = () => {
                             <TableHead>Kontonamn</TableHead>
                             <TableHead>Kontonamn i Fortnox</TableHead>
                             <TableHead className="w-20">Status</TableHead>
+                            <TableHead className="w-16">Sync</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -373,6 +374,9 @@ export const Integrations = () => {
                                 >
                                   Inaktiv
                                 </Badge>
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
                               </TableCell>
                             </TableRow>
                           ))}
