@@ -281,10 +281,14 @@ export const Integrations = () => {
     // Get all account names from all categories
     const allAccountNames: string[] = [];
     accountCategories.forEach(category => {
+      console.log(`📋 Processing category: ${category.name}`);
       category.accounts.forEach(account => {
+        console.log(`📝 Adding account to bulk sync: ${account.name} (${account.number})`);
         allAccountNames.push(account.name);
       });
     });
+    
+    console.log(`🔢 Total accounts to check: ${allAccountNames.length}`, allAccountNames);
 
     try {
       // Check accounts in batches to avoid overwhelming the API
