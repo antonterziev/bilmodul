@@ -359,9 +359,16 @@ export const VehicleList = ({
           }
         });
 
+        // Check for both function errors and non-2xx responses
         if (error) {
           console.error('VMB sync error:', error);
-          throw error;
+          throw new Error(error.message || 'Edge function error');
+        }
+
+        // Check if the response contains an error (from non-2xx status codes)
+        if (data?.error) {
+          console.error('VMB sync failed:', data);
+          throw new Error(data.error);
         }
 
         if (data?.success) {
@@ -373,8 +380,8 @@ export const VehicleList = ({
           // Reload vehicles to show updated sync status
           loadVehicles();
         } else {
-          console.error('VMB sync failed:', data);
-          throw new Error(data?.error || 'Okänt fel vid skapande av VMB projekt');
+          console.error('VMB sync unexpected response:', data);
+          throw new Error('Okänt fel vid skapande av VMB projekt');
         }
       } else {
         toast({
