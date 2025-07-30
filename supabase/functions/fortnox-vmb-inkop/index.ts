@@ -43,7 +43,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    const { inventoryItemId } = await req.json()
+    const { inventoryItemId, syncingUserId } = await req.json()
 
     if (!inventoryItemId) {
       return new Response(
@@ -52,59 +52,93 @@ serve(async (req) => {
       )
     }
 
-    console.log(`🚀 Starting VMB project creation for inventory item: ${inventoryItemId}`)
+      console.log(`🚀 Starting VMB project creation for inventory item: ${inventoryItemId}, syncing user: ${syncingUserId}`)
 
-    // Get inventory item details
-    const { data: inventoryItem, error: inventoryError } = await supabaseClient
-      .from('inventory_items')
-      .select('*')
-      .eq('id', inventoryItemId)
-      .single()
+      // Get inventory item details
+      const { data: inventoryItem, error: inventoryError } = await supabaseClient
+        .from('inventory_items')
+        .select('*')
+        .eq('id', inventoryItemId)
+        .single()
 
-    if (inventoryError || !inventoryItem) {
-      console.error('❌ Failed to fetch inventory item:', inventoryError)
-      return new Response(
-        JSON.stringify({ error: 'Inventory item not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
+      if (inventoryError || !inventoryItem) {
+        console.error('❌ Failed to fetch inventory item:', inventoryError)
+        return new Response(
+          JSON.stringify({ error: 'Inventory item not found' }),
+          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
 
-    // Check if vehicle vat_type is VMB
-    if (inventoryItem.vat_type !== 'Vinstmarginalbeskattning (VMB)') {
-      console.log(`ℹ️ Vehicle vat_type is ${inventoryItem.vat_type}, not VMB. Skipping project creation.`)
-      return new Response(
-        JSON.stringify({ message: 'Vehicle vat_type is not VMB, project creation skipped' }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
+      // Check if vehicle vat_type is VMB
+      if (inventoryItem.vat_type !== 'Vinstmarginalbeskattning (VMB)') {
+        console.log(`ℹ️ Vehicle vat_type is ${inventoryItem.vat_type}, not VMB. Skipping project creation.`)
+        return new Response(
+          JSON.stringify({ message: 'Vehicle vat_type is not VMB, project creation skipped' }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
 
-    // Get user's active Fortnox integration
-    console.log(`🔍 Looking for Fortnox integration for user: ${inventoryItem.user_id}`)
-    
-    const { data: fortnoxIntegration, error: integrationError } = await supabaseClient
-      .from('fortnox_integrations')
-      .select('*')
-      .eq('user_id', inventoryItem.user_id)
-      .eq('is_active', true)
-      .maybeSingle()
+      // Get the syncing user's organization
+      const { data: syncingUserProfile, error: syncingUserError } = await supabaseClient
+        .from('profiles')
+        .select('organization_id')
+        .eq('user_id', syncingUserId)
+        .single()
 
-    console.log(`🔍 Fortnox integration query result:`, { fortnoxIntegration, integrationError })
+      if (syncingUserError || !syncingUserProfile) {
+        console.error('❌ Failed to fetch syncing user profile:', syncingUserError)
+        return new Response(
+          JSON.stringify({ error: 'Syncing user profile not found' }),
+          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
 
-    if (integrationError) {
-      console.error('❌ Database error when fetching Fortnox integration:', integrationError)
-      return new Response(
-        JSON.stringify({ error: 'Database error when fetching Fortnox integration', details: integrationError.message }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
+      // Check if inventory item belongs to the same organization
+      if (inventoryItem.organization_id !== syncingUserProfile.organization_id) {
+        console.error('❌ Organization mismatch:', { 
+          inventory_org: inventoryItem.organization_id, 
+          syncing_user_org: syncingUserProfile.organization_id 
+        })
+        return new Response(
+          JSON.stringify({ error: 'Cannot sync vehicles from different organizations' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
 
-    if (!fortnoxIntegration) {
-      console.error('❌ No active Fortnox integration found for user:', inventoryItem.user_id)
-      return new Response(
-        JSON.stringify({ error: 'No active Fortnox integration found. Please connect to Fortnox first.' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
+      // Look for ANY active Fortnox integration within the same organization
+      console.log(`🔍 Looking for Fortnox integration for organization: ${syncingUserProfile.organization_id}`)
+      
+      const { data: fortnoxIntegration, error: integrationError } = await supabaseClient
+        .from('fortnox_integrations')
+        .select(`
+          *,
+          profiles!fortnox_integrations_user_id_fkey (
+            organization_id
+          )
+        `)
+        .eq('is_active', true)
+        .eq('profiles.organization_id', syncingUserProfile.organization_id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      console.log(`🔍 Fortnox integration query result:`, { fortnoxIntegration, integrationError })
+
+      if (integrationError) {
+        console.error('❌ Database error when fetching Fortnox integration:', integrationError)
+        return new Response(
+          JSON.stringify({ error: 'Database error when fetching Fortnox integration', details: integrationError.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      if (!fortnoxIntegration) {
+        console.error('❌ No active Fortnox integration found for organization:', syncingUserProfile.organization_id)
+        return new Response(
+          JSON.stringify({ error: 'No active Fortnox integration found for your organization. Please connect to Fortnox first.' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
 
     const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET')
     if (!clientSecret) {
@@ -393,16 +427,18 @@ serve(async (req) => {
           const invoiceNumber = invoiceData?.SupplierInvoice?.DocumentNumber;
           console.log(`✅ Supplier invoice created: ${invoiceNumber}`);
 
-          // Save invoice number and update sync status
+          // Save invoice number and update sync status with syncing user info
           await supabaseClient.from('inventory_items').update({
             fortnox_invoice_number: invoiceNumber,
             fortnox_sync_status: 'success',
-            fortnox_synced_at: new Date().toISOString()
+            fortnox_synced_at: new Date().toISOString(),
+            fortnox_synced_by_user_id: syncingUserId
           }).eq('id', inventoryItemId);
 
-          // Log successful sync
+          // Log successful sync with both original and syncing user
           await supabaseClient.from('fortnox_sync_log').insert({
-            user_id: inventoryItem.user_id,
+            user_id: inventoryItem.user_id, // Original registering user
+            synced_by_user_id: syncingUserId, // User who performed sync
             inventory_item_id: inventoryItemId,
             sync_type: 'vmb_project_creation',
             sync_status: 'success',
@@ -410,7 +446,8 @@ serve(async (req) => {
             sync_data: {
               project_number: fortnoxProjectId,
               supplier_number: supplierNumber,
-              invoice_number: invoiceNumber
+              invoice_number: invoiceNumber,
+              fortnox_integration_id: fortnoxIntegration.id
             }
           });
 

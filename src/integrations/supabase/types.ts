@@ -238,6 +238,7 @@ export type Database = {
           sync_data: Json | null
           sync_status: string
           sync_type: string
+          synced_by_user_id: string | null
           updated_at: string
           user_id: string
         }
@@ -250,6 +251,7 @@ export type Database = {
           sync_data?: Json | null
           sync_status: string
           sync_type: string
+          synced_by_user_id?: string | null
           updated_at?: string
           user_id: string
         }
@@ -262,6 +264,7 @@ export type Database = {
           sync_data?: Json | null
           sync_status?: string
           sync_type?: string
+          synced_by_user_id?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -293,6 +296,7 @@ export type Database = {
           fortnox_project_number: string | null
           fortnox_sync_status: string | null
           fortnox_synced_at: string | null
+          fortnox_synced_by_user_id: string | null
           fortnox_verification_number: string | null
           id: string
           marketplace_channel: string | null
@@ -337,6 +341,7 @@ export type Database = {
           fortnox_project_number?: string | null
           fortnox_sync_status?: string | null
           fortnox_synced_at?: string | null
+          fortnox_synced_by_user_id?: string | null
           fortnox_verification_number?: string | null
           id?: string
           marketplace_channel?: string | null
@@ -381,6 +386,7 @@ export type Database = {
           fortnox_project_number?: string | null
           fortnox_sync_status?: string | null
           fortnox_synced_at?: string | null
+          fortnox_synced_by_user_id?: string | null
           fortnox_verification_number?: string | null
           id?: string
           marketplace_channel?: string | null

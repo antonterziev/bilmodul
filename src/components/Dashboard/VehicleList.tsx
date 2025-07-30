@@ -348,29 +348,15 @@ export const VehicleList = ({
         throw new Error('Fordon hittades inte');
       }
 
-      // Check if user has active Fortnox integration first
-      const { data: fortnoxIntegration, error: integrationError } = await supabase
-        .from('fortnox_integrations')
-        .select('*')
-        .eq('user_id', user?.id)
-        .eq('is_active', true)
-        .maybeSingle();
-
-      if (integrationError) {
-        console.error('Error checking Fortnox integration:', integrationError);
-        throw new Error('Kunde inte kontrollera Fortnox-anslutning');
-      }
-
-      if (!fortnoxIntegration) {
-        throw new Error('Ingen aktiv Fortnox-anslutning hittades. Vänligen anslut till Fortnox först.');
-      }
-
       // Only call fortnox-vmb-inköp if the vehicle vat_type is VMB
       if (vehicle.vat_type === 'Vinstmarginalbeskattning (VMB)') {
         console.log('Syncing VMB vehicle:', { vehicleId, registrationNumber, userId: user?.id });
         
         const { data, error } = await supabase.functions.invoke('fortnox-vmb-inkop', {
-          body: { inventoryItemId: vehicleId }
+          body: { 
+            inventoryItemId: vehicleId,
+            syncingUserId: user?.id
+          }
         });
 
         if (error) {
