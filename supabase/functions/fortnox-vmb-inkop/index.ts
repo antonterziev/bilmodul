@@ -281,7 +281,7 @@ serve(async (req) => {
             );
           }
           
-          const existingProjectData = JSON.parse(await getProjectRes.text());
+          const existingProjectData = JSON.parse(getProjectText);
           const projectNumber = existingProjectData?.Project?.ProjectNumber;
           console.log(`✅ Using existing Fortnox project: ${projectNumber}`);
           
