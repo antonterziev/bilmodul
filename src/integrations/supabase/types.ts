@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_mappings: {
+        Row: {
+          account_name: string
+          account_number: string
+          created_at: string
+          id: string
+          organization_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_name: string
+          account_number: string
+          created_at?: string
+          id?: string
+          organization_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_name?: string
+          account_number?: string
+          created_at?: string
+          id?: string
+          organization_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       brand_logos: {
         Row: {
           brand_name: string

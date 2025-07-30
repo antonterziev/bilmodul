@@ -155,9 +155,42 @@ export const Integrations = () => {
       return;
     }
 
+    if (!user?.id) {
+      toast({
+        title: "Fel",
+        description: "Ingen användare inloggad",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      // Here you could save to database if needed
-      // For now, we'll just trigger a recheck of the account
+      // Get user's organization first
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!profile?.organization_id) {
+        throw new Error('Could not find user organization');
+      }
+
+      // Upsert the account mapping
+      const { error } = await supabase
+        .from('account_mappings')
+        .upsert({
+          user_id: user.id,
+          organization_id: profile.organization_id,
+          account_name: accountName,
+          account_number: accountNumber
+        }, {
+          onConflict: 'organization_id,account_name'
+        });
+
+      if (error) throw error;
+
+      // Also trigger a recheck of the account in Fortnox
       await checkAccountInFortnox(accountName);
       
       toast({
@@ -171,6 +204,38 @@ export const Integrations = () => {
         description: "Kunde inte spara kontonummer",
         variant: "destructive",
       });
+    }
+  };
+
+  // Load saved account mappings on component mount
+  const loadAccountMappings = async () => {
+    if (!user?.id) return;
+
+    try {
+      const { data: mappings, error } = await supabase
+        .from('account_mappings')
+        .select('account_name, account_number')
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Error loading account mappings:', error);
+        return;
+      }
+
+      if (mappings) {
+        const mappingsObject: {[key: string]: string} = {};
+        mappings.forEach(mapping => {
+          mappingsObject[mapping.account_name] = mapping.account_number;
+        });
+        
+        // Merge with default account numbers
+        setAccountNumbers(prev => ({
+          ...prev,
+          ...mappingsObject
+        }));
+      }
+    } catch (error) {
+      console.error('Error loading account mappings:', error);
     }
   };
 
@@ -420,6 +485,7 @@ export const Integrations = () => {
   useEffect(() => {
     if (user) {
       loadFortnoxIntegration();
+      loadAccountMappings(); // Load saved account mappings
     }
   }, [user]);
 

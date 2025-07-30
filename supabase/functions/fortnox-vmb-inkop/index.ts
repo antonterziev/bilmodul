@@ -342,17 +342,36 @@ serve(async (req) => {
       // 🧾 Step: Create supplier invoice with proper VMB accounting
       console.log('📋 Creating supplier invoice with VMB accounting...');
       try {
-        // Get user-configured account numbers from the system
-        // These are the account numbers the user has configured in the integrations tab
-        console.log('🔍 Looking up user-configured account numbers...');
+        // Get user-configured account numbers from the account_mappings table
+        console.log('🔍 Looking up user-configured account numbers from database...');
         
-        // Default account numbers (fallback if not configured)
-        const defaultAccountMapping = {
-          'Lager - VMB-bilar': '1410',
-          'Leverantörsskulder': '2440'
-        };
+        const { data: accountMappings, error: mappingsError } = await supabaseClient
+          .from('account_mappings')
+          .select('account_name, account_number')
+          .eq('organization_id', syncingUserProfile.organization_id)
+          .in('account_name', ['Lager - VMB-bilar', 'Leverantörsskulder']);
+
+        if (mappingsError) {
+          console.error('❌ Error fetching account mappings:', mappingsError);
+          throw new Error(`Failed to fetch account mappings: ${mappingsError.message}`);
+        }
+
+        console.log('📋 Found account mappings:', accountMappings);
+
+        // Create a mapping object for easy lookup
+        const accountNumberMap: {[key: string]: string} = {};
+        accountMappings?.forEach(mapping => {
+          accountNumberMap[mapping.account_name] = mapping.account_number;
+        });
+
+        // Get account numbers - use user configured or fallback to defaults
+        const vmbAccountNumber = accountNumberMap['Lager - VMB-bilar'] || '1410';
+        const leverantorskulderAccountNumber = accountNumberMap['Leverantörsskulder'] || '2440';
+
+        console.log(`📋 Using VMB account number: ${vmbAccountNumber} (user configured: ${!!accountNumberMap['Lager - VMB-bilar']})`);
+        console.log(`📋 Using Leverantörsskulder account number: ${leverantorskulderAccountNumber} (user configured: ${!!accountNumberMap['Leverantörsskulder']})`);
         
-        // Get all chart of accounts to validate the user-configured numbers exist
+        // Get all chart of accounts to validate the user-configured numbers exist and are active
         const accountsResponse = await fetch('https://api.fortnox.se/3/accounts', {
           method: 'GET',
           headers: {
@@ -367,11 +386,6 @@ serve(async (req) => {
         }
 
         const accountsData = await accountsResponse.json();
-        
-        // Use default account numbers for now - in the future this could read from user settings
-        // For now, we'll use 1410 for VMB inventory and 2440 for supplier liabilities
-        const vmbAccountNumber = defaultAccountMapping['Lager - VMB-bilar'];
-        const leverantorskulderAccountNumber = defaultAccountMapping['Leverantörsskulder'];
         
         // Validate that these accounts exist and are active in Fortnox
         const vmbAccount = accountsData.Accounts?.find(account => 
@@ -393,12 +407,13 @@ serve(async (req) => {
             context: {
               inventory_item_id: inventoryItemId,
               missing_account_number: vmbAccountNumber,
-              missing_account_name: 'Lager - VMB-bilar'
+              missing_account_name: 'Lager - VMB-bilar',
+              user_configured: !!accountNumberMap['Lager - VMB-bilar']
             }
           });
 
           return new Response(
-            JSON.stringify({ error: `Account ${vmbAccountNumber} (for Lager - VMB-bilar) not found or inactive in chart of accounts. Please check your kontoplan configuration.` }),
+            JSON.stringify({ error: `Account ${vmbAccountNumber} (for Lager - VMB-bilar) not found or inactive in chart of accounts. Please check your kontoplan configuration in the integrations tab.` }),
             { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
@@ -413,12 +428,13 @@ serve(async (req) => {
             context: {
               inventory_item_id: inventoryItemId,
               missing_account_number: leverantorskulderAccountNumber,
-              missing_account_name: 'Leverantörsskulder'
+              missing_account_name: 'Leverantörsskulder',
+              user_configured: !!accountNumberMap['Leverantörsskulder']
             }
           });
 
           return new Response(
-            JSON.stringify({ error: `Account ${leverantorskulderAccountNumber} (for Leverantörsskulder) not found or inactive in chart of accounts. Please check your kontoplan configuration.` }),
+            JSON.stringify({ error: `Account ${leverantorskulderAccountNumber} (for Leverantörsskulder) not found or inactive in chart of accounts. Please check your kontoplan configuration in the integrations tab.` }),
             { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
