@@ -459,6 +459,7 @@ serve(async (req) => {
               InvoiceNumber: inventoryItem.registration_number, // Use registration number as Fakturanummer
               InvoiceDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0], // Use purchase date or today
               Project: projectNumber,
+              Total: netInvoiceAmount, // Set the net amount (reduced by down payment)
               SupplierInvoiceRows: supplierInvoiceRows
             }
           };
