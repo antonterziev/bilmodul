@@ -344,21 +344,21 @@ serve(async (req) => {
       try {
         // Get API documentation for supplier invoices endpoint
         const invoiceDocs = await getFortnoxApiDocs('/supplierinvoices', 'POST');
-        console.log('📚 Using API documentation for supplier invoices:', invoiceDocs?.results?.[0]?.summary || 'No docs available');
+        console.log('📚 Using API documentation for supplier invoices:', JSON.stringify(invoiceDocs, null, 2));
 
-         const invoicePayload = {
-           SupplierInvoice: {
-             SupplierNumber: "1", // Use default supplier number
-             Project: projectNumber,
-             SupplierInvoiceRows: [
-               {
-                 Account: 1520, // Standard vehicle account
-                 Project: projectNumber,
-                 ArticleDescription: `Inköp ${inventoryItem.brand} ${inventoryItem.model || ''} - ${inventoryItem.registration_number}`.trim()
-               }
-             ]
-           }
-         };
+        // Based on the documentation, create the invoice payload
+        const invoicePayload = {
+          SupplierInvoice: {
+            SupplierNumber: "1", // Use default supplier number
+            Project: projectNumber,
+            SupplierInvoiceRows: [
+              {
+                Account: 1520, // Standard vehicle account
+                Project: projectNumber
+              }
+            ]
+          }
+        };
 
         console.log('📤 Creating supplier invoice with payload:', JSON.stringify(invoicePayload, null, 2));
 
