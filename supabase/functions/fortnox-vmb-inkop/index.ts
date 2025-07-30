@@ -54,109 +54,109 @@ serve(async (req) => {
       )
     }
 
-      console.log(`🚀 Starting VMB project creation for inventory item: ${inventoryItemId}, syncing user: ${syncingUserId}`)
+    console.log(`🚀 Starting VMB project creation for inventory item: ${inventoryItemId}, syncing user: ${syncingUserId}`)
 
-      // Get inventory item details
-      const { data: inventoryItem, error: inventoryError } = await supabaseClient
-        .from('inventory_items')
-        .select('*')
-        .eq('id', inventoryItemId)
-        .single()
+    // Get inventory item details
+    const { data: inventoryItem, error: inventoryError } = await supabaseClient
+      .from('inventory_items')
+      .select('*')
+      .eq('id', inventoryItemId)
+      .single()
 
-      if (inventoryError || !inventoryItem) {
-        console.error('❌ Failed to fetch inventory item:', inventoryError)
-        return new Response(
-          JSON.stringify({ error: 'Inventory item not found' }),
-          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
+    if (inventoryError || !inventoryItem) {
+      console.error('❌ Failed to fetch inventory item:', inventoryError)
+      return new Response(
+        JSON.stringify({ error: 'Inventory item not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
 
-      // Check if vehicle vat_type is VMB
-      if (inventoryItem.vat_type !== 'Vinstmarginalbeskattning (VMB)') {
-        console.log(`ℹ️ Vehicle vat_type is ${inventoryItem.vat_type}, not VMB. Skipping project creation.`)
-        return new Response(
-          JSON.stringify({ message: 'Vehicle vat_type is not VMB, project creation skipped' }),
-          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
+    // Check if vehicle vat_type is VMB
+    if (inventoryItem.vat_type !== 'Vinstmarginalbeskattning (VMB)') {
+      console.log(`ℹ️ Vehicle vat_type is ${inventoryItem.vat_type}, not VMB. Skipping project creation.`)
+      return new Response(
+        JSON.stringify({ message: 'Vehicle vat_type is not VMB, project creation skipped' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
 
-      // Get the syncing user's organization
-      console.log(`🔍 Getting organization for syncing user: ${syncingUserId}`)
-      const { data: syncingUserProfile, error: syncingUserError } = await supabaseClient
-        .from('profiles')
-        .select('organization_id')
-        .eq('user_id', syncingUserId)
-        .single()
+    // Get the syncing user's organization
+    console.log(`🔍 Getting organization for syncing user: ${syncingUserId}`)
+    const { data: syncingUserProfile, error: syncingUserError } = await supabaseClient
+      .from('profiles')
+      .select('organization_id')
+      .eq('user_id', syncingUserId)
+      .single()
 
-      console.log(`📋 Syncing user profile result:`, { syncingUserProfile, syncingUserError })
+    console.log(`📋 Syncing user profile result:`, { syncingUserProfile, syncingUserError })
 
-      if (syncingUserError || !syncingUserProfile) {
-        console.error('❌ Failed to fetch syncing user profile:', syncingUserError)
-        return new Response(
-          JSON.stringify({ error: 'Syncing user profile not found' }),
-          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
+    if (syncingUserError || !syncingUserProfile) {
+      console.error('❌ Failed to fetch syncing user profile:', syncingUserError)
+      return new Response(
+        JSON.stringify({ error: 'Syncing user profile not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
 
-      // Check if inventory item belongs to the same organization
-      if (inventoryItem.organization_id !== syncingUserProfile.organization_id) {
-        console.error('❌ Organization mismatch:', { 
-          inventory_org: inventoryItem.organization_id, 
-          syncing_user_org: syncingUserProfile.organization_id 
-        })
-        return new Response(
-          JSON.stringify({ error: 'Cannot sync vehicles from different organizations' }),
-          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
+    // Check if inventory item belongs to the same organization
+    if (inventoryItem.organization_id !== syncingUserProfile.organization_id) {
+      console.error('❌ Organization mismatch:', { 
+        inventory_org: inventoryItem.organization_id, 
+        syncing_user_org: syncingUserProfile.organization_id 
+      })
+      return new Response(
+        JSON.stringify({ error: 'Cannot sync vehicles from different organizations' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
 
-      // Look for ANY active Fortnox integration within the same organization
-      console.log(`🔍 Looking for Fortnox integration for organization: ${syncingUserProfile.organization_id}`)
-      
-      // First, get all users in the same organization
-      const { data: orgUsers, error: orgUsersError } = await supabaseClient
-        .from('profiles')
-        .select('user_id')
-        .eq('organization_id', syncingUserProfile.organization_id)
+    // Look for ANY active Fortnox integration within the same organization
+    console.log(`🔍 Looking for Fortnox integration for organization: ${syncingUserProfile.organization_id}`)
+    
+    // First, get all users in the same organization
+    const { data: orgUsers, error: orgUsersError } = await supabaseClient
+      .from('profiles')
+      .select('user_id')
+      .eq('organization_id', syncingUserProfile.organization_id)
 
-      if (orgUsersError) {
-        console.error('❌ Error fetching organization users:', orgUsersError)
-        return new Response(
-          JSON.stringify({ error: 'Error fetching organization users', details: orgUsersError.message }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
+    if (orgUsersError) {
+      console.error('❌ Error fetching organization users:', orgUsersError)
+      return new Response(
+        JSON.stringify({ error: 'Error fetching organization users', details: orgUsersError.message }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
 
-      const userIds = orgUsers.map(u => u.user_id)
-      console.log(`🔍 Found ${userIds.length} users in organization`)
+    const userIds = orgUsers.map(u => u.user_id)
+    console.log(`🔍 Found ${userIds.length} users in organization`)
 
-      // Now find any active Fortnox integration for these users
-      const { data: fortnoxIntegration, error: integrationError } = await supabaseClient
-        .from('fortnox_integrations')
-        .select('*')
-        .in('user_id', userIds)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle()
+    // Now find any active Fortnox integration for these users
+    const { data: fortnoxIntegration, error: integrationError } = await supabaseClient
+      .from('fortnox_integrations')
+      .select('*')
+      .in('user_id', userIds)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
 
-      console.log(`🔍 Fortnox integration query result:`, { fortnoxIntegration, integrationError })
+    console.log(`🔍 Fortnox integration query result:`, { fortnoxIntegration, integrationError })
 
-      if (integrationError) {
-        console.error('❌ Database error when fetching Fortnox integration:', integrationError)
-        return new Response(
-          JSON.stringify({ error: 'Database error when fetching Fortnox integration', details: integrationError.message }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
+    if (integrationError) {
+      console.error('❌ Database error when fetching Fortnox integration:', integrationError)
+      return new Response(
+        JSON.stringify({ error: 'Database error when fetching Fortnox integration', details: integrationError.message }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
 
-      if (!fortnoxIntegration) {
-        console.error('❌ No active Fortnox integration found for organization:', syncingUserProfile.organization_id)
-        return new Response(
-          JSON.stringify({ error: 'No active Fortnox integration found for your organization. Please connect to Fortnox first.' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
+    if (!fortnoxIntegration) {
+      console.error('❌ No active Fortnox integration found for organization:', syncingUserProfile.organization_id)
+      return new Response(
+        JSON.stringify({ error: 'No active Fortnox integration found for your organization. Please connect to Fortnox first.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
 
     const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET')
     if (!clientSecret) {
@@ -323,21 +323,21 @@ serve(async (req) => {
       // 🔎 Step: Lookup or create supplier "Veksla Bilhandel"
       let supplierNumber: string | undefined;
       try {
-          // Get API documentation for suppliers endpoint
-          const supplierDocs = await getFortnoxApiDocs('/suppliers', 'GET');
-          console.log('📚 Using API documentation for suppliers:', supplierDocs?.results?.[0]?.summary || 'No docs available');
+        // Get API documentation for suppliers endpoint
+        const supplierDocs = await getFortnoxApiDocs('/suppliers', 'GET');
+        console.log('📚 Using API documentation for suppliers:', supplierDocs?.results?.[0]?.summary || 'No docs available');
 
-          const supplierRes = await fetch(`https://api.fortnox.se/3/suppliers`, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${accessToken}`,
-              'Access-Token': clientSecret,
-              'Accept': 'application/json'
-            }
-          });
+        const supplierRes = await fetch(`https://api.fortnox.se/3/suppliers`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Access-Token': clientSecret,
+            'Accept': 'application/json'
+          }
+        });
 
-          const suppliersText = await supplierRes.text();
-          console.log('📥 Suppliers API response:', {
+        const suppliersText = await supplierRes.text();
+        console.log('📥 Suppliers API response:', {
             status: supplierRes.status,
             response: suppliersText.substring(0, 500) + '...'
           });
