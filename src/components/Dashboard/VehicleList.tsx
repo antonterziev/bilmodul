@@ -352,14 +352,23 @@ export const VehicleList = ({
       if (vehicle.vat_type === 'Vinstmarginalbeskattning (VMB)') {
         console.log('Syncing VMB vehicle:', { vehicleId, registrationNumber, userId: user?.id });
         
-        const { data, error } = await supabase.functions.invoke('fortnox-vmb-inkop', {
-          body: { 
-            inventoryItemId: vehicleId,
-            syncingUserId: user?.id
-          }
-        });
+        let response;
+        try {
+          response = await supabase.functions.invoke('fortnox-vmb-inkop', {
+            body: { 
+              inventoryItemId: vehicleId,
+              syncingUserId: user?.id
+            }
+          });
+          console.log('Full fortnox-vmb-inkop response:', response);
+        } catch (functionError) {
+          console.error('Function invoke error:', functionError);
+          throw new Error(functionError.message || 'Kunde inte anropa Fortnox funktionen');
+        }
 
-        // Check for both function errors and non-2xx responses
+        const { data, error } = response;
+
+        // Check for function invoke errors
         if (error) {
           console.error('VMB sync error:', error);
           throw new Error(error.message || 'Edge function error');
@@ -367,10 +376,11 @@ export const VehicleList = ({
 
         // Check if the response contains an error (from non-2xx status codes)
         if (data?.error) {
-          console.error('VMB sync failed:', data);
+          console.error('VMB sync failed with error:', data);
           throw new Error(data.error);
         }
 
+        // Check for success
         if (data?.success) {
           toast({
             title: "VMB projekt skapat",
@@ -381,7 +391,9 @@ export const VehicleList = ({
           loadVehicles();
         } else {
           console.error('VMB sync unexpected response:', data);
-          throw new Error('Okänt fel vid skapande av VMB projekt');
+          // If no explicit error but no success either, try to extract any error message
+          const errorMsg = data?.message || data?.details || 'Okänt fel vid skapande av VMB projekt';
+          throw new Error(errorMsg);
         }
       } else {
         toast({
