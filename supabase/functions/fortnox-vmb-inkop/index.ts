@@ -380,27 +380,53 @@ serve(async (req) => {
         const invoiceDocs = await getFortnoxApiDocs('/supplierinvoices', 'POST');
         console.log('📚 Using API documentation for supplier invoices:', JSON.stringify(invoiceDocs, null, 2));
 
-        // Create the invoice payload with proper balancing
-        // Always include both debit and credit lines to ensure proper amounts
-        const invoicePayload = {
-          SupplierInvoice: {
-            SupplierNumber: "1", // Use default supplier number
-            InvoiceNumber: inventoryItem.registration_number, // Use registration number as Fakturanummer
-            Project: projectNumber,
-            SupplierInvoiceRows: [
-              {
-                Account: vmbAccountNumber, // VMB inventory account (debit)
-                Debit: inventoryItem.purchase_price,
-                Project: projectNumber
-              },
-              {
-                Account: leverantorskulderAccountNumber, // Leverantörsskulder (credit)
-                Credit: inventoryItem.purchase_price,
-                Project: projectNumber
-              }
-            ]
-          }
-        };
+        // Create the invoice payload with proper balancing and purchase date
+        let invoicePayload;
+        
+        // Check if user configured 2440 for Leverantörsskulder - use different logic
+        if (leverantorskulderAccountNumber === '2440') {
+          console.log('📋 Using 2440 logic - setting total amount in existing entry');
+          // Use the existing 2440 entry and set total amount
+          invoicePayload = {
+            SupplierInvoice: {
+              SupplierNumber: "1", // Use default supplier number
+              InvoiceNumber: inventoryItem.registration_number, // Use registration number as Fakturanummer
+              InvoiceDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0], // Use purchase date or today
+              Project: projectNumber,
+              Total: inventoryItem.purchase_price, // Set the total amount
+              SupplierInvoiceRows: [
+                {
+                  Account: vmbAccountNumber, // VMB inventory account (debit)
+                  Debit: inventoryItem.purchase_price,
+                  Project: projectNumber
+                }
+              ]
+            }
+          };
+        } else {
+          console.log('📋 Using standard dual-entry logic');
+          // Standard dual-entry bookkeeping
+          invoicePayload = {
+            SupplierInvoice: {
+              SupplierNumber: "1", // Use default supplier number
+              InvoiceNumber: inventoryItem.registration_number, // Use registration number as Fakturanummer
+              InvoiceDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0], // Use purchase date or today
+              Project: projectNumber,
+              SupplierInvoiceRows: [
+                {
+                  Account: vmbAccountNumber, // VMB inventory account (debit)
+                  Debit: inventoryItem.purchase_price,
+                  Project: projectNumber
+                },
+                {
+                  Account: leverantorskulderAccountNumber, // Leverantörsskulder (credit)
+                  Credit: inventoryItem.purchase_price,
+                  Project: projectNumber
+                }
+              ]
+            }
+          };
+        }
 
         console.log('📤 Creating supplier invoice with payload:', JSON.stringify(invoicePayload, null, 2));
 
