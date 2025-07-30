@@ -499,7 +499,7 @@ serve(async (req) => {
           const downPaymentPayload = {
             SupplierInvoice: {
               SupplierNumber: "1",
-              InvoiceNumber: `${inventoryItem.registration_number}-HP`, // HP for handpenning
+              InvoiceNumber: inventoryItem.registration_number, // Just use registration number
               InvoiceDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0],
               Project: projectNumber,
               SupplierInvoiceRows: [
