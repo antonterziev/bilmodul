@@ -488,6 +488,94 @@ serve(async (req) => {
           fortnox_synced_by_user_id: syncingUserId
         }).eq('id', inventoryItemId);
 
+        // 💰 Step: Handle down payment if exists
+        console.log('💰 Checking for down payment...');
+        const downPaymentAmount = inventoryItem.down_payment;
+        console.log(`💰 Down payment amount: ${downPaymentAmount}`);
+        
+        if (downPaymentAmount && downPaymentAmount > 0) {
+          console.log('💰 Processing down payment entry...');
+          
+          // Create additional invoice rows for down payment
+          const downPaymentPayload = {
+            SupplierInvoice: {
+              SupplierNumber: "1",
+              InvoiceNumber: `${inventoryItem.registration_number}-HP`, // HP for handpenning
+              InvoiceDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0],
+              Project: projectNumber,
+              SupplierInvoiceRows: [
+                {
+                  Account: "2440", // Debit account 2440
+                  Debit: downPaymentAmount,
+                  Project: projectNumber
+                },
+                {
+                  Account: "1930", // Credit account 1930
+                  Credit: downPaymentAmount,
+                  Project: projectNumber
+                }
+              ]
+            }
+          };
+
+          console.log('💰 Creating down payment invoice with payload:', JSON.stringify(downPaymentPayload, null, 2));
+
+          const downPaymentRes = await fetch('https://api.fortnox.se/3/supplierinvoices', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Access-Token': clientSecret,
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify(downPaymentPayload)
+          });
+
+          const downPaymentResponseText = await downPaymentRes.text();
+          console.log('💰 Down payment invoice response:', {
+            status: downPaymentRes.status,
+            response: downPaymentResponseText
+          });
+
+          if (downPaymentRes.ok) {
+            const downPaymentData = JSON.parse(downPaymentResponseText);
+            const downPaymentVerificationNumber = downPaymentData?.SupplierInvoice?.VoucherNumber;
+            console.log(`✅ Down payment invoice created with verification number: ${downPaymentVerificationNumber}`);
+            
+            // Log down payment sync
+            await supabase.from('fortnox_sync_log').insert({
+              user_id: inventoryItem.user_id,
+              synced_by_user_id: syncingUserId,
+              inventory_item_id: inventoryItemId,
+              sync_type: 'vmb_down_payment',
+              sync_status: 'success',
+              fortnox_verification_number: downPaymentVerificationNumber,
+              sync_data: {
+                project_number: projectNumber,
+                down_payment_amount: downPaymentAmount,
+                fortnox_integration_id: fortnoxIntegration.id
+              }
+            });
+          } else {
+            console.error('❌ Failed to create down payment invoice:', downPaymentResponseText);
+            
+            // Log down payment error but don't fail the whole operation
+            await supabase.from('fortnox_errors_log').insert({
+              user_id: inventoryItem.user_id,
+              type: 'down_payment_invoice_failed',
+              message: `Failed to create down payment invoice: ${downPaymentResponseText}`,
+              context: {
+                inventory_item_id: inventoryItemId,
+                down_payment_amount: downPaymentAmount,
+                registration_number: inventoryItem.registration_number,
+                response_status: downPaymentRes.status
+              }
+            });
+          }
+        } else {
+          console.log('💰 No down payment to process (empty or 0)');
+        }
+
         // Log successful sync
         await supabase.from('fortnox_sync_log').insert({
           user_id: inventoryItem.user_id,
@@ -499,7 +587,8 @@ serve(async (req) => {
           sync_data: {
             project_number: projectNumber,
             invoice_number: invoiceNumber,
-            fortnox_integration_id: fortnoxIntegration.id
+            fortnox_integration_id: fortnoxIntegration.id,
+            down_payment_processed: downPaymentAmount > 0
           }
         });
 
@@ -508,7 +597,8 @@ serve(async (req) => {
             success: true, 
             message: 'Fortnox project and supplier invoice created successfully',
             projectNumber: projectNumber,
-            invoiceNumber: invoiceNumber
+            invoiceNumber: invoiceNumber,
+            downPaymentProcessed: downPaymentAmount > 0
           }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
