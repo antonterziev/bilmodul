@@ -335,18 +335,24 @@ serve(async (req) => {
         console.log(`✅ Fortnox project created: ${projectNumber}`);
 
         // Follow-up PUT request to fully activate the project
-        console.log('🔄 Performing follow-up PUT to activate project...');
-        const activateProjectPayload = {
+        console.log('🔄 Performing follow-up double PUT to force activation...');
+
+        const baseProjectPayload = {
+          ProjectNumber: projectNumber,
+          Description: `${inventoryItem.brand} ${inventoryItem.model}`,
+          Status: 'ONGOING',
+          StartDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0]
+        };
+
+        // First PUT – "Trigger A"
+        const putPayloadA = {
           Project: {
-            ProjectNumber: projectNumber,
-            Description: `${inventoryItem.brand} ${inventoryItem.model}`,
-            Status: 'ONGOING',
-            StartDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0],
-            Comments: `Auto-created for inventory ID ${inventoryItemId}`
+            ...baseProjectPayload,
+            Comments: `Auto-created for inventory ID ${inventoryItemId} — Trigger A`
           }
         };
 
-        const activateResponse = await fetch(`https://api.fortnox.se/3/projects/${projectNumber}`, {
+        const putResA = await fetch(`https://api.fortnox.se/3/projects/${projectNumber}`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${accessToken}`,
@@ -354,20 +360,42 @@ serve(async (req) => {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           },
-          body: JSON.stringify(activateProjectPayload)
+          body: JSON.stringify(putPayloadA)
+        });
+        const putTextA = await putResA.text();
+        console.log('📥 First activation PUT response:', {
+          status: putResA.status,
+          body: putTextA
         });
 
-        const activateResponseText = await activateResponse.text();
-        console.log('📥 Project activation response:', {
-          status: activateResponse.status,
-          statusText: activateResponse.statusText,
-          response: activateResponseText
+        // Second PUT – "Trigger B"
+        const putPayloadB = {
+          Project: {
+            ...baseProjectPayload,
+            Comments: `Auto-created for inventory ID ${inventoryItemId} — Trigger B`
+          }
+        };
+
+        const putResB = await fetch(`https://api.fortnox.se/3/projects/${projectNumber}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Access-Token': clientSecret,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(putPayloadB)
+        });
+        const putTextB = await putResB.text();
+        console.log('📥 Second activation PUT response:', {
+          status: putResB.status,
+          body: putTextB
         });
 
-        if (!activateResponse.ok) {
-          console.log('⚠️ Project activation failed, but continuing with invoice creation');
+        if (!putResA.ok || !putResB.ok) {
+          console.warn('⚠️ One or both activation PUTs failed, invoice creation may fail.');
         } else {
-          console.log('✅ Project fully activated');
+          console.log('✅ Double PUT activation complete');
         }
       }
 
