@@ -146,7 +146,6 @@ const Index = () => {
     if (view.startsWith("lager")) {
       const filterMap: Record<string, 'all' | 'på_lager' | 'såld'> = {
         'lager_all': 'all',
-        'lager_stock': 'på_lager', 
         'lager_sold': 'såld'
       };
       setLagerFilter(filterMap[view] || 'all');
@@ -353,7 +352,7 @@ const Index = () => {
               key={purchaseFormKey}
               onSuccess={() => {
                 loadStats();
-                handleViewChange("lager_stock");
+                handleViewChange("lager_all");
               }}
             />
           </div>
@@ -380,12 +379,10 @@ const Index = () => {
         return <AdminDashboard onBack={() => handleViewChange("overview")} />;
 
       case "lager_all":
-      case "lager_stock":
       case "lager_sold":
         const getHeaderTitle = () => {
           switch (currentView) {
             case "lager_all": return "Lagerlista";
-            case "lager_stock": return "I lager";
             case "lager_sold": return "Sålda";
             default: return "Lager";
           }
@@ -405,16 +402,12 @@ const Index = () => {
                         Filter
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-48">
-                      <DropdownMenuItem>
-                        <Checkbox className="mr-2" />
-                        I lager
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Checkbox className="mr-2" />
-                        Såld
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
+                     <DropdownMenuContent align="start" className="w-48">
+                       <DropdownMenuItem>
+                         <Checkbox className="mr-2" />
+                         Såld
+                       </DropdownMenuItem>
+                     </DropdownMenuContent>
                    </DropdownMenu>
                    
                    <Button variant="outline" size="sm" className="h-8 w-8 p-0">
