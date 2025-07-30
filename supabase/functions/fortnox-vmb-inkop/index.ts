@@ -170,7 +170,7 @@ serve(async (req) => {
     let accessToken = fortnoxIntegration.access_token
 
     // Check if access token needs refresh
-    if (fortnoxIntegration.expires_at && new Date(fortnoxIntegration.expires_at) <= new Date()) {
+    if (fortnoxIntegration.token_expires_at && new Date(fortnoxIntegration.token_expires_at) <= new Date()) {
       console.log('🔄 Access token expired, refreshing...')
       
       const refreshResponse = await fetch('https://apps.fortnox.se/oauth-v1/token', {
@@ -203,7 +203,7 @@ serve(async (req) => {
         .update({
           access_token: refreshData.access_token,
           refresh_token: refreshData.refresh_token,
-          expires_at: new Date(Date.now() + refreshData.expires_in * 1000).toISOString(),
+          token_expires_at: new Date(Date.now() + refreshData.expires_in * 1000).toISOString(),
           updated_at: new Date().toISOString()
         })
         .eq('id', fortnoxIntegration.id)
