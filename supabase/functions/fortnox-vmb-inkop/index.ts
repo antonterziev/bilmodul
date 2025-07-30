@@ -245,25 +245,92 @@ serve(async (req) => {
       });
 
       if (!createProjectRes.ok) {
-        console.error('❌ Failed to create project:', projectResponseText);
+        let projectNumber = inventoryItem.registration_number;
         
-        // Log error to database for debugging
-        await supabaseClient.from('fortnox_errors_log').insert({
-          user_id: inventoryItem.user_id,
-          type: 'project_creation_failed',
-          message: `Failed to create project: ${projectResponseText}`,
-          context: {
-            inventory_item_id: inventoryItemId,
-            registration_number: inventoryItem.registration_number,
-            project_payload: projectPayload,
-            response_status: createProjectRes.status
-          }
-        });
+        // Check if error is "project number already in use"
+        const errorData = JSON.parse(projectResponseText);
+        if (errorData?.ErrorInformation?.code === 2001182) {
+          console.log('⚠️ Project number already exists, trying with unique suffix');
+          
+          // Try with a unique suffix (timestamp)
+          const timestamp = Date.now().toString().slice(-6);
+          projectNumber = `${inventoryItem.registration_number}-${timestamp}`;
+          
+          const retryPayload = {
+            Project: {
+              ProjectNumber: projectNumber,
+              Description: `${inventoryItem.brand} ${inventoryItem.model}`,
+              Status: 'ONGOING',
+              Comments: `Auto-created for inventory ID ${inventoryItemId}`
+            }
+          };
 
-        return new Response(
-          JSON.stringify({ error: 'Failed to create Fortnox project', details: projectResponseText }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
+          console.log('🔄 Retrying with unique project number:', projectNumber);
+          
+          const retryRes = await fetch('https://api.fortnox.se/3/projects', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Access-Token': clientSecret,
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify(retryPayload)
+          });
+
+          if (!retryRes.ok) {
+            const retryText = await retryRes.text();
+            console.error('❌ Failed to create project with unique number:', retryText);
+            
+            await supabaseClient.from('fortnox_errors_log').insert({
+              user_id: inventoryItem.user_id,
+              type: 'project_creation_failed',
+              message: `Failed to create project even with unique number: ${retryText}`,
+              context: {
+                inventory_item_id: inventoryItemId,
+                registration_number: inventoryItem.registration_number,
+                retry_project_number: projectNumber,
+                response_status: retryRes.status
+              }
+            });
+
+            return new Response(
+              JSON.stringify({ error: 'Failed to create Fortnox project', details: retryText }),
+              { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+          
+          // Success with retry
+          const retryData = JSON.parse(await retryRes.text());
+          projectNumber = retryData?.Project?.ProjectNumber;
+          console.log(`✅ Fortnox project created with unique number: ${projectNumber}`);
+        } else {
+          // Different error, log and return
+          console.error('❌ Failed to create project:', projectResponseText);
+          
+          await supabaseClient.from('fortnox_errors_log').insert({
+            user_id: inventoryItem.user_id,
+            type: 'project_creation_failed',
+            message: `Failed to create project: ${projectResponseText}`,
+            context: {
+              inventory_item_id: inventoryItemId,
+              registration_number: inventoryItem.registration_number,
+              project_payload: projectPayload,
+              response_status: createProjectRes.status
+            }
+          });
+
+          return new Response(
+            JSON.stringify({ error: 'Failed to create Fortnox project', details: projectResponseText }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        
+        // Store the project number (either from retry or original)
+        await supabaseClient
+          .from('inventory_items')
+          .update({ fortnox_project_number: projectNumber })
+          .eq('id', inventoryItemId);
       } else {
         const projectData = JSON.parse(projectResponseText);
         const fortnoxProjectId = projectData?.Project?.ProjectNumber;
