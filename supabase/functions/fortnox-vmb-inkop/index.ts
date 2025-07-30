@@ -240,7 +240,7 @@ serve(async (req) => {
           ProjectNumber: inventoryItem.registration_number, // Must be unique
           Description: `${inventoryItem.brand} ${inventoryItem.model}`,
           Status: 'ONGOING',
-          StartDate: inventoryItem.purchase_date, // Use purchase date as start date
+          StartDate: inventoryItem.purchase_date ? new Date(inventoryItem.purchase_date).toISOString().split('T')[0] : undefined, // Format as YYYY-MM-DD
           Comments: `Auto-created for inventory ID ${inventoryItemId}`
         }
       };
