@@ -389,14 +389,25 @@ serve(async (req) => {
 
         const accountsData = await accountsResponse.json();
         
-        // Validate that these accounts exist and are active in Fortnox
-        const vmbAccount = accountsData.Accounts?.find(account => 
-          account.Number == vmbAccountNumber && account.Active
-        );
+        console.log('📋 Fortnox accounts response sample (first 3):', accountsData.Accounts?.slice(0, 3));
+        console.log('📋 Looking for accounts:', { vmbAccountNumber, leverantorskulderAccountNumber });
         
-        const leverantorskulderAccount = accountsData.Accounts?.find(account => 
-          account.Number == leverantorskulderAccountNumber && account.Active
-        );
+        // Validate that these accounts exist and are active in Fortnox
+        const vmbAccount = accountsData.Accounts?.find(account => {
+          const match = String(account.Number) === String(vmbAccountNumber) && account.Active;
+          if (String(account.Number) === String(vmbAccountNumber)) {
+            console.log(`📋 Found VMB account ${vmbAccountNumber}: active=${account.Active}, description=${account.Description}`);
+          }
+          return match;
+        });
+        
+        const leverantorskulderAccount = accountsData.Accounts?.find(account => {
+          const match = String(account.Number) === String(leverantorskulderAccountNumber) && account.Active;
+          if (String(account.Number) === String(leverantorskulderAccountNumber)) {
+            console.log(`📋 Found Leverantörsskulder account ${leverantorskulderAccountNumber}: active=${account.Active}, description=${account.Description}`);
+          }
+          return match;
+        });
 
         // Check for missing accounts and return error if not found
         if (!vmbAccount) {
