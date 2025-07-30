@@ -360,18 +360,36 @@ export const VehicleList = ({
               syncingUserId: user?.id
             }
           });
-          console.log('Full fortnox-vmb-inkop response:', response);
+          console.log('Full fortnox-vmb-inkop response:', JSON.stringify(response, null, 2));
         } catch (functionError) {
           console.error('Function invoke error:', functionError);
           throw new Error(functionError.message || 'Kunde inte anropa Fortnox funktionen');
         }
 
         const { data, error } = response;
+        console.log('Response data:', data);
+        console.log('Response error:', error);
 
-        // Check for function invoke errors
+        // Check for function invoke errors first
         if (error) {
-          console.error('VMB sync error:', error);
-          throw new Error(error.message || 'Edge function error');
+          console.error('VMB sync error object:', error);
+          
+          // Check if error has a message property
+          if (error.message) {
+            throw new Error(error.message);
+          }
+          
+          // Check if error is a string
+          if (typeof error === 'string') {
+            throw new Error(error);
+          }
+          
+          // Check if error contains context about the actual error
+          if (error.context) {
+            throw new Error(JSON.stringify(error.context));
+          }
+          
+          throw new Error(JSON.stringify(error));
         }
 
         // Check if the response contains an error (from non-2xx status codes)
@@ -392,7 +410,7 @@ export const VehicleList = ({
         } else {
           console.error('VMB sync unexpected response:', data);
           // If no explicit error but no success either, try to extract any error message
-          const errorMsg = data?.message || data?.details || 'Okänt fel vid skapande av VMB projekt';
+          const errorMsg = data?.message || data?.details || JSON.stringify(data) || 'Okänt fel vid skapande av VMB projekt';
           throw new Error(errorMsg);
         }
       } else {
