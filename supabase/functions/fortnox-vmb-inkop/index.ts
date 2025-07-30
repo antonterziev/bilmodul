@@ -404,12 +404,7 @@ serve(async (req) => {
             console.log('💰 Adding down payment rows to main invoice');
             supplierInvoiceRows.push(
               {
-                Account: "2440", // Debit account 2440
-                Debit: downPaymentAmount,
-                Project: projectNumber
-              },
-              {
-                Account: "1930", // Credit account 1930
+                Account: "1680", // Credit account 1680
                 Credit: downPaymentAmount,
                 Project: projectNumber
               }
@@ -447,12 +442,7 @@ serve(async (req) => {
             console.log('💰 Adding down payment rows to main invoice');
             supplierInvoiceRows.push(
               {
-                Account: "2440", // Debit account 2440
-                Debit: downPaymentAmount,
-                Project: projectNumber
-              },
-              {
-                Account: "1930", // Credit account 1930
+                Account: "1680", // Credit account 1680
                 Credit: downPaymentAmount,
                 Project: projectNumber
               }
