@@ -348,13 +348,35 @@ export const VehicleList = ({
         throw new Error('Fordon hittades inte');
       }
 
+      // Check if user has active Fortnox integration first
+      const { data: fortnoxIntegration, error: integrationError } = await supabase
+        .from('fortnox_integrations')
+        .select('*')
+        .eq('user_id', user?.id)
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (integrationError) {
+        console.error('Error checking Fortnox integration:', integrationError);
+        throw new Error('Kunde inte kontrollera Fortnox-anslutning');
+      }
+
+      if (!fortnoxIntegration) {
+        throw new Error('Ingen aktiv Fortnox-anslutning hittades. Vänligen anslut till Fortnox först.');
+      }
+
       // Only call fortnox-vmb-inköp if the vehicle vat_type is VMB
       if (vehicle.vat_type === 'Vinstmarginalbeskattning (VMB)') {
+        console.log('Syncing VMB vehicle:', { vehicleId, registrationNumber, userId: user?.id });
+        
         const { data, error } = await supabase.functions.invoke('fortnox-vmb-inkop', {
           body: { inventoryItemId: vehicleId }
         });
 
-        if (error) throw error;
+        if (error) {
+          console.error('VMB sync error:', error);
+          throw error;
+        }
 
         if (data?.success) {
           toast({
@@ -365,6 +387,7 @@ export const VehicleList = ({
           // Reload vehicles to show updated sync status
           loadVehicles();
         } else {
+          console.error('VMB sync failed:', data);
           throw new Error(data?.error || 'Okänt fel vid skapande av VMB projekt');
         }
       } else {
@@ -376,9 +399,18 @@ export const VehicleList = ({
       }
     } catch (error) {
       console.error('Error syncing vehicle:', error);
+      
+      // More detailed error message
+      let errorMessage = 'Kunde inte synkronisera med Fortnox. Försök igen.';
+      if (error.message?.includes('No active Fortnox integration')) {
+        errorMessage = 'Ingen aktiv Fortnox-anslutning. Gå till Integrationer för att ansluta till Fortnox.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Synkroniseringsfel",
-        description: `Kunde inte synkronisera ${registrationNumber} med Fortnox. Försök igen.`,
+        description: `${registrationNumber}: ${errorMessage}`,
         variant: "destructive",
       });
     } finally {
