@@ -233,23 +233,13 @@ serve(async (req) => {
     try {
       // Get API documentation for projects endpoint
       const projectDocs = await getFortnoxApiDocs('/projects', 'POST');
-      console.log('📚 Using API documentation for projects:', JSON.stringify(projectDocs, null, 2));
-
-      // Format the date properly (YYYY-MM-DD)
-      const formattedStartDate = inventoryItem.purchase_date ? 
-        new Date(inventoryItem.purchase_date).toISOString().split('T')[0] : 
-        undefined;
-      
-      console.log('📅 Original purchase_date:', inventoryItem.purchase_date);
-      console.log('📅 Formatted StartDate:', formattedStartDate);
+      console.log('📚 Using API documentation for projects:', projectDocs?.results?.[0]?.summary || 'No docs available');
 
       const projectPayload = {
         Project: {
           ProjectNumber: inventoryItem.registration_number, // Must be unique
           Description: `${inventoryItem.brand} ${inventoryItem.model}`,
           Status: 'ONGOING',
-          // Note: Commenting out StartDate for now to test if this is the issue
-          // StartDate: formattedStartDate,
           Comments: `Auto-created for inventory ID ${inventoryItemId}`
         }
       };
