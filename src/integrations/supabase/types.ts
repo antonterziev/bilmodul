@@ -22,7 +22,7 @@ export type Database = {
           id: string
           organization_id: string
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           account_name: string
@@ -31,7 +31,7 @@ export type Database = {
           id?: string
           organization_id: string
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           account_name?: string
@@ -40,7 +40,7 @@ export type Database = {
           id?: string
           organization_id?: string
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -649,6 +649,10 @@ export type Database = {
       is_admin: {
         Args: { _user_id?: string }
         Returns: boolean
+      }
+      populate_default_account_mappings: {
+        Args: { _organization_id: string }
+        Returns: undefined
       }
     }
     Enums: {

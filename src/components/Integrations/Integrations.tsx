@@ -179,14 +179,14 @@ export const Integrations = () => {
         throw new Error('Could not find user organization');
       }
 
-      // Upsert the account mapping
+      // Upsert the account mapping (organization-wide, no user_id)
       const { error } = await supabase
         .from('account_mappings')
         .upsert({
-          user_id: user.id,
           organization_id: profile.organization_id,
           account_name: accountName,
-          account_number: accountNumber
+          account_number: accountNumber,
+          user_id: null
         }, {
           onConflict: 'organization_id,account_name'
         });
@@ -215,10 +215,23 @@ export const Integrations = () => {
     if (!user?.id) return;
 
     try {
+      // Get user's organization first
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!profile?.organization_id) {
+        console.error('Could not find user organization');
+        return;
+      }
+
+      // Load organization-wide account mappings
       const { data: mappings, error } = await supabase
         .from('account_mappings')
         .select('account_name, account_number')
-        .eq('user_id', user.id);
+        .eq('organization_id', profile.organization_id);
 
       if (error) {
         console.error('Error loading account mappings:', error);
