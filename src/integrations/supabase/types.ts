@@ -283,22 +283,18 @@ export type Database = {
           chassis_number: string | null
           comment: string | null
           created_at: string
-          current_location: string | null
           customer_country: string | null
           customer_type: string | null
           down_payment: number | null
           down_payment_docs_sent: boolean | null
           down_payment_document_path: string | null
-          expected_selling_price: number | null
-          financing_details: string | null
-          financing_provided: boolean | null
           first_registration_date: string | null
+          fortnox_invoice_number: string | null
+          fortnox_project_number: string | null
           fortnox_sync_status: string | null
           fortnox_synced_at: string | null
           fortnox_verification_number: string | null
           id: string
-          logistics_documentation_attached: boolean | null
-          logistics_notes: string | null
           marketplace_channel: string | null
           marketplace_channel_other: string | null
           mileage: number | null
@@ -322,8 +318,6 @@ export type Database = {
           updated_at: string
           user_id: string
           vat_type: string | null
-          warranty_details: string | null
-          warranty_provided: boolean | null
           year_model: number | null
         }
         Insert: {
@@ -333,22 +327,18 @@ export type Database = {
           chassis_number?: string | null
           comment?: string | null
           created_at?: string
-          current_location?: string | null
           customer_country?: string | null
           customer_type?: string | null
           down_payment?: number | null
           down_payment_docs_sent?: boolean | null
           down_payment_document_path?: string | null
-          expected_selling_price?: number | null
-          financing_details?: string | null
-          financing_provided?: boolean | null
           first_registration_date?: string | null
+          fortnox_invoice_number?: string | null
+          fortnox_project_number?: string | null
           fortnox_sync_status?: string | null
           fortnox_synced_at?: string | null
           fortnox_verification_number?: string | null
           id?: string
-          logistics_documentation_attached?: boolean | null
-          logistics_notes?: string | null
           marketplace_channel?: string | null
           marketplace_channel_other?: string | null
           mileage?: number | null
@@ -372,8 +362,6 @@ export type Database = {
           updated_at?: string
           user_id: string
           vat_type?: string | null
-          warranty_details?: string | null
-          warranty_provided?: boolean | null
           year_model?: number | null
         }
         Update: {
@@ -383,22 +371,18 @@ export type Database = {
           chassis_number?: string | null
           comment?: string | null
           created_at?: string
-          current_location?: string | null
           customer_country?: string | null
           customer_type?: string | null
           down_payment?: number | null
           down_payment_docs_sent?: boolean | null
           down_payment_document_path?: string | null
-          expected_selling_price?: number | null
-          financing_details?: string | null
-          financing_provided?: boolean | null
           first_registration_date?: string | null
+          fortnox_invoice_number?: string | null
+          fortnox_project_number?: string | null
           fortnox_sync_status?: string | null
           fortnox_synced_at?: string | null
           fortnox_verification_number?: string | null
           id?: string
-          logistics_documentation_attached?: boolean | null
-          logistics_notes?: string | null
           marketplace_channel?: string | null
           marketplace_channel_other?: string | null
           mileage?: number | null
@@ -422,8 +406,6 @@ export type Database = {
           updated_at?: string
           user_id?: string
           vat_type?: string | null
-          warranty_details?: string | null
-          warranty_provided?: boolean | null
           year_model?: number | null
         }
         Relationships: [
@@ -509,7 +491,6 @@ export type Database = {
       }
       profiles: {
         Row: {
-          company_name: string | null
           created_at: string
           email: string | null
           first_name: string | null
@@ -521,7 +502,6 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          company_name?: string | null
           created_at?: string
           email?: string | null
           first_name?: string | null
@@ -533,7 +513,6 @@ export type Database = {
           user_id: string
         }
         Update: {
-          company_name?: string | null
           created_at?: string
           email?: string | null
           first_name?: string | null
