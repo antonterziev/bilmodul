@@ -54,6 +54,8 @@ serve(async (req) => {
     }
 
     // Get user's active Fortnox integration
+    console.log(`🔍 Looking for Fortnox integration for user: ${inventoryItem.user_id}`)
+    
     const { data: fortnoxIntegration, error: integrationError } = await supabaseClient
       .from('fortnox_integrations')
       .select('*')
@@ -61,10 +63,20 @@ serve(async (req) => {
       .eq('is_active', true)
       .maybeSingle()
 
-    if (integrationError || !fortnoxIntegration) {
-      console.error('❌ No active Fortnox integration found:', integrationError)
+    console.log(`🔍 Fortnox integration query result:`, { fortnoxIntegration, integrationError })
+
+    if (integrationError) {
+      console.error('❌ Database error when fetching Fortnox integration:', integrationError)
       return new Response(
-        JSON.stringify({ error: 'No active Fortnox integration found' }),
+        JSON.stringify({ error: 'Database error when fetching Fortnox integration', details: integrationError.message }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (!fortnoxIntegration) {
+      console.error('❌ No active Fortnox integration found for user:', inventoryItem.user_id)
+      return new Response(
+        JSON.stringify({ error: 'No active Fortnox integration found. Please connect to Fortnox first.' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
