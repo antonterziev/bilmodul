@@ -21,8 +21,9 @@ interface UserProfile {
   full_name: string;
   first_name: string;
   last_name: string;
-  company_name: string;
   organization_id: string;
+  created_at: string;
+  updated_at: string;
 }
 
 // Removed unused UserRole interface
@@ -60,7 +61,6 @@ export const Settings = () => {
   // Profile form state
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [companyName, setCompanyName] = useState("");
   
   // Track original values to detect changes
   const [originalFirstName, setOriginalFirstName] = useState("");
@@ -94,11 +94,9 @@ export const Settings = () => {
       // Set initial values from user metadata
       const firstNameValue = userMetadata.first_name || '';
       const lastNameValue = userMetadata.last_name || '';
-      const companyNameValue = userMetadata.company_name || '';
       
       setFirstName(firstNameValue);
       setLastName(lastNameValue);
-      setCompanyName(companyNameValue);
       setOriginalFirstName(firstNameValue);
       setOriginalLastName(lastNameValue);
 
@@ -129,7 +127,6 @@ export const Settings = () => {
               email: user?.email || '',
               first_name: userMetadata.first_name || '',
               last_name: userMetadata.last_name || '',
-              company_name: userMetadata.company_name || '',
               organization_id: orgData?.id
             })
             .select()
@@ -161,11 +158,9 @@ export const Settings = () => {
         // Override with profile data if it exists, but keep user metadata as fallback
         const firstNameValue = data.first_name || userMetadata.first_name || '';
         const lastNameValue = data.last_name || userMetadata.last_name || '';
-        const companyNameValue = data.company_name || userMetadata.company_name || '';
         
         setFirstName(firstNameValue);
         setLastName(lastNameValue);
-        setCompanyName(companyNameValue);
         setOriginalFirstName(firstNameValue);
         setOriginalLastName(lastNameValue);
       }
@@ -208,7 +203,6 @@ export const Settings = () => {
           first_name: firstName,
           last_name: lastName,
           full_name: fullName,
-          company_name: companyName,
         })
         .eq('user_id', user?.id);
 
