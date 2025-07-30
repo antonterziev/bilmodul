@@ -32,19 +32,38 @@ async function getFortnoxApiDocs(endpoint?: string, method?: string) {
 }
 
 serve(async (req) => {
+  console.log('🚀 Function invoked, method:', req.method);
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
+    console.log('✅ Returning CORS preflight response');
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    console.log('🔧 Creating Supabase client...');
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
+    console.log('✅ Supabase client created');
 
     console.log('🚀 NEW VERSION: fortnox-vmb-inkop function started')
-    const { inventoryItemId, syncingUserId } = await req.json()
+    
+    console.log('📥 Reading request body...');
+    let requestData;
+    try {
+      requestData = await req.json();
+      console.log('📥 Successfully parsed request body:', requestData);
+    } catch (parseError) {
+      console.error('❌ Failed to parse request body:', parseError);
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON in request body', details: parseError.message }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    const { inventoryItemId, syncingUserId } = requestData;
     console.log('📥 Request data:', { inventoryItemId, syncingUserId })
 
     if (!inventoryItemId) {
