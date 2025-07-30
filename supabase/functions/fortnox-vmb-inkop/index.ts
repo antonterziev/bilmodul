@@ -339,21 +339,57 @@ serve(async (req) => {
         .update({ fortnox_project_number: projectNumber })
         .eq('id', inventoryItemId);
 
-      // 🧾 Step: Create basic supplier invoice
-      console.log('📋 Creating basic supplier invoice...');
+      // 🧾 Step: Create supplier invoice with Leverantörsskulder credit
+      console.log('📋 Creating supplier invoice with Leverantörsskulder credit...');
       try {
+        // First, get the chart of accounts to find Leverantörsskulder account
+        console.log('🔍 Looking up Leverantörsskulder account in chart of accounts...');
+        
+        const accountsResponse = await fetch('https://api.fortnox.se/3/accounts', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Access-Token': clientSecret,
+            'Accept': 'application/json'
+          }
+        });
+
+        if (!accountsResponse.ok) {
+          throw new Error(`Failed to fetch accounts: ${await accountsResponse.text()}`);
+        }
+
+        const accountsData = await accountsResponse.json();
+        const leverantorskulderAccount = accountsData.Accounts?.find(account => 
+          account.Description?.toLowerCase().includes('leverantörsskulder') ||
+          account.Description?.toLowerCase().includes('leverantörsskuld') ||
+          account.Description?.toLowerCase().includes('accounts payable')
+        );
+
+        if (!leverantorskulderAccount) {
+          console.warn('⚠️ Could not find Leverantörsskulder account, using default 2440');
+        }
+
+        const leverantorskulderAccountNumber = leverantorskulderAccount?.Number || 2440;
+        console.log(`📋 Using Leverantörsskulder account: ${leverantorskulderAccountNumber}`);
+
         // Get API documentation for supplier invoices endpoint
         const invoiceDocs = await getFortnoxApiDocs('/supplierinvoices', 'POST');
         console.log('📚 Using API documentation for supplier invoices:', JSON.stringify(invoiceDocs, null, 2));
 
-        // Based on the documentation, create the invoice payload
+        // Create the invoice payload with debit and credit lines
         const invoicePayload = {
           SupplierInvoice: {
             SupplierNumber: "1", // Use default supplier number
             Project: projectNumber,
             SupplierInvoiceRows: [
               {
-                Account: 1520, // Standard vehicle account
+                Account: 1520, // Vehicle asset account (debit)
+                Debit: inventoryItem.purchase_price,
+                Project: projectNumber
+              },
+              {
+                Account: leverantorskulderAccountNumber, // Leverantörsskulder (credit)
+                Credit: inventoryItem.purchase_price,
                 Project: projectNumber
               }
             ]
