@@ -338,7 +338,11 @@ serve(async (req) => {
         console.log('🔄 Performing follow-up PUT to activate project...');
         const activateProjectPayload = {
           Project: {
-            Status: 'ONGOING'
+            ProjectNumber: projectNumber,
+            Description: `${inventoryItem.brand} ${inventoryItem.model}`,
+            Status: 'ONGOING',
+            StartDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0],
+            Comments: `Auto-created for inventory ID ${inventoryItemId}`
           }
         };
 
