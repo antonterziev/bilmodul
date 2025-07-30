@@ -408,24 +408,35 @@ serve(async (req) => {
         const invoiceDocs = await getFortnoxApiDocs('/supplierinvoices', 'POST');
         console.log('📚 Using API documentation for supplier invoices:', JSON.stringify(invoiceDocs, null, 2));
 
-        // Create the invoice payload with debit and credit lines + registration number as invoice number
+        // Create the invoice payload with conditional credit line logic
+        // If Leverantörsskulder account is 2440, Fortnox will add it automatically as TOT line
+        // Otherwise, we need to include it manually
+        const invoiceRows = [
+          {
+            Account: vmbAccountNumber, // VMB inventory account (debit)
+            Debit: inventoryItem.purchase_price,
+            Project: projectNumber
+          }
+        ];
+
+        // Only add credit line if the account is NOT 2440 (Fortnox adds 2440 automatically)
+        if (leverantorskulderAccountNumber !== 2440) {
+          invoiceRows.push({
+            Account: leverantorskulderAccountNumber, // Leverantörsskulder (credit)
+            Credit: inventoryItem.purchase_price,
+            Project: projectNumber
+          });
+          console.log(`📋 Adding manual credit line for account ${leverantorskulderAccountNumber}`);
+        } else {
+          console.log(`📋 Skipping credit line - Fortnox will add account 2440 automatically as TOT line`);
+        }
+
         const invoicePayload = {
           SupplierInvoice: {
             SupplierNumber: "1", // Use default supplier number
             InvoiceNumber: inventoryItem.registration_number, // Use registration number as Fakturanummer
             Project: projectNumber,
-            SupplierInvoiceRows: [
-              {
-                Account: vmbAccountNumber, // VMB inventory account (debit)
-                Debit: inventoryItem.purchase_price,
-                Project: projectNumber
-              },
-              {
-                Account: leverantorskulderAccountNumber, // Leverantörsskulder (credit)
-                Credit: inventoryItem.purchase_price,
-                Project: projectNumber
-              }
-            ]
+            SupplierInvoiceRows: invoiceRows
           }
         };
 
