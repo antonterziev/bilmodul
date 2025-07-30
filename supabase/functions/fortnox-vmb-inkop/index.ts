@@ -6,6 +6,31 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Get API documentation from fortnox-docs function
+async function getFortnoxApiDocs(endpoint?: string, method?: string) {
+  try {
+    const baseUrl = Deno.env.get('SUPABASE_URL')?.replace('//', '//').replace(/\/$/, '');
+    const docsUrl = `${baseUrl}/functions/v1/fortnox-docs`;
+    
+    let url = docsUrl;
+    if (endpoint || method) {
+      const params = new URLSearchParams();
+      params.append('action', 'search');
+      if (endpoint) params.append('endpoint', endpoint);
+      if (method) params.append('method', method);
+      url += `?${params.toString()}`;
+    }
+    
+    const response = await fetch(url);
+    if (response.ok) {
+      return await response.json();
+    }
+  } catch (error) {
+    console.log('📚 Could not fetch API docs:', error.message);
+  }
+  return null;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -134,6 +159,10 @@ serve(async (req) => {
 
     // 🔨 Step: Create a Fortnox Project for this vehicle using its registration number
     try {
+      // Get API documentation for projects endpoint
+      const projectDocs = await getFortnoxApiDocs('/projects', 'POST');
+      console.log('📚 Using API documentation for projects:', projectDocs?.results?.[0]?.summary || 'No docs available');
+
       const projectPayload = {
         Project: {
           ProjectNumber: inventoryItem.registration_number, // Must be unique
@@ -142,6 +171,8 @@ serve(async (req) => {
           Comments: `Auto-created for inventory ID ${inventoryItemId}`
         }
       };
+
+      console.log('📤 Creating project with payload:', JSON.stringify(projectPayload, null, 2));
 
       const createProjectRes = await fetch('https://api.fortnox.se/3/projects', {
         method: 'POST',
@@ -155,9 +186,28 @@ serve(async (req) => {
       });
 
       const projectResponseText = await createProjectRes.text();
+      console.log('📥 Project API response:', {
+        status: createProjectRes.status,
+        statusText: createProjectRes.statusText,
+        response: projectResponseText
+      });
 
       if (!createProjectRes.ok) {
         console.error('❌ Failed to create project:', projectResponseText);
+        
+        // Log error to database for debugging
+        await supabaseClient.from('fortnox_errors_log').insert({
+          user_id: inventoryItem.user_id,
+          type: 'project_creation_failed',
+          message: `Failed to create project: ${projectResponseText}`,
+          context: {
+            inventory_item_id: inventoryItemId,
+            registration_number: inventoryItem.registration_number,
+            project_payload: projectPayload,
+            response_status: createProjectRes.status
+          }
+        });
+
         return new Response(
           JSON.stringify({ error: 'Failed to create Fortnox project', details: projectResponseText }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -176,6 +226,10 @@ serve(async (req) => {
         // 🔎 Step: Lookup or create supplier "Veksla Bilhandel"
         let supplierNumber: string | undefined;
         try {
+          // Get API documentation for suppliers endpoint
+          const supplierDocs = await getFortnoxApiDocs('/suppliers', 'GET');
+          console.log('📚 Using API documentation for suppliers:', supplierDocs?.results?.[0]?.summary || 'No docs available');
+
           const supplierRes = await fetch(`https://api.fortnox.se/3/suppliers`, {
             method: 'GET',
             headers: {
@@ -186,6 +240,11 @@ serve(async (req) => {
           });
 
           const suppliersText = await supplierRes.text();
+          console.log('📥 Suppliers API response:', {
+            status: supplierRes.status,
+            response: suppliersText.substring(0, 500) + '...'
+          });
+
           if (!supplierRes.ok) throw new Error(`Failed to fetch suppliers: ${suppliersText}`);
 
           const suppliers = JSON.parse(suppliersText)?.Suppliers ?? [];
@@ -197,6 +256,10 @@ serve(async (req) => {
           } else {
             // Supplier not found – create it
             console.log('➕ Supplier "Veksla Bilhandel" not found, creating...');
+            
+            const supplierCreateDocs = await getFortnoxApiDocs('/suppliers', 'POST');
+            console.log('📚 Using API documentation for supplier creation:', supplierCreateDocs?.results?.[0]?.summary || 'No docs available');
+
             const createSupplierRes = await fetch('https://api.fortnox.se/3/suppliers', {
               method: 'POST',
               headers: {
@@ -216,7 +279,24 @@ serve(async (req) => {
             });
 
             const supplierCreateText = await createSupplierRes.text();
-            if (!createSupplierRes.ok) throw new Error(`Failed to create supplier: ${supplierCreateText}`);
+            console.log('📥 Supplier creation response:', {
+              status: createSupplierRes.status,
+              response: supplierCreateText
+            });
+
+            if (!createSupplierRes.ok) {
+              // Log error to database
+              await supabaseClient.from('fortnox_errors_log').insert({
+                user_id: inventoryItem.user_id,
+                type: 'supplier_creation_failed',
+                message: `Failed to create supplier: ${supplierCreateText}`,
+                context: {
+                  inventory_item_id: inventoryItemId,
+                  response_status: createSupplierRes.status
+                }
+              });
+              throw new Error(`Failed to create supplier: ${supplierCreateText}`);
+            }
 
             const newSupplier = JSON.parse(supplierCreateText)?.Supplier;
             supplierNumber = newSupplier?.SupplierNumber;
@@ -239,6 +319,10 @@ serve(async (req) => {
 
         // 🧾 Step: Create supplier invoice
         try {
+          // Get API documentation for supplier invoices endpoint
+          const invoiceDocs = await getFortnoxApiDocs('/supplierinvoices', 'POST');
+          console.log('📚 Using API documentation for supplier invoices:', invoiceDocs?.results?.[0]?.summary || 'No docs available');
+
           const invoicePayload = {
             SupplierInvoice: {
               SupplierNumber: supplierNumber,
@@ -256,6 +340,8 @@ serve(async (req) => {
             }
           };
 
+          console.log('📤 Creating supplier invoice with payload:', JSON.stringify(invoicePayload, null, 2));
+
           const createInvoiceRes = await fetch('https://api.fortnox.se/3/supplierinvoices', {
             method: 'POST',
             headers: {
@@ -268,8 +354,29 @@ serve(async (req) => {
           });
 
           const invoiceText = await createInvoiceRes.text();
+          console.log('📥 Supplier invoice API response:', {
+            status: createInvoiceRes.status,
+            statusText: createInvoiceRes.statusText,
+            response: invoiceText
+          });
+
           if (!createInvoiceRes.ok) {
             console.error('❌ Failed to create supplier invoice:', invoiceText);
+            
+            // Log error to database for debugging
+            await supabaseClient.from('fortnox_errors_log').insert({
+              user_id: inventoryItem.user_id,
+              type: 'supplier_invoice_creation_failed',
+              message: `Failed to create supplier invoice: ${invoiceText}`,
+              context: {
+                inventory_item_id: inventoryItemId,
+                supplier_number: supplierNumber,
+                project_id: fortnoxProjectId,
+                invoice_payload: invoicePayload,
+                response_status: createInvoiceRes.status
+              }
+            });
+
             return new Response(JSON.stringify({
               error: 'Failed to create Fortnox supplier invoice',
               details: invoiceText
@@ -286,13 +393,41 @@ serve(async (req) => {
           const invoiceNumber = invoiceData?.SupplierInvoice?.DocumentNumber;
           console.log(`✅ Supplier invoice created: ${invoiceNumber}`);
 
-          // Optional: Save invoice number
+          // Save invoice number and update sync status
           await supabaseClient.from('inventory_items').update({
-            fortnox_invoice_number: invoiceNumber
+            fortnox_invoice_number: invoiceNumber,
+            fortnox_sync_status: 'success',
+            fortnox_synced_at: new Date().toISOString()
           }).eq('id', inventoryItemId);
+
+          // Log successful sync
+          await supabaseClient.from('fortnox_sync_log').insert({
+            user_id: inventoryItem.user_id,
+            inventory_item_id: inventoryItemId,
+            sync_type: 'vmb_project_creation',
+            sync_status: 'success',
+            fortnox_verification_number: invoiceNumber,
+            sync_data: {
+              project_number: fortnoxProjectId,
+              supplier_number: supplierNumber,
+              invoice_number: invoiceNumber
+            }
+          });
 
         } catch (invoiceError) {
           console.error('❌ Error during supplier invoice creation:', invoiceError);
+          
+          // Log error to database
+          await supabaseClient.from('fortnox_errors_log').insert({
+            user_id: inventoryItem.user_id,
+            type: 'supplier_invoice_error',
+            message: `Error during supplier invoice creation: ${invoiceError.message}`,
+            context: {
+              inventory_item_id: inventoryItemId,
+              error_stack: invoiceError.stack
+            }
+          });
+
           return new Response(JSON.stringify({
             error: 'Error during supplier invoice creation',
             details: invoiceError.message
