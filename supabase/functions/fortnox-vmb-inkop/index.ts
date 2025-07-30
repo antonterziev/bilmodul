@@ -339,11 +339,11 @@ serve(async (req) => {
         .update({ fortnox_project_number: projectNumber })
         .eq('id', inventoryItemId);
 
-      // 🧾 Step: Create supplier invoice with Leverantörsskulder credit
-      console.log('📋 Creating supplier invoice with Leverantörsskulder credit...');
+      // 🧾 Step: Create supplier invoice with proper VMB accounting
+      console.log('📋 Creating supplier invoice with VMB accounting...');
       try {
-        // First, get the chart of accounts to find Leverantörsskulder account
-        console.log('🔍 Looking up Leverantörsskulder account in chart of accounts...');
+        // First, get the chart of accounts to find both VMB and Leverantörsskulder accounts
+        console.log('🔍 Looking up VMB and Leverantörsskulder accounts in chart of accounts...');
         
         const accountsResponse = await fetch('https://api.fortnox.se/3/accounts', {
           method: 'GET',
@@ -359,18 +359,33 @@ serve(async (req) => {
         }
 
         const accountsData = await accountsResponse.json();
+        
+        // Find VMB inventory account
+        const vmbAccount = accountsData.Accounts?.find(account => 
+          account.Description?.toLowerCase().includes('lager') && 
+          account.Description?.toLowerCase().includes('vmb') &&
+          account.Description?.toLowerCase().includes('bil')
+        );
+
+        // Find Leverantörsskulder account
         const leverantorskulderAccount = accountsData.Accounts?.find(account => 
           account.Description?.toLowerCase().includes('leverantörsskulder') ||
           account.Description?.toLowerCase().includes('leverantörsskuld') ||
           account.Description?.toLowerCase().includes('accounts payable')
         );
 
+        if (!vmbAccount) {
+          console.warn('⚠️ Could not find "Lager - VMB-bilar" account, using default 1520');
+        }
         if (!leverantorskulderAccount) {
           console.warn('⚠️ Could not find Leverantörsskulder account, using default 2440');
         }
 
+        const vmbAccountNumber = vmbAccount?.Number || 1520;
         const leverantorskulderAccountNumber = leverantorskulderAccount?.Number || 2440;
-        console.log(`📋 Using Leverantörsskulder account: ${leverantorskulderAccountNumber}`);
+        
+        console.log(`📋 Using VMB inventory account: ${vmbAccountNumber} (${vmbAccount?.Description || 'Default'})`);
+        console.log(`📋 Using Leverantörsskulder account: ${leverantorskulderAccountNumber} (${leverantorskulderAccount?.Description || 'Default'})`);
 
         // Get API documentation for supplier invoices endpoint
         const invoiceDocs = await getFortnoxApiDocs('/supplierinvoices', 'POST');
@@ -383,7 +398,7 @@ serve(async (req) => {
             Project: projectNumber,
             SupplierInvoiceRows: [
               {
-                Account: 1520, // Vehicle asset account (debit)
+                Account: vmbAccountNumber, // VMB inventory account (debit)
                 Debit: inventoryItem.purchase_price,
                 Project: projectNumber
               },
