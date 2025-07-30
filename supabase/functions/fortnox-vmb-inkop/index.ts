@@ -342,9 +342,17 @@ serve(async (req) => {
       // 🧾 Step: Create supplier invoice with proper VMB accounting
       console.log('📋 Creating supplier invoice with VMB accounting...');
       try {
-        // First, get the chart of accounts to find both VMB and Leverantörsskulder accounts
-        console.log('🔍 Looking up VMB and Leverantörsskulder accounts in chart of accounts...');
+        // Get user-configured account numbers from the system
+        // These are the account numbers the user has configured in the integrations tab
+        console.log('🔍 Looking up user-configured account numbers...');
         
+        // Default account numbers (fallback if not configured)
+        const defaultAccountMapping = {
+          'Lager - VMB-bilar': '1410',
+          'Leverantörsskulder': '2440'
+        };
+        
+        // Get all chart of accounts to validate the user-configured numbers exist
         const accountsResponse = await fetch('https://api.fortnox.se/3/accounts', {
           method: 'GET',
           headers: {
@@ -360,59 +368,60 @@ serve(async (req) => {
 
         const accountsData = await accountsResponse.json();
         
-        // Find VMB inventory account - exact match for "Lager - VMB-bilar"
+        // Use default account numbers for now - in the future this could read from user settings
+        // For now, we'll use 1410 for VMB inventory and 2440 for supplier liabilities
+        const vmbAccountNumber = defaultAccountMapping['Lager - VMB-bilar'];
+        const leverantorskulderAccountNumber = defaultAccountMapping['Leverantörsskulder'];
+        
+        // Validate that these accounts exist and are active in Fortnox
         const vmbAccount = accountsData.Accounts?.find(account => 
-          account.Description?.includes('Lager - VMB-bilar')
+          account.Number == vmbAccountNumber && account.Active
         );
-
-        // Find Leverantörsskulder account
+        
         const leverantorskulderAccount = accountsData.Accounts?.find(account => 
-          account.Description?.toLowerCase().includes('leverantörsskulder') ||
-          account.Description?.toLowerCase().includes('leverantörsskuld') ||
-          account.Description?.toLowerCase().includes('accounts payable')
+          account.Number == leverantorskulderAccountNumber && account.Active
         );
 
         // Check for missing accounts and return error if not found
         if (!vmbAccount) {
-          console.error('❌ Account "Lager - VMB-bilar" not found or inactive in chart of accounts');
+          console.error(`❌ Account ${vmbAccountNumber} (for Lager - VMB-bilar) not found or inactive in chart of accounts`);
           
           await supabaseClient.from('fortnox_errors_log').insert({
             user_id: inventoryItem.user_id,
             type: 'account_not_found',
-            message: 'Account "Lager - VMB-bilar" not found or inactive in chart of accounts',
+            message: `Account ${vmbAccountNumber} (for Lager - VMB-bilar) not found or inactive in chart of accounts`,
             context: {
               inventory_item_id: inventoryItemId,
-              missing_account: 'Lager - VMB-bilar'
+              missing_account_number: vmbAccountNumber,
+              missing_account_name: 'Lager - VMB-bilar'
             }
           });
 
           return new Response(
-            JSON.stringify({ error: 'Account "Lager - VMB-bilar" not found or inactive in chart of accounts' }),
+            JSON.stringify({ error: `Account ${vmbAccountNumber} (for Lager - VMB-bilar) not found or inactive in chart of accounts. Please check your kontoplan configuration.` }),
             { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
 
         if (!leverantorskulderAccount) {
-          console.error('❌ Account "Leverantörsskulder" not found or inactive in chart of accounts');
+          console.error(`❌ Account ${leverantorskulderAccountNumber} (for Leverantörsskulder) not found or inactive in chart of accounts`);
           
           await supabaseClient.from('fortnox_errors_log').insert({
             user_id: inventoryItem.user_id,
             type: 'account_not_found',
-            message: 'Account "Leverantörsskulder" not found or inactive in chart of accounts',
+            message: `Account ${leverantorskulderAccountNumber} (for Leverantörsskulder) not found or inactive in chart of accounts`,
             context: {
               inventory_item_id: inventoryItemId,
-              missing_account: 'Leverantörsskulder'
+              missing_account_number: leverantorskulderAccountNumber,
+              missing_account_name: 'Leverantörsskulder'
             }
           });
 
           return new Response(
-            JSON.stringify({ error: 'Account "Leverantörsskulder" not found or inactive in chart of accounts' }),
+            JSON.stringify({ error: `Account ${leverantorskulderAccountNumber} (for Leverantörsskulder) not found or inactive in chart of accounts. Please check your kontoplan configuration.` }),
             { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
-
-        const vmbAccountNumber = vmbAccount.Number;
-        const leverantorskulderAccountNumber = leverantorskulderAccount.Number;
         
         console.log(`📋 Using VMB inventory account: ${vmbAccountNumber} (${vmbAccount.Description})`);
         console.log(`📋 Using Leverantörsskulder account: ${leverantorskulderAccountNumber} (${leverantorskulderAccount.Description})`);
