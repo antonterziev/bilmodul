@@ -245,65 +245,51 @@ serve(async (req) => {
       });
 
       if (!createProjectRes.ok) {
-        let projectNumber = inventoryItem.registration_number;
-        
         // Check if error is "project number already in use"
         const errorData = JSON.parse(projectResponseText);
         if (errorData?.ErrorInformation?.code === 2001182) {
-          console.log('⚠️ Project number already exists, trying with unique suffix');
+          console.log('⚠️ Project number already exists, fetching existing project');
           
-          // Try with a unique suffix (timestamp)
-          const timestamp = Date.now().toString().slice(-6);
-          projectNumber = `${inventoryItem.registration_number}-${timestamp}`;
-          
-          const retryPayload = {
-            Project: {
-              ProjectNumber: projectNumber,
-              Description: `${inventoryItem.brand} ${inventoryItem.model}`,
-              Status: 'ONGOING',
-              Comments: `Auto-created for inventory ID ${inventoryItemId}`
-            }
-          };
-
-          console.log('🔄 Retrying with unique project number:', projectNumber);
-          
-          const retryRes = await fetch('https://api.fortnox.se/3/projects', {
-            method: 'POST',
+          // Fetch the existing project
+          const getProjectRes = await fetch(`https://api.fortnox.se/3/projects/${inventoryItem.registration_number}`, {
+            method: 'GET',
             headers: {
               'Authorization': `Bearer ${accessToken}`,
               'Access-Token': clientSecret,
-              'Content-Type': 'application/json',
               'Accept': 'application/json'
-            },
-            body: JSON.stringify(retryPayload)
+            }
           });
 
-          if (!retryRes.ok) {
-            const retryText = await retryRes.text();
-            console.error('❌ Failed to create project with unique number:', retryText);
+          if (!getProjectRes.ok) {
+            const getProjectText = await getProjectRes.text();
+            console.error('❌ Failed to fetch existing project:', getProjectText);
             
             await supabaseClient.from('fortnox_errors_log').insert({
               user_id: inventoryItem.user_id,
-              type: 'project_creation_failed',
-              message: `Failed to create project even with unique number: ${retryText}`,
+              type: 'project_fetch_failed',
+              message: `Failed to fetch existing project: ${getProjectText}`,
               context: {
                 inventory_item_id: inventoryItemId,
                 registration_number: inventoryItem.registration_number,
-                retry_project_number: projectNumber,
-                response_status: retryRes.status
+                response_status: getProjectRes.status
               }
             });
 
             return new Response(
-              JSON.stringify({ error: 'Failed to create Fortnox project', details: retryText }),
+              JSON.stringify({ error: 'Failed to fetch existing Fortnox project', details: getProjectText }),
               { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
             );
           }
           
-          // Success with retry
-          const retryData = JSON.parse(await retryRes.text());
-          projectNumber = retryData?.Project?.ProjectNumber;
-          console.log(`✅ Fortnox project created with unique number: ${projectNumber}`);
+          const existingProjectData = JSON.parse(await getProjectRes.text());
+          const projectNumber = existingProjectData?.Project?.ProjectNumber;
+          console.log(`✅ Using existing Fortnox project: ${projectNumber}`);
+          
+          // Store the existing project number
+          await supabaseClient
+            .from('inventory_items')
+            .update({ fortnox_project_number: projectNumber })
+            .eq('id', inventoryItemId);
         } else {
           // Different error, log and return
           console.error('❌ Failed to create project:', projectResponseText);
@@ -325,12 +311,6 @@ serve(async (req) => {
             { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
-        
-        // Store the project number (either from retry or original)
-        await supabaseClient
-          .from('inventory_items')
-          .update({ fortnox_project_number: projectNumber })
-          .eq('id', inventoryItemId);
       } else {
         const projectData = JSON.parse(projectResponseText);
         const fortnoxProjectId = projectData?.Project?.ProjectNumber;
