@@ -339,101 +339,8 @@ serve(async (req) => {
         .update({ fortnox_project_number: projectNumber })
         .eq('id', inventoryItemId);
 
-      // 🔎 Step: Lookup or create supplier "Veksla Bilhandel"
-      let supplierNumber: string | undefined;
-      try {
-        // Get API documentation for suppliers endpoint
-        const supplierDocs = await getFortnoxApiDocs('/suppliers', 'GET');
-        console.log('📚 Using API documentation for suppliers:', supplierDocs?.results?.[0]?.summary || 'No docs available');
-
-        const supplierRes = await fetch(`https://api.fortnox.se/3/suppliers`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Access-Token': clientSecret,
-            'Accept': 'application/json'
-          }
-        });
-
-        const suppliersText = await supplierRes.text();
-        console.log('📥 Suppliers API response:', {
-            status: supplierRes.status,
-            response: suppliersText.substring(0, 500) + '...'
-          });
-
-          if (!supplierRes.ok) throw new Error(`Failed to fetch suppliers: ${suppliersText}`);
-
-          const suppliers = JSON.parse(suppliersText)?.Suppliers ?? [];
-          const vekslaSupplier = suppliers.find(s => s.Name === 'Veksla Bilhandel');
-
-          if (vekslaSupplier) {
-            supplierNumber = vekslaSupplier.SupplierNumber;
-            console.log(`📦 Found existing supplier: ${supplierNumber}`);
-          } else {
-            // Supplier not found – create it
-            console.log('➕ Supplier "Veksla Bilhandel" not found, creating...');
-            
-            const supplierCreateDocs = await getFortnoxApiDocs('/suppliers', 'POST');
-            console.log('📚 Using API documentation for supplier creation:', supplierCreateDocs?.results?.[0]?.summary || 'No docs available');
-
-            const createSupplierRes = await fetch('https://api.fortnox.se/3/suppliers', {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Access-Token': clientSecret,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-              },
-              body: JSON.stringify({
-                Supplier: {
-                  Name: 'Veksla Bilhandel',
-                  OrganizationNumber: '000000-0000', // Dummy, adjust if needed
-                  City: 'Stockholm',
-                  Country: 'SE'
-                }
-              })
-            });
-
-            const supplierCreateText = await createSupplierRes.text();
-            console.log('📥 Supplier creation response:', {
-              status: createSupplierRes.status,
-              response: supplierCreateText
-            });
-
-            if (!createSupplierRes.ok) {
-              // Log error to database
-              await supabaseClient.from('fortnox_errors_log').insert({
-                user_id: inventoryItem.user_id,
-                type: 'supplier_creation_failed',
-                message: `Failed to create supplier: ${supplierCreateText}`,
-                context: {
-                  inventory_item_id: inventoryItemId,
-                  response_status: createSupplierRes.status
-                }
-              });
-              throw new Error(`Failed to create supplier: ${supplierCreateText}`);
-            }
-
-            const newSupplier = JSON.parse(supplierCreateText)?.Supplier;
-            supplierNumber = newSupplier?.SupplierNumber;
-            if (!supplierNumber) throw new Error('Missing supplier number after creation');
-            console.log(`✅ Created supplier: ${supplierNumber}`);
-          }
-        } catch (supplierErr) {
-          console.error('❌ Supplier handling error:', supplierErr);
-          return new Response(JSON.stringify({
-            error: 'Supplier handling failed',
-            details: supplierErr.message
-          }), {
-            status: 500,
-            headers: {
-              ...corsHeaders,
-              'Content-Type': 'application/json'
-            }
-          });
-        }
-
-      // 🧾 Step: Create supplier invoice
+      // 🧾 Step: Create basic supplier invoice
+      console.log('📋 Creating basic supplier invoice...');
       try {
         // Get API documentation for supplier invoices endpoint
         const invoiceDocs = await getFortnoxApiDocs('/supplierinvoices', 'POST');
@@ -441,16 +348,13 @@ serve(async (req) => {
 
          const invoicePayload = {
            SupplierInvoice: {
-             SupplierNumber: supplierNumber,
+             SupplierNumber: "1", // Use default supplier number
              Project: projectNumber,
              SupplierInvoiceRows: [
                {
-                 Account: 4010,
+                 Account: 1520, // Standard vehicle account
                  Project: projectNumber,
-                 Description: `${inventoryItem.brand} ${inventoryItem.model}`,
-                 Quantity: 1,
-                 UnitPrice: inventoryItem.purchase_price,
-                 VAT: 0
+                 Description: `Inköp ${inventoryItem.brand} ${inventoryItem.model || ''} - ${inventoryItem.registration_number}`.trim()
                }
              ]
            }
