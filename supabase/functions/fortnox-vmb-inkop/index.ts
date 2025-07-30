@@ -354,7 +354,7 @@ serve(async (req) => {
                {
                  Account: 1520, // Standard vehicle account
                  Project: projectNumber,
-                 Description: `Inköp ${inventoryItem.brand} ${inventoryItem.model || ''} - ${inventoryItem.registration_number}`.trim()
+                 ArticleDescription: `Inköp ${inventoryItem.brand} ${inventoryItem.model || ''} - ${inventoryItem.registration_number}`.trim()
                }
              ]
            }
