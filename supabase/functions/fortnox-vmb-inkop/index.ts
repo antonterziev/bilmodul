@@ -360,11 +360,9 @@ serve(async (req) => {
 
         const accountsData = await accountsResponse.json();
         
-        // Find VMB inventory account
+        // Find VMB inventory account - exact match for "Lager - VMB-bilar"
         const vmbAccount = accountsData.Accounts?.find(account => 
-          account.Description?.toLowerCase().includes('lager') && 
-          account.Description?.toLowerCase().includes('vmb') &&
-          account.Description?.toLowerCase().includes('bil')
+          account.Description?.includes('Lager - VMB-bilar')
         );
 
         // Find Leverantörsskulder account
