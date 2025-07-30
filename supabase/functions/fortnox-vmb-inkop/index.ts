@@ -348,8 +348,7 @@ serve(async (req) => {
         const { data: accountMappings, error: mappingsError } = await supabaseClient
           .from('account_mappings')
           .select('account_name, account_number')
-          .eq('organization_id', syncingUserProfile.organization_id)
-          .in('account_name', ['Lager - VMB-bilar', 'Leverantörsskulder']);
+          .eq('organization_id', syncingUserProfile.organization_id);
 
         if (mappingsError) {
           console.error('❌ Error fetching account mappings:', mappingsError);
