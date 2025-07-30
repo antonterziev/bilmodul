@@ -434,7 +434,7 @@ serve(async (req) => {
       });
     }
 
-    const scope = 'companyinformation bookkeeping archive inbox connectfile costcenter warehouse project';
+    const scope = 'companyinformation bookkeeping archive inbox connectfile costcenter warehouse project supplier article customer';
     // USING PRODUCTION ENDPOINT FOR AUTH URL
     const authUrl = `https://apps.fortnox.se/oauth-v1/auth?` +
       `client_id=${clientId}&` +
