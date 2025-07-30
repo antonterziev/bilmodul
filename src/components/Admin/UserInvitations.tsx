@@ -243,7 +243,7 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Användarinbjudningar</h3>
+        <h3 className="text-lg font-semibold">Inbjudningar</h3>
         
         <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
           <DialogTrigger asChild>
