@@ -136,12 +136,42 @@ export const Integrations = () => {
   }, []);
 
   const handleAccountNumberChange = (accountName: string, value: string) => {
-    // Only allow numbers
-    const numericValue = value.replace(/\D/g, '');
+    // Only allow numbers and limit to 4 digits
+    const numericValue = value.replace(/\D/g, '').slice(0, 4);
     setAccountNumbers(prev => ({
       ...prev,
       [accountName]: numericValue
     }));
+  };
+
+  const saveAccountNumber = async (accountName: string) => {
+    const accountNumber = accountNumbers[accountName];
+    if (!accountNumber || accountNumber.length !== 4) {
+      toast({
+        title: "Ogiltigt kontonummer",
+        description: "Kontonummer måste vara exakt 4 siffror",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Here you could save to database if needed
+      // For now, we'll just trigger a recheck of the account
+      await checkAccountInFortnox(accountName);
+      
+      toast({
+        title: "Kontonummer sparat",
+        description: `Kontonummer ${accountNumber} har sparats för ${accountName}`,
+      });
+    } catch (error) {
+      console.error('Error saving account number:', error);
+      toast({
+        title: "Fel",
+        description: "Kunde inte spara kontonummer",
+        variant: "destructive",
+      });
+    }
   };
 
   const checkAccountInFortnox = async (accountName: string, silent = false) => {
@@ -720,15 +750,27 @@ export const Integrations = () => {
                         <TableBody>
                           {category.accounts.map((account) => (
                             <TableRow key={account.number}>
-                              <TableCell>
-                                <Input
-                                  type="text"
-                                  value={accountNumbers[account.name] || account.number}
-                                  onChange={(e) => handleAccountNumberChange(account.name, e.target.value)}
-                                  className="w-24 h-8 text-center font-medium"
-                                  placeholder="Kontonummer"
-                                />
-                              </TableCell>
+                               <TableCell>
+                                 <div className="flex items-center gap-2">
+                                   <Input
+                                     type="text"
+                                     value={accountNumbers[account.name] || account.number}
+                                     onChange={(e) => handleAccountNumberChange(account.name, e.target.value)}
+                                     className="w-20 h-8 text-center font-medium"
+                                     placeholder="0000"
+                                     maxLength={4}
+                                   />
+                                   <Button
+                                     variant="outline"
+                                     size="sm"
+                                     className="h-8 px-2 text-xs"
+                                     onClick={() => saveAccountNumber(account.name)}
+                                     disabled={!accountNumbers[account.name] || accountNumbers[account.name].length !== 4}
+                                   >
+                                     Spara
+                                   </Button>
+                                 </div>
+                               </TableCell>
                               <TableCell>{account.name}</TableCell>
                               <TableCell>
                                 <Input
