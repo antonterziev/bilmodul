@@ -59,7 +59,7 @@ serve(async (req) => {
       .select('*')
       .eq('user_id', inventoryItem.user_id)
       .eq('is_active', true)
-      .single()
+      .maybeSingle()
 
     if (integrationError || !fortnoxIntegration) {
       console.error('❌ No active Fortnox integration found:', integrationError)
