@@ -390,7 +390,6 @@ serve(async (req) => {
             message: `Failed to create supplier invoice: ${invoiceText}`,
             context: {
               inventory_item_id: inventoryItemId,
-              supplier_number: supplierNumber,
               project_id: projectNumber,
               invoice_payload: invoicePayload,
               response_status: createInvoiceRes.status
@@ -413,25 +412,24 @@ serve(async (req) => {
         const invoiceNumber = invoiceData?.SupplierInvoice?.DocumentNumber;
         console.log(`✅ Supplier invoice created: ${invoiceNumber}`);
 
-        // Save invoice number and update sync status with syncing user info
+        // Save invoice number and update sync status
         await supabaseClient.from('inventory_items').update({
           fortnox_invoice_number: invoiceNumber,
-          fortnox_sync_status: 'success',
+          fortnox_sync_status: 'synced',
           fortnox_synced_at: new Date().toISOString(),
           fortnox_synced_by_user_id: syncingUserId
         }).eq('id', inventoryItemId);
 
-        // Log successful sync with both original and syncing user
+        // Log successful sync
         await supabaseClient.from('fortnox_sync_log').insert({
-          user_id: inventoryItem.user_id, // Original registering user
-          synced_by_user_id: syncingUserId, // User who performed sync
+          user_id: inventoryItem.user_id,
+          synced_by_user_id: syncingUserId,
           inventory_item_id: inventoryItemId,
-          sync_type: 'vmb_project_creation',
+          sync_type: 'vmb_basic_invoice',
           sync_status: 'success',
           fortnox_verification_number: invoiceNumber,
           sync_data: {
             project_number: projectNumber,
-            supplier_number: supplierNumber,
             invoice_number: invoiceNumber,
             fortnox_integration_id: fortnoxIntegration.id
           }
@@ -441,7 +439,8 @@ serve(async (req) => {
           JSON.stringify({ 
             success: true, 
             message: 'Fortnox project and supplier invoice created successfully',
-            projectNumber: projectNumber 
+            projectNumber: projectNumber,
+            invoiceNumber: invoiceNumber
           }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
