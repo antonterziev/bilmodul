@@ -373,6 +373,25 @@ serve(async (req) => {
         console.log(`📋 Using VMB account number: ${vmbAccountNumber} (user configured: ${!!accountNumberMap['Lager - VMB-bilar']})`);
         console.log(`📋 Using Leverantörsskulder account number: ${leverantorskulderAccountNumber} (user configured: ${!!accountNumberMap['Leverantörsskulder']})`);
         
+        // Get documentation for accounts API
+        let accountsDocs = null;
+        try {
+          const docsResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/fortnox-docs?action=search&endpoint=/accounts&method=GET`, {
+            headers: {
+              'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (docsResponse.ok) {
+            const docsData = await docsResponse.json();
+            accountsDocs = docsData.results?.[0];
+            console.log('📚 Found Fortnox accounts API documentation:', JSON.stringify(accountsDocs, null, 2));
+          }
+        } catch (error) {
+          console.log('📚 Could not fetch API documentation:', error.message);
+        }
+        
         // Get all chart of accounts to validate the user-configured numbers exist and are active
         console.log('🔍 Fetching chart of accounts from Fortnox...');
         const accountsResponse = await fetch('https://api.fortnox.se/3/accounts', {
