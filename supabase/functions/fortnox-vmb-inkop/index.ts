@@ -178,10 +178,11 @@ serve(async (req) => {
     }
 
     const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET')
+    console.log('🔍 FORTNOX_CLIENT_SECRET configured:', !!clientSecret);
     if (!clientSecret) {
       console.error('❌ FORTNOX_CLIENT_SECRET not configured')
       return new Response(
-        JSON.stringify({ error: 'Fortnox client secret not configured' }),
+        JSON.stringify({ error: 'Fortnox client secret not configured. Please configure FORTNOX_CLIENT_SECRET in Supabase secrets.' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
