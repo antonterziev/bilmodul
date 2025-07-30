@@ -320,9 +320,9 @@ serve(async (req) => {
         .update({ fortnox_project_number: projectNumber })
         .eq('id', inventoryItemId);
 
-        // 🔎 Step: Lookup or create supplier "Veksla Bilhandel"
-        let supplierNumber: string | undefined;
-        try {
+      // 🔎 Step: Lookup or create supplier "Veksla Bilhandel"
+      let supplierNumber: string | undefined;
+      try {
           // Get API documentation for suppliers endpoint
           const supplierDocs = await getFortnoxApiDocs('/suppliers', 'GET');
           console.log('📚 Using API documentation for suppliers:', supplierDocs?.results?.[0]?.summary || 'No docs available');
@@ -548,7 +548,6 @@ serve(async (req) => {
           }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
-      }
     } catch (projectError) {
       console.error('❌ Error during Fortnox project creation:', projectError);
       return new Response(
