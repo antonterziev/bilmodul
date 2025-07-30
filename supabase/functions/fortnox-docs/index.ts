@@ -1,12 +1,71 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Initialize Supabase client
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
 // Fortnox API documentation storage
 let fortnoxDocs: any = null;
+
+// Auto-load documentation from storage on startup
+async function loadDocumentationFromStorage() {
+  try {
+    console.log('Loading Fortnox documentation from storage...');
+    
+    const { data, error } = await supabase.storage
+      .from('docs')
+      .download('openapi.json');
+    
+    if (error) {
+      console.log('No documentation found in storage:', error.message);
+      return false;
+    }
+    
+    if (data) {
+      const text = await data.text();
+      fortnoxDocs = JSON.parse(text);
+      console.log('Fortnox documentation loaded from storage successfully');
+      return true;
+    }
+  } catch (error) {
+    console.error('Error loading documentation from storage:', error);
+  }
+  return false;
+}
+
+// Save documentation to storage
+async function saveDocumentationToStorage(documentation: any) {
+  try {
+    const blob = new Blob([JSON.stringify(documentation, null, 2)], {
+      type: 'application/json'
+    });
+    
+    const { error } = await supabase.storage
+      .from('docs')
+      .upload('openapi.json', blob, { upsert: true });
+    
+    if (error) {
+      console.error('Error saving documentation to storage:', error);
+      return false;
+    }
+    
+    console.log('Documentation saved to storage successfully');
+    return true;
+  } catch (error) {
+    console.error('Error saving documentation to storage:', error);
+    return false;
+  }
+}
+
+// Load documentation on function startup
+await loadDocumentationFromStorage();
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -24,13 +83,17 @@ serve(async (req) => {
       const body = await req.json();
       fortnoxDocs = body.documentation;
       
+      // Save to storage
+      const storageSaved = await saveDocumentationToStorage(fortnoxDocs);
+      
       console.log('Fortnox documentation uploaded successfully');
       
       return new Response(
         JSON.stringify({ 
           success: true, 
           message: 'Documentation uploaded successfully',
-          size: JSON.stringify(fortnoxDocs).length 
+          size: JSON.stringify(fortnoxDocs).length,
+          storageSaved
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -175,6 +238,23 @@ serve(async (req) => {
           );
         }
 
+        case 'refresh': {
+          // Refresh documentation from storage
+          const loaded = await loadDocumentationFromStorage();
+          
+          return new Response(
+            JSON.stringify({ 
+              success: loaded,
+              message: loaded ? 'Documentation refreshed from storage' : 'No documentation found in storage',
+              size: fortnoxDocs ? JSON.stringify(fortnoxDocs).length : 0
+            }),
+            { 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              status: loaded ? 200 : 404 
+            }
+          );
+        }
+
         default: {
           // Return documentation overview
           if (!fortnoxDocs) {
@@ -185,7 +265,8 @@ serve(async (req) => {
                   upload: 'POST /?action=upload with { documentation: {...} }',
                   search: 'GET /?action=search&query=term&endpoint=/path&method=GET',
                   endpoint: 'GET /?action=endpoint&path=/accounts&method=get',
-                  schemas: 'GET /?action=schemas&name=Account'
+                  schemas: 'GET /?action=schemas&name=Account',
+                  refresh: 'GET /?action=refresh'
                 }
               }),
               { 
@@ -203,7 +284,8 @@ serve(async (req) => {
               usage: {
                 search: 'GET /?action=search&query=term&endpoint=/path&method=GET',
                 endpoint: 'GET /?action=endpoint&path=/accounts&method=get',
-                schemas: 'GET /?action=schemas&name=Account'
+                schemas: 'GET /?action=schemas&name=Account',
+                refresh: 'GET /?action=refresh'
               }
             }),
             { 
