@@ -421,7 +421,7 @@ serve(async (req) => {
               SupplierNumber: "1", // Use default supplier number
               InvoiceNumber: inventoryItem.registration_number, // Use registration number as Fakturanummer
               InvoiceDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0], // Use purchase date or today
-              Project: inventoryItem.registration_number, // Use registration number for project field
+              Project: projectNumber,
               Total: inventoryItem.purchase_price, // Set the total amount
               SupplierInvoiceRows: supplierInvoiceRows
             }
@@ -464,7 +464,7 @@ serve(async (req) => {
               SupplierNumber: "1", // Use default supplier number
               InvoiceNumber: inventoryItem.registration_number, // Use registration number as Fakturanummer
               InvoiceDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0], // Use purchase date or today
-              Project: inventoryItem.registration_number, // Use registration number for project field
+              Project: projectNumber,
               SupplierInvoiceRows: supplierInvoiceRows
             }
           };
