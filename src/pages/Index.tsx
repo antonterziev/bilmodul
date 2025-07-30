@@ -172,7 +172,7 @@ const Index = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('first_name, last_name, full_name, company_name')
+        .select('first_name, last_name, full_name')
         .eq('user_id', user.id)
         .single();
 
