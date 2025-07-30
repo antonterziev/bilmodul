@@ -43,7 +43,9 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
+    console.log('🚀 NEW VERSION: fortnox-vmb-inkop function started')
     const { inventoryItemId, syncingUserId } = await req.json()
+    console.log('📥 Request data:', { inventoryItemId, syncingUserId })
 
     if (!inventoryItemId) {
       return new Response(
