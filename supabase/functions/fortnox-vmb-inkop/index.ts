@@ -383,10 +383,39 @@ serve(async (req) => {
         // Create the invoice payload with proper balancing and purchase date
         let invoicePayload;
         
+        // Check for down payment and prepare rows accordingly
+        const downPaymentAmount = inventoryItem.down_payment;
+        console.log(`💰 Down payment amount: ${downPaymentAmount}`);
+        
         // Check if user configured 2440 for Leverantörsskulder - use different logic
         if (leverantorskulderAccountNumber === '2440') {
           console.log('📋 Using 2440 logic - setting total amount in existing entry');
           // Use the existing 2440 entry and set total amount
+          const supplierInvoiceRows = [
+            {
+              Account: vmbAccountNumber, // VMB inventory account (debit)
+              Debit: inventoryItem.purchase_price,
+              Project: projectNumber
+            }
+          ];
+          
+          // Add down payment rows if exists
+          if (downPaymentAmount && downPaymentAmount > 0) {
+            console.log('💰 Adding down payment rows to main invoice');
+            supplierInvoiceRows.push(
+              {
+                Account: "2440", // Debit account 2440
+                Debit: downPaymentAmount,
+                Project: projectNumber
+              },
+              {
+                Account: "1930", // Credit account 1930
+                Credit: downPaymentAmount,
+                Project: projectNumber
+              }
+            );
+          }
+          
           invoicePayload = {
             SupplierInvoice: {
               SupplierNumber: "1", // Use default supplier number
@@ -394,36 +423,49 @@ serve(async (req) => {
               InvoiceDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0], // Use purchase date or today
               Project: projectNumber,
               Total: inventoryItem.purchase_price, // Set the total amount
-              SupplierInvoiceRows: [
-                {
-                  Account: vmbAccountNumber, // VMB inventory account (debit)
-                  Debit: inventoryItem.purchase_price,
-                  Project: projectNumber
-                }
-              ]
+              SupplierInvoiceRows: supplierInvoiceRows
             }
           };
         } else {
           console.log('📋 Using standard dual-entry logic');
           // Standard dual-entry bookkeeping
+          const supplierInvoiceRows = [
+            {
+              Account: vmbAccountNumber, // VMB inventory account (debit)
+              Debit: inventoryItem.purchase_price,
+              Project: projectNumber
+            },
+            {
+              Account: leverantorskulderAccountNumber, // Leverantörsskulder (credit)
+              Credit: inventoryItem.purchase_price,
+              Project: projectNumber
+            }
+          ];
+          
+          // Add down payment rows if exists
+          if (downPaymentAmount && downPaymentAmount > 0) {
+            console.log('💰 Adding down payment rows to main invoice');
+            supplierInvoiceRows.push(
+              {
+                Account: "2440", // Debit account 2440
+                Debit: downPaymentAmount,
+                Project: projectNumber
+              },
+              {
+                Account: "1930", // Credit account 1930
+                Credit: downPaymentAmount,
+                Project: projectNumber
+              }
+            );
+          }
+          
           invoicePayload = {
             SupplierInvoice: {
               SupplierNumber: "1", // Use default supplier number
               InvoiceNumber: inventoryItem.registration_number, // Use registration number as Fakturanummer
               InvoiceDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0], // Use purchase date or today
               Project: projectNumber,
-              SupplierInvoiceRows: [
-                {
-                  Account: vmbAccountNumber, // VMB inventory account (debit)
-                  Debit: inventoryItem.purchase_price,
-                  Project: projectNumber
-                },
-                {
-                  Account: leverantorskulderAccountNumber, // Leverantörsskulder (credit)
-                  Credit: inventoryItem.purchase_price,
-                  Project: projectNumber
-                }
-              ]
+              SupplierInvoiceRows: supplierInvoiceRows
             }
           };
         }
@@ -487,93 +529,6 @@ serve(async (req) => {
           fortnox_synced_at: new Date().toISOString(),
           fortnox_synced_by_user_id: syncingUserId
         }).eq('id', inventoryItemId);
-
-        console.log('💰 Checking for down payment...');
-        const downPaymentAmount = inventoryItem.down_payment;
-        console.log(`💰 Down payment amount: ${downPaymentAmount}`);
-        
-        if (downPaymentAmount && downPaymentAmount > 0) {
-          console.log('💰 Processing down payment entry...');
-          
-          // Create additional invoice rows for down payment
-          const downPaymentPayload = {
-            SupplierInvoice: {
-              SupplierNumber: "1",
-              InvoiceNumber: inventoryItem.registration_number, // Just use registration number
-              InvoiceDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0],
-              Project: projectNumber,
-              SupplierInvoiceRows: [
-                {
-                  Account: "2440", // Debit account 2440
-                  Debit: downPaymentAmount,
-                  Project: projectNumber
-                },
-                {
-                  Account: "1930", // Credit account 1930
-                  Credit: downPaymentAmount,
-                  Project: projectNumber
-                }
-              ]
-            }
-          };
-
-          console.log('💰 Creating down payment invoice with payload:', JSON.stringify(downPaymentPayload, null, 2));
-
-          const downPaymentRes = await fetch('https://api.fortnox.se/3/supplierinvoices', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${accessToken}`,
-              'Access-Token': clientSecret,
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            },
-            body: JSON.stringify(downPaymentPayload)
-          });
-
-          const downPaymentResponseText = await downPaymentRes.text();
-          console.log('💰 Down payment invoice response:', {
-            status: downPaymentRes.status,
-            response: downPaymentResponseText
-          });
-
-          if (downPaymentRes.ok) {
-            const downPaymentData = JSON.parse(downPaymentResponseText);
-            const downPaymentVerificationNumber = downPaymentData?.SupplierInvoice?.VoucherNumber;
-            console.log(`✅ Down payment invoice created with verification number: ${downPaymentVerificationNumber}`);
-            
-            // Log down payment sync
-            await supabase.from('fortnox_sync_log').insert({
-              user_id: inventoryItem.user_id,
-              synced_by_user_id: syncingUserId,
-              inventory_item_id: inventoryItemId,
-              sync_type: 'vmb_down_payment',
-              sync_status: 'success',
-              fortnox_verification_number: downPaymentVerificationNumber,
-              sync_data: {
-                project_number: projectNumber,
-                down_payment_amount: downPaymentAmount,
-                fortnox_integration_id: fortnoxIntegration.id
-              }
-            });
-          } else {
-            console.error('❌ Failed to create down payment invoice:', downPaymentResponseText);
-            
-            // Log down payment error but don't fail the whole operation
-            await supabase.from('fortnox_errors_log').insert({
-              user_id: inventoryItem.user_id,
-              type: 'down_payment_invoice_failed',
-              message: `Failed to create down payment invoice: ${downPaymentResponseText}`,
-              context: {
-                inventory_item_id: inventoryItemId,
-                down_payment_amount: downPaymentAmount,
-                registration_number: inventoryItem.registration_number,
-                response_status: downPaymentRes.status
-              }
-            });
-          }
-        } else {
-          console.log('💰 No down payment to process (empty or 0)');
-        }
 
         // Log successful sync
         await supabase.from('fortnox_sync_log').insert({
