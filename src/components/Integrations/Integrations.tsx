@@ -67,6 +67,7 @@ export const Integrations = () => {
       key: "likvidaMedel",
       name: "Likvida medel",
       accounts: [
+        { number: "1680", name: "Förskottsbetalning" },
         { number: "1930", name: "Bankkonto 1" },
         { number: "1931", name: "Bankkonto 2" },
         { number: "1932", name: "Bankkonto 3" }
@@ -111,6 +112,8 @@ export const Integrations = () => {
         { number: "4020", name: "Inköp - VMB" },
         { number: "4021", name: "Inköp - VMB EU" },
         { number: "4030", name: "Påkostnader" },
+        { number: "4515", name: "Inköp av varor från EU" },
+        { number: "4519", name: "Motkonto inköp av varor från EU" },
         { number: "4531", name: "Inköp av varor från EU" },
         { number: "4539", name: "Motkonto inköp av varor från EU" }
       ]
