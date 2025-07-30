@@ -414,131 +414,105 @@ serve(async (req) => {
           });
         }
 
-        // 🧾 Step: Create supplier invoice
-        try {
-          // Get API documentation for supplier invoices endpoint
-          const invoiceDocs = await getFortnoxApiDocs('/supplierinvoices', 'POST');
-          console.log('📚 Using API documentation for supplier invoices:', invoiceDocs?.results?.[0]?.summary || 'No docs available');
+      // 🧾 Step: Create supplier invoice
+      try {
+        // Get API documentation for supplier invoices endpoint
+        const invoiceDocs = await getFortnoxApiDocs('/supplierinvoices', 'POST');
+        console.log('📚 Using API documentation for supplier invoices:', invoiceDocs?.results?.[0]?.summary || 'No docs available');
 
-           const invoicePayload = {
-             SupplierInvoice: {
-               SupplierNumber: supplierNumber,
-               Project: projectNumber,
-               SupplierInvoiceRows: [
-                 {
-                   Account: 4010,
-                   Project: projectNumber,
-                   Description: `${inventoryItem.brand} ${inventoryItem.model}`,
-                   Quantity: 1,
-                   UnitPrice: inventoryItem.purchase_price,
-                   VAT: 0
-                 }
-               ]
-             }
-           };
+         const invoicePayload = {
+           SupplierInvoice: {
+             SupplierNumber: supplierNumber,
+             Project: projectNumber,
+             SupplierInvoiceRows: [
+               {
+                 Account: 4010,
+                 Project: projectNumber,
+                 Description: `${inventoryItem.brand} ${inventoryItem.model}`,
+                 Quantity: 1,
+                 UnitPrice: inventoryItem.purchase_price,
+                 VAT: 0
+               }
+             ]
+           }
+         };
 
-          console.log('📤 Creating supplier invoice with payload:', JSON.stringify(invoicePayload, null, 2));
+        console.log('📤 Creating supplier invoice with payload:', JSON.stringify(invoicePayload, null, 2));
 
-          const createInvoiceRes = await fetch('https://api.fortnox.se/3/supplierinvoices', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${accessToken}`,
-              'Access-Token': clientSecret,
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            },
-            body: JSON.stringify(invoicePayload)
-          });
+        const createInvoiceRes = await fetch('https://api.fortnox.se/3/supplierinvoices', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Access-Token': clientSecret,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(invoicePayload)
+        });
 
-          const invoiceText = await createInvoiceRes.text();
-          console.log('📥 Supplier invoice API response:', {
-            status: createInvoiceRes.status,
-            statusText: createInvoiceRes.statusText,
-            response: invoiceText
-          });
+        const invoiceText = await createInvoiceRes.text();
+        console.log('📥 Supplier invoice API response:', {
+          status: createInvoiceRes.status,
+          statusText: createInvoiceRes.statusText,
+          response: invoiceText
+        });
 
-          if (!createInvoiceRes.ok) {
-            console.error('❌ Failed to create supplier invoice:', invoiceText);
-            
-            // Log error to database for debugging
-            await supabaseClient.from('fortnox_errors_log').insert({
-              user_id: inventoryItem.user_id,
-              type: 'supplier_invoice_creation_failed',
-              message: `Failed to create supplier invoice: ${invoiceText}`,
-              context: {
-                inventory_item_id: inventoryItemId,
-                supplier_number: supplierNumber,
-                project_id: projectNumber,
-                invoice_payload: invoicePayload,
-                response_status: createInvoiceRes.status
-              }
-            });
-
-            return new Response(JSON.stringify({
-              error: 'Failed to create Fortnox supplier invoice',
-              details: invoiceText
-            }), {
-              status: 400,
-              headers: {
-                ...corsHeaders,
-                'Content-Type': 'application/json'
-              }
-            });
-          }
-
-          const invoiceData = JSON.parse(invoiceText);
-          const invoiceNumber = invoiceData?.SupplierInvoice?.DocumentNumber;
-          console.log(`✅ Supplier invoice created: ${invoiceNumber}`);
-
-          // Save invoice number and update sync status with syncing user info
-          await supabaseClient.from('inventory_items').update({
-            fortnox_invoice_number: invoiceNumber,
-            fortnox_sync_status: 'success',
-            fortnox_synced_at: new Date().toISOString(),
-            fortnox_synced_by_user_id: syncingUserId
-          }).eq('id', inventoryItemId);
-
-          // Log successful sync with both original and syncing user
-          await supabaseClient.from('fortnox_sync_log').insert({
-            user_id: inventoryItem.user_id, // Original registering user
-            synced_by_user_id: syncingUserId, // User who performed sync
-            inventory_item_id: inventoryItemId,
-            sync_type: 'vmb_project_creation',
-            sync_status: 'success',
-            fortnox_verification_number: invoiceNumber,
-            sync_data: {
-              project_number: projectNumber,
-              supplier_number: supplierNumber,
-              invoice_number: invoiceNumber,
-              fortnox_integration_id: fortnoxIntegration.id
-            }
-          });
-
-        } catch (invoiceError) {
-          console.error('❌ Error during supplier invoice creation:', invoiceError);
+        if (!createInvoiceRes.ok) {
+          console.error('❌ Failed to create supplier invoice:', invoiceText);
           
-          // Log error to database
+          // Log error to database for debugging
           await supabaseClient.from('fortnox_errors_log').insert({
             user_id: inventoryItem.user_id,
-            type: 'supplier_invoice_error',
-            message: `Error during supplier invoice creation: ${invoiceError.message}`,
+            type: 'supplier_invoice_creation_failed',
+            message: `Failed to create supplier invoice: ${invoiceText}`,
             context: {
               inventory_item_id: inventoryItemId,
-              error_stack: invoiceError.stack
+              supplier_number: supplierNumber,
+              project_id: projectNumber,
+              invoice_payload: invoicePayload,
+              response_status: createInvoiceRes.status
             }
           });
 
           return new Response(JSON.stringify({
-            error: 'Error during supplier invoice creation',
-            details: invoiceError.message
+            error: 'Failed to create Fortnox supplier invoice',
+            details: invoiceText
           }), {
-            status: 500,
+            status: 400,
             headers: {
               ...corsHeaders,
               'Content-Type': 'application/json'
             }
           });
         }
+
+        const invoiceData = JSON.parse(invoiceText);
+        const invoiceNumber = invoiceData?.SupplierInvoice?.DocumentNumber;
+        console.log(`✅ Supplier invoice created: ${invoiceNumber}`);
+
+        // Save invoice number and update sync status with syncing user info
+        await supabaseClient.from('inventory_items').update({
+          fortnox_invoice_number: invoiceNumber,
+          fortnox_sync_status: 'success',
+          fortnox_synced_at: new Date().toISOString(),
+          fortnox_synced_by_user_id: syncingUserId
+        }).eq('id', inventoryItemId);
+
+        // Log successful sync with both original and syncing user
+        await supabaseClient.from('fortnox_sync_log').insert({
+          user_id: inventoryItem.user_id, // Original registering user
+          synced_by_user_id: syncingUserId, // User who performed sync
+          inventory_item_id: inventoryItemId,
+          sync_type: 'vmb_project_creation',
+          sync_status: 'success',
+          fortnox_verification_number: invoiceNumber,
+          sync_data: {
+            project_number: projectNumber,
+            supplier_number: supplierNumber,
+            invoice_number: invoiceNumber,
+            fortnox_integration_id: fortnoxIntegration.id
+          }
+        });
 
         return new Response(
           JSON.stringify({ 
@@ -547,7 +521,33 @@ serve(async (req) => {
             projectNumber: projectNumber 
           }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
+        );
+
+      } catch (invoiceError) {
+        console.error('❌ Error during supplier invoice creation:', invoiceError);
+        
+        // Log error to database
+        await supabaseClient.from('fortnox_errors_log').insert({
+          user_id: inventoryItem.user_id,
+          type: 'supplier_invoice_error',
+          message: `Error during supplier invoice creation: ${invoiceError.message}`,
+          context: {
+            inventory_item_id: inventoryItemId,
+            error_stack: invoiceError.stack
+          }
+        });
+
+        return new Response(JSON.stringify({
+          error: 'Error during supplier invoice creation',
+          details: invoiceError.message
+        }), {
+          status: 500,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        });
+      }
     } catch (projectError) {
       console.error('❌ Error during Fortnox project creation:', projectError);
       return new Response(
