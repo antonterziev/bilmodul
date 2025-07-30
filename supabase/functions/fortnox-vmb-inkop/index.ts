@@ -372,37 +372,50 @@ serve(async (req) => {
           account.Description?.toLowerCase().includes('accounts payable')
         );
 
-        // Check for missing accounts and log errors
-        let missingAccounts = [];
+        // Check for missing accounts and return error if not found
         if (!vmbAccount) {
-          missingAccounts.push('Lager - VMB-bilar');
-          console.error('❌ Could not find "Lager - VMB-bilar" account, using fallback 1410');
-        }
-        if (!leverantorskulderAccount) {
-          missingAccounts.push('Leverantörsskulder');
-          console.error('❌ Could not find Leverantörsskulder account, using fallback 2440');
-        }
-
-        const vmbAccountNumber = vmbAccount?.Number || 1410;
-        const leverantorskulderAccountNumber = leverantorskulderAccount?.Number || 2440;
-        
-        console.log(`📋 Using VMB inventory account: ${vmbAccountNumber} (${vmbAccount?.Description || 'Fallback 1410'})`);
-        console.log(`📋 Using Leverantörsskulder account: ${leverantorskulderAccountNumber} (${leverantorskulderAccount?.Description || 'Fallback 2440'})`);
-
-        // Log account warnings to database for user notification
-        if (missingAccounts.length > 0) {
+          console.error('❌ Account "Lager - VMB-bilar" not found or inactive in chart of accounts');
+          
           await supabaseClient.from('fortnox_errors_log').insert({
             user_id: inventoryItem.user_id,
-            type: 'missing_accounts_warning',
-            message: `Missing accounts in kontoplan: ${missingAccounts.join(', ')}. Using fallback accounts.`,
+            type: 'account_not_found',
+            message: 'Account "Lager - VMB-bilar" not found or inactive in chart of accounts',
             context: {
               inventory_item_id: inventoryItemId,
-              missing_accounts: missingAccounts,
-              fallback_vmb: vmbAccountNumber,
-              fallback_leverantorsskulder: leverantorskulderAccountNumber
+              missing_account: 'Lager - VMB-bilar'
             }
           });
+
+          return new Response(
+            JSON.stringify({ error: 'Account "Lager - VMB-bilar" not found or inactive in chart of accounts' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
+
+        if (!leverantorskulderAccount) {
+          console.error('❌ Account "Leverantörsskulder" not found or inactive in chart of accounts');
+          
+          await supabaseClient.from('fortnox_errors_log').insert({
+            user_id: inventoryItem.user_id,
+            type: 'account_not_found',
+            message: 'Account "Leverantörsskulder" not found or inactive in chart of accounts',
+            context: {
+              inventory_item_id: inventoryItemId,
+              missing_account: 'Leverantörsskulder'
+            }
+          });
+
+          return new Response(
+            JSON.stringify({ error: 'Account "Leverantörsskulder" not found or inactive in chart of accounts' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const vmbAccountNumber = vmbAccount.Number;
+        const leverantorskulderAccountNumber = leverantorskulderAccount.Number;
+        
+        console.log(`📋 Using VMB inventory account: ${vmbAccountNumber} (${vmbAccount.Description})`);
+        console.log(`📋 Using Leverantörsskulder account: ${leverantorskulderAccountNumber} (${leverantorskulderAccount.Description})`);
 
         // Get API documentation for supplier invoices endpoint
         const invoiceDocs = await getFortnoxApiDocs('/supplierinvoices', 'POST');
