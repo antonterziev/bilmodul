@@ -79,11 +79,14 @@ serve(async (req) => {
       }
 
       // Get the syncing user's organization
+      console.log(`🔍 Getting organization for syncing user: ${syncingUserId}`)
       const { data: syncingUserProfile, error: syncingUserError } = await supabaseClient
         .from('profiles')
         .select('organization_id')
         .eq('user_id', syncingUserId)
         .single()
+
+      console.log(`📋 Syncing user profile result:`, { syncingUserProfile, syncingUserError })
 
       if (syncingUserError || !syncingUserProfile) {
         console.error('❌ Failed to fetch syncing user profile:', syncingUserError)
@@ -108,16 +111,29 @@ serve(async (req) => {
       // Look for ANY active Fortnox integration within the same organization
       console.log(`🔍 Looking for Fortnox integration for organization: ${syncingUserProfile.organization_id}`)
       
+      // First, get all users in the same organization
+      const { data: orgUsers, error: orgUsersError } = await supabaseClient
+        .from('profiles')
+        .select('user_id')
+        .eq('organization_id', syncingUserProfile.organization_id)
+
+      if (orgUsersError) {
+        console.error('❌ Error fetching organization users:', orgUsersError)
+        return new Response(
+          JSON.stringify({ error: 'Error fetching organization users', details: orgUsersError.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      const userIds = orgUsers.map(u => u.user_id)
+      console.log(`🔍 Found ${userIds.length} users in organization`)
+
+      // Now find any active Fortnox integration for these users
       const { data: fortnoxIntegration, error: integrationError } = await supabaseClient
         .from('fortnox_integrations')
-        .select(`
-          *,
-          profiles!fortnox_integrations_user_id_fkey (
-            organization_id
-          )
-        `)
+        .select('*')
+        .in('user_id', userIds)
         .eq('is_active', true)
-        .eq('profiles.organization_id', syncingUserProfile.organization_id)
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle()
