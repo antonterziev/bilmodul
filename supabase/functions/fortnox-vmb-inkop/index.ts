@@ -344,11 +344,14 @@ serve(async (req) => {
       try {
         // Get user-configured account numbers from the account_mappings table
         console.log('🔍 Looking up user-configured account numbers from database...');
+        console.log('🔍 Organization ID:', syncingUserProfile.organization_id);
         
         const { data: accountMappings, error: mappingsError } = await supabaseClient
           .from('account_mappings')
           .select('account_name, account_number')
           .eq('organization_id', syncingUserProfile.organization_id);
+
+        console.log('📋 Account mappings query result:', { accountMappings, mappingsError });
 
         if (mappingsError) {
           console.error('❌ Error fetching account mappings:', mappingsError);
