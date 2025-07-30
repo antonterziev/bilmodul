@@ -374,6 +374,7 @@ serve(async (req) => {
         console.log(`📋 Using Leverantörsskulder account number: ${leverantorskulderAccountNumber} (user configured: ${!!accountNumberMap['Leverantörsskulder']})`);
         
         // Get all chart of accounts to validate the user-configured numbers exist and are active
+        console.log('🔍 Fetching chart of accounts from Fortnox...');
         const accountsResponse = await fetch('https://api.fortnox.se/3/accounts', {
           method: 'GET',
           headers: {
@@ -383,8 +384,12 @@ serve(async (req) => {
           }
         });
 
+        console.log('📋 Accounts API response status:', accountsResponse.status);
+        
         if (!accountsResponse.ok) {
-          throw new Error(`Failed to fetch accounts: ${await accountsResponse.text()}`);
+          const errorText = await accountsResponse.text();
+          console.error('❌ Failed to fetch accounts from Fortnox:', errorText);
+          throw new Error(`Failed to fetch accounts: ${errorText}`);
         }
 
         const accountsData = await accountsResponse.json();
