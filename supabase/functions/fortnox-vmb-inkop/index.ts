@@ -244,6 +244,8 @@ serve(async (req) => {
         response: projectResponseText
       });
 
+      let projectNumber: string;
+      
       if (!createProjectRes.ok) {
         // Check if error is "project number already in use"
         const errorData = JSON.parse(projectResponseText);
@@ -281,15 +283,10 @@ serve(async (req) => {
             );
           }
           
+          const getProjectText = await getProjectRes.text();
           const existingProjectData = JSON.parse(getProjectText);
-          const projectNumber = existingProjectData?.Project?.ProjectNumber;
+          projectNumber = existingProjectData?.Project?.ProjectNumber || inventoryItem.registration_number;
           console.log(`✅ Using existing Fortnox project: ${projectNumber}`);
-          
-          // Store the existing project number
-          await supabaseClient
-            .from('inventory_items')
-            .update({ fortnox_project_number: projectNumber })
-            .eq('id', inventoryItemId);
         } else {
           // Different error, log and return
           console.error('❌ Failed to create project:', projectResponseText);
@@ -313,14 +310,15 @@ serve(async (req) => {
         }
       } else {
         const projectData = JSON.parse(projectResponseText);
-        const fortnoxProjectId = projectData?.Project?.ProjectNumber;
-        console.log(`✅ Fortnox project created: ${fortnoxProjectId}`);
+        projectNumber = projectData?.Project?.ProjectNumber || inventoryItem.registration_number;
+        console.log(`✅ Fortnox project created: ${projectNumber}`);
+      }
 
-        // Store project number in inventory_items
-        await supabaseClient
-          .from('inventory_items')
-          .update({ fortnox_project_number: fortnoxProjectId })
-          .eq('id', inventoryItemId);
+      // Store project number in inventory_items
+      await supabaseClient
+        .from('inventory_items')
+        .update({ fortnox_project_number: projectNumber })
+        .eq('id', inventoryItemId);
 
         // 🔎 Step: Lookup or create supplier "Veksla Bilhandel"
         let supplierNumber: string | undefined;
@@ -422,22 +420,22 @@ serve(async (req) => {
           const invoiceDocs = await getFortnoxApiDocs('/supplierinvoices', 'POST');
           console.log('📚 Using API documentation for supplier invoices:', invoiceDocs?.results?.[0]?.summary || 'No docs available');
 
-          const invoicePayload = {
-            SupplierInvoice: {
-              SupplierNumber: supplierNumber,
-              Project: fortnoxProjectId,
-              SupplierInvoiceRows: [
-                {
-                  Account: 4010,
-                  Project: fortnoxProjectId,
-                  Description: `${inventoryItem.brand} ${inventoryItem.model}`,
-                  Quantity: 1,
-                  UnitPrice: inventoryItem.purchase_price,
-                  VAT: 0
-                }
-              ]
-            }
-          };
+           const invoicePayload = {
+             SupplierInvoice: {
+               SupplierNumber: supplierNumber,
+               Project: projectNumber,
+               SupplierInvoiceRows: [
+                 {
+                   Account: 4010,
+                   Project: projectNumber,
+                   Description: `${inventoryItem.brand} ${inventoryItem.model}`,
+                   Quantity: 1,
+                   UnitPrice: inventoryItem.purchase_price,
+                   VAT: 0
+                 }
+               ]
+             }
+           };
 
           console.log('📤 Creating supplier invoice with payload:', JSON.stringify(invoicePayload, null, 2));
 
@@ -470,7 +468,7 @@ serve(async (req) => {
               context: {
                 inventory_item_id: inventoryItemId,
                 supplier_number: supplierNumber,
-                project_id: fortnoxProjectId,
+                project_id: projectNumber,
                 invoice_payload: invoicePayload,
                 response_status: createInvoiceRes.status
               }
@@ -509,7 +507,7 @@ serve(async (req) => {
             sync_status: 'success',
             fortnox_verification_number: invoiceNumber,
             sync_data: {
-              project_number: fortnoxProjectId,
+              project_number: projectNumber,
               supplier_number: supplierNumber,
               invoice_number: invoiceNumber,
               fortnox_integration_id: fortnoxIntegration.id
@@ -546,7 +544,7 @@ serve(async (req) => {
           JSON.stringify({ 
             success: true, 
             message: 'Fortnox project and supplier invoice created successfully',
-            projectNumber: fortnoxProjectId 
+            projectNumber: projectNumber 
           }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
