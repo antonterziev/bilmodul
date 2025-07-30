@@ -161,10 +161,142 @@ serve(async (req) => {
           .update({ fortnox_project_number: fortnoxProjectId })
           .eq('id', inventoryItemId);
 
+        // 🔎 Step: Lookup or create supplier "Veksla Bilhandel"
+        let supplierNumber: string | undefined;
+        try {
+          const supplierRes = await fetch(`https://api.fortnox.se/3/suppliers`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Access-Token': clientSecret,
+              'Accept': 'application/json'
+            }
+          });
+
+          const suppliersText = await supplierRes.text();
+          if (!supplierRes.ok) throw new Error(`Failed to fetch suppliers: ${suppliersText}`);
+
+          const suppliers = JSON.parse(suppliersText)?.Suppliers ?? [];
+          const vekslaSupplier = suppliers.find(s => s.Name === 'Veksla Bilhandel');
+
+          if (vekslaSupplier) {
+            supplierNumber = vekslaSupplier.SupplierNumber;
+            console.log(`📦 Found existing supplier: ${supplierNumber}`);
+          } else {
+            // Supplier not found – create it
+            console.log('➕ Supplier "Veksla Bilhandel" not found, creating...');
+            const createSupplierRes = await fetch('https://api.fortnox.se/3/suppliers', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Access-Token': clientSecret,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify({
+                Supplier: {
+                  Name: 'Veksla Bilhandel',
+                  OrganizationNumber: '000000-0000', // Dummy, adjust if needed
+                  City: 'Stockholm',
+                  Country: 'SE'
+                }
+              })
+            });
+
+            const supplierCreateText = await createSupplierRes.text();
+            if (!createSupplierRes.ok) throw new Error(`Failed to create supplier: ${supplierCreateText}`);
+
+            const newSupplier = JSON.parse(supplierCreateText)?.Supplier;
+            supplierNumber = newSupplier?.SupplierNumber;
+            if (!supplierNumber) throw new Error('Missing supplier number after creation');
+            console.log(`✅ Created supplier: ${supplierNumber}`);
+          }
+        } catch (supplierErr) {
+          console.error('❌ Supplier handling error:', supplierErr);
+          return new Response(JSON.stringify({
+            error: 'Supplier handling failed',
+            details: supplierErr.message
+          }), {
+            status: 500,
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json'
+            }
+          });
+        }
+
+        // 🧾 Step: Create supplier invoice
+        try {
+          const invoicePayload = {
+            SupplierInvoice: {
+              SupplierNumber: supplierNumber,
+              Project: fortnoxProjectId,
+              SupplierInvoiceRows: [
+                {
+                  Account: 4010,
+                  Project: fortnoxProjectId,
+                  Description: `${inventoryItem.brand} ${inventoryItem.model}`,
+                  Quantity: 1,
+                  UnitPrice: inventoryItem.purchase_price,
+                  VAT: 0
+                }
+              ]
+            }
+          };
+
+          const createInvoiceRes = await fetch('https://api.fortnox.se/3/supplierinvoices', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Access-Token': clientSecret,
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify(invoicePayload)
+          });
+
+          const invoiceText = await createInvoiceRes.text();
+          if (!createInvoiceRes.ok) {
+            console.error('❌ Failed to create supplier invoice:', invoiceText);
+            return new Response(JSON.stringify({
+              error: 'Failed to create Fortnox supplier invoice',
+              details: invoiceText
+            }), {
+              status: 400,
+              headers: {
+                ...corsHeaders,
+                'Content-Type': 'application/json'
+              }
+            });
+          }
+
+          const invoiceData = JSON.parse(invoiceText);
+          const invoiceNumber = invoiceData?.SupplierInvoice?.DocumentNumber;
+          console.log(`✅ Supplier invoice created: ${invoiceNumber}`);
+
+          // Optional: Save invoice number
+          await supabaseClient.from('inventory_items').update({
+            fortnox_invoice_number: invoiceNumber
+          }).eq('id', inventoryItemId);
+
+        } catch (invoiceError) {
+          console.error('❌ Error during supplier invoice creation:', invoiceError);
+          return new Response(JSON.stringify({
+            error: 'Error during supplier invoice creation',
+            details: invoiceError.message
+          }), {
+            status: 500,
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json'
+            }
+          });
+        }
+
         return new Response(
           JSON.stringify({ 
             success: true, 
-            message: 'Fortnox project created successfully',
+            message: 'Fortnox project and supplier invoice created successfully',
             projectNumber: fortnoxProjectId 
           }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
