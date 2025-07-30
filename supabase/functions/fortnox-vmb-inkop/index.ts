@@ -488,7 +488,6 @@ serve(async (req) => {
           fortnox_synced_by_user_id: syncingUserId
         }).eq('id', inventoryItemId);
 
-        // 💰 Step: Handle down payment if exists
         console.log('💰 Checking for down payment...');
         const downPaymentAmount = inventoryItem.down_payment;
         console.log(`💰 Down payment amount: ${downPaymentAmount}`);
