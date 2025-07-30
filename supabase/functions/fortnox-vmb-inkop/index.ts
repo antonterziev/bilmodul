@@ -42,7 +42,7 @@ serve(async (req) => {
 
   try {
     console.log('🔧 Creating Supabase client...');
-    const supabaseClient = createClient(
+    const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
@@ -76,7 +76,7 @@ serve(async (req) => {
     console.log(`🚀 Starting VMB project creation for inventory item: ${inventoryItemId}, syncing user: ${syncingUserId}`)
 
     // Get inventory item details
-    const { data: inventoryItem, error: inventoryError } = await supabaseClient
+    const { data: inventoryItem, error: inventoryError } = await supabase
       .from('inventory_items')
       .select('*')
       .eq('id', inventoryItemId)
@@ -101,7 +101,7 @@ serve(async (req) => {
 
     // Get the syncing user's organization
     console.log(`🔍 Getting organization for syncing user: ${syncingUserId}`)
-    const { data: syncingUserProfile, error: syncingUserError } = await supabaseClient
+    const { data: syncingUserProfile, error: syncingUserError } = await supabase
       .from('profiles')
       .select('organization_id')
       .eq('user_id', syncingUserId)
@@ -133,7 +133,7 @@ serve(async (req) => {
     console.log(`🔍 Looking for Fortnox integration for organization: ${syncingUserProfile.organization_id}`)
     
     // First, get all users in the same organization
-    const { data: orgUsers, error: orgUsersError } = await supabaseClient
+    const { data: orgUsers, error: orgUsersError } = await supabase
       .from('profiles')
       .select('user_id')
       .eq('organization_id', syncingUserProfile.organization_id)
@@ -150,7 +150,7 @@ serve(async (req) => {
     console.log(`🔍 Found ${userIds.length} users in organization`)
 
     // Now find any active Fortnox integration for these users
-    const { data: fortnoxIntegration, error: integrationError } = await supabaseClient
+    const { data: fortnoxIntegration, error: integrationError } = await supabase
       .from('fortnox_integrations')
       .select('*')
       .in('user_id', userIds)
@@ -217,7 +217,7 @@ serve(async (req) => {
       accessToken = refreshData.access_token
 
       // Update the integration with new tokens
-      await supabaseClient
+      await supabase
         .from('fortnox_integrations')
         .update({
           access_token: refreshData.access_token,
@@ -285,7 +285,7 @@ serve(async (req) => {
             const getProjectText = await getProjectRes.text();
             console.error('❌ Failed to fetch existing project:', getProjectText);
             
-            await supabaseClient.from('fortnox_errors_log').insert({
+            await supabase.from('fortnox_errors_log').insert({
               user_id: inventoryItem.user_id,
               type: 'project_fetch_failed',
               message: `Failed to fetch existing project: ${getProjectText}`,
@@ -310,7 +310,7 @@ serve(async (req) => {
           // Different error, log and return
           console.error('❌ Failed to create project:', projectResponseText);
           
-          await supabaseClient.from('fortnox_errors_log').insert({
+          await supabase.from('fortnox_errors_log').insert({
             user_id: inventoryItem.user_id,
             type: 'project_creation_failed',
             message: `Failed to create project: ${projectResponseText}`,
@@ -334,7 +334,7 @@ serve(async (req) => {
       }
 
       // Store project number in inventory_items
-      await supabaseClient
+      await supabase
         .from('inventory_items')
         .update({ fortnox_project_number: projectNumber })
         .eq('id', inventoryItemId);
@@ -346,7 +346,7 @@ serve(async (req) => {
         console.log('🔍 Looking up user-configured account numbers from database...');
         console.log('🔍 Organization ID:', syncingUserProfile.organization_id);
         
-        const { data: accountMappings, error: mappingsError } = await supabaseClient
+        const { data: accountMappings, error: mappingsError } = await supabase
           .from('account_mappings')
           .select('account_name, account_number')
           .eq('organization_id', syncingUserProfile.organization_id);
@@ -402,7 +402,7 @@ serve(async (req) => {
         if (!vmbAccount) {
           console.error(`❌ Account ${vmbAccountNumber} (for Lager - VMB-bilar) not found or inactive in chart of accounts`);
           
-          await supabaseClient.from('fortnox_errors_log').insert({
+          await supabase.from('fortnox_errors_log').insert({
             user_id: inventoryItem.user_id,
             type: 'account_not_found',
             message: `Account ${vmbAccountNumber} (for Lager - VMB-bilar) not found or inactive in chart of accounts`,
@@ -423,7 +423,7 @@ serve(async (req) => {
         if (!leverantorskulderAccount) {
           console.error(`❌ Account ${leverantorskulderAccountNumber} (for Leverantörsskulder) not found or inactive in chart of accounts`);
           
-          await supabaseClient.from('fortnox_errors_log').insert({
+          await supabase.from('fortnox_errors_log').insert({
             user_id: inventoryItem.user_id,
             type: 'account_not_found',
             message: `Account ${leverantorskulderAccountNumber} (for Leverantörsskulder) not found or inactive in chart of accounts`,
@@ -494,7 +494,7 @@ serve(async (req) => {
           console.error('❌ Failed to create supplier invoice:', invoiceText);
           
           // Log error to database for debugging
-          await supabaseClient.from('fortnox_errors_log').insert({
+          await supabase.from('fortnox_errors_log').insert({
             user_id: inventoryItem.user_id,
             type: 'supplier_invoice_creation_failed',
             message: `Failed to create supplier invoice: ${invoiceText}`,
@@ -523,7 +523,7 @@ serve(async (req) => {
         console.log(`✅ Supplier invoice created: ${invoiceNumber}`);
 
         // Save invoice number and update sync status
-        await supabaseClient.from('inventory_items').update({
+        await supabase.from('inventory_items').update({
           fortnox_invoice_number: invoiceNumber,
           fortnox_sync_status: 'synced',
           fortnox_synced_at: new Date().toISOString(),
@@ -531,7 +531,7 @@ serve(async (req) => {
         }).eq('id', inventoryItemId);
 
         // Log successful sync
-        await supabaseClient.from('fortnox_sync_log').insert({
+        await supabase.from('fortnox_sync_log').insert({
           user_id: inventoryItem.user_id,
           synced_by_user_id: syncingUserId,
           inventory_item_id: inventoryItemId,
@@ -559,7 +559,7 @@ serve(async (req) => {
         console.error('❌ Error during supplier invoice creation:', invoiceError);
         
         // Log error to database
-        await supabaseClient.from('fortnox_errors_log').insert({
+        await supabase.from('fortnox_errors_log').insert({
           user_id: inventoryItem.user_id,
           type: 'supplier_invoice_error',
           message: `Error during supplier invoice creation: ${invoiceError.message}`,
