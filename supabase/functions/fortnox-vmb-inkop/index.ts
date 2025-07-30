@@ -372,27 +372,47 @@ serve(async (req) => {
           account.Description?.toLowerCase().includes('accounts payable')
         );
 
+        // Check for missing accounts and log errors
+        let missingAccounts = [];
         if (!vmbAccount) {
-          console.warn('⚠️ Could not find "Lager - VMB-bilar" account, using default 1520');
+          missingAccounts.push('Lager - VMB-bilar');
+          console.error('❌ Could not find "Lager - VMB-bilar" account, using fallback 1410');
         }
         if (!leverantorskulderAccount) {
-          console.warn('⚠️ Could not find Leverantörsskulder account, using default 2440');
+          missingAccounts.push('Leverantörsskulder');
+          console.error('❌ Could not find Leverantörsskulder account, using fallback 2440');
         }
 
-        const vmbAccountNumber = vmbAccount?.Number || 1520;
+        const vmbAccountNumber = vmbAccount?.Number || 1410;
         const leverantorskulderAccountNumber = leverantorskulderAccount?.Number || 2440;
         
-        console.log(`📋 Using VMB inventory account: ${vmbAccountNumber} (${vmbAccount?.Description || 'Default'})`);
-        console.log(`📋 Using Leverantörsskulder account: ${leverantorskulderAccountNumber} (${leverantorskulderAccount?.Description || 'Default'})`);
+        console.log(`📋 Using VMB inventory account: ${vmbAccountNumber} (${vmbAccount?.Description || 'Fallback 1410'})`);
+        console.log(`📋 Using Leverantörsskulder account: ${leverantorskulderAccountNumber} (${leverantorskulderAccount?.Description || 'Fallback 2440'})`);
+
+        // Log account warnings to database for user notification
+        if (missingAccounts.length > 0) {
+          await supabaseClient.from('fortnox_errors_log').insert({
+            user_id: inventoryItem.user_id,
+            type: 'missing_accounts_warning',
+            message: `Missing accounts in kontoplan: ${missingAccounts.join(', ')}. Using fallback accounts.`,
+            context: {
+              inventory_item_id: inventoryItemId,
+              missing_accounts: missingAccounts,
+              fallback_vmb: vmbAccountNumber,
+              fallback_leverantorsskulder: leverantorskulderAccountNumber
+            }
+          });
+        }
 
         // Get API documentation for supplier invoices endpoint
         const invoiceDocs = await getFortnoxApiDocs('/supplierinvoices', 'POST');
         console.log('📚 Using API documentation for supplier invoices:', JSON.stringify(invoiceDocs, null, 2));
 
-        // Create the invoice payload with debit and credit lines
+        // Create the invoice payload with debit and credit lines + registration number as invoice number
         const invoicePayload = {
           SupplierInvoice: {
             SupplierNumber: "1", // Use default supplier number
+            InvoiceNumber: inventoryItem.registration_number, // Use registration number as Fakturanummer
             Project: projectNumber,
             SupplierInvoiceRows: [
               {
