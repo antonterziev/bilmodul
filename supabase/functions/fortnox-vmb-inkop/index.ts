@@ -384,16 +384,20 @@ serve(async (req) => {
         let invoicePayload;
         
         // Check for down payment and prepare rows accordingly
-        const downPaymentAmount = inventoryItem.down_payment;
+        const downPaymentAmount = inventoryItem.down_payment || 0;
         console.log(`💰 Down payment amount: ${downPaymentAmount}`);
+        
+        // Calculate the net amount to be invoiced (purchase price minus down payment)
+        const netInvoiceAmount = inventoryItem.purchase_price - downPaymentAmount;
+        console.log(`💰 Net invoice amount (purchase price - down payment): ${netInvoiceAmount}`);
         
         // Check if user configured 2440 for Leverantörsskulder - use different logic
         if (leverantorskulderAccountNumber === '2440') {
-          console.log('📋 Using 2440 logic - setting total amount in existing entry');
-          // Use the existing 2440 entry and set total amount
+          console.log('📋 Using 2440 logic - setting net amount in existing entry');
+          // Use the existing 2440 entry and set net amount
           const supplierInvoiceRows = [
             {
-              Account: vmbAccountNumber, // VMB inventory account (debit)
+              Account: vmbAccountNumber, // VMB inventory account (debit) - full purchase price
               Debit: inventoryItem.purchase_price,
               Project: projectNumber
             }
@@ -417,7 +421,7 @@ serve(async (req) => {
               InvoiceNumber: inventoryItem.registration_number, // Use registration number as Fakturanummer
               InvoiceDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0], // Use purchase date or today
               Project: projectNumber,
-              Total: inventoryItem.purchase_price, // Set the total amount
+              Total: netInvoiceAmount, // Set the net amount (reduced by down payment)
               SupplierInvoiceRows: supplierInvoiceRows
             }
           };
@@ -426,13 +430,13 @@ serve(async (req) => {
           // Standard dual-entry bookkeeping
           const supplierInvoiceRows = [
             {
-              Account: vmbAccountNumber, // VMB inventory account (debit)
+              Account: vmbAccountNumber, // VMB inventory account (debit) - full purchase price
               Debit: inventoryItem.purchase_price,
               Project: projectNumber
             },
             {
-              Account: leverantorskulderAccountNumber, // Leverantörsskulder (credit)
-              Credit: inventoryItem.purchase_price,
+              Account: leverantorskulderAccountNumber, // Leverantörsskulder (credit) - net amount
+              Credit: netInvoiceAmount,
               Project: projectNumber
             }
           ];
