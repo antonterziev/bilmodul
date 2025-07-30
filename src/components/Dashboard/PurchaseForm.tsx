@@ -1022,12 +1022,11 @@ export const PurchaseForm = ({
                       value={downPaymentDisplay} 
                       onChange={handleDownPaymentChange} 
                       placeholder="t.ex. 25,000" 
-                      className="pr-20 bg-muted/30 cursor-not-allowed"
-                      disabled={true}
+                      className="pr-20"
                     />
                     <div className="absolute inset-y-0 right-0 flex items-center">
-                      <Select value={downPaymentCurrency} disabled={true}>
-                        <SelectTrigger className="w-16 h-8 border-0 bg-transparent text-xs opacity-50 cursor-not-allowed">
+                      <Select value={downPaymentCurrency}>
+                        <SelectTrigger className="w-16 h-8 border-0 bg-transparent text-xs">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
