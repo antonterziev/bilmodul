@@ -374,7 +374,7 @@ serve(async (req) => {
         console.log(`📋 Using VMB account number: ${vmbAccountNumber} (user configured: ${!!accountNumberMap['Lager - VMB-bilar']})`);
         console.log(`📋 Using Leverantörsskulder account number: ${leverantorskulderAccountNumber} (user configured: ${!!accountNumberMap['Leverantörsskulder']})`);
         
-        console.log(`📋 Skipping account validation - proceeding with supplier invoice creation`);
+        console.log(`📋 NEW VERSION - Skipping account validation - proceeding with supplier invoice creation`);
         
         // Get API documentation for supplier invoices endpoint
         const invoiceDocs = await getFortnoxApiDocs('/supplierinvoices', 'POST');
