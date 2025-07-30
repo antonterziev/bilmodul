@@ -333,6 +333,38 @@ serve(async (req) => {
         const projectData = JSON.parse(projectResponseText);
         projectNumber = projectData?.Project?.ProjectNumber || inventoryItem.registration_number;
         console.log(`✅ Fortnox project created: ${projectNumber}`);
+
+        // Follow-up PUT request to fully activate the project
+        console.log('🔄 Performing follow-up PUT to activate project...');
+        const activateProjectPayload = {
+          Project: {
+            Status: 'ONGOING'
+          }
+        };
+
+        const activateResponse = await fetch(`https://api.fortnox.se/3/projects/${projectNumber}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Access-Token': clientSecret,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(activateProjectPayload)
+        });
+
+        const activateResponseText = await activateResponse.text();
+        console.log('📥 Project activation response:', {
+          status: activateResponse.status,
+          statusText: activateResponse.statusText,
+          response: activateResponseText
+        });
+
+        if (!activateResponse.ok) {
+          console.log('⚠️ Project activation failed, but continuing with invoice creation');
+        } else {
+          console.log('✅ Project fully activated');
+        }
       }
 
       // Store project number in inventory_items
