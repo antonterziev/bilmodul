@@ -418,6 +418,7 @@ serve(async (req) => {
         const momsAccountNumber = accountNumberMap['Lager - Momsbilar'] || '1411';
         const leverantorskulderAccountNumber = accountNumberMap['Leverantörsskulder'] || '2440';
         const forskottsbetalningAccountNumber = accountNumberMap['Förskottsbetalning'] || '1680';
+        const ingaendeMomsAccountNumber = accountNumberMap['Ingående moms'] || '2641';
 
         console.log(`📋 Using MOMS account number: ${momsAccountNumber} (user configured: ${!!accountNumberMap['Lager - Momsbilar']})`);
         console.log(`📋 Using Leverantörsskulder account number: ${leverantorskulderAccountNumber} (user configured: ${!!accountNumberMap['Leverantörsskulder']})`);
@@ -436,9 +437,13 @@ serve(async (req) => {
         const downPaymentAmount = inventoryItem.down_payment || 0;
         console.log(`💰 Down payment amount: ${downPaymentAmount}`);
         
-        // Calculate the net amount to be invoiced (purchase price minus down payment)
-        const netInvoiceAmount = inventoryItem.purchase_price - downPaymentAmount;
-        console.log(`💰 Net invoice amount (purchase price - down payment): ${netInvoiceAmount}`);
+        // Calculate VAT (25% of purchase price) for MOMS vehicles
+        const vatAmount = Math.round(inventoryItem.purchase_price * 0.25);
+        console.log(`💰 VAT amount (25% of purchase price): ${vatAmount}`);
+        
+        // Calculate the net amount to be invoiced (purchase price + VAT - down payment)
+        const netInvoiceAmount = inventoryItem.purchase_price + vatAmount - downPaymentAmount;
+        console.log(`💰 Net invoice amount (purchase price + VAT - down payment): ${netInvoiceAmount}`);
         
         // Check if user configured 2440 for Leverantörsskulder - use different logic
         if (leverantorskulderAccountNumber === '2440') {
@@ -448,6 +453,11 @@ serve(async (req) => {
             {
               Account: momsAccountNumber, // MOMS inventory account (debit) - full purchase price
               Debit: inventoryItem.purchase_price,
+              Project: projectNumber
+            },
+            {
+              Account: ingaendeMomsAccountNumber, // Ingående moms (debit) - VAT amount
+              Debit: vatAmount,
               Project: projectNumber
             }
           ];
@@ -481,6 +491,11 @@ serve(async (req) => {
             {
               Account: momsAccountNumber, // MOMS inventory account (debit) - full purchase price
               Debit: inventoryItem.purchase_price,
+              Project: projectNumber
+            },
+            {
+              Account: ingaendeMomsAccountNumber, // Ingående moms (debit) - VAT amount
+              Debit: vatAmount,
               Project: projectNumber
             },
             {
