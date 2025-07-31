@@ -361,10 +361,14 @@ export const VehicleList = ({
         functionName = 'fortnox-moms-inkop';
         successMessage = 'MOMS inköp har synkats i Fortnox';
         console.log('Syncing MOMS vehicle:', { vehicleId, registrationNumber, userId: user?.id });
+      } else if (vehicle.vat_type === 'VMBI') {
+        functionName = 'fortnox-vmbi-inkop';
+        successMessage = 'VMBI (Import VMB) inköp har synkats i Fortnox';
+        console.log('Syncing VMBI vehicle:', { vehicleId, registrationNumber, userId: user?.id });
       } else {
         toast({
           title: "Synkronisering ej tillgänglig",
-          description: `Synkronisering är endast tillgänglig för VMB och MOMS fordon. ${registrationNumber} har moms-typ: ${vehicle.vat_type || 'okänd'}.`,
+          description: `Synkronisering är endast tillgänglig för VMB, MOMS och VMBI fordon. ${registrationNumber} har moms-typ: ${vehicle.vat_type || 'okänd'}.`,
           variant: "destructive",
         });
         return;
