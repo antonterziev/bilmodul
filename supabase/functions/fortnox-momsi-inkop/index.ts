@@ -461,11 +461,15 @@ serve(async (req) => {
       await supabase
         .from('fortnox_errors_log')
         .insert({
-          organization_id: inventoryItem.organization_id,
-          error_message: `Failed to create MOMSI supplier invoice: ${errorText}`,
-          function_name: 'fortnox-momsi-inkop',
-          inventory_item_id: inventoryItemId,
-          user_id: syncingUserId
+          message: `Failed to create MOMSI supplier invoice: ${errorText}`,
+          type: 'fortnox-momsi-inkop',
+          user_id: syncingUserId,
+          context: {
+            inventory_item_id: inventoryItemId,
+            organization_id: inventoryItem.organization_id,
+            status: supplierInvoiceResponse.status,
+            payload: supplierInvoicePayload
+          }
         });
 
       return new Response(
@@ -500,12 +504,16 @@ serve(async (req) => {
     await supabase
       .from('fortnox_sync_log')
       .insert({
-        organization_id: inventoryItem.organization_id,
-        action: 'MOMSI supplier invoice sync',
-        details: `Successfully synced MOMSI vehicle ${inventoryItem.registration_number} with project ${fortnoxProjectNumber} and invoice ${fortnoxInvoiceNumber}`,
+        sync_type: 'MOMSI supplier invoice sync',
+        sync_status: 'success',
         inventory_item_id: inventoryItemId,
         user_id: syncingUserId,
-        success: true
+        fortnox_verification_number: fortnoxInvoiceNumber,
+        sync_data: {
+          fortnox_project_number: fortnoxProjectNumber,
+          fortnox_invoice_number: fortnoxInvoiceNumber,
+          registration_number: inventoryItem.registration_number
+        }
       });
 
     return new Response(
