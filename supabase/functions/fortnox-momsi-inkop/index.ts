@@ -333,10 +333,20 @@ serve(async (req) => {
       mapping.account_name === 'Förskottsbetalning'
     )?.account_number || '1680';
 
+    const euImportAccount = accountMappings?.find(mapping => 
+      mapping.account_name === 'Inköp av varor från EU'
+    )?.account_number || '4515';
+    
+    const euImportCounterAccount = accountMappings?.find(mapping => 
+      mapping.account_name === 'Motkonto inköp av varor från EU'
+    )?.account_number || '4519';
+
     console.log('Using accounts for MOMSI:', {
       momsiInventoryAccount,
       supplierDebtAccount,
-      advancePaymentAccount
+      advancePaymentAccount,
+      euImportAccount,
+      euImportCounterAccount
     });
 
     // Create supplier invoice
@@ -354,6 +364,23 @@ serve(async (req) => {
         Credit: 0,
         Project: fortnoxProjectNumber,
         Description: `Inköp EU ${inventoryItem.registration_number} - ${inventoryItem.brand} ${inventoryItem.model}`,
+      });
+
+      // Add EU import VAT entries
+      supplierInvoiceRows.push({
+        Account: euImportAccount,
+        Debit: mainPurchaseAmount,
+        Credit: 0,
+        Project: fortnoxProjectNumber,
+        Description: `Inköp av varor från EU ${inventoryItem.registration_number}`,
+      });
+
+      supplierInvoiceRows.push({
+        Account: euImportCounterAccount,
+        Credit: mainPurchaseAmount,
+        Debit: 0,
+        Project: fortnoxProjectNumber,
+        Description: `Motkonto inköp av varor från EU ${inventoryItem.registration_number}`,
       });
     }
 
