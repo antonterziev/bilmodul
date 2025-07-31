@@ -248,13 +248,24 @@ serve(async (req) => {
     if (!projectResponse.ok) {
       const errorText = await projectResponse.text();
       console.error('Failed to create project:', errorText);
+      console.error('Project response status:', projectResponse.status);
+      console.error('Full project error response:', {
+        status: projectResponse.status,
+        statusText: projectResponse.statusText,
+        errorText,
+        projectNumber
+      });
       
-      // Check if project already exists
-      if (projectResponse.status === 400 && errorText.includes('används redan')) {
+      // Check if project already exists (Swedish error message patterns)
+      if (projectResponse.status === 400 && (
+        errorText.includes('används redan') || 
+        errorText.includes('already exists') ||
+        errorText.includes('Projektnummer används redan')
+      )) {
         console.log('Project already exists, using existing project number:', projectNumber);
         fortnoxProjectNumber = projectNumber;
       } else {
-        console.error('Project creation failed with error:', errorText);
+        console.error('Project creation failed with unhandled error:', errorText);
         return new Response(
           JSON.stringify({ 
             error: 'Failed to create Fortnox project', 
