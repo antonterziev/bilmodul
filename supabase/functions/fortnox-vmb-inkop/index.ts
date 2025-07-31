@@ -335,6 +335,52 @@ serve(async (req) => {
         console.log(`✅ Fortnox project created: ${projectNumber}`);
       }
 
+      // Force project to fully "activate" inside Fortnox by updating it twice
+      const baseProjectPayload = {
+        ProjectNumber: projectNumber,
+        Description: `${inventoryItem.brand} ${inventoryItem.model}`,
+        Status: 'ONGOING',
+        StartDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0]
+      };
+
+      // First PUT with comment A
+      const putPayloadA = {
+        Project: {
+          ...baseProjectPayload,
+          Comments: `Activation pass A for inventory ID ${inventoryItemId}`
+        }
+      };
+
+      await fetch(`https://api.fortnox.se/3/projects/${projectNumber}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Access-Token': clientSecret,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(putPayloadA)
+      });
+
+      // Second PUT with comment B
+      const putPayloadB = {
+        Project: {
+          ...baseProjectPayload,
+          Comments: `Activation pass B for inventory ID ${inventoryItemId}`
+        }
+      };
+
+      await fetch(`https://api.fortnox.se/3/projects/${projectNumber}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Access-Token': clientSecret,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(putPayloadB)
+      });
+
       // Store project number in inventory_items
       await supabase
         .from('inventory_items')
