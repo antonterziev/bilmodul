@@ -437,97 +437,62 @@ serve(async (req) => {
         const downPaymentAmount = inventoryItem.down_payment || 0;
         console.log(`💰 Down payment amount: ${downPaymentAmount}`);
         
-        // Calculate VAT (25% of purchase price) for MOMS vehicles
-        const vatAmount = Math.round(inventoryItem.purchase_price * 0.25);
-        console.log(`💰 VAT amount (25% of purchase price): ${vatAmount}`);
+        // Calculate VAT breakdown
+        const grossAmount = inventoryItem.purchase_price;
+        const vatRate = 0.25;
+        const vatAmount = grossAmount * vatRate / (1 + vatRate);
+        const netAmount = grossAmount - vatAmount;
         
-        // Calculate the net amount to be invoiced (purchase price + VAT - down payment)
-        const netInvoiceAmount = inventoryItem.purchase_price + vatAmount - downPaymentAmount;
-        console.log(`💰 Net invoice amount (purchase price + VAT - down payment): ${netInvoiceAmount}`);
+        console.log(`💰 Gross amount: ${grossAmount}`);
+        console.log(`💰 VAT amount (extracted): ${vatAmount}`);
+        console.log(`💰 Net amount: ${netAmount}`);
         
-        // Check if user configured 2440 for Leverantörsskulder - use different logic
-        if (leverantorskulderAccountNumber === '2440') {
-          console.log('📋 Using 2440 logic - setting net amount in existing entry');
-          // Use the existing 2440 entry and set net amount
-          const supplierInvoiceRows = [
-            {
-              Account: momsAccountNumber, // MOMS inventory account (debit) - full purchase price
-              Debit: inventoryItem.purchase_price,
-              Project: projectNumber
-            },
-            {
-              Account: ingaendeMomsAccountNumber, // Ingående moms (debit) - VAT amount
-              Debit: vatAmount,
-              Project: projectNumber
-            }
-          ];
-          
-          // Add down payment rows if exists
-          if (downPaymentAmount && downPaymentAmount > 0) {
-            console.log('💰 Adding down payment rows to main invoice');
-            supplierInvoiceRows.push(
-              {
-                Account: forskottsbetalningAccountNumber, // Förskottsbetalning account
-                Credit: downPaymentAmount,
-                Project: projectNumber
-              }
-            );
+        // Calculate the net amount to be invoiced (gross amount - down payment)
+        const netInvoiceAmount = grossAmount - downPaymentAmount;
+        console.log(`💰 Net invoice amount (gross - down payment): ${netInvoiceAmount}`);
+
+        // Build rows
+        const supplierInvoiceRows = [
+          {
+            Account: ingaendeMomsAccountNumber, // Ingående moms
+            Debit: vatAmount,
+            Credit: 0.0,
+            Project: projectNumber
+          },
+          {
+            Account: momsAccountNumber, // e.g., 1411
+            Debit: netAmount,
+            Credit: 0.0,
+            Project: projectNumber
+          },
+          {
+            Account: leverantorskulderAccountNumber, // e.g., 2440
+            Credit: netInvoiceAmount,
+            Debit: 0.0,
+            Project: projectNumber
           }
-          
-          invoicePayload = {
-            SupplierInvoice: {
-              SupplierNumber: "1", // Use default supplier number
-              InvoiceNumber: inventoryItem.registration_number, // Use registration number as Fakturanummer
-              InvoiceDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0], // Use purchase date or today
-              Project: projectNumber,
-              Total: netInvoiceAmount, // Set the net amount (reduced by down payment)
-              SupplierInvoiceRows: supplierInvoiceRows
-            }
-          };
-        } else {
-          console.log('📋 Using standard dual-entry logic');
-          // Standard dual-entry bookkeeping
-          const supplierInvoiceRows = [
-            {
-              Account: momsAccountNumber, // MOMS inventory account (debit) - full purchase price
-              Debit: inventoryItem.purchase_price,
-              Project: projectNumber
-            },
-            {
-              Account: ingaendeMomsAccountNumber, // Ingående moms (debit) - VAT amount
-              Debit: vatAmount,
-              Project: projectNumber
-            },
-            {
-              Account: leverantorskulderAccountNumber, // Leverantörsskulder (credit) - net amount
-              Credit: netInvoiceAmount,
-              Project: projectNumber
-            }
-          ];
-          
-          // Add down payment rows if exists
-          if (downPaymentAmount && downPaymentAmount > 0) {
-            console.log('💰 Adding down payment rows to main invoice');
-            supplierInvoiceRows.push(
-              {
-                Account: forskottsbetalningAccountNumber, // Förskottsbetalning account
-                Credit: downPaymentAmount,
-                Project: projectNumber
-              }
-            );
-          }
-          
-          invoicePayload = {
-            SupplierInvoice: {
-              SupplierNumber: "1", // Use default supplier number
-              InvoiceNumber: inventoryItem.registration_number, // Use registration number as Fakturanummer
-              InvoiceDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0], // Use purchase date or today
-              Project: projectNumber,
-              Total: netInvoiceAmount, // Set the net amount (reduced by down payment)
-              SupplierInvoiceRows: supplierInvoiceRows
-            }
-          };
+        ];
+
+        // If down payment exists, subtract from AP
+        if (downPaymentAmount && downPaymentAmount > 0) {
+          supplierInvoiceRows.push({
+            Account: forskottsbetalningAccountNumber,
+            Credit: downPaymentAmount,
+            Debit: 0.0,
+            Project: projectNumber
+          });
         }
+
+        invoicePayload = {
+          SupplierInvoice: {
+            SupplierNumber: "1",
+            InvoiceNumber: inventoryItem.registration_number,
+            InvoiceDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0],
+            Project: projectNumber,
+            Total: netInvoiceAmount,
+            SupplierInvoiceRows: supplierInvoiceRows
+          }
+        };
 
         console.log('📤 Creating supplier invoice with payload:', JSON.stringify(invoicePayload, null, 2));
 
