@@ -43,6 +43,7 @@ serve(async (req) => {
 
     const { inventoryItemId, syncingUserId } = await req.json();
     console.log('Starting MOMSI sync for:', { inventoryItemId, syncingUserId });
+    console.log('Request headers:', Object.fromEntries(req.headers.entries()));
 
     if (!inventoryItemId) {
       return new Response(
@@ -55,6 +56,7 @@ serve(async (req) => {
     }
 
     // Get inventory item details
+    console.log('Fetching inventory item with ID:', inventoryItemId);
     const { data: inventoryItem, error: inventoryError } = await supabase
       .from('inventory_items')
       .select('*')
@@ -72,8 +74,16 @@ serve(async (req) => {
       );
     }
 
+    console.log('Inventory item fetched successfully:', {
+      id: inventoryItem.id,
+      registration_number: inventoryItem.registration_number,
+      vat_type: inventoryItem.vat_type,
+      organization_id: inventoryItem.organization_id
+    });
+
     // Verify this is a MOMSI item
     if (inventoryItem.vat_type !== 'MOMSI') {
+      console.error('Invalid VAT type for MOMSI function:', inventoryItem.vat_type);
       return new Response(
         JSON.stringify({ error: 'This function only handles MOMSI inventory items' }),
         { 
