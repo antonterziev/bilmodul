@@ -1007,6 +1007,14 @@ export const PurchaseForm = ({
                       <RadioGroupItem value="MOMS" id="moms" />
                       <Label htmlFor="moms" className="font-normal cursor-pointer">Momspliktig bil</Label>
                     </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="IMPORT_VMB" id="import-vmb" />
+                      <Label htmlFor="import-vmb" className="font-normal cursor-pointer">Import (VMB)</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="IMPORT_MOMS" id="import-moms" />
+                      <Label htmlFor="import-moms" className="font-normal cursor-pointer">Import (MOMS)</Label>
+                    </div>
                   </RadioGroup>
                   {form.formState.errors.vat_type && <p className="text-sm text-destructive mt-1 absolute">
                       {form.formState.errors.vat_type.message}
