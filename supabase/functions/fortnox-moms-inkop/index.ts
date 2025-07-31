@@ -490,7 +490,6 @@ serve(async (req) => {
             InvoiceDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0],
             Project: projectNumber,
             Total: netInvoiceAmount,
-            VAT: vatAmount,
             SupplierInvoiceRows: supplierInvoiceRows
           }
         };
