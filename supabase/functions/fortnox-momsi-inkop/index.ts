@@ -121,10 +121,28 @@ serve(async (req) => {
       .order('created_at', { ascending: false })
       .limit(1);
 
+    console.log('Fortnox integration query result:', {
+      integrations: fortnoxIntegrations,
+      count: fortnoxIntegrations?.length,
+      error: integrationError,
+      organizationId: inventoryItem.organization_id
+    });
+
     const fortnoxIntegration = fortnoxIntegrations?.[0];
 
-    if (integrationError || !fortnoxIntegration) {
-      console.error('No active Fortnox integration found:', integrationError);
+    if (integrationError) {
+      console.error('Database error fetching Fortnox integration:', integrationError);
+      return new Response(
+        JSON.stringify({ error: 'Database error fetching Fortnox integration' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    if (!fortnoxIntegration) {
+      console.error('No active Fortnox integration found for organization:', inventoryItem.organization_id);
       return new Response(
         JSON.stringify({ error: 'No active Fortnox integration found for this organization' }),
         { 
