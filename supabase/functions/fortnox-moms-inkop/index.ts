@@ -437,37 +437,31 @@ serve(async (req) => {
         const downPaymentAmount = inventoryItem.down_payment || 0;
         console.log(`💰 Down payment amount: ${downPaymentAmount}`);
         
-        // Calculate VAT breakdown
+        // Calculate VAT breakdown on full purchase price
         const grossAmount = inventoryItem.purchase_price;
         const vatRate = 0.25;
         const vatAmount = grossAmount * vatRate / (1 + vatRate);
         const netAmount = grossAmount - vatAmount;
         
         console.log(`💰 Gross amount: ${grossAmount}`);
-        console.log(`💰 VAT amount (extracted): ${vatAmount}`);
+        console.log(`💰 VAT amount (calculated on full purchase price): ${vatAmount}`);
         console.log(`💰 Net amount: ${netAmount}`);
         
         // Calculate the net amount to be invoiced (gross amount - down payment)
         const netInvoiceAmount = grossAmount - downPaymentAmount;
         console.log(`💰 Net invoice amount (gross - down payment): ${netInvoiceAmount}`);
 
-        // Build rows - let Fortnox handle VAT automatically via VAT field
+        // Build rows - only asset and down payment, let Fortnox handle supplier payable automatically
         const supplierInvoiceRows = [
           {
             Account: momsAccountNumber, // e.g., 1411
             Debit: netAmount,
             Credit: 0.0,
             Project: projectNumber
-          },
-          {
-            Account: leverantorskulderAccountNumber, // e.g., 2440
-            Credit: netInvoiceAmount,
-            Debit: 0.0,
-            Project: projectNumber
           }
         ];
 
-        // If down payment exists, subtract from AP
+        // If down payment exists, add credit entry
         if (downPaymentAmount && downPaymentAmount > 0) {
           supplierInvoiceRows.push({
             Account: forskottsbetalningAccountNumber,
