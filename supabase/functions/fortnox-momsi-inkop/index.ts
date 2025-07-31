@@ -43,7 +43,6 @@ serve(async (req) => {
 
     const { inventoryItemId, syncingUserId } = await req.json();
     console.log('Starting MOMSI sync for:', { inventoryItemId, syncingUserId });
-    console.log('Request headers:', Object.fromEntries(req.headers.entries()));
 
     if (!inventoryItemId) {
       return new Response(
@@ -56,7 +55,6 @@ serve(async (req) => {
     }
 
     // Get inventory item details
-    console.log('Fetching inventory item with ID:', inventoryItemId);
     const { data: inventoryItem, error: inventoryError } = await supabase
       .from('inventory_items')
       .select('*')
@@ -74,16 +72,8 @@ serve(async (req) => {
       );
     }
 
-    console.log('Inventory item fetched successfully:', {
-      id: inventoryItem.id,
-      registration_number: inventoryItem.registration_number,
-      vat_type: inventoryItem.vat_type,
-      organization_id: inventoryItem.organization_id
-    });
-
     // Verify this is a MOMSI item
     if (inventoryItem.vat_type !== 'MOMSI') {
-      console.error('Invalid VAT type for MOMSI function:', inventoryItem.vat_type);
       return new Response(
         JSON.stringify({ error: 'This function only handles MOMSI inventory items' }),
         { 
@@ -123,36 +113,15 @@ serve(async (req) => {
     }
 
     // Find active Fortnox integration for the organization
-    const { data: fortnoxIntegrations, error: integrationError } = await supabase
+    const { data: fortnoxIntegration, error: integrationError } = await supabase
       .from('fortnox_integrations')
       .select('*')
       .eq('organization_id', inventoryItem.organization_id)
       .eq('is_active', true)
-      .order('created_at', { ascending: false })
-      .limit(1);
+      .single();
 
-    console.log('Fortnox integration query result:', {
-      integrations: fortnoxIntegrations,
-      count: fortnoxIntegrations?.length,
-      error: integrationError,
-      organizationId: inventoryItem.organization_id
-    });
-
-    const fortnoxIntegration = fortnoxIntegrations?.[0];
-
-    if (integrationError) {
-      console.error('Database error fetching Fortnox integration:', integrationError);
-      return new Response(
-        JSON.stringify({ error: 'Database error fetching Fortnox integration' }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-    }
-
-    if (!fortnoxIntegration) {
-      console.error('No active Fortnox integration found for organization:', inventoryItem.organization_id);
+    if (integrationError || !fortnoxIntegration) {
+      console.error('No active Fortnox integration found:', integrationError);
       return new Response(
         JSON.stringify({ error: 'No active Fortnox integration found for this organization' }),
         { 
@@ -258,31 +227,36 @@ serve(async (req) => {
     if (!projectResponse.ok) {
       const errorText = await projectResponse.text();
       console.error('Failed to create project:', errorText);
-      console.error('Project response status:', projectResponse.status);
-      console.error('Full project error response:', {
-        status: projectResponse.status,
-        statusText: projectResponse.statusText,
-        errorText,
-        projectNumber
-      });
       
-      // Check if project already exists (Swedish error message patterns)
-      if (projectResponse.status === 400 && (
-        errorText.toLowerCase().includes('används redan') || 
-        errorText.toLowerCase().includes('already exists') ||
-        errorText.toLowerCase().includes('projektnummer') ||
-        errorText.includes('2001182') // Fortnox error code for duplicate project number
-      )) {
-        console.log('Project already exists, using existing project number:', projectNumber);
-        fortnoxProjectNumber = projectNumber;
+      // Check if project already exists
+      if (projectResponse.status === 400 && errorText.includes('already exists')) {
+        console.log('Project already exists, fetching existing project...');
+        
+        const getProjectResponse = await fetch(`https://api.fortnox.se/3/projects/${projectNumber}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (getProjectResponse.ok) {
+          const existingProjectData = await getProjectResponse.json();
+          fortnoxProjectNumber = existingProjectData.Project.ProjectNumber;
+          console.log('Using existing project:', fortnoxProjectNumber);
+        } else {
+          console.error('Failed to fetch existing project');
+          return new Response(
+            JSON.stringify({ error: 'Failed to create or fetch Fortnox project' }),
+            { 
+              status: 400, 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+            }
+          );
+        }
       } else {
-        console.error('Project creation failed with unhandled error:', errorText);
         return new Response(
-          JSON.stringify({ 
-            error: 'Failed to create Fortnox project', 
-            details: errorText,
-            status: projectResponse.status 
-          }),
+          JSON.stringify({ error: 'Failed to create Fortnox project' }),
           { 
             status: 400, 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -379,8 +353,8 @@ serve(async (req) => {
     const supplierInvoiceRows = [];
     
     // Add main purchase row with MOMSI account (1412)
-    const mainPurchaseAmount = inventoryItem.down_payment > 0 
-      ? inventoryItem.purchase_price - inventoryItem.down_payment
+    const mainPurchaseAmount = inventoryItem.down_payment_amount > 0 
+      ? inventoryItem.purchase_price - inventoryItem.down_payment_amount
       : inventoryItem.purchase_price;
     
     if (mainPurchaseAmount > 0) {
@@ -411,10 +385,10 @@ serve(async (req) => {
     }
 
     // Add down payment row if applicable
-    if (inventoryItem.down_payment > 0) {
+    if (inventoryItem.down_payment_amount > 0) {
       supplierInvoiceRows.push({
         Account: advancePaymentAccount,
-        Credit: inventoryItem.down_payment,
+        Credit: inventoryItem.down_payment_amount,
         Debit: 0,
         Project: fortnoxProjectNumber,
         Description: `Förskottsbetalning ${inventoryItem.registration_number}`,
@@ -455,34 +429,21 @@ serve(async (req) => {
 
     if (!supplierInvoiceResponse.ok) {
       const errorText = await supplierInvoiceResponse.text();
-      console.error('Failed to create MOMSI supplier invoice:', {
-        status: supplierInvoiceResponse.status,
-        statusText: supplierInvoiceResponse.statusText,
-        error: errorText,
-        payload: supplierInvoicePayload
-      });
+      console.error('Failed to create MOMSI supplier invoice:', errorText);
       
       // Log error to database
       await supabase
         .from('fortnox_errors_log')
         .insert({
-          message: `Failed to create MOMSI supplier invoice: ${errorText}`,
-          type: 'fortnox-momsi-inkop',
-          user_id: syncingUserId,
-          context: {
-            inventory_item_id: inventoryItemId,
-            organization_id: inventoryItem.organization_id,
-            status: supplierInvoiceResponse.status,
-            payload: supplierInvoicePayload
-          }
+          organization_id: inventoryItem.organization_id,
+          error_message: `Failed to create MOMSI supplier invoice: ${errorText}`,
+          function_name: 'fortnox-momsi-inkop',
+          inventory_item_id: inventoryItemId,
+          user_id: syncingUserId
         });
 
       return new Response(
-        JSON.stringify({ 
-          error: 'Failed to create MOMSI supplier invoice in Fortnox',
-          details: errorText,
-          status: supplierInvoiceResponse.status
-        }),
+        JSON.stringify({ error: 'Failed to create MOMSI supplier invoice in Fortnox' }),
         { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -509,16 +470,12 @@ serve(async (req) => {
     await supabase
       .from('fortnox_sync_log')
       .insert({
-        sync_type: 'MOMSI supplier invoice sync',
-        sync_status: 'success',
+        organization_id: inventoryItem.organization_id,
+        action: 'MOMSI supplier invoice sync',
+        details: `Successfully synced MOMSI vehicle ${inventoryItem.registration_number} with project ${fortnoxProjectNumber} and invoice ${fortnoxInvoiceNumber}`,
         inventory_item_id: inventoryItemId,
         user_id: syncingUserId,
-        fortnox_verification_number: fortnoxInvoiceNumber,
-        sync_data: {
-          fortnox_project_number: fortnoxProjectNumber,
-          fortnox_invoice_number: fortnoxInvoiceNumber,
-          registration_number: inventoryItem.registration_number
-        }
+        success: true
       });
 
     return new Response(
@@ -535,17 +492,9 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Unexpected error in fortnox-momsi-inkop function:', error);
-    console.error('Error stack:', error.stack);
-    console.error('Error name:', error.name);
-    console.error('Error message:', error.message);
-    
+    console.error('Error in fortnox-momsi-inkop function:', error);
     return new Response(
-      JSON.stringify({ 
-        error: 'Internal server error',
-        details: error.message,
-        type: error.name
-      }),
+      JSON.stringify({ error: 'Internal server error' }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
