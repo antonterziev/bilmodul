@@ -450,7 +450,12 @@ serve(async (req) => {
 
     if (!supplierInvoiceResponse.ok) {
       const errorText = await supplierInvoiceResponse.text();
-      console.error('Failed to create MOMSI supplier invoice:', errorText);
+      console.error('Failed to create MOMSI supplier invoice:', {
+        status: supplierInvoiceResponse.status,
+        statusText: supplierInvoiceResponse.statusText,
+        error: errorText,
+        payload: supplierInvoicePayload
+      });
       
       // Log error to database
       await supabase
@@ -464,7 +469,11 @@ serve(async (req) => {
         });
 
       return new Response(
-        JSON.stringify({ error: 'Failed to create MOMSI supplier invoice in Fortnox' }),
+        JSON.stringify({ 
+          error: 'Failed to create MOMSI supplier invoice in Fortnox',
+          details: errorText,
+          status: supplierInvoiceResponse.status
+        }),
         { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
