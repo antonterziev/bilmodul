@@ -268,9 +268,10 @@ serve(async (req) => {
       
       // Check if project already exists (Swedish error message patterns)
       if (projectResponse.status === 400 && (
-        errorText.includes('används redan') || 
-        errorText.includes('already exists') ||
-        errorText.includes('Projektnummer används redan')
+        errorText.toLowerCase().includes('används redan') || 
+        errorText.toLowerCase().includes('already exists') ||
+        errorText.toLowerCase().includes('projektnummer') ||
+        errorText.includes('2001182') // Fortnox error code for duplicate project number
       )) {
         console.log('Project already exists, using existing project number:', projectNumber);
         fortnoxProjectNumber = projectNumber;
