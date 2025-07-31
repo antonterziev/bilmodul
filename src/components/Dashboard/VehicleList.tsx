@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useFortnoxConnection } from "@/hooks/useFortnoxConnection";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -45,6 +46,7 @@ export const VehicleList = ({
   sortOrder = 'desc'
 }: VehicleListProps) => {
   const { user } = useAuth();
+  const { handleFortnoxError } = useFortnoxConnection();
   const { toast } = useToast();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
@@ -363,10 +365,59 @@ export const VehicleList = ({
           console.log('Full fortnox-vmb-inkop response:', JSON.stringify(response, null, 2));
         } catch (functionError) {
           console.error('Function invoke error:', functionError);
+          
+          // For FunctionsHttpError, the actual response might be in the error itself
+          // but we need to make a direct fetch to get the response body
+          if (functionError.name === 'FunctionsHttpError') {
+            try {
+              // Make a direct fetch request to get the full error response
+              const directResponse = await fetch(
+                `https://yztwwehxppldoecwhomg.supabase.co/functions/v1/fortnox-vmb-inkop`,
+                {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Bearer ${await supabase.auth.getSession().then(s => s.data.session?.access_token)}`,
+                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6dHd3ZWh4cHBsZG9lY3dob21nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI4NTk4NzEsImV4cCI6MjA2ODQzNTg3MX0.1obqC6VKS2BbVrGT5kCnuAHaU895cRygvWoCkZ5YspE',
+                    'Content-Type': 'application/json',
+                    'x-client-info': 'supabase-js-web/2.52.0'
+                  },
+                  body: JSON.stringify({ 
+                    inventoryItemId: vehicleId,
+                    syncingUserId: user?.id
+                  })
+                }
+              );
+              
+              if (!directResponse.ok) {
+                const errorData = await directResponse.json();
+                console.log('Direct fetch error response:', errorData);
+                
+                if (errorData?.error && errorData?.requiresAccountFix) {
+                  // Create an error object that will be properly handled by handleFortnoxError
+                  const specificError = {
+                    error: errorData.error,
+                    requiresAccountFix: errorData.requiresAccountFix,
+                    invalidAccounts: errorData.invalidAccounts,
+                    message: errorData.error
+                  };
+                  
+                  // Use the Fortnox error handler
+                  if (handleFortnoxError && await handleFortnoxError(specificError)) {
+                    return; // Error was handled by handleFortnoxError
+                  }
+                }
+                
+                throw new Error(errorData.error || 'API request failed');
+              }
+            } catch (fetchError) {
+              console.error('Direct fetch also failed:', fetchError);
+            }
+          }
+          
           throw new Error(functionError.message || 'Kunde inte anropa Fortnox funktionen');
         }
 
-        const { data, error } = response;
+        const { data, error } = response || {};
         console.log('Response data:', data);
         console.log('Response error:', error);
 
@@ -395,6 +446,20 @@ export const VehicleList = ({
         // Check if the response contains an error (from non-2xx status codes)
         if (data?.error) {
           console.error('VMB sync failed with error:', data);
+          
+          // Create an error object that will be properly handled by handleFortnoxError
+          const specificError = {
+            error: data.error,
+            requiresAccountFix: data.requiresAccountFix,
+            invalidAccounts: data.invalidAccounts,
+            message: data.error
+          };
+          
+          // Use the Fortnox error handler
+          if (handleFortnoxError && await handleFortnoxError(specificError)) {
+            return; // Error was handled by handleFortnoxError
+          }
+          
           throw new Error(data.error);
         }
 
