@@ -1005,7 +1005,7 @@ export const PurchaseForm = ({
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="MOMS" id="moms" />
-                      <Label htmlFor="moms" className="font-normal cursor-pointer">Momspliktig bil</Label>
+                      <Label htmlFor="moms" className="font-normal cursor-pointer">Moms (25%)</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="IMPORT_VMB" id="import-vmb" />
