@@ -91,7 +91,7 @@ serve(async (req) => {
     }
 
     // Check if vehicle vat_type is VMB
-    if (inventoryItem.vat_type !== 'Vinstmarginalbeskattning (VMB)') {
+    if (inventoryItem.vat_type !== 'VMB') {
       console.log(`ℹ️ Vehicle vat_type is ${inventoryItem.vat_type}, not VMB. Skipping project creation.`)
       return new Response(
         JSON.stringify({ message: 'Vehicle vat_type is not VMB, project creation skipped' }),

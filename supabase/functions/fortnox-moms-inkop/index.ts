@@ -91,7 +91,7 @@ serve(async (req) => {
     }
 
     // Check if vehicle vat_type is MOMS
-    if (inventoryItem.vat_type !== 'Moms (25%)') {
+    if (inventoryItem.vat_type !== 'MOMS') {
       console.log(`ℹ️ Vehicle vat_type is ${inventoryItem.vat_type}, not MOMS. Skipping project creation.`)
       return new Response(
         JSON.stringify({ message: 'Vehicle vat_type is not MOMS, project creation skipped' }),

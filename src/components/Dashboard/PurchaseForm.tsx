@@ -1000,11 +1000,11 @@ export const PurchaseForm = ({
                     className="flex flex-row gap-6 mt-2"
                   >
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="Vinstmarginalbeskattning (VMB)" id="vmb" />
+                      <RadioGroupItem value="VMB" id="vmb" />
                       <Label htmlFor="vmb" className="font-normal cursor-pointer">Vinstmarginalbeskattning (VMB)</Label>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="Moms (25%)" id="moms" />
+                      <RadioGroupItem value="MOMS" id="moms" />
                       <Label htmlFor="moms" className="font-normal cursor-pointer">Momspliktig bil</Label>
                     </div>
                   </RadioGroup>
