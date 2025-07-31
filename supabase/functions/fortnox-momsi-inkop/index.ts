@@ -374,8 +374,8 @@ serve(async (req) => {
     const supplierInvoiceRows = [];
     
     // Add main purchase row with MOMSI account (1412)
-    const mainPurchaseAmount = inventoryItem.down_payment_amount > 0 
-      ? inventoryItem.purchase_price - inventoryItem.down_payment_amount
+    const mainPurchaseAmount = inventoryItem.down_payment > 0 
+      ? inventoryItem.purchase_price - inventoryItem.down_payment
       : inventoryItem.purchase_price;
     
     if (mainPurchaseAmount > 0) {
@@ -406,10 +406,10 @@ serve(async (req) => {
     }
 
     // Add down payment row if applicable
-    if (inventoryItem.down_payment_amount > 0) {
+    if (inventoryItem.down_payment > 0) {
       supplierInvoiceRows.push({
         Account: advancePaymentAccount,
-        Credit: inventoryItem.down_payment_amount,
+        Credit: inventoryItem.down_payment,
         Debit: 0,
         Project: fortnoxProjectNumber,
         Description: `Förskottsbetalning ${inventoryItem.registration_number}`,
@@ -530,9 +530,17 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error in fortnox-momsi-inkop function:', error);
+    console.error('Unexpected error in fortnox-momsi-inkop function:', error);
+    console.error('Error stack:', error.stack);
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ 
+        error: 'Internal server error',
+        details: error.message,
+        type: error.name
+      }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
