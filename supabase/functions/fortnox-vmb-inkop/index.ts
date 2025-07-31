@@ -417,9 +417,11 @@ serve(async (req) => {
         // Get account numbers - use user configured or fallback to defaults
         const vmbAccountNumber = accountNumberMap['Lager - VMB-bilar'] || '1410';
         const leverantorskulderAccountNumber = accountNumberMap['Leverantörsskulder'] || '2440';
+        const forskottsbetalningAccountNumber = accountNumberMap['Förskottsbetalning'] || '1680';
 
         console.log(`📋 Using VMB account number: ${vmbAccountNumber} (user configured: ${!!accountNumberMap['Lager - VMB-bilar']})`);
         console.log(`📋 Using Leverantörsskulder account number: ${leverantorskulderAccountNumber} (user configured: ${!!accountNumberMap['Leverantörsskulder']})`);
+        console.log(`📋 Using Förskottsbetalning account number: ${forskottsbetalningAccountNumber} (user configured: ${!!accountNumberMap['Förskottsbetalning']})`);
         
         console.log(`📋 NEW VERSION - Skipping account validation - proceeding with supplier invoice creation`);
         
@@ -455,7 +457,7 @@ serve(async (req) => {
             console.log('💰 Adding down payment rows to main invoice');
             supplierInvoiceRows.push(
               {
-                Account: "1680", // Credit account 1680
+                Account: forskottsbetalningAccountNumber, // Förskottsbetalning account
                 Credit: downPaymentAmount,
                 Project: projectNumber
               }
@@ -493,7 +495,7 @@ serve(async (req) => {
             console.log('💰 Adding down payment rows to main invoice');
             supplierInvoiceRows.push(
               {
-                Account: "1680", // Credit account 1680
+                Account: forskottsbetalningAccountNumber, // Förskottsbetalning account
                 Credit: downPaymentAmount,
                 Project: projectNumber
               }
