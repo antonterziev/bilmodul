@@ -22,3 +22,9 @@ verify_jwt = true
 [functions.fortnox-vmb-inkop]
 verify_jwt = true
 
+[functions.fortnox-vmbi-inkop]
+verify_jwt = true
+
+[functions.fortnox-momsi-inkop]
+verify_jwt = true
+
