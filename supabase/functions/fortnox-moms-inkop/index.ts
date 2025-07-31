@@ -451,14 +451,8 @@ serve(async (req) => {
         const netInvoiceAmount = grossAmount - downPaymentAmount;
         console.log(`💰 Net invoice amount (gross - down payment): ${netInvoiceAmount}`);
 
-        // Build rows
+        // Build rows - let Fortnox handle VAT automatically via VAT field
         const supplierInvoiceRows = [
-          {
-            Account: ingaendeMomsAccountNumber, // Ingående moms
-            Debit: vatAmount,
-            Credit: 0.0,
-            Project: projectNumber
-          },
           {
             Account: momsAccountNumber, // e.g., 1411
             Debit: netAmount,
