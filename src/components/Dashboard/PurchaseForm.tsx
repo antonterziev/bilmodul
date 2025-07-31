@@ -410,9 +410,10 @@ export const PurchaseForm = ({
     const firstRegistrationDate = form.watch('first_registration_date');
     const purchaseChannel = form.watch('purchase_channel');
     const purchaseDate = form.watch('purchase_date');
+    const currentVatType = form.watch('vat_type');
 
-    // Only auto-determine if all required fields are filled
-    if (mileage && firstRegistrationDate && purchaseChannel && purchaseDate) {
+    // Only auto-determine if all required fields are filled AND no vat_type is currently set
+    if (mileage && firstRegistrationDate && purchaseChannel && purchaseDate && !currentVatType) {
       try {
         const vatType = determineVatType({
           mileage,
@@ -983,28 +984,28 @@ export const PurchaseForm = ({
                     <Label className="text-muted-foreground">Momsregel*</Label>
                     <InfoPopup title="Momsregel för köp från privatperson">
                       <div className="space-y-2">
-                        <p><strong>Moms (25%)</strong> tillämpas när BÅDA följande villkor är uppfyllda:</p>
+                        <p><strong>Momspliktig bil</strong> tillämpas när BÅDA följande villkor är uppfyllda:</p>
                         <ul className="list-disc list-inside space-y-1 ml-2">
                           <li>Fordonet har färdats högst 6000 km</li>
                           <li>Fordonet har varit i trafik i högst 6 månader efter första registrering</li>
                         </ul>
-                        <p className="mt-2"><strong>VMB (Vinstmarginalbeskattning)</strong> tillämpas i alla andra fall.</p>
+                        <p className="mt-2"><strong>Vinstmarginalbeskattning (VMB)</strong> tillämpas i alla andra fall.</p>
+                        <p className="mt-2 text-muted-foreground text-sm">Du kan ändra detta manuellt om det behövs.</p>
                       </div>
                     </InfoPopup>
                   </div>
                   <RadioGroup
                     value={form.watch("vat_type")}
-                    onValueChange={() => {}} // No-op function to prevent changes
+                    onValueChange={(value) => form.setValue("vat_type", value)}
                     className="flex flex-row gap-6 mt-2"
-                    disabled={true}
                   >
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="Vinstmarginalbeskattning (VMB)" id="vmb" disabled={true} />
-                      <Label htmlFor="vmb" className="font-normal text-muted-foreground">Vinstmarginalbeskattning (VMB)</Label>
+                      <RadioGroupItem value="Vinstmarginalbeskattning (VMB)" id="vmb" />
+                      <Label htmlFor="vmb" className="font-normal cursor-pointer">Vinstmarginalbeskattning (VMB)</Label>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="Moms (25%)" id="moms" disabled={true} />
-                      <Label htmlFor="moms" className="font-normal text-muted-foreground">Moms (25%)</Label>
+                      <RadioGroupItem value="Momspliktig bil" id="moms" />
+                      <Label htmlFor="moms" className="font-normal cursor-pointer">Momspliktig bil</Label>
                     </div>
                   </RadioGroup>
                   {form.formState.errors.vat_type && <p className="text-sm text-destructive mt-1 absolute">
