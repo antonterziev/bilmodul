@@ -435,6 +435,7 @@ serve(async (req) => {
         
         for (const account of accountsToValidate) {
           try {
+            console.log(`🔍 Validating account ${account.number} (${account.name}) in Fortnox...`);
             const { data: accountCheck, error: accountError } = await supabase.functions.invoke('fortnox-check-account', {
               body: { 
                 accountNumber: account.number,
@@ -442,21 +443,27 @@ serve(async (req) => {
               }
             });
             
-            if (accountError || !accountCheck?.exists || !accountCheck?.active) {
-              console.log(`❌ Account ${account.number} (${account.name}) is not valid or active`);
-              invalidAccounts.push(`${account.name} (${account.number})`);
+            if (accountError) {
+              console.log(`❌ Error checking account ${account.number} (${account.name}):`, accountError);
+              invalidAccounts.push(`${account.name}: ${account.number} (API-fel: ${accountError.message || 'Okänt fel'})`);
+            } else if (!accountCheck?.exists) {
+              console.log(`❌ Account ${account.number} (${account.name}) does not exist in Fortnox`);
+              invalidAccounts.push(`${account.name}: ${account.number} (kontot finns inte)`);
+            } else if (!accountCheck?.active) {
+              console.log(`❌ Account ${account.number} (${account.name}) exists but is not active`);
+              invalidAccounts.push(`${account.name}: ${account.number} (kontot är inte aktivt)`);
             } else {
               console.log(`✅ Account ${account.number} (${account.name}) is valid and active`);
             }
           } catch (error) {
-            console.log(`❌ Failed to validate account ${account.number} (${account.name}):`, error);
-            invalidAccounts.push(`${account.name} (${account.number})`);
+            console.log(`❌ Exception while validating account ${account.number} (${account.name}):`, error);
+            invalidAccounts.push(`${account.name}: ${account.number} (kontroll misslyckades)`);
           }
         }
         
         if (invalidAccounts.length > 0) {
-          const errorMessage = `Följande kontonummer är inte aktiva i Fortnox: ${invalidAccounts.join(', ')}. Kontrollera dina kontomappningar i inställningarna.`;
-          console.log(`❌ Account validation failed: ${errorMessage}`);
+          const errorMessage = `Kontokonfiguration problem:\n\n${invalidAccounts.map(acc => `• ${acc}`).join('\n')}\n\nGå till Inställningar > Integrationer > Fortnox för att uppdatera kontomappningarna.`;
+          console.log(`❌ Account validation failed. Invalid accounts: ${JSON.stringify(invalidAccounts)}`);
           
           return new Response(JSON.stringify({ 
             error: errorMessage,
