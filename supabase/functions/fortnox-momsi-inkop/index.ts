@@ -250,34 +250,17 @@ serve(async (req) => {
       console.error('Failed to create project:', errorText);
       
       // Check if project already exists
-      if (projectResponse.status === 400 && errorText.includes('already exists')) {
-        console.log('Project already exists, fetching existing project...');
-        
-        const getProjectResponse = await fetch(`https://api.fortnox.se/3/projects/${projectNumber}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (getProjectResponse.ok) {
-          const existingProjectData = await getProjectResponse.json();
-          fortnoxProjectNumber = existingProjectData.Project.ProjectNumber;
-          console.log('Using existing project:', fortnoxProjectNumber);
-        } else {
-          console.error('Failed to fetch existing project');
-          return new Response(
-            JSON.stringify({ error: 'Failed to create or fetch Fortnox project' }),
-            { 
-              status: 400, 
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-            }
-          );
-        }
+      if (projectResponse.status === 400 && errorText.includes('används redan')) {
+        console.log('Project already exists, using existing project number:', projectNumber);
+        fortnoxProjectNumber = projectNumber;
       } else {
+        console.error('Project creation failed with error:', errorText);
         return new Response(
-          JSON.stringify({ error: 'Failed to create Fortnox project' }),
+          JSON.stringify({ 
+            error: 'Failed to create Fortnox project', 
+            details: errorText,
+            status: projectResponse.status 
+          }),
           { 
             status: 400, 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
