@@ -14,7 +14,7 @@ export interface VatDeterminationParams {
 
 /**
  * Determines VAT type for vehicle purchases from private individuals
- * Returns "Momspliktig bil" if BOTH conditions are met:
+ * Returns "Moms (25%)" if BOTH conditions are met:
  * 1. Mileage ≤ 6000 km AND
  * 2. In traffic for ≤ 6 months after first registration
  * Otherwise returns "Vinstmarginalbeskattning (VMB)"
@@ -40,7 +40,7 @@ export function determineVatType({
 
   // Both conditions must be true for "Moms"
   if (isLowMileage && isRecentRegistration) {
-    return "Momspliktig bil";
+    return "Moms (25%)";
   }
 
   return "Vinstmarginalbeskattning (VMB)";

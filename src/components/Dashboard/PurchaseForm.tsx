@@ -1004,7 +1004,7 @@ export const PurchaseForm = ({
                       <Label htmlFor="vmb" className="font-normal cursor-pointer">Vinstmarginalbeskattning (VMB)</Label>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="Momspliktig bil" id="moms" />
+                      <RadioGroupItem value="Moms (25%)" id="moms" />
                       <Label htmlFor="moms" className="font-normal cursor-pointer">Momspliktig bil</Label>
                     </div>
                   </RadioGroup>
