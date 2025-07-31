@@ -25,18 +25,6 @@ export const useFortnoxConnection = () => {
       return true; // Indicates this was a reconnection error
     }
     
-    // Check if this is an account validation error
-    if (error?.requiresAccountFix || error?.invalidAccounts) {
-      toast({
-        title: "Kontokonfiguration problem",
-        description: error.error || error.message || "Kontrollera dina kontomappningar i inställningarna.",
-        variant: "destructive",
-        duration: 10000, // Show longer for complex error messages
-      });
-      
-      return true; // Indicates this was an account validation error
-    }
-    
     return false; // Not a reconnection error
   }, [toast]);
 
