@@ -25,6 +25,17 @@ export const useFortnoxConnection = () => {
       return true; // Indicates this was a reconnection error
     }
     
+    // Check if this is an account validation error
+    if (error?.requiresAccountFix || error?.invalidAccounts) {
+      toast({
+        title: "Kontonummer saknas eller är inaktiva",
+        description: error.message || "Kontrollera dina kontomappningar i inställningarna.",
+        variant: "destructive",
+      });
+      
+      return true; // Indicates this was an account validation error
+    }
+    
     return false; // Not a reconnection error
   }, [toast]);
 

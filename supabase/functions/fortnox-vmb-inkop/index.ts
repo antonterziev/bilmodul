@@ -423,7 +423,53 @@ serve(async (req) => {
         console.log(`📋 Using Leverantörsskulder account number: ${leverantorskulderAccountNumber} (user configured: ${!!accountNumberMap['Leverantörsskulder']})`);
         console.log(`📋 Using Förskottsbetalning account number: ${forskottsbetalningAccountNumber} (user configured: ${!!accountNumberMap['Förskottsbetalning']})`);
         
-        console.log(`📋 NEW VERSION - Skipping account validation - proceeding with supplier invoice creation`);
+        // Validate account numbers exist and are active in Fortnox
+        console.log(`📋 Validating account numbers in Fortnox...`);
+        const accountsToValidate = [
+          { name: 'Lager - VMB-bilar', number: vmbAccountNumber },
+          { name: 'Leverantörsskulder', number: leverantorskulderAccountNumber },
+          { name: 'Förskottsbetalning', number: forskottsbetalningAccountNumber }
+        ];
+        
+        const invalidAccounts = [];
+        
+        for (const account of accountsToValidate) {
+          try {
+            const { data: accountCheck, error: accountError } = await supabase.functions.invoke('fortnox-check-account', {
+              body: { 
+                accountNumber: account.number,
+                userId: syncingUserId
+              }
+            });
+            
+            if (accountError || !accountCheck?.exists || !accountCheck?.active) {
+              console.log(`❌ Account ${account.number} (${account.name}) is not valid or active`);
+              invalidAccounts.push(`${account.name} (${account.number})`);
+            } else {
+              console.log(`✅ Account ${account.number} (${account.name}) is valid and active`);
+            }
+          } catch (error) {
+            console.log(`❌ Failed to validate account ${account.number} (${account.name}):`, error);
+            invalidAccounts.push(`${account.name} (${account.number})`);
+          }
+        }
+        
+        if (invalidAccounts.length > 0) {
+          const errorMessage = `Följande kontonummer är inte aktiva i Fortnox: ${invalidAccounts.join(', ')}. Kontrollera dina kontomappningar i inställningarna.`;
+          console.log(`❌ Account validation failed: ${errorMessage}`);
+          
+          return new Response(JSON.stringify({ 
+            error: errorMessage,
+            requiresAccountFix: true,
+            invalidAccounts: invalidAccounts
+          }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+        
+        console.log(`✅ All account numbers validated successfully`);
+        console.log(`📋 Proceeding with supplier invoice creation`);
         
         // Get API documentation for supplier invoices endpoint
         const invoiceDocs = await getFortnoxApiDocs('/supplierinvoices', 'POST');
