@@ -348,77 +348,87 @@ export const VehicleList = ({
         throw new Error('Fordon hittades inte');
       }
 
-      // Only call fortnox-vmb-inköp if the vehicle vat_type is VMB
-      if (vehicle.vat_type === 'Vinstmarginalbeskattning (VMB)') {
+      let response;
+      let functionName: string;
+      let successMessage: string;
+      
+      // Call appropriate function based on vat_type
+      if (vehicle.vat_type === 'VMB') {
+        functionName = 'fortnox-vmb-inkop';
+        successMessage = 'VMB projekt har skapats i Fortnox';
         console.log('Syncing VMB vehicle:', { vehicleId, registrationNumber, userId: user?.id });
-        
-        let response;
-        try {
-          response = await supabase.functions.invoke('fortnox-vmb-inkop', {
-            body: { 
-              inventoryItemId: vehicleId,
-              syncingUserId: user?.id
-            }
-          });
-          console.log('Full fortnox-vmb-inkop response:', JSON.stringify(response, null, 2));
-        } catch (functionError) {
-          console.error('Function invoke error:', functionError);
-          throw new Error(functionError.message || 'Kunde inte anropa Fortnox funktionen');
-        }
-
-        const { data, error } = response;
-        console.log('Response data:', data);
-        console.log('Response error:', error);
-
-        // Check for function invoke errors first
-        if (error) {
-          console.error('VMB sync error object:', error);
-          
-          // Check if error has a message property
-          if (error.message) {
-            throw new Error(error.message);
-          }
-          
-          // Check if error is a string
-          if (typeof error === 'string') {
-            throw new Error(error);
-          }
-          
-          // Check if error contains context about the actual error
-          if (error.context) {
-            throw new Error(JSON.stringify(error.context));
-          }
-          
-          throw new Error(JSON.stringify(error));
-        }
-
-        // Check if the response contains an error (from non-2xx status codes)
-        if (data?.error) {
-          console.error('VMB sync failed with error:', data);
-          throw new Error(data.error);
-        }
-
-        // Check for success
-        if (data?.success) {
-          toast({
-            title: "VMB projekt skapat",
-            description: `VMB projekt har skapats i Fortnox för ${registrationNumber}.`,
-          });
-          
-          // Reload vehicles to show updated sync status
-          loadVehicles();
-        } else {
-          console.error('VMB sync unexpected response:', data);
-          // If no explicit error but no success either, try to extract any error message
-          const errorMsg = data?.message || data?.details || JSON.stringify(data) || 'Okänt fel vid skapande av VMB projekt';
-          throw new Error(errorMsg);
-        }
+      } else if (vehicle.vat_type === 'MOMS') {
+        functionName = 'fortnox-moms-inkop';
+        successMessage = 'MOMS inköp har synkats i Fortnox';
+        console.log('Syncing MOMS vehicle:', { vehicleId, registrationNumber, userId: user?.id });
       } else {
         toast({
           title: "Synkronisering ej tillgänglig",
-          description: `Synkronisering är endast tillgänglig för VMB fordon. ${registrationNumber} har moms-typ: ${vehicle.vat_type || 'okänd'}.`,
+          description: `Synkronisering är endast tillgänglig för VMB och MOMS fordon. ${registrationNumber} har moms-typ: ${vehicle.vat_type || 'okänd'}.`,
           variant: "destructive",
         });
+        return;
+      }
+
+      try {
+        response = await supabase.functions.invoke(functionName, {
+          body: { 
+            inventoryItemId: vehicleId,
+            syncingUserId: user?.id
+          }
+        });
+        console.log(`Full ${functionName} response:`, JSON.stringify(response, null, 2));
+      } catch (functionError) {
+        console.error('Function invoke error:', functionError);
+        throw new Error(functionError.message || 'Kunde inte anropa Fortnox funktionen');
+      }
+
+      const { data, error } = response;
+      console.log('Response data:', data);
+      console.log('Response error:', error);
+
+      // Check for function invoke errors first
+      if (error) {
+        console.error('Sync error object:', error);
+        
+        // Check if error has a message property
+        if (error.message) {
+          throw new Error(error.message);
+        }
+        
+        // Check if error is a string
+        if (typeof error === 'string') {
+          throw new Error(error);
+        }
+        
+        // Check if error contains context about the actual error
+        if (error.context) {
+          throw new Error(JSON.stringify(error.context));
+        }
+        
+        throw new Error(JSON.stringify(error));
+      }
+
+      // Check if the response contains an error (from non-2xx status codes)
+      if (data?.error) {
+        console.error('Sync failed with error:', data);
+        throw new Error(data.error);
+      }
+
+      // Check for success
+      if (data?.success) {
+        toast({
+          title: "Synkronisering klar",
+          description: `${successMessage} för ${registrationNumber}.`,
+        });
+        
+        // Reload vehicles to show updated sync status
+        loadVehicles();
+      } else {
+        console.error('Sync unexpected response:', data);
+        // If no explicit error but no success either, try to extract any error message
+        const errorMsg = data?.message || data?.details || JSON.stringify(data) || 'Okänt fel vid synkronisering';
+        throw new Error(errorMsg);
       }
     } catch (error) {
       console.error('Error syncing vehicle:', error);
