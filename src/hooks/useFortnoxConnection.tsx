@@ -28,9 +28,10 @@ export const useFortnoxConnection = () => {
     // Check if this is an account validation error
     if (error?.requiresAccountFix || error?.invalidAccounts) {
       toast({
-        title: "Kontonummer saknas eller är inaktiva",
-        description: error.message || "Kontrollera dina kontomappningar i inställningarna.",
+        title: "Kontokonfiguration problem",
+        description: error.error || error.message || "Kontrollera dina kontomappningar i inställningarna.",
         variant: "destructive",
+        duration: 10000, // Show longer for complex error messages
       });
       
       return true; // Indicates this was an account validation error
