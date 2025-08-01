@@ -398,7 +398,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                 </div>
 
                 {/* Additional facts row */}
-                <div className="col-span-2 md:col-span-3 grid grid-cols-2 md:grid-cols-3 gap-6 pt-4 border-t">
+                <div className="col-span-2 md:col-span-3 grid grid-cols-2 md:grid-cols-3 gap-6 pt-4">
                   <div>
                     <div className="text-sm text-muted-foreground mb-1">Färg</div>
                     <div className="font-medium">-</div>
