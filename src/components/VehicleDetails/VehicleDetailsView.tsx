@@ -294,6 +294,16 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
             </CardContent>
           </Card>
 
+          {/* Storage days */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="text-sm font-medium text-muted-foreground">Lagerdagar</div>
+              <div className="text-2xl font-bold">
+                {Math.floor((new Date().getTime() - new Date(vehicle.purchase_date).getTime()) / (1000 * 3600 * 24))} dagar
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Purchase information */}
           <Card>
             <CardContent className="p-4 space-y-4">
