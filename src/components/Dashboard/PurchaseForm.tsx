@@ -23,7 +23,6 @@ import { useToast } from "@/hooks/use-toast";
 import { cn, determineVatType } from "@/lib/utils";
 import { InfoPopup } from "@/components/ui/info-popup";
 import { sv } from "date-fns/locale";
-
 const carBrands = ["Annat", "Alfa Romeo", "Alpine", "Aston Martin", "Audi", "Bentley", "BMW", "BYD", "Cadillac", "Chevrolet", "Chrysler", "Citroën", "Dacia", "Daihatsu", "Dodge", "Ferrari", "Fiat", "Fisker, Karma", "Ford", "GMC", "Honda", "Hummer", "Hyundai", "Infiniti", "Isuzu", "Iveco", "Jaguar", "Jeep", "Kia", "Koenigsegg", "KTM", "Lada", "Lamborghini", "Lancia", "Land Rover", "Lexus", "Ligier", "Lincoln", "Lotus", "Maserati", "Mazda", "McLaren", "Mercedes-Benz", "Maybach", "Mini", "Mitsubishi", "Nissan", "Opel", "Peugeot", "Piaggio", "Pininfarina", "Polestar", "Pontiac, Asüna", "Porsche", "Renault", "Rivian", "Rolls-Royce", "Saab", "Santana", "Seat", "Shelby SuperCars", "Skoda", "smart", "SsangYong", "Subaru", "Suzuki", "Tesla", "Toyota", "Volkswagen", "Volvo"];
 const purchaseChannels = ["Privatperson", "Företag (utan moms)", "Företag (med moms)", "Utländskt företag (med moms)", "Utländskt företag (utan moms)", "Leasingbolag (privat)", "Leasingbolag (tjänstebil)"];
 // No longer needed as marketplace options have been removed
@@ -36,7 +35,7 @@ const purchaseSchema = z.object({
   brand_other: z.string().optional(),
   model: z.string().optional(),
   comment: z.string().optional(),
-  year_model: z.preprocess((val) => val === "" || val === null || val === undefined ? undefined : Number(val), z.number().min(1981, "Modellår måste vara minst 1981").max(new Date().getFullYear() + 2, "Modellår kan inte vara mer än två år i framtiden").optional()),
+  year_model: z.preprocess(val => val === "" || val === null || val === undefined ? undefined : Number(val), z.number().min(1981, "Modellår måste vara minst 1981").max(new Date().getFullYear() + 2, "Modellår kan inte vara mer än två år i framtiden").optional()),
   first_registration_date: z.date().max(new Date(), "Första datum i trafik kan inte vara i framtiden"),
   vat_type: z.string().min(1, "Momsregel krävs"),
   // Purchase information
@@ -47,15 +46,13 @@ const purchaseSchema = z.object({
   down_payment_document: z.any().optional(),
   purchase_documentation: z.string().optional(),
   purchase_channel: z.string().optional(),
-  purchase_channel_other: z.string().optional(),
+  purchase_channel_other: z.string().optional()
   // Marketplace fields removed as they're no longer used
-  
 });
 type PurchaseFormData = z.infer<typeof purchaseSchema>;
 interface PurchaseFormProps {
   onSuccess: () => void;
 }
-
 export const PurchaseForm = ({
   onSuccess
 }: PurchaseFormProps) => {
@@ -69,7 +66,7 @@ export const PurchaseForm = ({
   const [userProfile, setUserProfile] = useState<{
     full_name?: string;
   } | null>(null);
-  
+
   // Organization users state
   const [organizationUsers, setOrganizationUsers] = useState<Array<{
     user_id: string;
@@ -83,7 +80,6 @@ export const PurchaseForm = ({
   const [mileageDisplay, setMileageDisplay] = useState("");
   const [priceDisplay, setPriceDisplay] = useState("");
   const [downPaymentDisplay, setDownPaymentDisplay] = useState("");
-  
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedPurchaseDoc, setUploadedPurchaseDoc] = useState<File | null>(null);
@@ -97,7 +93,6 @@ export const PurchaseForm = ({
   const [showFullForm, setShowFullForm] = useState(false);
   const [carDataFetched, setCarDataFetched] = useState(false);
   const [purchasePriceCurrency, setPurchasePriceCurrency] = useState("SEK");
-  
   const [downPaymentCurrency, setDownPaymentCurrency] = useState("SEK");
 
   // Generate year options (last 50 years)
@@ -130,12 +125,11 @@ export const PurchaseForm = ({
     setMileageDisplay("");
     setPriceDisplay("");
     setDownPaymentDisplay("");
-    
     setUploadedFile(null);
     setUploadedPurchaseDoc(null);
     setSelectedYear(null);
     setSelectedMonth(null);
-     form.reset({
+    form.reset({
       purchase_date: new Date(),
       down_payment: 0,
       purchase_channel: "Privatperson",
@@ -154,37 +148,31 @@ export const PurchaseForm = ({
       if (!user) return;
       try {
         // First get user's profile and organization
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('full_name, organization_id')
-          .eq('user_id', user.id)
-          .single();
-          
+        const {
+          data: profileData,
+          error: profileError
+        } = await supabase.from('profiles').select('full_name, organization_id').eq('user_id', user.id).single();
         if (profileError) throw profileError;
-        
         if (profileData?.full_name) {
           setUserProfile(profileData);
           // Set current user as default purchaser
           form.setValue('purchaser', profileData.full_name);
         }
-        
+
         // Fetch all users in the same organization
         if (profileData?.organization_id) {
-          const { data: orgUsersData, error: orgUsersError } = await supabase
-            .from('profiles')
-            .select('user_id, full_name, email, first_name, last_name')
-            .eq('organization_id', profileData.organization_id)
-            .not('full_name', 'is', null);
-            
+          const {
+            data: orgUsersData,
+            error: orgUsersError
+          } = await supabase.from('profiles').select('user_id, full_name, email, first_name, last_name').eq('organization_id', profileData.organization_id).not('full_name', 'is', null);
           if (orgUsersError) throw orgUsersError;
-          
+
           // Format the users data
           const formattedUsers = (orgUsersData || []).map(user => ({
             user_id: user.user_id,
             full_name: user.full_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email,
             email: user.email
           })).filter(user => user.full_name);
-          
           setOrganizationUsers(formattedUsers);
         }
       } catch (error) {
@@ -197,10 +185,8 @@ export const PurchaseForm = ({
   // Fetch vehicle data from car info APIs via Edge Function
   const fetchCarInfo = async (regNumber: string) => {
     if (!regNumber.trim()) return;
-    
     setIsLoadingCarInfo(true);
     try {
-      
       const {
         data,
         error
@@ -209,14 +195,11 @@ export const PurchaseForm = ({
           registrationNumber: regNumber.trim()
         }
       });
-      
       if (error) {
         console.error('Edge function error:', error);
         return;
       }
       if (data && !data.error) {
-        
-
         // Auto-populate form fields with data from car info APIs
         if (data.brand) {
           const brandMatch = carBrands.find(brand => brand.toLowerCase() === data.brand.toLowerCase());
@@ -240,9 +223,7 @@ export const PurchaseForm = ({
           const regDate = new Date(data.registrationDate);
           if (regDate <= new Date()) {
             form.setValue('first_registration_date', regDate);
-          } else {
-            
-          }
+          } else {}
         }
         if (data.vin) {
           form.setValue('chassis_number', data.vin);
@@ -256,9 +237,7 @@ export const PurchaseForm = ({
           title: "Fordonsdata hämtad",
           description: data.fromCache ? "Fordonsinformation hämtad från cachad data (inga tokens användes)" : "Fordonsinformation har hämtats automatiskt"
         });
-      } else {
-        
-      }
+      } else {}
     } catch (error) {
       console.error('Error fetching car info:', error);
       toast({
@@ -428,7 +407,6 @@ export const PurchaseForm = ({
     }
   }, [form.watch('mileage'), form.watch('first_registration_date'), form.watch('purchase_channel'), form.watch('purchase_date')]);
 
-
   // Handle file upload
   const handleFileUpload = async (file: File) => {
     if (!user) return;
@@ -531,14 +509,7 @@ export const PurchaseForm = ({
     const purchasePrice = form.watch("purchase_price");
     const purchaseDate = form.watch("purchase_date");
     const vatType = form.watch("vat_type");
-
-    return (
-      registrationNumber && registrationNumber.trim().length > 0 &&
-      purchaser && purchaser.trim().length > 0 &&
-      purchasePrice && purchasePrice > 0 &&
-      purchaseDate &&
-      vatType && vatType.trim().length > 0
-    );
+    return registrationNumber && registrationNumber.trim().length > 0 && purchaser && purchaser.trim().length > 0 && purchasePrice && purchasePrice > 0 && purchaseDate && vatType && vatType.trim().length > 0;
   };
   const onSubmit = async (data: PurchaseFormData) => {
     if (!user) return;
@@ -558,12 +529,10 @@ export const PurchaseForm = ({
     setIsSubmitting(true);
     try {
       // Get the user's organization_id from profiles table
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('organization_id')
-        .eq('user_id', user.id)
-        .single();
-
+      const {
+        data: profileData,
+        error: profileError
+      } = await supabase.from('profiles').select('organization_id').eq('user_id', user.id).single();
       if (profileError || !profileData?.organization_id) {
         console.error('Organization lookup error:', profileError);
         throw new Error('Kunde inte hitta din organisation');
@@ -575,11 +544,13 @@ export const PurchaseForm = ({
         registration_number: data.registration_number,
         chassis_number: data.chassis_number || null,
         mileage: data.mileage || null,
-        brand: data.brand?.trim() || "Saknas", // Properly handle empty strings and whitespace
+        brand: data.brand?.trim() || "Saknas",
+        // Properly handle empty strings and whitespace
         brand_other: data.brand_other || null,
         model: data.model || null,
         comment: data.comment || null,
-        year_model: data.year_model || null, // Convert undefined/empty to null
+        year_model: data.year_model || null,
+        // Convert undefined/empty to null
         first_registration_date: data.first_registration_date?.toISOString().split('T')[0] || null,
         vat_type: data.vat_type || null,
         purchaser: data.purchaser,
@@ -589,16 +560,13 @@ export const PurchaseForm = ({
         down_payment_document_path: data.down_payment_document || null,
         purchase_documentation: data.purchase_documentation || null,
         purchase_channel: data.purchase_channel || null,
-        purchase_channel_other: data.purchase_channel_other || null,
+        purchase_channel_other: data.purchase_channel_other || null
       };
-      
-      
       const {
         data: insertedItem,
         error
       } = await supabase.from('inventory_items').insert(insertData).select('id').single();
       if (error) throw error;
-      
       toast({
         title: "Framgång",
         description: "Fordon har lagts till i lagret"
@@ -656,19 +624,13 @@ export const PurchaseForm = ({
                   <p className="text-sm text-orange-800 mb-2">
                     Detta registreringsnummer finns redan registrerat i systemet.
                   </p>
-                  {duplicateVehicleId && <Button 
-                      type="button" 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => {
-                        // Just show a message since logistics view is removed
-                        toast({
-                          title: "Fordon finns redan",
-                          description: "Detta registreringsnummer är redan registrerat i systemet.",
-                        });
-                      }} 
-                      className="flex items-center gap-2"
-                    >
+                  {duplicateVehicleId && <Button type="button" variant="outline" size="sm" onClick={() => {
+              // Just show a message since logistics view is removed
+              toast({
+                title: "Fordon finns redan",
+                description: "Detta registreringsnummer är redan registrerat i systemet."
+              });
+            }} className="flex items-center gap-2">
                       <Truck className="h-4 w-4" />
                       Fordon redan registrerat
                     </Button>}
@@ -691,17 +653,8 @@ export const PurchaseForm = ({
                   <div>
                     <Label htmlFor="registration_number">Registreringsnummer*</Label>
                     <div className="relative">
-                      <Input 
-                        id="registration_number" 
-                        placeholder="t.ex. JSK15L eller 1234567890ABCDEFG" 
-                        {...form.register("registration_number")} 
-                        className={cn(
-                          form.formState.errors.registration_number && "border-destructive", 
-                          isDuplicateRegNumber && "border-destructive",
-                          "pr-20" // Add padding for radio buttons
-                        )} 
-                        readOnly={carDataFetched} 
-                      />
+                      <Input id="registration_number" placeholder="t.ex. JSK15L eller 1234567890ABCDEFG" {...form.register("registration_number")} className={cn(form.formState.errors.registration_number && "border-destructive", isDuplicateRegNumber && "border-destructive", "pr-20" // Add padding for radio buttons
+                  )} readOnly={carDataFetched} />
                       <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                         <span className="text-sm text-muted-foreground">
                           {form.watch("registration_number")?.length === 17 ? "VIN" : "REG"}
@@ -761,7 +714,7 @@ export const PurchaseForm = ({
                 <div>
                   <Label htmlFor="year_model">Modellår</Label>
                   <Input id="year_model" type="number" min="1981" max={new Date().getFullYear() + 2} placeholder="t.ex. 2020" {...form.register("year_model", {
-                  setValueAs: (value) => value === "" ? undefined : Number(value)
+                  setValueAs: value => value === "" ? undefined : Number(value)
                 })} />
                   {form.formState.errors.year_model && <p className="text-sm text-destructive mt-1 absolute">
                       {form.formState.errors.year_model.message}
@@ -865,30 +818,19 @@ export const PurchaseForm = ({
                 {/* 1. Inköpare */}
                 <div>
                   <Label htmlFor="purchaser">Inköpare*</Label>
-                  <Select
-                    value={form.watch("purchaser") || ""}
-                    onValueChange={(value) => form.setValue("purchaser", value)}
-                  >
+                  <Select value={form.watch("purchaser") || ""} onValueChange={value => form.setValue("purchaser", value)}>
                     <SelectTrigger className={cn("w-full bg-background", form.formState.errors.purchaser ? "border-destructive" : "")}>
                       <SelectValue placeholder="Välj inköpare" />
                     </SelectTrigger>
                     <SelectContent className="bg-background border shadow-lg z-50">
-                      {organizationUsers.map((user) => (
-                        <SelectItem 
-                          key={user.user_id} 
-                          value={user.full_name}
-                          className="cursor-pointer hover:bg-accent"
-                        >
+                      {organizationUsers.map(user => <SelectItem key={user.user_id} value={user.full_name} className="cursor-pointer hover:bg-accent">
                           {user.full_name}
-                        </SelectItem>
-                      ))}
+                        </SelectItem>)}
                     </SelectContent>
                   </Select>
-                  {form.formState.errors.purchaser && (
-                    <p className="text-sm text-destructive mt-1 absolute">
+                  {form.formState.errors.purchaser && <p className="text-sm text-destructive mt-1 absolute">
                       {form.formState.errors.purchaser.message}
-                    </p>
-                  )}
+                    </p>}
                 </div>
 
                 {/* 2. Inköpsdatum */}
@@ -921,25 +863,17 @@ export const PurchaseForm = ({
                       <Command>
                         <CommandList>
                           <CommandGroup>
-                            {purchaseChannels.map(channel => (
-                              <CommandItem 
-                                key={channel} 
-                                value={channel} 
-                                onSelect={() => {
-                                  if (channel === "Privatperson") {
-                                    form.setValue("purchase_channel", channel);
-                                    // No need to check against "Annan" since we're only allowing "Privatperson"
-                                    form.setValue("purchase_channel_other", undefined);
-                                  }
-                                }}
-                                disabled={channel !== "Privatperson"}
-                                className={channel !== "Privatperson" ? "opacity-50 cursor-not-allowed" : ""}
-                              >
+                            {purchaseChannels.map(channel => <CommandItem key={channel} value={channel} onSelect={() => {
+                            if (channel === "Privatperson") {
+                              form.setValue("purchase_channel", channel);
+                              // No need to check against "Annan" since we're only allowing "Privatperson"
+                              form.setValue("purchase_channel_other", undefined);
+                            }
+                          }} disabled={channel !== "Privatperson"} className={channel !== "Privatperson" ? "opacity-50 cursor-not-allowed" : ""}>
                                 <Check className={cn("mr-2 h-4 w-4", form.watch("purchase_channel") === channel ? "opacity-100" : "opacity-0")} />
                                 {channel}
                                 {channel !== "Privatperson" && <span className="ml-2 text-xs text-muted-foreground">(kommer snart)</span>}
-                              </CommandItem>
-                            ))}
+                              </CommandItem>)}
                           </CommandGroup>
                         </CommandList>
                       </Command>
@@ -956,7 +890,7 @@ export const PurchaseForm = ({
 
                 {/* 4. Inköpspris */}
                 <div>
-                  <Label htmlFor="purchase_price">Inköpspris*</Label>
+                  <Label htmlFor="purchase_price">Inköpspris (inkl. moms) *</Label>
                   <div className="relative">
                     <Input id="purchase_price" type="text" value={priceDisplay} onChange={handlePriceChange} placeholder="t.ex. 150,000" className={cn("pr-20", form.formState.errors.purchase_price ? "border-destructive" : "")} />
                     <div className="absolute inset-y-0 right-0 flex items-center">
@@ -994,11 +928,7 @@ export const PurchaseForm = ({
                       </div>
                     </InfoPopup>
                   </div>
-                  <RadioGroup
-                    value={form.watch("vat_type")}
-                    onValueChange={(value) => form.setValue("vat_type", value)}
-                    className="flex flex-row gap-6 mt-2"
-                  >
+                  <RadioGroup value={form.watch("vat_type")} onValueChange={value => form.setValue("vat_type", value)} className="flex flex-row gap-6 mt-2">
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="VMB" id="vmb" />
                       <Label htmlFor="vmb" className="font-normal cursor-pointer">Vinstmarginalbeskattning (VMB)</Label>
@@ -1025,14 +955,7 @@ export const PurchaseForm = ({
                 <div>
                   <Label htmlFor="down_payment" className="text-muted-foreground">Handpenning</Label>
                   <div className="relative">
-                    <Input 
-                      id="down_payment" 
-                      type="text" 
-                      value={downPaymentDisplay} 
-                      onChange={handleDownPaymentChange} 
-                      placeholder="t.ex. 25,000" 
-                      className="pr-20"
-                    />
+                    <Input id="down_payment" type="text" value={downPaymentDisplay} onChange={handleDownPaymentChange} placeholder="t.ex. 25,000" className="pr-20" />
                     <div className="absolute inset-y-0 right-0 flex items-center">
                       <Select value={downPaymentCurrency}>
                         <SelectTrigger className="w-16 h-8 border-0 bg-transparent text-xs">
@@ -1089,13 +1012,7 @@ export const PurchaseForm = ({
                 {/* 7. Anteckning - moved below handpenning and greyed out */}
                 <div>
                   <Label htmlFor="comment" className="text-muted-foreground">Anteckning</Label>
-                  <Input 
-                    id="comment" 
-                    {...form.register("comment")} 
-                    className="bg-muted/30 cursor-not-allowed text-muted-foreground"
-                    disabled={true}
-                    placeholder="Funktionen kommer snart"
-                  />
+                  <Input id="comment" {...form.register("comment")} className="bg-muted/30 cursor-not-allowed text-muted-foreground" disabled={true} placeholder="Funktionen kommer snart" />
                 </div>
 
                 {/* 8. Inköpsunderlag - moved to same row as Anteckning */}
@@ -1104,11 +1021,11 @@ export const PurchaseForm = ({
                   {!uploadedPurchaseDoc ? <div>
                         <div className="relative">
                           <Input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onChange={e => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          handlePurchaseDocUpload(file);
-                        }
-                      }} disabled={isUploadingPurchaseDoc} className="hidden" id="purchase-doc-upload" />
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        handlePurchaseDocUpload(file);
+                      }
+                    }} disabled={isUploadingPurchaseDoc} className="hidden" id="purchase-doc-upload" />
                           <Button type="button" variant="outline" className="w-full justify-start text-left font-normal h-9" onClick={() => document.getElementById('purchase-doc-upload')?.click()} disabled={isUploadingPurchaseDoc}>
                             <Upload className="mr-2 h-4 w-4" />
                             Välj fil (max 5mb)
