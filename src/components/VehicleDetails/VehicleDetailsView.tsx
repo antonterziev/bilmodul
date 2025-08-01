@@ -36,6 +36,7 @@ interface VehicleDetails {
   customer_type?: string;
   customer_country?: string;
   comment?: string;
+  note?: string;
   registered_by?: string;
   created_at?: string;
 }
@@ -134,8 +135,6 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
     
     try {
       setNotesLoading(true);
-      console.log('Loading notes for vehicle:', vehicleId);
-      console.log('Current vehicle data:', vehicle);
       
       const { data, error } = await supabase
         .from('vehicle_notes')
@@ -144,7 +143,6 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      console.log('Notes from database:', data);
 
       // Get user names for each note
       const notesWithNames = await Promise.all(
@@ -164,17 +162,13 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
         })
       );
 
-      console.log('Vehicle comment:', vehicle?.comment);
-      console.log('Notes with names before adding vehicle comment:', notesWithNames);
-
-      // If vehicle has a comment/note from purchase form and no note exists for it yet, add it as a note
-      if (vehicle?.comment && !notesWithNames.some(note => note.note_text === vehicle.comment)) {
-        console.log('Adding vehicle comment as note:', vehicle.comment);
+      // If vehicle has a note from purchase form and no note exists for it yet, add it as a note
+      if (vehicle?.note && !notesWithNames.some(note => note.note_text === vehicle.note)) {
         const vehicleOwnerNote = {
-          id: `vehicle-comment-${vehicle.id}`,
+          id: `vehicle-note-${vehicle.id}`,
           vehicle_id: vehicleId,
           user_id: vehicle.user_id,
-          note_text: vehicle.comment,
+          note_text: vehicle.note,
           created_at: vehicle.created_at || vehicle.purchase_date,
           updated_at: vehicle.created_at || vehicle.purchase_date,
           user_name: vehicle.registered_by || 'Okänd användare'
@@ -184,7 +178,6 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
         notesWithNames.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       }
 
-      console.log('Final notes array:', notesWithNames);
       setNotes(notesWithNames);
     } catch (error) {
       console.error('Error loading notes:', error);
