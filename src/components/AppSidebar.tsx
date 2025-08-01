@@ -122,14 +122,6 @@ export function AppSidebar({
 
   const expandableMenuItems = [
     {
-      id: "lager",
-      title: "Lagerhantering",
-      icon: Car,
-      children: [
-        { id: "purchase_form_sub", title: "Registrera fordon", icon: Car, isButton: true },
-      ]
-    },
-    {
       id: "affarer",
       title: "Affärer",
       icon: Handshake,
@@ -144,24 +136,10 @@ export function AppSidebar({
   return (
     <Sidebar className="w-72 bg-white border-r" collapsible="none">
       <SidebarContent className="bg-white">
-        {/* Registrera inköp and Search at top */}
+        {/* Search at top */}
         <SidebarGroup>
           <SidebarGroupContent>
             <div className="p-4 pb-2 space-y-3">
-              {hasPermission('lager') && (
-                <Button 
-                  className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 font-medium w-full"
-                  onClick={() => {
-                    onViewChange("purchase_form");
-                    // Expand the lager section when registering a vehicle
-                    if (!expandedSections.lager) {
-                      onSectionToggle("lager");
-                    }
-                  }}
-                >
-                  Registrera fordon
-                </Button>
-              )}
               <div className="relative">
                 <Input
                   type="text"
@@ -195,15 +173,7 @@ export function AppSidebar({
                   </SidebarMenuItem>
                 ))}
                 
-                {expandableMenuItems
-                  .filter((section) => {
-                    // Only show "Lagerhantering" if user has "lager" permission
-                    if (section.id === 'lager') {
-                      return hasPermission('lager');
-                    }
-                    return true;
-                  })
-                  .map((section) => (
+                {expandableMenuItems.map((section) => (
                   <SidebarMenuItem key={section.id}>
                     <SidebarMenuButton
                       onClick={() => handleSectionToggle(section.id)}
@@ -218,39 +188,29 @@ export function AppSidebar({
                       )}
                     </SidebarMenuButton>
                     
-                    {expandedSections[section.id] && (
-                      <SidebarMenu className="ml-6 mt-1 space-y-1">
-                         {section.children.map((child) => (
-                           <SidebarMenuItem key={child.id} className="pr-6">
-                             {child.isButton ? (
-                                <SidebarMenuButton
-                                  onClick={() => onViewChange("purchase_form")}
-                                  className={isActive("purchase_form") ? "bg-black text-white hover:bg-black hover:text-white" : "text-muted-foreground hover:bg-muted/50"}
-                                  size="sm"
-                                >
-                                  <span className="text-sm">{child.title}</span>
-                                </SidebarMenuButton>
-                             ) : (
-                                   <SidebarMenuButton
-                                      onClick={section.id === 'affarer' ? undefined : () => onViewChange(child.id)}
-                                      className={section.id === 'affarer'
-                                        ? "cursor-not-allowed pointer-events-none text-muted-foreground hover:bg-muted/50 flex items-center justify-between" 
-                                        : getNavClass(child.id)
-                                      }
-                                      size="sm"
-                                   >
-                                     <span className="text-sm">{child.title}</span>
-                                     {section.id === 'affarer' && (
-                                      <span className="inline-flex items-center rounded-full bg-yellow-200 px-1.5 py-0 text-[11px] font-medium text-yellow-900">
-                                        PRO
-                                      </span>
-                                    )}
-                                 </SidebarMenuButton>
-                             )}
-                           </SidebarMenuItem>
-                         ))}
-                      </SidebarMenu>
-                    )}
+                     {expandedSections[section.id] && (
+                       <SidebarMenu className="ml-6 mt-1 space-y-1">
+                          {section.children.map((child) => (
+                            <SidebarMenuItem key={child.id} className="pr-6">
+                              <SidebarMenuButton
+                                onClick={section.id === 'affarer' ? undefined : () => onViewChange(child.id)}
+                                className={section.id === 'affarer'
+                                  ? "cursor-not-allowed pointer-events-none text-muted-foreground hover:bg-muted/50 flex items-center justify-between" 
+                                  : getNavClass(child.id)
+                                }
+                                size="sm"
+                              >
+                                <span className="text-sm">{child.title}</span>
+                                {section.id === 'affarer' && (
+                                  <span className="inline-flex items-center rounded-full bg-yellow-200 px-1.5 py-0 text-[11px] font-medium text-yellow-900">
+                                    PRO
+                                  </span>
+                                )}
+                              </SidebarMenuButton>
+                            </SidebarMenuItem>
+                          ))}
+                       </SidebarMenu>
+                     )}
                   </SidebarMenuItem>
                 ))}
                 
