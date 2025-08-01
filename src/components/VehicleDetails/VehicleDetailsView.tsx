@@ -253,7 +253,9 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
         <Button variant="ghost" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <h1 className="text-3xl font-bold">{vehicle.registration_number}</h1>
+        <h1 className="text-3xl font-bold">
+          {vehicle.brand}{vehicle.model && ` ${vehicle.model}`} ({vehicle.registration_number})
+        </h1>
       </div>
 
       {/* Action buttons row */}
