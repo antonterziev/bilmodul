@@ -242,16 +242,32 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
     if (!editingNoteId || !editingNoteText.trim()) return;
 
     try {
-      const { error } = await supabase
-        .from('vehicle_notes')
-        .update({ note_text: editingNoteText.trim() })
-        .eq('id', editingNoteId);
+      // Handle vehicle purchase notes differently
+      if (editingNoteId.startsWith('vehicle-note-')) {
+        // This is the original vehicle purchase note - update the vehicle record
+        const { error } = await supabase
+          .from('inventory_items')
+          .update({ note: editingNoteText.trim() })
+          .eq('id', vehicleId);
 
-      if (error) throw error;
+        if (error) throw error;
+        
+        // Refresh vehicle data and notes
+        await loadVehicleDetails();
+      } else {
+        // Regular note from vehicle_notes table
+        const { error } = await supabase
+          .from('vehicle_notes')
+          .update({ note_text: editingNoteText.trim() })
+          .eq('id', editingNoteId);
+
+        if (error) throw error;
+        
+        loadNotes();
+      }
 
       setEditingNoteId(null);
       setEditingNoteText('');
-      loadNotes();
       toast({
         title: "Anteckning uppdaterad",
         description: "Anteckningen har sparats.",
@@ -270,14 +286,30 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
     if (!confirm('Är du säker på att du vill ta bort denna anteckning?')) return;
 
     try {
-      const { error } = await supabase
-        .from('vehicle_notes')
-        .delete()
-        .eq('id', noteId);
+      // Handle vehicle purchase notes differently
+      if (noteId.startsWith('vehicle-note-')) {
+        // This is the original vehicle purchase note - update the vehicle record
+        const { error } = await supabase
+          .from('inventory_items')
+          .update({ note: null })
+          .eq('id', vehicleId);
 
-      if (error) throw error;
+        if (error) throw error;
+        
+        // Refresh vehicle data and notes
+        await loadVehicleDetails();
+      } else {
+        // Regular note from vehicle_notes table
+        const { error } = await supabase
+          .from('vehicle_notes')
+          .delete()
+          .eq('id', noteId);
 
-      loadNotes();
+        if (error) throw error;
+        
+        loadNotes();
+      }
+
       toast({
         title: "Anteckning borttagen",
         description: "Anteckningen har tagits bort.",
