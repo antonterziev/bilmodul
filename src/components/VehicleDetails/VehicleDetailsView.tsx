@@ -533,7 +533,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
             <CardContent className="p-4">
               <div className="text-sm font-medium text-muted-foreground">Lagerdagar</div>
               <div className="text-2xl font-bold">
-                {calculateStorageDays(vehicle.purchase_date, vehicle.status, vehicle.selling_date)} dagar
+                {calculateStorageDays(vehicle.purchase_date, vehicle.status, vehicle.selling_date)} {calculateStorageDays(vehicle.purchase_date, vehicle.status, vehicle.selling_date) === 1 ? 'dag' : 'dagar'}
               </div>
             </CardContent>
           </Card>
