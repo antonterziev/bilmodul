@@ -358,6 +358,20 @@ const Index = () => {
           </div>
         );
 
+      case "registrera_inkop":
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold">Registrera inköp</h2>
+            <PurchaseForm 
+              key={purchaseFormKey}
+              onSuccess={() => {
+                loadStats();
+                handleViewChange("lager_all");
+              }}
+            />
+          </div>
+        );
+
 
       case "sales":
         return <SalesForm 

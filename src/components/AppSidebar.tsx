@@ -116,6 +116,7 @@ export function AppSidebar({
 
   const mainMenuItems = [
     { id: "overview", title: "Översikt", icon: Home },
+    { id: "registrera_inkop", title: "Registrera inköp", icon: Receipt, requiresPermission: "lager" },
   ];
 
   const expandableMenuItems = [
@@ -180,7 +181,9 @@ export function AppSidebar({
           <SidebarGroupContent>
             <div className="px-4">
               <SidebarMenu>
-                {mainMenuItems.map((item) => (
+                {mainMenuItems
+                  .filter((item) => !item.requiresPermission || hasPermission(item.requiresPermission))
+                  .map((item) => (
                   <SidebarMenuItem key={item.id}>
                     <SidebarMenuButton 
                       onClick={() => onViewChange(item.id)}
