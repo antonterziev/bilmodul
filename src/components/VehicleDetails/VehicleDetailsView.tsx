@@ -337,85 +337,77 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                {/* Column 1 */}
-                <div className="space-y-4">
+                {/* Row 1 */}
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Bränsle</div>
+                  <div className="font-medium">-</div>
+                </div>
+                
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Växellåda</div>
+                  <div className="font-medium">-</div>
+                </div>
+                
+                {vehicle.mileage && (
                   <div>
-                    <div className="text-sm text-muted-foreground mb-1">Bränsle</div>
-                    <div className="font-medium">-</div>
+                    <div className="text-sm text-muted-foreground mb-1">Miltal</div>
+                    <div className="font-medium">{vehicle.mileage.toLocaleString('sv-SE')} km</div>
                   </div>
-                  
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Biltyp</div>
-                    <div className="font-medium">-</div>
-                  </div>
-                  
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Motorstorlek</div>
-                    <div className="font-medium">-</div>
-                  </div>
+                )}
+
+                {/* Row 2 */}
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Biltyp</div>
+                  <div className="font-medium">-</div>
+                </div>
+                
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Drivning</div>
+                  <div className="font-medium">-</div>
+                </div>
+                
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Hästkrafter</div>
+                  <div className="font-medium">-</div>
                 </div>
 
-                {/* Column 2 */}
-                <div className="space-y-4">
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Växellåda</div>
-                    <div className="font-medium">-</div>
-                  </div>
-                  
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Drivning</div>
-                    <div className="font-medium">-</div>
-                  </div>
-                  
-                  {vehicle.first_registration_date && (
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Datum i trafik</div>
-                      <div className="font-medium">{formatDate(vehicle.first_registration_date)}</div>
-                    </div>
-                  )}
+                {/* Row 3 */}
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Motorstorlek</div>
+                  <div className="font-medium">-</div>
                 </div>
+                
+                {vehicle.first_registration_date && (
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Datum i trafik</div>
+                    <div className="font-medium">{formatDate(vehicle.first_registration_date)}</div>
+                  </div>
+                )}
+                
+                {vehicle.year_model && (
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Modellår</div>
+                    <div className="font-medium">{vehicle.year_model}</div>
+                  </div>
+                )}
 
-                {/* Column 3 */}
-                <div className="space-y-4">
-                  {vehicle.mileage && (
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Miltal</div>
-                      <div className="font-medium">{vehicle.mileage.toLocaleString('sv-SE')} km</div>
-                    </div>
-                  )}
-                  
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Hästkrafter</div>
-                    <div className="font-medium">-</div>
-                  </div>
-                  
-                  {vehicle.year_model && (
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Modellår</div>
-                      <div className="font-medium">{vehicle.year_model}</div>
-                    </div>
-                  )}
+                {/* Row 4 */}
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Färg</div>
+                  <div className="font-medium">-</div>
                 </div>
-
-                {/* Additional facts row */}
-                <div className="col-span-2 md:col-span-3 grid grid-cols-2 md:grid-cols-3 gap-6 pt-4">
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Färg</div>
-                    <div className="font-medium">-</div>
-                  </div>
-                  
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Märke</div>
-                    <div className="font-medium">{vehicle.brand}</div>
-                  </div>
-                  
-                  {vehicle.model && (
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Modell</div>
-                      <div className="font-medium">{vehicle.model}</div>
-                    </div>
-                  )}
+                
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Märke</div>
+                  <div className="font-medium">{vehicle.brand}</div>
                 </div>
+                
+                {vehicle.model && (
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Modell</div>
+                    <div className="font-medium">{vehicle.model}</div>
+                  </div>
+                )}
 
                 {/* Sales info for sold vehicles */}
                 {vehicle.status === 'såld' && (
