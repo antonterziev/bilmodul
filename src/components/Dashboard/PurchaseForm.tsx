@@ -94,6 +94,7 @@ export const PurchaseForm = ({
   const [carDataFetched, setCarDataFetched] = useState(false);
   const [purchasePriceCurrency, setPurchasePriceCurrency] = useState("SEK");
   const [downPaymentCurrency, setDownPaymentCurrency] = useState("SEK");
+  const [hasLagerPermission, setHasLagerPermission] = useState(false);
 
   // Generate year options (last 50 years)
   const currentYear = new Date().getFullYear();
@@ -181,6 +182,31 @@ export const PurchaseForm = ({
     };
     fetchUserProfileAndOrgUsers();
   }, [user, form]);
+
+  // Check user's lager permission
+  useEffect(() => {
+    const checkLagerPermission = async () => {
+      if (!user?.id) return;
+      
+      try {
+        const { data, error } = await supabase.rpc('has_permission', {
+          _user_id: user.id,
+          _permission: 'lager'
+        });
+        
+        if (error) {
+          console.error('Error checking lager permission:', error);
+          return;
+        }
+        
+        setHasLagerPermission(data || false);
+      } catch (error) {
+        console.error('Error checking lager permission:', error);
+      }
+    };
+
+    checkLagerPermission();
+  }, [user]);
 
   // Fetch vehicle data from car info APIs via Edge Function
   const fetchCarInfo = async (regNumber: string) => {
@@ -622,7 +648,7 @@ export const PurchaseForm = ({
               </div>
                 {isDuplicateRegNumber && <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-md">
                   <p className="text-sm text-orange-800 text-center">
-                    Registreringsnummer finns redan registrerat. {duplicateVehicleId && <button type="button" onClick={() => {
+                    Registreringsnummer finns redan registrerat.{hasLagerPermission && duplicateVehicleId && <> <button type="button" onClick={() => {
               // Just show a message since logistics view is removed
               toast({
                 title: "Fordon finns redan",
@@ -630,7 +656,7 @@ export const PurchaseForm = ({
               });
             }} className="text-blue-600 hover:text-blue-700 underline">
                       Gå till fordon
-                    </button>}
+                    </button></>}
                   </p>
                 </div>}
                   {form.formState.errors.registration_number && <p className="text-sm text-destructive mt-1 absolute">
