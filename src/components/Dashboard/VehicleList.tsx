@@ -673,14 +673,19 @@ export const VehicleList = ({
                 
                  {/* Action buttons */}
                  <div className="flex-shrink-0 flex gap-2 pr-[1rem]" onClick={(e) => e.stopPropagation()}>
-                   <Button
-                     variant="outline"
-                     size="sm"
-                     onClick={() => handleView(vehicle.id)}
-                     className="text-primary hover:bg-primary hover:text-primary-foreground w-10 h-10 p-0"
-                   >
-                     <Eye className="h-4 w-4" />
-                   </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDelete(vehicle.id, vehicle.registration_number)}
+                      disabled={deletingId === vehicle.id}
+                      className="text-destructive hover:bg-destructive hover:text-destructive-foreground w-10 h-10 p-0"
+                    >
+                      {deletingId === vehicle.id ? (
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                    </Button>
                    
                    {/* Always show sync button but grey out if synced */}
                    <Button
@@ -712,19 +717,6 @@ export const VehicleList = ({
                      <DollarSign className="h-4 w-4" />
                    </Button>
                    
-                   <Button
-                     variant="outline"
-                     size="sm"
-                     onClick={() => handleDelete(vehicle.id, vehicle.registration_number)}
-                     disabled={deletingId === vehicle.id}
-                     className="text-destructive hover:bg-destructive hover:text-destructive-foreground w-10 h-10 p-0"
-                   >
-                     {deletingId === vehicle.id ? (
-                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                     ) : (
-                       <Trash2 className="h-4 w-4" />
-                     )}
-                   </Button>
                  </div>
               </div>
             ))}
