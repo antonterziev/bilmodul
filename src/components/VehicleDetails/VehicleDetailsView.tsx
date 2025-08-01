@@ -575,28 +575,6 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
               <CardContent className="p-4 space-y-4">
                 <div className="text-sm font-medium text-muted-foreground">Ny påkostnad</div>
                 
-                {/* Belopp (exkl. moms) */}
-                <div>
-                  <label className="text-sm text-muted-foreground mb-1 block">Belopp (exkl. moms) *</label>
-                  <div className="flex">
-                    <Input
-                      type="text"
-                      placeholder="t.ex. 150.000"
-                      value={pakostnadAmount}
-                      onChange={(e) => setPakostnadAmount(e.target.value)}
-                      className="rounded-r-none border-r-0"
-                    />
-                    <Select defaultValue="SEK" disabled>
-                      <SelectTrigger className="w-20 rounded-l-none">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="SEK">SEK</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
                 {/* Leverantör */}
                 <div>
                   <label className="text-sm text-muted-foreground mb-1 block">Leverantör</label>
@@ -622,6 +600,28 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                       <SelectItem value="Övrigt">Övrigt</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+
+                {/* Belopp (exkl. moms) */}
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1 block">Belopp (exkl. moms) *</label>
+                  <div className="flex">
+                    <Input
+                      type="text"
+                      placeholder="t.ex. 150.000"
+                      value={pakostnadAmount}
+                      onChange={(e) => setPakostnadAmount(e.target.value)}
+                      className="rounded-r-none border-r-0"
+                    />
+                    <Select defaultValue="SEK" disabled>
+                      <SelectTrigger className="w-20 rounded-l-none">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SEK">SEK</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 
                 {/* Inköpsunderlag */}
