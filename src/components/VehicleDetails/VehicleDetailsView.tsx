@@ -248,15 +248,10 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
 
   return (
     <div className="space-y-6">
-      {/* Header with back button and registration number */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" onClick={onBack}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <h1 className="text-3xl font-bold">
-          {vehicle.brand}{vehicle.model && ` ${vehicle.model}`} ({vehicle.registration_number})
-        </h1>
-      </div>
+      {/* Header positioned like Lagerlista */}
+      <h2 className="text-2xl font-bold">
+        {vehicle.brand}{vehicle.model && ` ${vehicle.model}`} ({vehicle.registration_number})
+      </h2>
 
       {/* Action buttons row */}
       <div className="flex items-center justify-between gap-4 p-4 bg-card border rounded-lg">
