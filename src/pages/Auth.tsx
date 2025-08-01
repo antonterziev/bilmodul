@@ -571,13 +571,6 @@ const Auth = () => {
               </div>
             </div>
             
-            {/* Sign up link */}
-            <div className="text-center mt-6">
-              <span className="text-gray-600 text-sm">Har du inget konto? </span>
-              <button type="button" onClick={() => setIsSignup(true)} className="text-blue-600 text-sm hover:underline">
-                Skapa konto
-              </button>
-            </div>
             
           </CardContent>
         </Card>
