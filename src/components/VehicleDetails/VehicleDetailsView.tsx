@@ -313,12 +313,10 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                 <div className="font-medium">{formatPrice(vehicle.purchase_price)}</div>
               </div>
               
-              {vehicle.additional_costs && vehicle.additional_costs > 0 && (
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Påkostnader</div>
-                  <div className="font-medium">{formatPrice(vehicle.additional_costs)}</div>
-                </div>
-              )}
+              <div>
+                <div className="text-sm text-muted-foreground mb-1">Momstyp</div>
+                <div className="font-medium">{vehicle.vat_type === "Vinstmarginalbeskattning (VMB)" ? "VMB" : vehicle.vat_type || "Ej angiven"}</div>
+              </div>
 
               {vehicle.seller && (
                 <div>
