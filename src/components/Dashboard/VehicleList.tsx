@@ -578,7 +578,7 @@ export const VehicleList = ({
         ) : (
           <div className="space-y-4">
             {sortedVehicles.map((vehicle) => (
-              <div key={vehicle.id} className="flex items-center gap-4 py-4 border rounded-lg hover:bg-muted/50 transition-colors w-full">
+              <div key={vehicle.id} className="flex items-center gap-4 py-4 border rounded-lg hover:bg-muted/50 transition-colors w-full cursor-pointer" onClick={() => handleView(vehicle.id)}>
                 {/* Car icon or brand logo */}
                 <div className="flex-shrink-0 w-16 flex justify-start items-center pl-4">
                   <BrandLogo 
@@ -621,21 +621,22 @@ export const VehicleList = ({
                    <div className="text-center">
                      <p className="text-xs text-muted-foreground whitespace-nowrap">Bokföring</p>
                       {vehicle.fortnox_sync_status && (
-                        <Badge 
-                          variant="outline"
-                          className={`text-xs px-1 w-20 justify-center whitespace-nowrap cursor-pointer ${
-                            vehicle.fortnox_sync_status === 'synced' 
-                              ? 'border-green-500 text-green-700 bg-green-50 hover:bg-green-100' 
-                              : vehicle.fortnox_sync_status === 'failed'
-                              ? 'border-gray-500 text-gray-700 bg-gray-50'
-                              : 'border-orange-500 text-orange-700 bg-orange-50'
-                          }`}
-                          title={vehicle.fortnox_verification_number ? `Verifikation: ${vehicle.fortnox_verification_number}` : undefined}
-                          onClick={() => {
-                            if (vehicle.fortnox_sync_status === 'synced' && vehicle.fortnox_verification_number) {
-                              handleOpenFortnoxVoucher(vehicle.fortnox_verification_number);
-                            }
-                          }}
+                         <Badge 
+                           variant="outline"
+                           className={`text-xs px-1 w-20 justify-center whitespace-nowrap cursor-pointer ${
+                             vehicle.fortnox_sync_status === 'synced' 
+                               ? 'border-green-500 text-green-700 bg-green-50 hover:bg-green-100' 
+                               : vehicle.fortnox_sync_status === 'failed'
+                               ? 'border-gray-500 text-gray-700 bg-gray-50'
+                               : 'border-orange-500 text-orange-700 bg-orange-50'
+                           }`}
+                           title={vehicle.fortnox_verification_number ? `Verifikation: ${vehicle.fortnox_verification_number}` : undefined}
+                           onClick={(e) => {
+                             e.stopPropagation();
+                             if (vehicle.fortnox_sync_status === 'synced' && vehicle.fortnox_verification_number) {
+                               handleOpenFortnoxVoucher(vehicle.fortnox_verification_number);
+                             }
+                           }}
                         >
                            {vehicle.fortnox_sync_status === 'synced' ? 'Bokförd' : 
                             vehicle.fortnox_sync_status === 'failed' ? 'Ej syncat' : 'Inte bokförd'}
@@ -670,61 +671,61 @@ export const VehicleList = ({
                     </div>
                  </div>
                 
-                {/* Action buttons */}
-                <div className="flex-shrink-0 flex gap-2 pr-[1rem]">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleView(vehicle.id)}
-                    className="text-primary hover:bg-primary hover:text-primary-foreground w-10 h-10 p-0"
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  
-                  {/* Always show sync button but grey out if synced */}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleSync(vehicle.id, vehicle.registration_number)}
-                    disabled={syncingId === vehicle.id || vehicle.fortnox_sync_status === 'synced'}
-                    className={`w-10 h-10 p-0 ${
-                      vehicle.fortnox_sync_status === 'synced'
-                        ? 'text-gray-400 hover:bg-gray-100 hover:text-gray-400 cursor-not-allowed'
-                        : 'text-blue-600 hover:bg-blue-600 hover:text-white'
-                    }`}
-                    title={vehicle.fortnox_sync_status === 'synced' ? 'Redan synkroniserad med Fortnox' : 'Synkronisera med Fortnox'}
-                  >
-                    {syncingId === vehicle.id ? (
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                    ) : (
-                      <RefreshCw className="h-4 w-4" />
-                    )}
-                  </Button>
+                 {/* Action buttons */}
+                 <div className="flex-shrink-0 flex gap-2 pr-[1rem]" onClick={(e) => e.stopPropagation()}>
+                   <Button
+                     variant="outline"
+                     size="sm"
+                     onClick={() => handleView(vehicle.id)}
+                     className="text-primary hover:bg-primary hover:text-primary-foreground w-10 h-10 p-0"
+                   >
+                     <Eye className="h-4 w-4" />
+                   </Button>
+                   
+                   {/* Always show sync button but grey out if synced */}
+                   <Button
+                     variant="outline"
+                     size="sm"
+                     onClick={() => handleSync(vehicle.id, vehicle.registration_number)}
+                     disabled={syncingId === vehicle.id || vehicle.fortnox_sync_status === 'synced'}
+                     className={`w-10 h-10 p-0 ${
+                       vehicle.fortnox_sync_status === 'synced'
+                         ? 'text-gray-400 hover:bg-gray-100 hover:text-gray-400 cursor-not-allowed'
+                         : 'text-blue-600 hover:bg-blue-600 hover:text-white'
+                     }`}
+                     title={vehicle.fortnox_sync_status === 'synced' ? 'Redan synkroniserad med Fortnox' : 'Synkronisera med Fortnox'}
+                   >
+                     {syncingId === vehicle.id ? (
+                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                     ) : (
+                       <RefreshCw className="h-4 w-4" />
+                     )}
+                   </Button>
 
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onSellVehicle?.(vehicle.id)}
-                    className="text-green-600 hover:bg-green-600 hover:text-white w-10 h-10 p-0"
-                  >
-                    <DollarSign className="h-4 w-4" />
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDelete(vehicle.id, vehicle.registration_number)}
-                    disabled={deletingId === vehicle.id}
-                    className="text-destructive hover:bg-destructive hover:text-destructive-foreground w-10 h-10 p-0"
-                  >
-                    {deletingId === vehicle.id ? (
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                    ) : (
-                      <Trash2 className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
+                   
+                   <Button
+                     variant="outline"
+                     size="sm"
+                     onClick={() => onSellVehicle?.(vehicle.id)}
+                     className="text-green-600 hover:bg-green-600 hover:text-white w-10 h-10 p-0"
+                   >
+                     <DollarSign className="h-4 w-4" />
+                   </Button>
+                   
+                   <Button
+                     variant="outline"
+                     size="sm"
+                     onClick={() => handleDelete(vehicle.id, vehicle.registration_number)}
+                     disabled={deletingId === vehicle.id}
+                     className="text-destructive hover:bg-destructive hover:text-destructive-foreground w-10 h-10 p-0"
+                   >
+                     {deletingId === vehicle.id ? (
+                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                     ) : (
+                       <Trash2 className="h-4 w-4" />
+                     )}
+                   </Button>
+                 </div>
               </div>
             ))}
           </div>
