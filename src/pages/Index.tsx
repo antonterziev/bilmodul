@@ -12,7 +12,7 @@ import { SalesForm } from "@/components/Sales/SalesForm";
 import { Settings } from "@/components/Settings/Settings";
 import { DeleteAccount } from "@/components/Settings/DeleteAccount";
 import { AdminDashboard } from "@/components/Admin/AdminDashboard";
-
+import { VehicleDetailsView } from "@/components/VehicleDetails/VehicleDetailsView";
 import { Integrations } from "@/components/Integrations/Integrations";
 import { AppSidebar } from "@/components/AppSidebar";
 
@@ -45,6 +45,7 @@ const Index = () => {
   const [purchaseFormKey, setPurchaseFormKey] = useState(0);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [selectedSaleVehicleId, setSelectedSaleVehicleId] = useState<string | null>(null);
+  const [viewingVehicleId, setViewingVehicleId] = useState<string | null>(null);
   
   const [userProfile, setUserProfile] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -343,6 +344,16 @@ const Index = () => {
 
 
   const renderMainContent = () => {
+    // Check if we're viewing a specific vehicle
+    if (viewingVehicleId) {
+      return (
+        <VehicleDetailsView 
+          vehicleId={viewingVehicleId} 
+          onBack={() => setViewingVehicleId(null)} 
+        />
+      );
+    }
+
     switch (currentView) {
       case "purchase_form":
         return (
@@ -477,6 +488,9 @@ const Index = () => {
               onSellVehicle={(vehicleId) => {
                 setSelectedSaleVehicleId(vehicleId);
                 handleViewChange("sales");
+              }}
+              onViewVehicle={(vehicleId) => {
+                setViewingVehicleId(vehicleId);
               }}
               onStatsUpdate={loadStats}
             />

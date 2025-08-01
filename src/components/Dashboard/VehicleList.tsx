@@ -28,9 +28,9 @@ interface Vehicle {
 
 interface VehicleListProps {
   filter?: 'all' | 'på_lager' | 'såld';
-  
   onStatsUpdate?: () => void;
   onSellVehicle?: (vehicleId: string) => void;
+  onViewVehicle?: (vehicleId: string) => void;
   searchTerm?: string;
   sortField?: 'storage-days' | 'purchase-price' | 'selling-price' | 'gross-profit';
   sortOrder?: 'desc' | 'asc';
@@ -40,6 +40,7 @@ export const VehicleList = ({
   filter = 'all', 
   onSellVehicle,
   onStatsUpdate, 
+  onViewVehicle,
   searchTerm = "", 
   sortField = 'storage-days',
   sortOrder = 'desc'
@@ -461,8 +462,7 @@ export const VehicleList = ({
 
 
   const handleView = (vehicleId: string) => {
-    // Navigate to vehicle details page
-    window.location.href = `/vehicle/${vehicleId}`;
+    onViewVehicle?.(vehicleId);
   };
 
   const handleOpenFortnoxVoucher = async (verificationNumber: string) => {

@@ -11,7 +11,7 @@ import PasswordReset from "./pages/PasswordReset";
 import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
 import FortnoxCallback from "./components/FortnoxCallback";
-import { VehicleDetailsPage } from "./components/VehicleDetails/VehicleDetailsPage";
+
 
 const queryClient = new QueryClient();
 
@@ -28,7 +28,7 @@ const App = () => (
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/password-reset" element={<PasswordReset />} />
           <Route path="/fortnox-callback" element={<FortnoxCallback />} />
-          <Route path="/vehicle/:vehicleId" element={<VehicleDetailsPage />} />
+          
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
