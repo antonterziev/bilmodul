@@ -489,7 +489,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 px-4">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 pl-4">\
         {/* Left sidebar with key info */}
         <div className="space-y-4">
           {/* Storage value */}
