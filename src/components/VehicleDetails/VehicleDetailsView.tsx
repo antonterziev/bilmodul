@@ -707,7 +707,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
           {activeButton === 'pakostnad' ? (
             <Card className="flex-1">
               <CardHeader>
-                <CardTitle>Fakta</CardTitle>
+                <CardTitle>Påkostnader</CardTitle>
               </CardHeader>
               <CardContent className="flex-1">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
