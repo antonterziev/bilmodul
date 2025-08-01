@@ -673,7 +673,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                   onClick={addNote}
                   disabled={!newNote.trim()}
                   size="sm"
-                  className="self-start"
+                  className="h-10"
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
