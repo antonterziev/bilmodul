@@ -574,7 +574,7 @@ export const PurchaseForm = ({
         // Properly handle empty strings and whitespace
         brand_other: data.brand_other || null,
         model: data.model || null,
-        comment: data.comment || null,
+        note: data.comment || null,
         year_model: data.year_model || null,
         // Convert undefined/empty to null
         first_registration_date: data.first_registration_date?.toISOString().split('T')[0] || null,
