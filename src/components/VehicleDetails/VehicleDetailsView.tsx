@@ -325,19 +325,6 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                 </div>
               )}
 
-              {/* VAT type badge */}
-              {vehicle.vat_type && (
-                <div>
-                  <Badge variant={getStatusVariant(vehicle.status)}>
-                    {vatInfo.label}
-                  </Badge>
-                  {vatInfo.description && (
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {vatInfo.description}
-                    </div>
-                  )}
-                </div>
-              )}
             </CardContent>
           </Card>
         </div>
