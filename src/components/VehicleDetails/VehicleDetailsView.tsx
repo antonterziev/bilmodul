@@ -580,7 +580,6 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                   <label className="text-sm text-muted-foreground mb-1 block">Leverantör</label>
                   <Input
                     type="text"
-                    placeholder="Leverantör"
                     value={pakostnadSupplier}
                     onChange={(e) => setPakostnadSupplier(e.target.value)}
                   />
