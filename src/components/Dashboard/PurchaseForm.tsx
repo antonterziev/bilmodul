@@ -1011,8 +1011,8 @@ export const PurchaseForm = ({
 
                 {/* 7. Anteckning - moved below handpenning and greyed out */}
                 <div>
-                  <Label htmlFor="comment" className="text-muted-foreground">Anteckning</Label>
-                  <Input id="comment" {...form.register("comment")} className="bg-muted/30 cursor-not-allowed text-muted-foreground" disabled={true} placeholder="Funktionen kommer snart" />
+                  <Label htmlFor="comment">Anteckning</Label>
+                  <Input id="comment" {...form.register("comment")} placeholder="Lägg till en anteckning om fordonet..." />
                 </div>
 
                 {/* 8. Inköpsunderlag - moved to same row as Anteckning */}
