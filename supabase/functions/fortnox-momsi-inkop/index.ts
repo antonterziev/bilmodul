@@ -418,14 +418,10 @@ serve(async (req) => {
         const momsiEuAccountNumber = accountNumberMap['Lager - Momsbilar - EU'] || '1412';
         const leverantorskulderAccountNumber = accountNumberMap['Leverantörsskulder'] || '2440';
         const forskottsbetalningAccountNumber = accountNumberMap['Förskottsbetalning'] || '1680';
-        const euImportAccountNumber = accountNumberMap['Inköp av varor från EU'] || '4515';
-        const euCounterAccountNumber = accountNumberMap['Motkonto inköp av varor från EU'] || '4519';
 
         console.log(`📋 Using MOMSI EU account number: ${momsiEuAccountNumber} (user configured: ${!!accountNumberMap['Lager - Momsbilar - EU']})`);
         console.log(`📋 Using Leverantörsskulder account number: ${leverantorskulderAccountNumber} (user configured: ${!!accountNumberMap['Leverantörsskulder']})`);
         console.log(`📋 Using Förskottsbetalning account number: ${forskottsbetalningAccountNumber} (user configured: ${!!accountNumberMap['Förskottsbetalning']})`);
-        console.log(`📋 Using EU Import account number: ${euImportAccountNumber} (user configured: ${!!accountNumberMap['Inköp av varor från EU']})`);
-        console.log(`📋 Using EU Counter account number: ${euCounterAccountNumber} (user configured: ${!!accountNumberMap['Motkonto inköp av varor från EU']})`);
         
         console.log(`📋 NEW VERSION - Skipping account validation - proceeding with MOMSI supplier invoice creation`);
         
@@ -440,32 +436,26 @@ serve(async (req) => {
         const downPaymentAmount = inventoryItem.down_payment || 0;
         console.log(`💰 Down payment amount: ${downPaymentAmount}`);
         
-        // For MOMSI (EU), no VAT is calculated directly on the purchase, as this is handled through reverse charge mechanism
+        // For MOMSI (EU), calculate VAT as 25% of purchase price for Fortnox automatic handling
         const grossAmount = inventoryItem.purchase_price;
-        console.log(`💰 Gross amount (no VAT for EU): ${grossAmount}`);
+        const vatRate = 0.25;
+        const vatAmount = grossAmount * vatRate / (1 + vatRate);
+        const netAmount = grossAmount - vatAmount;
+        
+        console.log(`💰 Gross amount: ${grossAmount}`);
+        console.log(`💰 VAT amount (25% for automatic handling): ${vatAmount}`);
+        console.log(`💰 Net amount: ${netAmount}`);
         
         // Calculate the net amount to be invoiced (gross amount - down payment)
         const netInvoiceAmount = grossAmount - downPaymentAmount;
         console.log(`💰 Net invoice amount (gross - down payment): ${netInvoiceAmount}`);
 
-        // Build rows for MOMSI (EU) - asset, EU import, EU counter, and down payment if applicable
+        // Build rows for MOMSI (EU) - only asset and down payment if applicable, let Fortnox handle VAT automatically
         const supplierInvoiceRows = [
           {
             Account: momsiEuAccountNumber, // e.g., 1412 - Lager - Momsbilar - EU
-            Debit: grossAmount,
+            Debit: netAmount,
             Credit: 0.0,
-            Project: projectNumber
-          },
-          {
-            Account: euImportAccountNumber, // e.g., 4515 - Inköp av varor från EU
-            Debit: grossAmount,
-            Credit: 0.0,
-            Project: projectNumber
-          },
-          {
-            Account: euCounterAccountNumber, // e.g., 4519 - Motkonto inköp av varor från EU
-            Debit: 0.0,
-            Credit: grossAmount,
             Project: projectNumber
           }
         ];
@@ -487,7 +477,7 @@ serve(async (req) => {
             InvoiceDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0],
             Project: projectNumber,
             Total: netInvoiceAmount,
-            VAT: 0, // No VAT for EU purchases (reverse charge)
+            VAT: vatAmount, // 25% VAT for automatic Fortnox handling
             SupplierInvoiceRows: supplierInvoiceRows
           }
         };
