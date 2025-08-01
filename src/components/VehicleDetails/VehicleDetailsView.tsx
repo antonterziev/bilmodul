@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, DollarSign, FileText, Trash2 } from "lucide-react";
+import { ArrowLeft, DollarSign, FileText, Trash2, CreditCard, Plus, ShoppingCart, Calculator } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { useToast } from "@/hooks/use-toast";
 
@@ -48,6 +48,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
   const [vehicle, setVehicle] = useState<VehicleDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [activeButton, setActiveButton] = useState<string>('vagnkort');
 
   useEffect(() => {
     if (vehicleId && user) {
@@ -280,16 +281,42 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
 
       {/* Action buttons row */}
       <div className="flex items-center justify-between gap-4 p-4 bg-card border rounded-lg">
-        <Button variant="default" className="flex-1">
+        <Button 
+          variant={activeButton === 'vagnkort' ? 'default' : 'outline'} 
+          className={`flex-1 ${activeButton === 'vagnkort' ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+          onClick={() => setActiveButton('vagnkort')}
+        >
+          <CreditCard className="h-4 w-4 mr-2" />
           Vagnkort
         </Button>
-        <Button variant="outline" className="flex-1">
+        <Button 
+          variant={activeButton === 'pakostnad' ? 'default' : 'outline'} 
+          className={`flex-1 ${activeButton === 'pakostnad' ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+          onClick={() => setActiveButton('pakostnad')}
+        >
+          <Plus className="h-4 w-4 mr-2" />
           Påkostnad
         </Button>
-        <Button variant="outline" onClick={handleSell} className="flex-1">
+        <Button 
+          variant={activeButton === 'forsaljning' ? 'default' : 'outline'} 
+          className={`flex-1 ${activeButton === 'forsaljning' ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+          onClick={() => {
+            setActiveButton('forsaljning');
+            handleSell();
+          }}
+        >
+          <ShoppingCart className="h-4 w-4 mr-2" />
           Försäljning
         </Button>
-        <Button variant="outline" onClick={handleBookkeeping} className="flex-1">
+        <Button 
+          variant={activeButton === 'bokforing' ? 'default' : 'outline'} 
+          className={`flex-1 ${activeButton === 'bokforing' ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+          onClick={() => {
+            setActiveButton('bokforing');
+            handleBookkeeping();
+          }}
+        >
+          <Calculator className="h-4 w-4 mr-2" />
           Bokföring
         </Button>
         <Button 
