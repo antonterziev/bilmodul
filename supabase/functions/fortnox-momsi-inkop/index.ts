@@ -414,13 +414,13 @@ serve(async (req) => {
           accountNumberMap[mapping.account_name] = mapping.account_number;
         });
 
-        // Get account numbers - use user configured or fallback to defaults for MOMS
-        const momsAccountNumber = accountNumberMap['Lager - Momsbilar'] || '1411';
+        // Get account numbers - use user configured or fallback to defaults for MOMSI (EU)
+        const momsAccountNumber = accountNumberMap['Lager - Momsbilar - EU'] || '1412';
         const leverantorskulderAccountNumber = accountNumberMap['Leverantörsskulder'] || '2440';
         const forskottsbetalningAccountNumber = accountNumberMap['Förskottsbetalning'] || '1680';
         const ingaendeMomsAccountNumber = accountNumberMap['Ingående moms'] || '2641';
 
-        console.log(`📋 Using MOMS account number: ${momsAccountNumber} (user configured: ${!!accountNumberMap['Lager - Momsbilar']})`);
+        console.log(`📋 Using MOMSI account number: ${momsAccountNumber} (user configured: ${!!accountNumberMap['Lager - Momsbilar - EU']})`);
         console.log(`📋 Using Leverantörsskulder account number: ${leverantorskulderAccountNumber} (user configured: ${!!accountNumberMap['Leverantörsskulder']})`);
         console.log(`📋 Using Förskottsbetalning account number: ${forskottsbetalningAccountNumber} (user configured: ${!!accountNumberMap['Förskottsbetalning']})`);
         
