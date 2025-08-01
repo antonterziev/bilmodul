@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, DollarSign, FileText, Trash2, CreditCard, Plus, ShoppingCart, Calculator } from "lucide-react";
+import { ArrowLeft, DollarSign, FileText, Trash2, Car, Plus, ShoppingCart, Calculator } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { useToast } from "@/hooks/use-toast";
 
@@ -286,7 +286,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
           className={`flex-1 ${activeButton === 'vagnkort' ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
           onClick={() => setActiveButton('vagnkort')}
         >
-          <CreditCard className="h-4 w-4 mr-2" />
+          <Car className="h-4 w-4 mr-2" />
           Vagnkort
         </Button>
         <Button 
