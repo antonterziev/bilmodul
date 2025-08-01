@@ -666,7 +666,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                   placeholder="Skriv en ny anteckning..."
                   value={newNote}
                   onChange={(e) => setNewNote(e.target.value)}
-                  rows={3}
+                  rows={1}
                 />
                 <Button 
                   onClick={addNote}
