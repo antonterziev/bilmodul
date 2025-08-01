@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, DollarSign, FileText, Trash2, RefreshCw } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { useToast } from "@/hooks/use-toast";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
 
 interface VehicleDetails {
   id: string;
@@ -213,307 +215,321 @@ export const VehicleDetailsPage = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="flex items-center gap-4 mb-6">
-          <Button variant="ghost" onClick={handleBack}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div className="h-8 w-32 bg-muted animate-pulse rounded" />
-        </div>
-        <Card>
-          <CardContent className="p-6">
-            <div className="animate-pulse space-y-4">
-              <div className="h-4 bg-muted rounded w-3/4" />
-              <div className="h-4 bg-muted rounded w-1/2" />
-              <div className="h-4 bg-muted rounded w-2/3" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (!vehicle) {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="flex items-center gap-4 mb-6">
-          <Button variant="ghost" onClick={handleBack}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <h1 className="text-2xl font-bold">Fordon hittades inte</h1>
-        </div>
-      </div>
-    );
-  }
-
-  const vatInfo = getVatInfo(vehicle.vat_type || '');
+  const vatInfo = getVatInfo(vehicle?.vat_type || '');
   const storageValue = calculateStorageValue();
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      {/* Header with back button and registration number */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" onClick={handleBack}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <h1 className="text-3xl font-bold">{vehicle.registration_number}</h1>
-      </div>
-
-      {/* Action buttons row */}
-      <div className="flex flex-wrap gap-3">
-        <Button variant="outline" onClick={() => toast({ title: "Påkostnad", description: "Påkostnadsfunktion kommer att implementeras här." })}>
-          Påkostnad
-        </Button>
-        <Button variant="default" onClick={handleSell}>
-          <DollarSign className="h-4 w-4 mr-2" />
-          Sälj
-        </Button>
-        <Button variant="outline" onClick={handleBookkeeping}>
-          <FileText className="h-4 w-4 mr-2" />
-          Bokföring/transaktioner
-        </Button>
-        <Button 
-          variant="destructive" 
-          onClick={handleDelete}
-          disabled={actionLoading === 'delete'}
-        >
-          <Trash2 className="h-4 w-4 mr-2" />
-          {actionLoading === 'delete' ? 'Tar bort...' : ''}
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left sidebar with key info */}
-        <div className="space-y-4">
-          {/* Storage value */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-sm font-medium text-muted-foreground">LAGERVÄRDE</div>
-              <div className="text-2xl font-bold">{formatPrice(storageValue)} inkl. moms</div>
-            </CardContent>
-          </Card>
-
-          {/* Vehicle basic info */}
-          <Card>
-            <CardContent className="p-4 space-y-3">
-              <div className="flex items-center gap-3">
-                <BrandLogo 
-                  brandName={vehicle.brand} 
-                  className="w-8 h-8" 
-                />
-                <div>
-                  <div className="font-semibold">
-                    {vehicle.brand}{vehicle.model && ` - ${vehicle.model}`}
-                  </div>
-                  {vehicle.year_model && (
-                    <div className="text-sm text-muted-foreground">
-                      Årsmodell {vehicle.year_model}
-                    </div>
-                  )}
-                </div>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <AppSidebar 
+          currentView="vehicle-details"
+          onViewChange={() => {}}
+          expandedSections={{}}
+          onSectionToggle={() => {}}
+          searchTerm=""
+          onSearchChange={() => {}}
+          searchPlaceholder="Sök fordon..."
+          hasVehicles={true}
+        />
+        <main className="flex-1">
+          <header className="h-12 flex items-center border-b px-4">
+            <SidebarTrigger className="mr-4" />
+          </header>
+          
+          {loading ? (
+            <div className="container mx-auto p-6">
+              <div className="flex items-center gap-4 mb-6">
+                <Button variant="ghost" onClick={handleBack}>
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <div className="h-8 w-32 bg-muted animate-pulse rounded" />
               </div>
-              
-              {/* VAT type badge */}
-              {vehicle.vat_type && (
-                <div>
-                  <Badge variant={getStatusVariant(vehicle.status)}>
-                    {vatInfo.label}
-                  </Badge>
-                  {vatInfo.description && (
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {vatInfo.description}
-                    </div>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="animate-pulse space-y-4">
+                    <div className="h-4 bg-muted rounded w-3/4" />
+                    <div className="h-4 bg-muted rounded w-1/2" />
+                    <div className="h-4 bg-muted rounded w-2/3" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          ) : !vehicle ? (
+            <div className="container mx-auto p-6">
+              <div className="flex items-center gap-4 mb-6">
+                <Button variant="ghost" onClick={handleBack}>
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <h1 className="text-2xl font-bold">Fordon hittades inte</h1>
+              </div>
+            </div>
+          ) : (
+            <div className="container mx-auto p-6 space-y-6">
+              {/* Header with back button and registration number */}
+              <div className="flex items-center gap-4">
+                <Button variant="ghost" onClick={handleBack}>
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <h1 className="text-3xl font-bold">{vehicle.registration_number}</h1>
+              </div>
 
-        {/* Main content area - Facts */}
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Fakta</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                {/* Column 1 */}
+              {/* Action buttons row */}
+              <div className="flex flex-wrap gap-3">
+                <Button variant="outline" onClick={() => toast({ title: "Påkostnad", description: "Påkostnadsfunktion kommer att implementeras här." })}>
+                  Påkostnad
+                </Button>
+                <Button variant="default" onClick={handleSell}>
+                  <DollarSign className="h-4 w-4 mr-2" />
+                  Sälj
+                </Button>
+                <Button variant="outline" onClick={handleBookkeeping}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Bokföring/transaktioner
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  onClick={handleDelete}
+                  disabled={actionLoading === 'delete'}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  {actionLoading === 'delete' ? 'Tar bort...' : ''}
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Left sidebar with key info */}
                 <div className="space-y-4">
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Bränsle</div>
-                    <div className="font-medium">-</div>
-                  </div>
-                  
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Biltyp</div>
-                    <div className="font-medium">-</div>
-                  </div>
-                  
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Motorstorlek</div>
-                    <div className="font-medium">-</div>
-                  </div>
-                </div>
+                  {/* Storage value */}
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="text-sm font-medium text-muted-foreground">LAGERVÄRDE</div>
+                      <div className="text-2xl font-bold">{formatPrice(storageValue)} inkl. moms</div>
+                    </CardContent>
+                  </Card>
 
-                {/* Column 2 */}
-                <div className="space-y-4">
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Växellåda</div>
-                    <div className="font-medium">-</div>
-                  </div>
-                  
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Drivning</div>
-                    <div className="font-medium">-</div>
-                  </div>
-                  
-                  {vehicle.first_registration_date && (
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Datum i trafik</div>
-                      <div className="font-medium">{formatDate(vehicle.first_registration_date)}</div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Column 3 */}
-                <div className="space-y-4">
-                  {vehicle.mileage && (
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Miltal</div>
-                      <div className="font-medium">{vehicle.mileage.toLocaleString('sv-SE')} km</div>
-                    </div>
-                  )}
-                  
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Hästkrafter</div>
-                    <div className="font-medium">-</div>
-                  </div>
-                  
-                  {vehicle.year_model && (
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Modellår</div>
-                      <div className="font-medium">{vehicle.year_model}</div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Additional facts row */}
-                <div className="col-span-2 md:col-span-3 grid grid-cols-2 md:grid-cols-3 gap-6 pt-4 border-t">
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Färg</div>
-                    <div className="font-medium">-</div>
-                  </div>
-                  
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Märke</div>
-                    <div className="font-medium">{vehicle.brand}</div>
-                  </div>
-                  
-                  {vehicle.model && (
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Modell</div>
-                      <div className="font-medium">{vehicle.model}</div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Purchase and sales info */}
-                <div className="col-span-2 md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
-                  <div className="space-y-4">
-                    <h4 className="font-semibold">Inköpsinformation</h4>
-                    
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Inköpsdatum</div>
-                      <div className="font-medium">{formatDate(vehicle.purchase_date)}</div>
-                    </div>
-                    
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Inköpspris</div>
-                      <div className="font-medium">{formatPrice(vehicle.purchase_price)}</div>
-                    </div>
-                    
-                    {vehicle.additional_costs && vehicle.additional_costs > 0 && (
-                      <div>
-                        <div className="text-sm text-muted-foreground mb-1">Påkostnader</div>
-                        <div className="font-medium">{formatPrice(vehicle.additional_costs)}</div>
-                      </div>
-                    )}
-                    
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Köpare</div>
-                      <div className="font-medium">{vehicle.purchaser}</div>
-                    </div>
-
-                    {vehicle.seller && (
-                      <div>
-                        <div className="text-sm text-muted-foreground mb-1">Säljare</div>
-                        <div className="font-medium">{vehicle.seller}</div>
-                      </div>
-                    )}
-                  </div>
-
-                  {vehicle.status === 'såld' && (
-                    <div className="space-y-4">
-                      <h4 className="font-semibold">Försäljningsinformation</h4>
-                      
-                      {vehicle.selling_date && (
+                  {/* Vehicle basic info */}
+                  <Card>
+                    <CardContent className="p-4 space-y-3">
+                      <div className="flex items-center gap-3">
+                        <BrandLogo 
+                          brandName={vehicle.brand} 
+                          className="w-8 h-8" 
+                        />
                         <div>
-                          <div className="text-sm text-muted-foreground mb-1">Säljdatum</div>
-                          <div className="font-medium">{formatDate(vehicle.selling_date)}</div>
+                          <div className="font-semibold">
+                            {vehicle.brand}{vehicle.model && ` - ${vehicle.model}`}
+                          </div>
+                          {vehicle.year_model && (
+                            <div className="text-sm text-muted-foreground">
+                              Årsmodell {vehicle.year_model}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* VAT type badge */}
+                      {vehicle.vat_type && (
+                        <div>
+                          <Badge variant={getStatusVariant(vehicle.status)}>
+                            {vatInfo.label}
+                          </Badge>
+                          {vatInfo.description && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {vatInfo.description}
+                            </div>
+                          )}
                         </div>
                       )}
-                      
-                      {vehicle.selling_price && (
-                        <div>
-                          <div className="text-sm text-muted-foreground mb-1">Säljpris</div>
-                          <div className="font-medium">{formatPrice(vehicle.selling_price)}</div>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                    </CardContent>
+                  </Card>
                 </div>
 
-                {/* System info */}
-                <div className="col-span-2 md:col-span-3 pt-4 border-t">
-                  <h4 className="font-semibold mb-4">Systeminformation</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Status</div>
-                      <Badge variant={getStatusVariant(vehicle.status)}>
-                        {getStatusLabel(vehicle.status)}
-                      </Badge>
-                    </div>
-                    
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Registrerad av</div>
-                      <div className="font-medium">{vehicle.registered_by}</div>
-                    </div>
-                    
-                    {vehicle.fortnox_sync_status && (
-                      <div>
-                        <div className="text-sm text-muted-foreground mb-1">Fortnox-status</div>
-                        <Badge variant={vehicle.fortnox_sync_status === 'synced' ? 'default' : 'outline'}>
-                          {vehicle.fortnox_sync_status === 'synced' ? 'Synkad' : 'Ej synkad'}
-                        </Badge>
+                {/* Main content area - Facts */}
+                <div className="lg:col-span-2">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Fakta</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                        {/* Column 1 */}
+                        <div className="space-y-4">
+                          <div>
+                            <div className="text-sm text-muted-foreground mb-1">Bränsle</div>
+                            <div className="font-medium">-</div>
+                          </div>
+                          
+                          <div>
+                            <div className="text-sm text-muted-foreground mb-1">Biltyp</div>
+                            <div className="font-medium">-</div>
+                          </div>
+                          
+                          <div>
+                            <div className="text-sm text-muted-foreground mb-1">Motorstorlek</div>
+                            <div className="font-medium">-</div>
+                          </div>
+                        </div>
+
+                        {/* Column 2 */}
+                        <div className="space-y-4">
+                          <div>
+                            <div className="text-sm text-muted-foreground mb-1">Växellåda</div>
+                            <div className="font-medium">-</div>
+                          </div>
+                          
+                          <div>
+                            <div className="text-sm text-muted-foreground mb-1">Drivning</div>
+                            <div className="font-medium">-</div>
+                          </div>
+                          
+                          {vehicle.first_registration_date && (
+                            <div>
+                              <div className="text-sm text-muted-foreground mb-1">Datum i trafik</div>
+                              <div className="font-medium">{formatDate(vehicle.first_registration_date)}</div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Column 3 */}
+                        <div className="space-y-4">
+                          {vehicle.mileage && (
+                            <div>
+                              <div className="text-sm text-muted-foreground mb-1">Miltal</div>
+                              <div className="font-medium">{vehicle.mileage.toLocaleString('sv-SE')} km</div>
+                            </div>
+                          )}
+                          
+                          <div>
+                            <div className="text-sm text-muted-foreground mb-1">Hästkrafter</div>
+                            <div className="font-medium">-</div>
+                          </div>
+                          
+                          {vehicle.year_model && (
+                            <div>
+                              <div className="text-sm text-muted-foreground mb-1">Modellår</div>
+                              <div className="font-medium">{vehicle.year_model}</div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Additional facts row */}
+                        <div className="col-span-2 md:col-span-3 grid grid-cols-2 md:grid-cols-3 gap-6 pt-4 border-t">
+                          <div>
+                            <div className="text-sm text-muted-foreground mb-1">Färg</div>
+                            <div className="font-medium">-</div>
+                          </div>
+                          
+                          <div>
+                            <div className="text-sm text-muted-foreground mb-1">Märke</div>
+                            <div className="font-medium">{vehicle.brand}</div>
+                          </div>
+                          
+                          {vehicle.model && (
+                            <div>
+                              <div className="text-sm text-muted-foreground mb-1">Modell</div>
+                              <div className="font-medium">{vehicle.model}</div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Purchase and sales info */}
+                        <div className="col-span-2 md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
+                          <div className="space-y-4">
+                            <h4 className="font-semibold">Inköpsinformation</h4>
+                            
+                            <div>
+                              <div className="text-sm text-muted-foreground mb-1">Inköpsdatum</div>
+                              <div className="font-medium">{formatDate(vehicle.purchase_date)}</div>
+                            </div>
+                            
+                            <div>
+                              <div className="text-sm text-muted-foreground mb-1">Inköpspris</div>
+                              <div className="font-medium">{formatPrice(vehicle.purchase_price)}</div>
+                            </div>
+                            
+                            {vehicle.additional_costs && vehicle.additional_costs > 0 && (
+                              <div>
+                                <div className="text-sm text-muted-foreground mb-1">Påkostnader</div>
+                                <div className="font-medium">{formatPrice(vehicle.additional_costs)}</div>
+                              </div>
+                            )}
+                            
+                            <div>
+                              <div className="text-sm text-muted-foreground mb-1">Köpare</div>
+                              <div className="font-medium">{vehicle.purchaser}</div>
+                            </div>
+
+                            {vehicle.seller && (
+                              <div>
+                                <div className="text-sm text-muted-foreground mb-1">Säljare</div>
+                                <div className="font-medium">{vehicle.seller}</div>
+                              </div>
+                            )}
+                          </div>
+
+                          {vehicle.status === 'såld' && (
+                            <div className="space-y-4">
+                              <h4 className="font-semibold">Försäljningsinformation</h4>
+                              
+                              {vehicle.selling_date && (
+                                <div>
+                                  <div className="text-sm text-muted-foreground mb-1">Säljdatum</div>
+                                  <div className="font-medium">{formatDate(vehicle.selling_date)}</div>
+                                </div>
+                              )}
+                              
+                              {vehicle.selling_price && (
+                                <div>
+                                  <div className="text-sm text-muted-foreground mb-1">Säljpris</div>
+                                  <div className="font-medium">{formatPrice(vehicle.selling_price)}</div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* System info */}
+                        <div className="col-span-2 md:col-span-3 pt-4 border-t">
+                          <h4 className="font-semibold mb-4">Systeminformation</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <div className="text-sm text-muted-foreground mb-1">Status</div>
+                              <Badge variant={getStatusVariant(vehicle.status)}>
+                                {getStatusLabel(vehicle.status)}
+                              </Badge>
+                            </div>
+                            
+                            <div>
+                              <div className="text-sm text-muted-foreground mb-1">Registrerad av</div>
+                              <div className="font-medium">{vehicle.registered_by}</div>
+                            </div>
+                            
+                            {vehicle.fortnox_sync_status && (
+                              <div>
+                                <div className="text-sm text-muted-foreground mb-1">Fortnox-status</div>
+                                <Badge variant={vehicle.fortnox_sync_status === 'synced' ? 'default' : 'outline'}>
+                                  {vehicle.fortnox_sync_status === 'synced' ? 'Synkad' : 'Ej synkad'}
+                                </Badge>
+                              </div>
+                            )}
+                            
+                            {vehicle.fortnox_verification_number && (
+                              <div>
+                                <div className="text-sm text-muted-foreground mb-1">Verifikationsnummer</div>
+                                <div className="font-medium">{vehicle.fortnox_verification_number}</div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    )}
-                    
-                    {vehicle.fortnox_verification_number && (
-                      <div>
-                        <div className="text-sm text-muted-foreground mb-1">Verifikationsnummer</div>
-                        <div className="font-medium">{vehicle.fortnox_verification_number}</div>
-                      </div>
-                    )}
-                  </div>
+                    </CardContent>
+                  </Card>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          )}
+        </main>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
