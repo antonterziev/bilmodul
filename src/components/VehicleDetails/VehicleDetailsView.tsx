@@ -629,11 +629,6 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                 </div>
                 
                 <div>
-                  <div className="text-sm text-muted-foreground mb-1">Drivning</div>
-                  <div className="font-medium">-</div>
-                </div>
-                
-                <div>
                   <div className="text-sm text-muted-foreground mb-1">Motorstorlek</div>
                   <div className="font-medium">-</div>
                 </div>
