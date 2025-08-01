@@ -387,12 +387,12 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
         </div>
 
         {/* Main content area - Facts */}
-        <div className="lg:col-span-3 space-y-6">
-          <Card>
+        <div className="lg:col-span-3 space-y-6 flex flex-col">
+          <Card className="flex-1">
             <CardHeader>
               <CardTitle>Fakta</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                 {/* Row 1 */}
                 <div>
@@ -493,7 +493,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
           </Card>
 
           {/* Notes section */}
-          <Card>
+          <Card className="flex-1">
             <CardHeader>
               <CardTitle>Anteckningar</CardTitle>
             </CardHeader>
