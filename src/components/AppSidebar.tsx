@@ -121,18 +121,7 @@ export function AppSidebar({
     { id: "lager_all", title: "Lagerlista", icon: List, requiresPermission: "lager" },
   ];
 
-  const expandableMenuItems = [
-    {
-      id: "affarer",
-      title: "Affärer",
-      icon: Handshake,
-      children: [
-        { id: "sales", title: "Försäljning", icon: Receipt },
-        { id: "avtal", title: "Avtal", icon: FileCheck },
-        { id: "fakturor", title: "Fakturor", icon: Receipt },
-      ]
-    },
-  ];
+  const expandableMenuItems = [];
 
   return (
     <Sidebar className="w-72 bg-white border-r" collapsible="none">
