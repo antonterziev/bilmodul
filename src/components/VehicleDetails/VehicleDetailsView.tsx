@@ -387,7 +387,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
         </div>
 
         {/* Main content area - Facts */}
-        <div className="lg:col-span-3">
+        <div className="lg:col-span-3 space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Fakta</CardTitle>
@@ -488,6 +488,18 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                   </div>
                 )}
 
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Notes section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Anteckningar</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-sm text-muted-foreground">
+                {vehicle.comment || "Inga anteckningar finns för detta fordon."}
               </div>
             </CardContent>
           </Card>
