@@ -479,7 +479,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
           onClick={() => setActiveButton('pakostnad')}
         >
           <Plus className="h-4 w-4 mr-2" />
-          Påkostnad
+          {activeButton === 'pakostnad' ? 'Ny påkostnad' : 'Påkostnad'}
         </Button>
         <Button 
           variant={activeButton === 'forsaljning' ? 'default' : 'outline'} 
@@ -573,125 +573,245 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
           </Card>
         </div>
 
-        {/* Main content area - Facts */}
+        {/* Main content area - conditional based on active button */}
         <div className="lg:col-span-3 space-y-6 flex flex-col">
-          <Card className="flex-1">
-            <CardHeader>
-              <CardTitle>Fakta</CardTitle>
-            </CardHeader>
-            <CardContent className="flex-1">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                {/* Row 1 - Top three: Märke, Modell, Regnummer */}
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Märke</div>
-                  <div className="font-medium">{vehicle.brand}</div>
-                </div>
-                
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Modell</div>
-                  <div className="font-medium">{vehicle.model || '-'}</div>
-                </div>
-                
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Regnummer</div>
-                  <div className="font-medium">{vehicle.registration_number}</div>
-                </div>
-
-                {/* Row 2 - Modellår, Miltal, Datum i trafik */}
-                {vehicle.year_model ? (
+          {activeButton === 'pakostnad' ? (
+            <Card className="flex-1">
+              <CardHeader>
+                <CardTitle>Fakta</CardTitle>
+              </CardHeader>
+              <CardContent className="flex-1">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                  {/* Row 1 - Top three: Märke, Modell, Regnummer */}
                   <div>
-                    <div className="text-sm text-muted-foreground mb-1">Modellår</div>
-                    <div className="font-medium">{vehicle.year_model}</div>
+                    <div className="text-sm text-muted-foreground mb-1">Märke</div>
+                    <div className="font-medium">{vehicle.brand}</div>
                   </div>
-                ) : (
+                  
                   <div>
-                    <div className="text-sm text-muted-foreground mb-1">Modellår</div>
-                    <div className="font-medium">-</div>
+                    <div className="text-sm text-muted-foreground mb-1">Modell</div>
+                    <div className="font-medium">{vehicle.model || '-'}</div>
                   </div>
-                )}
-                
-                {vehicle.mileage ? (
+                  
                   <div>
-                    <div className="text-sm text-muted-foreground mb-1">Miltal</div>
-                    <div className="font-medium">{vehicle.mileage.toLocaleString('sv-SE')} km</div>
+                    <div className="text-sm text-muted-foreground mb-1">Regnummer</div>
+                    <div className="font-medium">{vehicle.registration_number}</div>
                   </div>
-                ) : (
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Miltal</div>
-                    <div className="font-medium">-</div>
-                  </div>
-                )}
-                
-                {vehicle.first_registration_date ? (
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Datum i trafik</div>
-                    <div className="font-medium">{formatDate(vehicle.first_registration_date)}</div>
-                  </div>
-                ) : (
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Datum i trafik</div>
-                    <div className="font-medium">-</div>
-                  </div>
-                )}
 
-                {/* Row 3 */}
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Bränsle</div>
-                  <div className="font-medium">-</div>
-                </div>
-                
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Växellåda</div>
-                  <div className="font-medium">-</div>
-                </div>
-
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Hästkrafter</div>
-                  <div className="font-medium">-</div>
-                </div>
-
-                {/* Row 4 */}
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Biltyp</div>
-                  <div className="font-medium">-</div>
-                </div>
-                
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Motorstorlek</div>
-                  <div className="font-medium">-</div>
-                </div>
-
-                {/* Row 5 */}
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Färg</div>
-                  <div className="font-medium">-</div>
-                </div>
-
-                {/* Sales info for sold vehicles */}
-                {vehicle.status === 'såld' && (
-                  <div className="col-span-2 md:col-span-3 pt-4 border-t">
-                    <h4 className="font-semibold mb-4">Försäljningsinformation</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {vehicle.selling_date && (
-                        <div>
-                          <div className="text-sm text-muted-foreground mb-1">Säljdatum</div>
-                          <div className="font-medium">{formatDate(vehicle.selling_date)}</div>
-                        </div>
-                      )}
-                      
-                      {vehicle.selling_price && (
-                        <div>
-                          <div className="text-sm text-muted-foreground mb-1">Säljpris</div>
-                          <div className="font-medium">{formatPrice(vehicle.selling_price)}</div>
-                        </div>
-                      )}
+                  {/* Row 2 - Modellår, Miltal, Datum i trafik */}
+                  {vehicle.year_model ? (
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Modellår</div>
+                      <div className="font-medium">{vehicle.year_model}</div>
                     </div>
-                  </div>
-                )}
+                  ) : (
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Modellår</div>
+                      <div className="font-medium">-</div>
+                    </div>
+                  )}
+                  
+                  {vehicle.mileage ? (
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Miltal</div>
+                      <div className="font-medium">{vehicle.mileage.toLocaleString('sv-SE')} km</div>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Miltal</div>
+                      <div className="font-medium">-</div>
+                    </div>
+                  )}
+                  
+                  {vehicle.first_registration_date ? (
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Datum i trafik</div>
+                      <div className="font-medium">{formatDate(vehicle.first_registration_date)}</div>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Datum i trafik</div>
+                      <div className="font-medium">-</div>
+                    </div>
+                  )}
 
-              </div>
-            </CardContent>
-          </Card>
+                  {/* Row 3 */}
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Bränsle</div>
+                    <div className="font-medium">-</div>
+                  </div>
+                  
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Växellåda</div>
+                    <div className="font-medium">-</div>
+                  </div>
+
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Hästkrafter</div>
+                    <div className="font-medium">-</div>
+                  </div>
+
+                  {/* Row 4 */}
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Biltyp</div>
+                    <div className="font-medium">-</div>
+                  </div>
+                  
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Motorstorlek</div>
+                    <div className="font-medium">-</div>
+                  </div>
+
+                  {/* Row 5 */}
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Färg</div>
+                    <div className="font-medium">-</div>
+                  </div>
+
+                  {/* Sales info for sold vehicles */}
+                  {vehicle.status === 'såld' && (
+                    <div className="col-span-2 md:col-span-3 pt-4 border-t">
+                      <h4 className="font-semibold mb-4">Försäljningsinformation</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {vehicle.selling_date && (
+                          <div>
+                            <div className="text-sm text-muted-foreground mb-1">Säljdatum</div>
+                            <div className="font-medium">{formatDate(vehicle.selling_date)}</div>
+                          </div>
+                        )}
+                        
+                        {vehicle.selling_price && (
+                          <div>
+                            <div className="text-sm text-muted-foreground mb-1">Säljpris</div>
+                            <div className="font-medium">{formatPrice(vehicle.selling_price)}</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="flex-1">
+              <CardHeader>
+                <CardTitle>Fakta</CardTitle>
+              </CardHeader>
+              <CardContent className="flex-1">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                  {/* Row 1 - Top three: Märke, Modell, Regnummer */}
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Märke</div>
+                    <div className="font-medium">{vehicle.brand}</div>
+                  </div>
+                  
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Modell</div>
+                    <div className="font-medium">{vehicle.model || '-'}</div>
+                  </div>
+                  
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Regnummer</div>
+                    <div className="font-medium">{vehicle.registration_number}</div>
+                  </div>
+
+                  {/* Row 2 - Modellår, Miltal, Datum i trafik */}
+                  {vehicle.year_model ? (
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Modellår</div>
+                      <div className="font-medium">{vehicle.year_model}</div>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Modellår</div>
+                      <div className="font-medium">-</div>
+                    </div>
+                  )}
+                  
+                  {vehicle.mileage ? (
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Miltal</div>
+                      <div className="font-medium">{vehicle.mileage.toLocaleString('sv-SE')} km</div>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Miltal</div>
+                      <div className="font-medium">-</div>
+                    </div>
+                  )}
+                  
+                  {vehicle.first_registration_date ? (
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Datum i trafik</div>
+                      <div className="font-medium">{formatDate(vehicle.first_registration_date)}</div>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Datum i trafik</div>
+                      <div className="font-medium">-</div>
+                    </div>
+                  )}
+
+                  {/* Row 3 */}
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Bränsle</div>
+                    <div className="font-medium">-</div>
+                  </div>
+                  
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Växellåda</div>
+                    <div className="font-medium">-</div>
+                  </div>
+
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Hästkrafter</div>
+                    <div className="font-medium">-</div>
+                  </div>
+
+                  {/* Row 4 */}
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Biltyp</div>
+                    <div className="font-medium">-</div>
+                  </div>
+                  
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Motorstorlek</div>
+                    <div className="font-medium">-</div>
+                  </div>
+
+                  {/* Row 5 */}
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Färg</div>
+                    <div className="font-medium">-</div>
+                  </div>
+
+                  {/* Sales info for sold vehicles */}
+                  {vehicle.status === 'såld' && (
+                    <div className="col-span-2 md:col-span-3 pt-4 border-t">
+                      <h4 className="font-semibold mb-4">Försäljningsinformation</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {vehicle.selling_date && (
+                          <div>
+                            <div className="text-sm text-muted-foreground mb-1">Säljdatum</div>
+                            <div className="font-medium">{formatDate(vehicle.selling_date)}</div>
+                          </div>
+                        )}
+                        
+                        {vehicle.selling_price && (
+                          <div>
+                            <div className="text-sm text-muted-foreground mb-1">Säljpris</div>
+                            <div className="font-medium">{formatPrice(vehicle.selling_price)}</div>
+                        </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Notes section */}
           <Card className="flex-1">
