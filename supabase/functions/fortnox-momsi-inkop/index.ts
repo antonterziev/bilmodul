@@ -120,12 +120,14 @@ serve(async (req) => {
     }
 
     // Find active Fortnox integration for the organization
-    const { data: fortnoxIntegration, error: integrationError } = await supabase
+    const { data: fortnoxIntegrations, error: integrationError } = await supabase
       .from('fortnox_integrations')
       .select('*')
       .eq('organization_id', inventoryItem.organization_id)
       .eq('is_active', true)
-      .single();
+      .order('created_at', { ascending: false });
+
+    const fortnoxIntegration = fortnoxIntegrations?.[0];
 
     if (integrationError || !fortnoxIntegration) {
       console.error('No active Fortnox integration found:', integrationError);
