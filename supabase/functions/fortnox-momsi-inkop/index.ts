@@ -8,20 +8,27 @@ const corsHeaders = {
 
 const getFortnoxApiDocs = async (endpoint?: string, method?: string): Promise<any | null> => {
   try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')?.replace(/\/$/, '');
+    const docsUrl = `${supabaseUrl}/functions/v1/fortnox-docs`;
 
-    const { data, error } = await supabase.functions.invoke('fortnox-docs', {
-      body: { endpoint, method }
+    const response = await fetch(docsUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
+      },
+      body: JSON.stringify({
+        endpoint,
+        method
+      })
     });
 
-    if (error) {
-      console.error('Error fetching Fortnox API docs:', error);
+    if (!response.ok) {
+      console.error('Error calling fortnox-docs:', await response.text());
       return null;
     }
 
+    const data = await response.json();
     return data;
   } catch (error) {
     console.error('Error in getFortnoxApiDocs:', error);
