@@ -259,25 +259,27 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
       </div>
 
       {/* Action buttons row */}
-      <div className="flex flex-wrap gap-3">
-        <Button variant="outline" onClick={() => toast({ title: "Påkostnad", description: "Påkostnadsfunktion kommer att implementeras här." })}>
+      <div className="grid grid-cols-5 gap-3">
+        <Button variant="outline" className="w-full">
+          Vagnkort
+        </Button>
+        <Button variant="outline" className="w-full">
           Påkostnad
         </Button>
-        <Button variant="default" onClick={handleSell}>
-          <DollarSign className="h-4 w-4 mr-2" />
-          Sälj
+        <Button variant="default" onClick={handleSell} className="w-full">
+          Försäljning
         </Button>
-        <Button variant="outline" onClick={handleBookkeeping}>
-          <FileText className="h-4 w-4 mr-2" />
-          Bokföring/transaktioner
+        <Button variant="outline" onClick={handleBookkeeping} className="w-full">
+          Bokföring
         </Button>
         <Button 
           variant="destructive" 
           onClick={handleDelete}
           disabled={actionLoading === 'delete'}
+          className="aspect-square p-0"
+          size="icon"
         >
-          <Trash2 className="h-4 w-4 mr-2" />
-          {actionLoading === 'delete' ? 'Tar bort...' : 'Ta bort'}
+          <Trash2 className="h-4 w-4" />
         </Button>
       </div>
 
