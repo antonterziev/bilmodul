@@ -294,26 +294,41 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
             </CardContent>
           </Card>
 
-          {/* Vehicle basic info */}
+          {/* Purchase information */}
           <Card>
-            <CardContent className="p-4 space-y-3">
-              <div className="flex items-center gap-3">
-                <BrandLogo 
-                  brandName={vehicle.brand} 
-                  className="w-8 h-8" 
-                />
-                <div>
-                  <div className="font-semibold">
-                    {vehicle.brand}{vehicle.model && ` - ${vehicle.model}`}
-                  </div>
-                  {vehicle.year_model && (
-                    <div className="text-sm text-muted-foreground">
-                      Årsmodell {vehicle.year_model}
-                    </div>
-                  )}
-                </div>
+            <CardHeader>
+              <CardTitle>Inköpsinformation</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 space-y-4">
+              <div>
+                <div className="text-sm text-muted-foreground mb-1">Inköpsdatum</div>
+                <div className="font-medium">{formatDate(vehicle.purchase_date)}</div>
               </div>
               
+              <div>
+                <div className="text-sm text-muted-foreground mb-1">Inköpspris</div>
+                <div className="font-medium">{formatPrice(vehicle.purchase_price)}</div>
+              </div>
+              
+              {vehicle.additional_costs && vehicle.additional_costs > 0 && (
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Påkostnader</div>
+                  <div className="font-medium">{formatPrice(vehicle.additional_costs)}</div>
+                </div>
+              )}
+              
+              <div>
+                <div className="text-sm text-muted-foreground mb-1">Köpare</div>
+                <div className="font-medium">{vehicle.purchaser}</div>
+              </div>
+
+              {vehicle.seller && (
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Säljare</div>
+                  <div className="font-medium">{vehicle.seller}</div>
+                </div>
+              )}
+
               {/* VAT type badge */}
               {vehicle.vat_type && (
                 <div>
@@ -419,45 +434,11 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                   )}
                 </div>
 
-                {/* Purchase and sales info */}
-                <div className="col-span-2 md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
-                  <div className="space-y-4">
-                    <h4 className="font-semibold">Inköpsinformation</h4>
-                    
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Inköpsdatum</div>
-                      <div className="font-medium">{formatDate(vehicle.purchase_date)}</div>
-                    </div>
-                    
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Inköpspris</div>
-                      <div className="font-medium">{formatPrice(vehicle.purchase_price)}</div>
-                    </div>
-                    
-                    {vehicle.additional_costs && vehicle.additional_costs > 0 && (
-                      <div>
-                        <div className="text-sm text-muted-foreground mb-1">Påkostnader</div>
-                        <div className="font-medium">{formatPrice(vehicle.additional_costs)}</div>
-                      </div>
-                    )}
-                    
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Köpare</div>
-                      <div className="font-medium">{vehicle.purchaser}</div>
-                    </div>
-
-                    {vehicle.seller && (
-                      <div>
-                        <div className="text-sm text-muted-foreground mb-1">Säljare</div>
-                        <div className="font-medium">{vehicle.seller}</div>
-                      </div>
-                    )}
-                  </div>
-
-                  {vehicle.status === 'såld' && (
-                    <div className="space-y-4">
-                      <h4 className="font-semibold">Försäljningsinformation</h4>
-                      
+                {/* Sales info for sold vehicles */}
+                {vehicle.status === 'såld' && (
+                  <div className="col-span-2 md:col-span-3 pt-4 border-t">
+                    <h4 className="font-semibold mb-4">Försäljningsinformation</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {vehicle.selling_date && (
                         <div>
                           <div className="text-sm text-muted-foreground mb-1">Säljdatum</div>
@@ -472,8 +453,8 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                         </div>
                       )}
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
 
                 {/* System info */}
                 <div className="col-span-2 md:col-span-3 pt-4 border-t">
