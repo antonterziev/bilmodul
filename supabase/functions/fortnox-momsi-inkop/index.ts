@@ -419,6 +419,7 @@ serve(async (req) => {
         const leverantorskulderAccountNumber = accountNumberMap['Leverantörsskulder'] || '2440';
         const forskottsbetalningAccountNumber = accountNumberMap['Förskottsbetalning'] || '1680';
         const ingaendeMomsAccountNumber = accountNumberMap['Ingående moms'] || '2641';
+        const omvandIngaendeMomsAccountNumber = accountNumberMap['Omvänd ingående moms - matchas 2614'] || '2645';
 
         console.log(`📋 Using MOMSI account number: ${momsAccountNumber} (user configured: ${!!accountNumberMap['Lager - Momsbilar - EU']})`);
         console.log(`📋 Using Leverantörsskulder account number: ${leverantorskulderAccountNumber} (user configured: ${!!accountNumberMap['Leverantörsskulder']})`);
@@ -454,8 +455,14 @@ serve(async (req) => {
         // Build rows - only asset and down payment, let Fortnox handle supplier payable automatically
         const supplierInvoiceRows = [
           {
-            Account: momsAccountNumber, // e.g., 1411
+            Account: momsAccountNumber, // e.g., 1412
             Debit: netAmount,
+            Credit: 0.0,
+            Project: projectNumber
+          },
+          {
+            Account: omvandIngaendeMomsAccountNumber, // e.g., 2645 "Omvänd ingående moms - matchas 2614"
+            Debit: vatAmount,
             Credit: 0.0,
             Project: projectNumber
           }
