@@ -661,20 +661,21 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Add new note */}
-              <div className="space-y-2">
+              <div className="flex gap-2">
                 <Textarea
                   placeholder="Skriv en ny anteckning..."
                   value={newNote}
                   onChange={(e) => setNewNote(e.target.value)}
                   rows={1}
+                  className="flex-1"
                 />
                 <Button 
                   onClick={addNote}
                   disabled={!newNote.trim()}
                   size="sm"
+                  className="self-start"
                 >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Lägg till anteckning
+                  <Plus className="h-4 w-4" />
                 </Button>
               </div>
 
