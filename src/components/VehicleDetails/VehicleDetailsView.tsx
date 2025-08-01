@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, DollarSign, FileText, Trash2, Car, Plus, ShoppingCart, Calculator } from "lucide-react";
+import { ArrowLeft, DollarSign, FileText, Trash2, Car, Plus, TrendingUp, Calculator } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { useToast } from "@/hooks/use-toast";
 
@@ -305,7 +305,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
             handleSell();
           }}
         >
-          <ShoppingCart className="h-4 w-4 mr-2" />
+          <TrendingUp className="h-4 w-4 mr-2" />
           Försäljning
         </Button>
         <Button 
