@@ -154,6 +154,26 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
     }
   };
 
+  const calculateStorageDays = (purchaseDate: string, status: string, sellingDate?: string) => {
+    const purchase = new Date(purchaseDate);
+    purchase.setHours(0, 0, 0, 0); // Reset to start of purchase day
+    
+    let endDate: Date;
+    if (status === 'såld' && sellingDate) {
+      // For sold vehicles, use selling date
+      endDate = new Date(sellingDate);
+      endDate.setHours(0, 0, 0, 0); // Reset to start of selling day
+    } else {
+      // For vehicles in stock, use today's date
+      endDate = new Date();
+      endDate.setHours(0, 0, 0, 0); // Reset to start of today
+    }
+    
+    const diffTime = endDate.getTime() - purchase.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return Math.max(1, diffDays + 1); // Ensure minimum 1 day, add 1 to include both start and end day
+  };
+
   const calculateStorageValue = () => {
     if (!vehicle) return 0;
     return vehicle.purchase_price + (vehicle.additional_costs || 0);
@@ -299,7 +319,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
             <CardContent className="p-4">
               <div className="text-sm font-medium text-muted-foreground">Lagerdagar</div>
               <div className="text-2xl font-bold">
-                {Math.floor((new Date().getTime() - new Date(vehicle.purchase_date).getTime()) / (1000 * 3600 * 24))} dagar
+                {calculateStorageDays(vehicle.purchase_date, vehicle.status, vehicle.selling_date)} dagar
               </div>
             </CardContent>
           </Card>
