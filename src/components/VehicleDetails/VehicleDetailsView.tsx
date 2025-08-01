@@ -924,114 +924,116 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
             </Card>
           )}
 
-          {/* Notes section */}
-          <Card className="flex-1">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle>Anteckningar</CardTitle>
-              <span className="text-sm text-muted-foreground">
-                {notes.length} anteckning{notes.length !== 1 ? 'ar' : ''}
-              </span>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Add new note */}
-              <div className="flex gap-2">
-                <Textarea
-                  placeholder="Skriv en ny anteckning..."
-                  value={newNote}
-                  onChange={(e) => setNewNote(e.target.value)}
-                  rows={1}
-                  className="flex-1 min-h-0 h-10 resize-none"
-                />
-                <Button 
-                  onClick={addNote}
-                  disabled={!newNote.trim()}
-                  size="sm"
-                  className="h-10"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-
-              {/* Existing notes */}
-              {notesLoading ? (
-                <div className="space-y-3">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="animate-pulse">
-                      <div className="h-4 bg-muted rounded w-1/4 mb-2" />
-                      <div className="h-16 bg-muted rounded" />
-                    </div>
-                  ))}
+          {/* Notes section - only show when not in påkostnad mode */}
+          {activeButton !== 'pakostnad' && (
+            <Card className="flex-1">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle>Anteckningar</CardTitle>
+                <span className="text-sm text-muted-foreground">
+                  {notes.length} anteckning{notes.length !== 1 ? 'ar' : ''}
+                </span>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Add new note */}
+                <div className="flex gap-2">
+                  <Textarea
+                    placeholder="Skriv en ny anteckning..."
+                    value={newNote}
+                    onChange={(e) => setNewNote(e.target.value)}
+                    rows={1}
+                    className="flex-1 min-h-0 h-10 resize-none"
+                  />
+                  <Button 
+                    onClick={addNote}
+                    disabled={!newNote.trim()}
+                    size="sm"
+                    className="h-10"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
                 </div>
-              ) : notes.length > 0 ? (
-                <div className="space-y-4">
-                  {notes.map((note) => (
-                    <div key={note.id} className="border border-border rounded-lg p-2 space-y-1">
-                      <div className="flex items-center justify-between text-sm text-muted-foreground">
-                        <span>
-                          {note.user_name} • {formatDate(note.created_at)}
-                          {note.updated_at !== note.created_at && (
-                            <span className="ml-2 text-xs">(redigerad {formatDate(note.updated_at)})</span>
-                          )}
-                        </span>
-                        {user && user.id === note.user_id && (
-                          <div className="flex gap-1">
-                            {editingNoteId === note.id ? (
-                              <>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={saveEditNote}
-                                  disabled={!editingNoteText.trim()}
-                                >
-                                  <Save className="h-3 w-3" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={cancelEditNote}
-                                >
-                                  <X className="h-3 w-3" />
-                                </Button>
-                              </>
-                            ) : (
-                              <>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => startEditNote(note)}
-                                >
-                                  <Edit className="h-3 w-3" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => deleteNote(note.id)}
-                                  className="text-destructive hover:text-destructive"
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
-                              </>
+
+                {/* Existing notes */}
+                {notesLoading ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="animate-pulse">
+                        <div className="h-4 bg-muted rounded w-1/4 mb-2" />
+                        <div className="h-16 bg-muted rounded" />
+                      </div>
+                    ))}
+                  </div>
+                ) : notes.length > 0 ? (
+                  <div className="space-y-4">
+                    {notes.map((note) => (
+                      <div key={note.id} className="border border-border rounded-lg p-2 space-y-1">
+                        <div className="flex items-center justify-between text-sm text-muted-foreground">
+                          <span>
+                            {note.user_name} • {formatDate(note.created_at)}
+                            {note.updated_at !== note.created_at && (
+                              <span className="ml-2 text-xs">(redigerad {formatDate(note.updated_at)})</span>
                             )}
-                          </div>
+                          </span>
+                          {user && user.id === note.user_id && (
+                            <div className="flex gap-1">
+                              {editingNoteId === note.id ? (
+                                <>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={saveEditNote}
+                                    disabled={!editingNoteText.trim()}
+                                  >
+                                    <Save className="h-3 w-3" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={cancelEditNote}
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                </>
+                              ) : (
+                                <>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => startEditNote(note)}
+                                  >
+                                    <Edit className="h-3 w-3" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => deleteNote(note.id)}
+                                    className="text-destructive hover:text-destructive"
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        
+                        {editingNoteId === note.id ? (
+                          <Textarea
+                            value={editingNoteText}
+                            onChange={(e) => setEditingNoteText(e.target.value)}
+                            rows={3}
+                            className="text-sm"
+                          />
+                        ) : (
+                          <div className="text-sm whitespace-pre-wrap">{note.note_text}</div>
                         )}
                       </div>
-                      
-                      {editingNoteId === note.id ? (
-                        <Textarea
-                          value={editingNoteText}
-                          onChange={(e) => setEditingNoteText(e.target.value)}
-                          rows={3}
-                          className="text-sm"
-                        />
-                      ) : (
-                        <div className="text-sm whitespace-pre-wrap">{note.note_text}</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : null}
-            </CardContent>
-          </Card>
+                    ))}
+                  </div>
+                ) : null}
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>
