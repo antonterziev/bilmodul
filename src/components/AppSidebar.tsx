@@ -117,6 +117,7 @@ export function AppSidebar({
   const mainMenuItems = [
     { id: "overview", title: "Översikt", icon: Home },
     { id: "registrera_inkop", title: "Registrera inköp", icon: Receipt, requiresPermission: "lager" },
+    { id: "lager_all", title: "Lagerlista", icon: Car, requiresPermission: "lager" },
   ];
 
   const expandableMenuItems = [
@@ -126,7 +127,6 @@ export function AppSidebar({
       icon: Car,
       children: [
         { id: "purchase_form_sub", title: "Registrera fordon", icon: Car, isButton: true },
-        { id: "lager_all", title: "Lagerlista", icon: Car },
       ]
     },
     {
