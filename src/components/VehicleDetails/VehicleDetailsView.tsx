@@ -504,13 +504,16 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
           Bokföring
         </Button>
         <Button 
-          variant="destructive" 
+          variant="outline" 
           onClick={handleDelete}
           disabled={actionLoading === 'delete'}
-          className="aspect-square p-0"
-          size="icon"
+          className="text-destructive hover:bg-destructive hover:text-destructive-foreground w-10 h-10 p-0"
         >
-          <Trash2 className="h-4 w-4" />
+          {actionLoading === 'delete' ? (
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+          ) : (
+            <Trash2 className="h-4 w-4" />
+          )}
         </Button>
       </div>
 
