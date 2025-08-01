@@ -624,16 +624,15 @@ export const PurchaseForm = ({
                   <p className="text-sm text-orange-800 mb-2">
                     Detta registreringsnummer finns redan registrerat i systemet.
                   </p>
-                  {duplicateVehicleId && <Button type="button" variant="outline" size="sm" onClick={() => {
+                  {duplicateVehicleId && <button type="button" onClick={() => {
               // Just show a message since logistics view is removed
               toast({
                 title: "Fordon finns redan",
                 description: "Detta registreringsnummer är redan registrerat i systemet."
               });
-            }} className="flex items-center gap-2">
-                      <Truck className="h-4 w-4" />
-                      Fordon redan registrerat
-                    </Button>}
+            }} className="text-blue-600 hover:text-blue-700 underline">
+                      Gå till fordon
+                    </button>}
                 </div>}
                   {form.formState.errors.registration_number && <p className="text-sm text-destructive mt-1 absolute">
                       {form.formState.errors.registration_number.message}
