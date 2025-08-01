@@ -349,7 +349,10 @@ const Index = () => {
       return (
         <VehicleDetailsView 
           vehicleId={viewingVehicleId} 
-          onBack={() => setViewingVehicleId(null)} 
+          onBack={() => {
+            setViewingVehicleId(null);
+            // Stay on the current view (like lagerlista) when going back
+          }} 
         />
       );
     }
