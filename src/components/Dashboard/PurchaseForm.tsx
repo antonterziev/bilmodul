@@ -568,7 +568,7 @@ export const PurchaseForm = ({
         organization_id: profileData.organization_id,
         status: 'på_lager' as const,
         registration_number: data.registration_number,
-        chassis_number: data.chassis_number || null,
+        chassi_number: data.chassis_number || null,
         mileage: data.mileage || null,
         brand: data.brand?.trim() || "Saknas",
         // Properly handle empty strings and whitespace
