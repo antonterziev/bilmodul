@@ -34,7 +34,7 @@ export const DashboardStats = ({
           <CardTitle className="text-sm font-medium text-muted-foreground">Lagerdagar (snitt)</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{averageStorageDays} dagar</div>
+          <div className="text-2xl font-bold">{averageStorageDays} {averageStorageDays === 1 ? 'dag' : 'dagar'}</div>
         </CardContent>
       </Card>
 
