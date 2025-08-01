@@ -624,7 +624,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                 
                 {/* Inköpsunderlag */}
                 <div>
-                  <label className="text-sm text-muted-foreground mb-1 block">Inköpsunderlag</label>
+                  <label className="text-sm text-foreground mb-1 block">Inköpsunderlag</label>
                   <div className="border border-input rounded-md">
                     <input
                       type="file"
