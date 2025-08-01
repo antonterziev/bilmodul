@@ -248,10 +248,15 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
 
   return (
     <div className="space-y-6">
-      {/* Header positioned like Lagerlista */}
-      <h2 className="text-2xl font-bold">
-        {vehicle.brand}{vehicle.model && ` ${vehicle.model}`} ({vehicle.registration_number})
-      </h2>
+      {/* Header positioned like Lagerlista with back button */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">
+          {vehicle.brand}{vehicle.model && ` ${vehicle.model}`} ({vehicle.registration_number})
+        </h2>
+        <Button variant="ghost" onClick={onBack}>
+          Tillbaka
+        </Button>
+      </div>
 
       {/* Action buttons row */}
       <div className="flex items-center justify-between gap-4 p-4 bg-card border rounded-lg">
