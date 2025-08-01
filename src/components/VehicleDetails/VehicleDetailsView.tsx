@@ -577,15 +577,24 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                 
                 {/* Belopp (exkl. moms) */}
                 <div>
-                  <label className="text-sm text-muted-foreground mb-1 block">Belopp (exkl. moms)</label>
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    value={pakostnadAmount}
-                    onChange={(e) => setPakostnadAmount(e.target.value)}
-                    min="0.01"
-                    step="0.01"
-                  />
+                  <label className="text-sm text-muted-foreground mb-1 block">Belopp (exkl. moms) *</label>
+                  <div className="flex">
+                    <Input
+                      type="text"
+                      placeholder="t.ex. 150.000"
+                      value={pakostnadAmount}
+                      onChange={(e) => setPakostnadAmount(e.target.value)}
+                      className="rounded-r-none border-r-0"
+                    />
+                    <Select defaultValue="SEK" disabled>
+                      <SelectTrigger className="w-20 rounded-l-none">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SEK">SEK</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 
                 {/* Leverantör */}
@@ -618,7 +627,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                 {/* Inköpsunderlag */}
                 <div>
                   <label className="text-sm text-muted-foreground mb-1 block">Inköpsunderlag</label>
-                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center">
+                  <div className="border border-input rounded-md">
                     <input
                       type="file"
                       id="document-upload"
@@ -628,13 +637,23 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                     />
                     <label
                       htmlFor="document-upload"
-                      className="cursor-pointer flex flex-col items-center space-y-2"
+                      className="cursor-pointer flex items-center justify-between p-3 text-sm"
                     >
-                      <Upload className="h-6 w-6 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">
-                        {pakostnadDocument ? pakostnadDocument.name : "Välj fil (max 5MB)"}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <Upload className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">Välj fil (max 5mb)</span>
+                      </div>
                     </label>
+                    {pakostnadDocument && (
+                      <div className="px-3 pb-3 text-sm text-foreground">
+                        {pakostnadDocument.name}
+                      </div>
+                    )}
+                    {!pakostnadDocument && (
+                      <div className="px-3 pb-3 text-sm text-muted-foreground">
+                        Ingen fil vald
+                      </div>
+                    )}
                   </div>
                 </div>
                 
