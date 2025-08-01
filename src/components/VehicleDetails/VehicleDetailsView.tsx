@@ -344,7 +344,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
               </div>
               
               <div>
-                <div className="text-sm text-muted-foreground mb-1">Momstyp</div>
+                <div className="text-sm text-muted-foreground mb-1">Momsmetod</div>
                 <div className="font-medium">{vehicle.vat_type === "Vinstmarginalbeskattning (VMB)" ? "VMB" : vehicle.vat_type || "Ej angiven"}</div>
               </div>
 
