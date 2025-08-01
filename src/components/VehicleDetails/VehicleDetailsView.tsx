@@ -607,7 +607,6 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                   <div className="flex">
                     <Input
                       type="text"
-                      placeholder="t.ex. 150.000"
                       value={pakostnadAmount}
                       onChange={(e) => setPakostnadAmount(e.target.value)}
                       className="rounded-r-none border-r-0"
