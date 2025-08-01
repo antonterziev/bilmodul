@@ -573,7 +573,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
             /* Påkostnad form */
             <Card>
               <CardContent className="p-4 space-y-4">
-                <div className="text-sm font-medium text-muted-foreground">Ny påkostnad</div>
+                <div className="text-sm font-medium text-foreground">Ny påkostnad</div>
                 
                 {/* Leverantör */}
                 <div>
