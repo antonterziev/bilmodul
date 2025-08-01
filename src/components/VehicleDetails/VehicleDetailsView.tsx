@@ -587,7 +587,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                 
                 {/* Kategori */}
                 <div>
-                  <label className="text-sm text-muted-foreground mb-1 block">Kategori</label>
+                  <label className="text-sm text-foreground mb-1 block">Kategori</label>
                   <Select value={pakostnadCategory} onValueChange={setPakostnadCategory}>
                     <SelectTrigger>
                       <SelectValue placeholder="Välj kategori" />
