@@ -134,6 +134,7 @@ const Index = () => {
     setPreviousView(currentView); // Store current view as previous before changing
     setCurrentView(view);
     setSelectedVehicleId(null);
+    setViewingVehicleId(null); // Clear vehicle details view when navigating
     
     // Only reset selectedSaleVehicleId if not going to sales view
     if (view !== "sales") {
