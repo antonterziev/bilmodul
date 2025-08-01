@@ -899,7 +899,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                               <span className="ml-2 text-xs">(redigerad {formatDate(note.updated_at)})</span>
                             )}
                           </span>
-                          {user && user.id === note.user_id && (
+                          {user && (user.id === note.user_id || !note.id.startsWith('vehicle-note-')) && (
                             <div className="flex gap-1">
                               {editingNoteId === note.id ? (
                                 <>
