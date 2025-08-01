@@ -321,8 +321,7 @@ export type Database = {
           additional_costs: number | null
           brand: string
           brand_other: string | null
-          chassis_number: string | null
-          comment: string | null
+          chassi_number: string | null
           created_at: string
           customer_country: string | null
           customer_type: string | null
@@ -337,10 +336,12 @@ export type Database = {
           fortnox_synced_by_user_id: string | null
           fortnox_verification_number: string | null
           id: string
+          lagervaerde: number | null
           marketplace_channel: string | null
           marketplace_channel_other: string | null
           mileage: number | null
           model: string | null
+          note: string | null
           organization_id: string
           purchase_channel: string | null
           purchase_channel_other: string | null
@@ -366,8 +367,7 @@ export type Database = {
           additional_costs?: number | null
           brand: string
           brand_other?: string | null
-          chassis_number?: string | null
-          comment?: string | null
+          chassi_number?: string | null
           created_at?: string
           customer_country?: string | null
           customer_type?: string | null
@@ -382,10 +382,12 @@ export type Database = {
           fortnox_synced_by_user_id?: string | null
           fortnox_verification_number?: string | null
           id?: string
+          lagervaerde?: number | null
           marketplace_channel?: string | null
           marketplace_channel_other?: string | null
           mileage?: number | null
           model?: string | null
+          note?: string | null
           organization_id: string
           purchase_channel?: string | null
           purchase_channel_other?: string | null
@@ -411,8 +413,7 @@ export type Database = {
           additional_costs?: number | null
           brand?: string
           brand_other?: string | null
-          chassis_number?: string | null
-          comment?: string | null
+          chassi_number?: string | null
           created_at?: string
           customer_country?: string | null
           customer_type?: string | null
@@ -427,10 +428,12 @@ export type Database = {
           fortnox_synced_by_user_id?: string | null
           fortnox_verification_number?: string | null
           id?: string
+          lagervaerde?: number | null
           marketplace_channel?: string | null
           marketplace_channel_other?: string | null
           mileage?: number | null
           model?: string | null
+          note?: string | null
           organization_id?: string
           purchase_channel?: string | null
           purchase_channel_other?: string | null
@@ -622,11 +625,50 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicle_notes: {
+        Row: {
+          created_at: string
+          id: string
+          note_text: string
+          updated_at: string
+          user_id: string
+          vehicle_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note_text: string
+          updated_at?: string
+          user_id: string
+          vehicle_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note_text?: string
+          updated_at?: string
+          user_id?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_notes_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      calculate_lagervaerde: {
+        Args: { vat_type_param: string; purchase_price_param: number }
+        Returns: number
+      }
       can_remove_admin_permission: {
         Args: { _user_id: string; _organization_id: string }
         Returns: boolean

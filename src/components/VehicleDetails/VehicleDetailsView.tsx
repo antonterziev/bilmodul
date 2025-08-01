@@ -4,7 +4,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, DollarSign, FileText, Trash2, Car, Plus, TrendingUp, Calculator } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { ArrowLeft, DollarSign, FileText, Trash2, Car, Plus, TrendingUp, Calculator, Edit, Save, X } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { useToast } from "@/hooks/use-toast";
 
@@ -37,6 +39,16 @@ interface VehicleDetails {
   registered_by?: string;
 }
 
+interface VehicleNote {
+  id: string;
+  vehicle_id: string;
+  user_id: string;
+  note_text: string;
+  created_at: string;
+  updated_at: string;
+  user_name?: string;
+}
+
 interface VehicleDetailsViewProps {
   vehicleId: string;
   onBack: () => void;
@@ -49,10 +61,18 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [activeButton, setActiveButton] = useState<string>('vagnkort');
+  
+  // Notes state
+  const [notes, setNotes] = useState<VehicleNote[]>([]);
+  const [notesLoading, setNotesLoading] = useState(false);
+  const [newNote, setNewNote] = useState('');
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [editingNoteText, setEditingNoteText] = useState('');
 
   useEffect(() => {
     if (vehicleId && user) {
       loadVehicleDetails();
+      loadNotes();
     }
   }, [vehicleId, user]);
 
@@ -98,6 +118,145 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Notes functions
+  const loadNotes = async () => {
+    if (!vehicleId) return;
+    
+    try {
+      setNotesLoading(true);
+      const { data, error } = await supabase
+        .from('vehicle_notes')
+        .select('*')
+        .eq('vehicle_id', vehicleId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Get user names for each note
+      const notesWithNames = await Promise.all(
+        (data || []).map(async (note) => {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name, first_name, last_name')
+            .eq('user_id', note.user_id)
+            .single();
+
+          return {
+            ...note,
+            user_name: profile?.full_name || 
+                      `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() ||
+                      'Okänd användare'
+          };
+        })
+      );
+
+      setNotes(notesWithNames);
+    } catch (error) {
+      console.error('Error loading notes:', error);
+      toast({
+        title: "Fel",
+        description: "Kunde inte ladda anteckningar.",
+        variant: "destructive",
+      });
+    } finally {
+      setNotesLoading(false);
+    }
+  };
+
+  const addNote = async () => {
+    if (!newNote.trim() || !user || !vehicleId) return;
+
+    try {
+      const { error } = await supabase
+        .from('vehicle_notes')
+        .insert({
+          vehicle_id: vehicleId,
+          user_id: user.id,
+          note_text: newNote.trim()
+        });
+
+      if (error) throw error;
+
+      setNewNote('');
+      loadNotes();
+      toast({
+        title: "Anteckning tillagd",
+        description: "Din anteckning har sparats.",
+      });
+    } catch (error) {
+      console.error('Error adding note:', error);
+      toast({
+        title: "Fel",
+        description: "Kunde inte spara anteckningen.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const startEditNote = (note: VehicleNote) => {
+    setEditingNoteId(note.id);
+    setEditingNoteText(note.note_text);
+  };
+
+  const cancelEditNote = () => {
+    setEditingNoteId(null);
+    setEditingNoteText('');
+  };
+
+  const saveEditNote = async () => {
+    if (!editingNoteId || !editingNoteText.trim()) return;
+
+    try {
+      const { error } = await supabase
+        .from('vehicle_notes')
+        .update({ note_text: editingNoteText.trim() })
+        .eq('id', editingNoteId);
+
+      if (error) throw error;
+
+      setEditingNoteId(null);
+      setEditingNoteText('');
+      loadNotes();
+      toast({
+        title: "Anteckning uppdaterad",
+        description: "Anteckningen har sparats.",
+      });
+    } catch (error) {
+      console.error('Error updating note:', error);
+      toast({
+        title: "Fel",
+        description: "Kunde inte uppdatera anteckningen.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteNote = async (noteId: string) => {
+    if (!confirm('Är du säker på att du vill ta bort denna anteckning?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('vehicle_notes')
+        .delete()
+        .eq('id', noteId);
+
+      if (error) throw error;
+
+      loadNotes();
+      toast({
+        title: "Anteckning borttagen",
+        description: "Anteckningen har tagits bort.",
+      });
+    } catch (error) {
+      console.error('Error deleting note:', error);
+      toast({
+        title: "Fel",
+        description: "Kunde inte ta bort anteckningen.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -494,13 +653,127 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
 
           {/* Notes section */}
           <Card className="flex-1">
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle>Anteckningar</CardTitle>
+              <span className="text-sm text-muted-foreground">
+                {notes.length} anteckning{notes.length !== 1 ? 'ar' : ''}
+              </span>
             </CardHeader>
-            <CardContent>
-              <div className="text-sm text-muted-foreground">
-                {vehicle.comment || "Inga anteckningar finns för detta fordon."}
+            <CardContent className="space-y-4">
+              {/* Add new note */}
+              <div className="space-y-2">
+                <Textarea
+                  placeholder="Skriv en ny anteckning..."
+                  value={newNote}
+                  onChange={(e) => setNewNote(e.target.value)}
+                  rows={3}
+                />
+                <Button 
+                  onClick={addNote}
+                  disabled={!newNote.trim()}
+                  size="sm"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Lägg till anteckning
+                </Button>
               </div>
+
+              {/* Existing notes */}
+              {notesLoading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="h-4 bg-muted rounded w-1/4 mb-2" />
+                      <div className="h-16 bg-muted rounded" />
+                    </div>
+                  ))}
+                </div>
+              ) : notes.length > 0 ? (
+                <div className="space-y-4">
+                  {notes.map((note) => (
+                    <div key={note.id} className="border border-border rounded-lg p-4 space-y-2">
+                      <div className="flex items-center justify-between text-sm text-muted-foreground">
+                        <span>
+                          {note.user_name} • {formatDate(note.created_at)}
+                          {note.updated_at !== note.created_at && (
+                            <span className="ml-2 text-xs">(redigerad {formatDate(note.updated_at)})</span>
+                          )}
+                        </span>
+                        {user && user.id === note.user_id && (
+                          <div className="flex gap-1">
+                            {editingNoteId === note.id ? (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={saveEditNote}
+                                  disabled={!editingNoteText.trim()}
+                                >
+                                  <Save className="h-3 w-3" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={cancelEditNote}
+                                >
+                                  <X className="h-3 w-3" />
+                                </Button>
+                              </>
+                            ) : (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => startEditNote(note)}
+                                >
+                                  <Edit className="h-3 w-3" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => deleteNote(note.id)}
+                                  className="text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {editingNoteId === note.id ? (
+                        <Textarea
+                          value={editingNoteText}
+                          onChange={(e) => setEditingNoteText(e.target.value)}
+                          rows={3}
+                          className="text-sm"
+                        />
+                      ) : (
+                        <div className="text-sm whitespace-pre-wrap">{note.note_text}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p>Inga anteckningar finns för detta fordon.</p>
+                  <p className="text-xs mt-1">Skriv en anteckning ovan för att komma igång.</p>
+                </div>
+              )}
+
+              {/* Legacy comment display if exists */}
+              {vehicle.comment && (
+                <div className="border-t pt-4 mt-4">
+                  <div className="text-sm text-muted-foreground mb-2">
+                    Ursprunglig kommentar (från inköp):
+                  </div>
+                  <div className="text-sm bg-muted p-3 rounded italic">
+                    {vehicle.comment}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
