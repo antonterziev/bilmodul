@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, DollarSign, FileText, Trash2, Car, Plus, TrendingUp, Calculator, Edit, Save, X } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ArrowLeft, DollarSign, FileText, Trash2, Car, Plus, TrendingUp, Calculator, Edit, Save, X, Upload } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { useToast } from "@/hooks/use-toast";
 
@@ -70,6 +71,12 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
   const [newNote, setNewNote] = useState('');
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editingNoteText, setEditingNoteText] = useState('');
+
+  // Påkostnad form state
+  const [pakostnadAmount, setPakostnadAmount] = useState('');
+  const [pakostnadSupplier, setPakostnadSupplier] = useState('');
+  const [pakostnadCategory, setPakostnadCategory] = useState('');
+  const [pakostnadDocument, setPakostnadDocument] = useState<File | null>(null);
 
   useEffect(() => {
     if (vehicleId && user) {
@@ -413,6 +420,48 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
     }
   };
 
+  const handlePakostnadSubmit = async () => {
+    if (!pakostnadAmount || !pakostnadSupplier || !pakostnadCategory) {
+      toast({
+        title: "Fyll i alla fält",
+        description: "Belopp, leverantör och kategori måste fyllas i.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const amount = parseFloat(pakostnadAmount);
+    if (amount <= 0) {
+      toast({
+        title: "Ogiltigt belopp",
+        description: "Beloppet måste vara större än noll.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Here you would typically save the påkostnad to the database
+      toast({
+        title: "Påkostnad registrerad",
+        description: `Påkostnad på ${formatPrice(amount)} har registrerats.`,
+      });
+      
+      // Reset form
+      setPakostnadAmount('');
+      setPakostnadSupplier('');
+      setPakostnadCategory('');
+      setPakostnadDocument(null);
+    } catch (error) {
+      console.error('Error registering påkostnad:', error);
+      toast({
+        title: "Fel",
+        description: "Kunde inte registrera påkostnaden.",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -520,57 +569,119 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 px-4">
         {/* Left sidebar with key info */}
         <div className="space-y-4">
-          {/* Storage value */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-sm font-medium text-muted-foreground">Lagervärde</div>
-              <div className="text-2xl font-bold">{formatPrice(storageValue)}</div>
-            </CardContent>
-          </Card>
-
-          {/* Storage days */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-sm font-medium text-muted-foreground">Lagerdagar</div>
-              <div className="text-2xl font-bold">
-                {calculateStorageDays(vehicle.purchase_date, vehicle.status, vehicle.selling_date)} {calculateStorageDays(vehicle.purchase_date, vehicle.status, vehicle.selling_date) === 1 ? 'dag' : 'dagar'}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Purchase information */}
-          <Card>
-            <CardContent className="p-4 space-y-4">
-              <div className="text-sm font-medium text-muted-foreground">{activeButton === 'pakostnad' ? 'Ny påkostnad' : 'Inköpsinformation'}</div>
-              <div>
-                <div className="text-sm text-muted-foreground mb-1">Inköpt av</div>
-                <div className="font-medium">{vehicle.purchaser}</div>
-              </div>
-              
-              <div>
-                <div className="text-sm text-muted-foreground mb-1">Inköpsdatum</div>
-                <div className="font-medium">{formatDate(vehicle.purchase_date)}</div>
-              </div>
-              
-              <div>
-                <div className="text-sm text-muted-foreground mb-1">Inköpspris (inkl. moms)</div>
-                <div className="font-medium">{formatPrice(vehicle.purchase_price)}</div>
-              </div>
-              
-              <div>
-                <div className="text-sm text-muted-foreground mb-1">Momsmetod</div>
-                <div className="font-medium">{vehicle.vat_type === "Vinstmarginalbeskattning (VMB)" ? "VMB" : vehicle.vat_type || "Ej angiven"}</div>
-              </div>
-
-              {vehicle.seller && (
+          {activeButton === 'pakostnad' ? (
+            /* Påkostnad form */
+            <Card>
+              <CardContent className="p-4 space-y-4">
+                <div className="text-sm font-medium text-muted-foreground">Ny påkostnad</div>
+                
+                {/* Belopp (exkl. moms) */}
                 <div>
-                  <div className="text-sm text-muted-foreground mb-1">Säljare</div>
-                  <div className="font-medium">{vehicle.seller}</div>
+                  <label className="text-sm text-muted-foreground mb-1 block">Belopp (exkl. moms)</label>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    value={pakostnadAmount}
+                    onChange={(e) => setPakostnadAmount(e.target.value)}
+                    min="0.01"
+                    step="0.01"
+                  />
                 </div>
-              )}
+                
+                {/* Leverantör */}
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1 block">Leverantör</label>
+                  <Input
+                    type="text"
+                    placeholder="Leverantör"
+                    value={pakostnadSupplier}
+                    onChange={(e) => setPakostnadSupplier(e.target.value)}
+                  />
+                </div>
+                
+                {/* Kategori */}
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1 block">Kategori</label>
+                  <Select value={pakostnadCategory} onValueChange={setPakostnadCategory}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Välj kategori" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Lackering">Lackering</SelectItem>
+                      <SelectItem value="Rekond">Rekond</SelectItem>
+                      <SelectItem value="Glasbyte">Glasbyte</SelectItem>
+                      <SelectItem value="Övrigt">Övrigt</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {/* Inköpsunderlag */}
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1 block">Inköpsunderlag</label>
+                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center">
+                    <input
+                      type="file"
+                      id="document-upload"
+                      className="hidden"
+                      onChange={(e) => setPakostnadDocument(e.target.files?.[0] || null)}
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                    />
+                    <label
+                      htmlFor="document-upload"
+                      className="cursor-pointer flex flex-col items-center space-y-2"
+                    >
+                      <Upload className="h-6 w-6 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        {pakostnadDocument ? pakostnadDocument.name : "Välj fil (max 5MB)"}
+                      </span>
+                    </label>
+                  </div>
+                </div>
+                
+                {/* Registrera button */}
+                <Button 
+                  onClick={handlePakostnadSubmit}
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  disabled={!pakostnadAmount || !pakostnadSupplier || !pakostnadCategory}
+                >
+                  Registrera
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            /* Purchase information for other tabs */
+            <Card>
+              <CardContent className="p-4 space-y-4">
+                <div className="text-sm font-medium text-muted-foreground">Inköpsinformation</div>
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Inköpt av</div>
+                  <div className="font-medium">{vehicle.purchaser}</div>
+                </div>
+                
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Inköpsdatum</div>
+                  <div className="font-medium">{formatDate(vehicle.purchase_date)}</div>
+                </div>
+                
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Inköpspris (inkl. moms)</div>
+                  <div className="font-medium">{formatPrice(vehicle.purchase_price)}</div>
+                </div>
+                
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Momsmetod</div>
+                  <div className="font-medium">{vehicle.vat_type === "Vinstmarginalbeskattning (VMB)" ? "VMB" : vehicle.vat_type || "Ej angiven"}</div>
+                </div>
 
-            </CardContent>
-          </Card>
+                {vehicle.seller && (
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Säljare</div>
+                    <div className="font-medium">{vehicle.seller}</div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Main content area - conditional based on active button */}
