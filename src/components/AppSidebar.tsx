@@ -26,7 +26,8 @@ import {
   Link,
   Calculator,
   FileText,
-  Shield
+  Shield,
+  List
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -117,7 +118,7 @@ export function AppSidebar({
   const mainMenuItems = [
     { id: "overview", title: "Översikt", icon: Home },
     { id: "registrera_inkop", title: "Registrera inköp", icon: Car, requiresPermission: "lager" },
-    { id: "lager_all", title: "Lagerlista", icon: Car, requiresPermission: "lager" },
+    { id: "lager_all", title: "Lagerlista", icon: List, requiresPermission: "lager" },
   ];
 
   const expandableMenuItems = [
