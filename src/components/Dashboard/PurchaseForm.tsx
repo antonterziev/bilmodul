@@ -86,8 +86,6 @@ export const PurchaseForm = ({
   const [isUploadingPurchaseDoc, setIsUploadingPurchaseDoc] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [activeTab, setActiveTab] = useState("fordonsdata");
-  const [isDuplicateRegNumber, setIsDuplicateRegNumber] = useState(false);
-  const [duplicateVehicleId, setDuplicateVehicleId] = useState<string | null>(null);
   const [isCheckingRegNumber, setIsCheckingRegNumber] = useState(false);
   const [isLoadingCarInfo, setIsLoadingCarInfo] = useState(false);
   const [showFullForm, setShowFullForm] = useState(false);
@@ -118,8 +116,6 @@ export const PurchaseForm = ({
     setShowFullForm(false);
     setCarDataFetched(false);
     setActiveTab("fordonsdata");
-    setIsDuplicateRegNumber(false);
-    setDuplicateVehicleId(null);
     setIsCheckingRegNumber(false);
     setIsLoadingCarInfo(false);
     setMileageDisplay("");
@@ -229,10 +225,7 @@ export const PurchaseForm = ({
           form.setValue('chassis_number', data.vin);
         }
         setCarDataFetched(true);
-        // Only show full form if there's no duplicate
-        if (!isDuplicateRegNumber) {
-          setShowFullForm(true);
-        }
+        setShowFullForm(true);
         toast({
           title: "Fordonsdata hämtad",
           description: data.fromCache ? "Fordonsinformation hämtad från cachad data (inga tokens användes)" : "Fordonsinformation har hämtats automatiskt"
@@ -250,52 +243,14 @@ export const PurchaseForm = ({
     }
   };
 
-  // Check for duplicate registration numbers
-  const checkForDuplicateRegNumber = async (regNumber: string) => {
-    if (!user || !regNumber.trim()) {
-      setIsDuplicateRegNumber(false);
-      setDuplicateVehicleId(null);
-      return false;
-    }
-    setIsCheckingRegNumber(true);
-    try {
-      const {
-        data,
-        error
-      } = await supabase.from('inventory_items').select('id').eq('user_id', user.id).eq('registration_number', regNumber.trim()).limit(1);
-      if (error) throw error;
-      const isDuplicate = data && data.length > 0;
-      setIsDuplicateRegNumber(isDuplicate);
-      setDuplicateVehicleId(isDuplicate && data.length > 0 ? data[0].id : null);
-      return isDuplicate;
-    } catch (error) {
-      console.error('Error checking for duplicate registration number:', error);
-      setIsDuplicateRegNumber(false);
-      setDuplicateVehicleId(null);
-      return false;
-    } finally {
-      setIsCheckingRegNumber(false);
-    }
-  };
 
   // Watch for changes in registration number and check for duplicates only (no auto-fetch)
   useEffect(() => {
     const subscription = form.watch((value, {
       name
     }) => {
-      // Only check for duplicates when registration_number field changes and has at least 4 characters
-      // NO LONGER auto-fetch car info - wait for user to press Enter or click "Hämta"
-      if (name === 'registration_number' && value.registration_number && value.registration_number.length >= 4) {
-        const timeoutId = setTimeout(async () => {
-          // Only check for duplicates (not fetch car info automatically)
-          await checkForDuplicateRegNumber(value.registration_number as string);
-        }, 1000); // Debounce for 1 second to allow user to finish typing
-
-        return () => clearTimeout(timeoutId);
-      } else if (name === 'registration_number' && (!value.registration_number || value.registration_number.length < 4)) {
-        // Clear states when input is cleared or less than 4 characters
-        setIsDuplicateRegNumber(false);
-        setDuplicateVehicleId(null);
+      // Clear states when input is cleared or less than 4 characters
+      if (name === 'registration_number' && (!value.registration_number || value.registration_number.length < 4)) {
         setIsCheckingRegNumber(false);
         setIsLoadingCarInfo(false);
       }
@@ -308,13 +263,7 @@ export const PurchaseForm = ({
     const regNumber = form.getValues("registration_number");
     if (!regNumber?.trim() || regNumber.length < 4) return;
 
-    // Check for duplicates first
-    const isDuplicate = await checkForDuplicateRegNumber(regNumber);
-
-    // Only fetch car info if no duplicate was found
-    if (!isDuplicate) {
-      fetchCarInfo(regNumber);
-    }
+    fetchCarInfo(regNumber);
   };
 
   // Handle Enter key press in registration number input
@@ -513,19 +462,6 @@ export const PurchaseForm = ({
   };
   const onSubmit = async (data: PurchaseFormData) => {
     if (!user) return;
-
-    // Double-check for duplicates right before submission
-    const finalDuplicateCheck = await checkForDuplicateRegNumber(data.registration_number);
-
-    // Prevent submission if there's a duplicate registration number
-    if (isDuplicateRegNumber || finalDuplicateCheck) {
-      toast({
-        title: "Kan inte registrera",
-        description: "Detta registreringsnummer finns redan. Du kan inte ha fler än ett fordon med samma registreringsnummer.",
-        variant: "destructive"
-      });
-      return;
-    }
     setIsSubmitting(true);
     try {
       // Get the user's organization_id from profiles table
@@ -600,7 +536,7 @@ export const PurchaseForm = ({
               <Label htmlFor="registration_number"></Label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
-                  <Input id="registration_number" placeholder="t.ex. JSK15L" {...form.register("registration_number")} onKeyPress={handleKeyPress} className={cn(form.formState.errors.registration_number && "border-destructive", isDuplicateRegNumber && "border-destructive", (isCheckingRegNumber || isLoadingCarInfo) && "pr-10" // Add padding for spinner
+                  <Input id="registration_number" placeholder="t.ex. JSK15L" {...form.register("registration_number")} onKeyPress={handleKeyPress} className={cn(form.formState.errors.registration_number && "border-destructive", (isCheckingRegNumber || isLoadingCarInfo) && "pr-10" // Add padding for spinner
               )} />
                   {(isCheckingRegNumber || isLoadingCarInfo) && <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                       <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full"></div>
@@ -620,21 +556,6 @@ export const PurchaseForm = ({
                   </button>
                 </p>
               </div>
-              {isDuplicateRegNumber && <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-md">
-                  <p className="text-sm text-orange-800 mb-2">
-                    Detta registreringsnummer finns redan registrerat i systemet.
-                  </p>
-                  {duplicateVehicleId && <Button type="button" variant="outline" size="sm" onClick={() => {
-              // Just show a message since logistics view is removed
-              toast({
-                title: "Fordon finns redan",
-                description: "Detta registreringsnummer är redan registrerat i systemet."
-              });
-            }} className="flex items-center gap-2">
-                      <Truck className="h-4 w-4" />
-                      Fordon redan registrerat
-                    </Button>}
-                </div>}
                   {form.formState.errors.registration_number && <p className="text-sm text-destructive mt-1 absolute">
                       {form.formState.errors.registration_number.message}
                     </p>}
@@ -653,7 +574,7 @@ export const PurchaseForm = ({
                   <div>
                     <Label htmlFor="registration_number">Registreringsnummer*</Label>
                     <div className="relative">
-                      <Input id="registration_number" placeholder="t.ex. JSK15L eller 1234567890ABCDEFG" {...form.register("registration_number")} className={cn(form.formState.errors.registration_number && "border-destructive", isDuplicateRegNumber && "border-destructive", "pr-20" // Add padding for radio buttons
+                      <Input id="registration_number" placeholder="t.ex. JSK15L eller 1234567890ABCDEFG" {...form.register("registration_number")} className={cn(form.formState.errors.registration_number && "border-destructive", "pr-20" // Add padding for radio buttons
                   )} readOnly={carDataFetched} />
                       <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                         <span className="text-sm text-muted-foreground">
