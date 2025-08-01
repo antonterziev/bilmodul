@@ -439,39 +439,6 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                   </div>
                 )}
 
-                {/* System info */}
-                <div className="col-span-2 md:col-span-3 pt-4 border-t">
-                  <h4 className="font-semibold mb-4">Systeminformation</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Status</div>
-                      <Badge variant={getStatusVariant(vehicle.status)}>
-                        {getStatusLabel(vehicle.status)}
-                      </Badge>
-                    </div>
-                    
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Registrerad av</div>
-                      <div className="font-medium">{vehicle.registered_by}</div>
-                    </div>
-                    
-                    {vehicle.fortnox_sync_status && (
-                      <div>
-                        <div className="text-sm text-muted-foreground mb-1">Fortnox-status</div>
-                        <Badge variant={vehicle.fortnox_sync_status === 'synced' ? 'default' : 'outline'}>
-                          {vehicle.fortnox_sync_status === 'synced' ? 'Synkad' : 'Ej synkad'}
-                        </Badge>
-                      </div>
-                    )}
-                    
-                    {vehicle.fortnox_verification_number && (
-                      <div>
-                        <div className="text-sm text-muted-foreground mb-1">Verifikationsnummer</div>
-                        <div className="font-medium">{vehicle.fortnox_verification_number}</div>
-                      </div>
-                    )}
-                  </div>
-                </div>
               </div>
             </CardContent>
           </Card>
