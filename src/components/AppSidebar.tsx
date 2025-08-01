@@ -115,7 +115,7 @@ export function AppSidebar({
   };
 
   const mainMenuItems = [
-    { id: "overview", title: "Översikt", icon: Home },
+    { id: "overview", title: "Översikt", icon: Car },
     { id: "registrera_inkop", title: "Registrera inköp", icon: Receipt, requiresPermission: "lager" },
     { id: "lager_all", title: "Lagerlista", icon: Car, requiresPermission: "lager" },
   ];
