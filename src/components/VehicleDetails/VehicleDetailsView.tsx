@@ -479,7 +479,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
           onClick={() => setActiveButton('pakostnad')}
         >
           <Plus className="h-4 w-4 mr-2" />
-          Påkostnad
+          {activeButton === 'pakostnad' ? 'Ny påkostnad' : 'Påkostnad'}
         </Button>
         <Button 
           variant={activeButton === 'forsaljning' ? 'default' : 'outline'} 
