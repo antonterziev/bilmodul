@@ -436,25 +436,21 @@ serve(async (req) => {
         const downPaymentAmount = inventoryItem.down_payment || 0;
         console.log(`💰 Down payment amount: ${downPaymentAmount}`);
         
-        // For MOMSI (EU), calculate VAT as 25% of purchase price for Fortnox automatic handling
+        // For MOMSI (EU), let Fortnox handle VAT automatically by setting the total amount
+        // The total should be the full purchase price so Fortnox can calculate VAT automatically
         const grossAmount = inventoryItem.purchase_price;
-        const vatRate = 0.25;
-        const vatAmount = grossAmount * vatRate / (1 + vatRate);
-        const netAmount = grossAmount - vatAmount;
-        
-        console.log(`💰 Gross amount: ${grossAmount}`);
-        console.log(`💰 VAT amount (25% for automatic handling): ${vatAmount}`);
-        console.log(`💰 Net amount: ${netAmount}`);
+        console.log(`💰 Gross amount (full purchase price): ${grossAmount}`);
         
         // Calculate the net amount to be invoiced (gross amount - down payment)
         const netInvoiceAmount = grossAmount - downPaymentAmount;
         console.log(`💰 Net invoice amount (gross - down payment): ${netInvoiceAmount}`);
 
-        // Build rows for MOMSI (EU) - only asset and down payment if applicable, let Fortnox handle VAT automatically
+        // Build rows for MOMSI (EU) - only asset and down payment if applicable
+        // Remove all EU import/counter accounts, let Fortnox handle VAT automatically
         const supplierInvoiceRows = [
           {
             Account: momsiEuAccountNumber, // e.g., 1412 - Lager - Momsbilar - EU
-            Debit: netAmount,
+            Debit: grossAmount,
             Credit: 0.0,
             Project: projectNumber
           }
@@ -473,11 +469,10 @@ serve(async (req) => {
         invoicePayload = {
           SupplierInvoice: {
             SupplierNumber: "1",
-            InvoiceNumber: `MOMSI-${inventoryItem.registration_number}`,
+            InvoiceNumber: inventoryItem.registration_number, // Removed "MOMSI-" prefix
             InvoiceDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0],
             Project: projectNumber,
-            Total: netInvoiceAmount,
-            VAT: vatAmount, // 25% VAT for automatic Fortnox handling
+            Total: grossAmount, // Full amount so Fortnox can calculate VAT automatically
             SupplierInvoiceRows: supplierInvoiceRows
           }
         };
