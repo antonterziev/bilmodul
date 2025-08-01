@@ -420,6 +420,8 @@ serve(async (req) => {
         const forskottsbetalningAccountNumber = accountNumberMap['Förskottsbetalning'] || '1680';
         const ingaendeMomsAccountNumber = accountNumberMap['Ingående moms'] || '2641';
         const omvandIngaendeMomsAccountNumber = accountNumberMap['Omvänd ingående moms - matchas 2614'] || '2645';
+        const inkopEUAccountNumber = accountNumberMap['Inköp av varor från EU'] || '4531';
+        const motkontoEUAccountNumber = accountNumberMap['Motkonto inköp av varor från EU'] || '4539';
 
         console.log(`📋 Using MOMSI account number: ${momsAccountNumber} (user configured: ${!!accountNumberMap['Lager - Momsbilar - EU']})`);
         console.log(`📋 Using Leverantörsskulder account number: ${leverantorskulderAccountNumber} (user configured: ${!!accountNumberMap['Leverantörsskulder']})`);
@@ -452,17 +454,29 @@ serve(async (req) => {
         const netInvoiceAmount = grossAmount - downPaymentAmount;
         console.log(`💰 Net invoice amount (gross - down payment): ${netInvoiceAmount}`);
 
-        // Build rows - only asset and down payment, let Fortnox handle supplier payable automatically
+        // Build rows for complete EU purchase accounting structure
         const supplierInvoiceRows = [
           {
-            Account: momsAccountNumber, // e.g., 1412
+            Account: momsAccountNumber, // 1412 - Lager - Momsbilar - EU
             Debit: netAmount,
             Credit: 0.0,
             Project: projectNumber
           },
           {
-            Account: omvandIngaendeMomsAccountNumber, // e.g., 2645 "Omvänd ingående moms - matchas 2614"
-            Debit: vatAmount,
+            Account: omvandIngaendeMomsAccountNumber, // 2645 - Beräknad ingående moms på förvärv från utlandet
+            Debit: 0.0,
+            Credit: vatAmount,
+            Project: projectNumber
+          },
+          {
+            Account: motkontoEUAccountNumber, // 4539 - Motkonto inköp av varor från EU
+            Debit: 0.0,
+            Credit: netAmount,
+            Project: projectNumber
+          },
+          {
+            Account: inkopEUAccountNumber, // 4531 - Inköp av tjänster från ett land utanför EU, 25 % moms
+            Debit: netAmount,
             Credit: 0.0,
             Project: projectNumber
           }
