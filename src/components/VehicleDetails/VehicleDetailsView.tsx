@@ -609,7 +609,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                 
                 {/* Leverantör */}
                 <div>
-                  <label className="text-sm text-foreground mb-1 block">Leverantör</label>
+                  <label className="text-sm text-foreground mb-1 block">Leverantör *</label>
                   <Input
                     type="text"
                     value={pakostnadSupplier}
