@@ -661,38 +661,58 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
               </CardContent>
             </Card>
           ) : (
-            /* Purchase information for other tabs */
-            <Card>
-              <CardContent className="p-4 space-y-4">
-                <div className="text-sm font-medium text-foreground">Inköpsinformation</div>
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Inköpt av</div>
-                  <div className="font-medium">{vehicle.purchaser}</div>
-                </div>
-                
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Inköpsdatum</div>
-                  <div className="font-medium">{formatDate(vehicle.purchase_date)}</div>
-                </div>
-                
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Inköpspris (inkl. moms)</div>
-                  <div className="font-medium">{formatPrice(vehicle.purchase_price)}</div>
-                </div>
-                
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Momsmetod</div>
-                  <div className="font-medium">{vehicle.vat_type === "Vinstmarginalbeskattning (VMB)" ? "VMB" : vehicle.vat_type || "Ej angiven"}</div>
-                </div>
+            /* Purchase information and storage info for other tabs */
+            <>
+              {/* Storage value */}
+              <Card>
+                <CardContent className="p-4">
+                  <div className="text-sm font-medium text-muted-foreground">Lagervärde</div>
+                  <div className="text-2xl font-bold">{formatPrice(storageValue)}</div>
+                </CardContent>
+              </Card>
 
-                {vehicle.seller && (
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Säljare</div>
-                    <div className="font-medium">{vehicle.seller}</div>
+              {/* Storage days */}
+              <Card>
+                <CardContent className="p-4">
+                  <div className="text-sm font-medium text-muted-foreground">Lagerdagar</div>
+                  <div className="text-2xl font-bold">
+                    {calculateStorageDays(vehicle.purchase_date, vehicle.status, vehicle.selling_date)} {calculateStorageDays(vehicle.purchase_date, vehicle.status, vehicle.selling_date) === 1 ? 'dag' : 'dagar'}
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4 space-y-4">
+                  <div className="text-sm font-medium text-foreground">Inköpsinformation</div>
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Inköpt av</div>
+                    <div className="font-medium">{vehicle.purchaser}</div>
+                  </div>
+                  
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Inköpsdatum</div>
+                    <div className="font-medium">{formatDate(vehicle.purchase_date)}</div>
+                  </div>
+                  
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Inköpspris (inkl. moms)</div>
+                    <div className="font-medium">{formatPrice(vehicle.purchase_price)}</div>
+                  </div>
+                  
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Momsmetod</div>
+                    <div className="font-medium">{vehicle.vat_type === "Vinstmarginalbeskattning (VMB)" ? "VMB" : vehicle.vat_type || "Ej angiven"}</div>
+                  </div>
+
+                  {vehicle.seller && (
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Säljare</div>
+                      <div className="font-medium">{vehicle.seller}</div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </>
           )}
         </div>
 
