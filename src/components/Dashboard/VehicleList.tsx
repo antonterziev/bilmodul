@@ -647,7 +647,7 @@ export const VehicleList = ({
                    {/* Column 4: Storage Days */}
                    <div>
                      <p className="text-xs text-muted-foreground whitespace-nowrap">Lagerdagar</p>
-                     <p className="font-medium text-sm whitespace-nowrap">{calculateStorageDays(vehicle.purchase_date, vehicle.status, vehicle.selling_date)} dagar</p>
+                     <p className="font-medium text-sm whitespace-nowrap">{calculateStorageDays(vehicle.purchase_date, vehicle.status, vehicle.selling_date)} {calculateStorageDays(vehicle.purchase_date, vehicle.status, vehicle.selling_date) === 1 ? 'dag' : 'dagar'}</p>
                    </div>
                    
                    {/* Column 5: VAT Type */}
