@@ -569,16 +569,18 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                   <div className="font-medium">{vehicle.registration_number}</div>
                 </div>
 
-                {/* Row 2 */}
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Bränsle</div>
-                  <div className="font-medium">-</div>
-                </div>
-                
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Växellåda</div>
-                  <div className="font-medium">-</div>
-                </div>
+                {/* Row 2 - Modellår, Miltal, Datum i trafik */}
+                {vehicle.year_model ? (
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Modellår</div>
+                    <div className="font-medium">{vehicle.year_model}</div>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Modellår</div>
+                    <div className="font-medium">-</div>
+                  </div>
+                )}
                 
                 {vehicle.mileage ? (
                   <div>
@@ -591,28 +593,6 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                     <div className="font-medium">-</div>
                   </div>
                 )}
-
-                {/* Row 3 */}
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Biltyp</div>
-                  <div className="font-medium">-</div>
-                </div>
-                
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Drivning</div>
-                  <div className="font-medium">-</div>
-                </div>
-                
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Hästkrafter</div>
-                  <div className="font-medium">-</div>
-                </div>
-
-                {/* Row 4 */}
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Motorstorlek</div>
-                  <div className="font-medium">-</div>
-                </div>
                 
                 {vehicle.first_registration_date ? (
                   <div>
@@ -625,18 +605,38 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                     <div className="font-medium">-</div>
                   </div>
                 )}
+
+                {/* Row 3 */}
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Bränsle</div>
+                  <div className="font-medium">-</div>
+                </div>
                 
-                {vehicle.year_model ? (
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Modellår</div>
-                    <div className="font-medium">{vehicle.year_model}</div>
-                  </div>
-                ) : (
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Modellår</div>
-                    <div className="font-medium">-</div>
-                  </div>
-                )}
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Växellåda</div>
+                  <div className="font-medium">-</div>
+                </div>
+
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Hästkrafter</div>
+                  <div className="font-medium">-</div>
+                </div>
+
+                {/* Row 4 */}
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Biltyp</div>
+                  <div className="font-medium">-</div>
+                </div>
+                
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Drivning</div>
+                  <div className="font-medium">-</div>
+                </div>
+                
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Motorstorlek</div>
+                  <div className="font-medium">-</div>
+                </div>
 
                 {/* Row 5 */}
                 <div>
