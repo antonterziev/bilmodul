@@ -621,7 +621,7 @@ export const PurchaseForm = ({
                 </p>
               </div>
                 {isDuplicateRegNumber && <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-md">
-                  <p className="text-sm text-orange-800">
+                  <p className="text-sm text-orange-800 text-center">
                     Registreringsnummer finns redan registrerat. {duplicateVehicleId && <button type="button" onClick={() => {
               // Just show a message since logistics view is removed
               toast({
