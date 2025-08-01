@@ -296,10 +296,8 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
 
           {/* Purchase information */}
           <Card>
-            <CardHeader>
-              <CardTitle>Inköpsinformation</CardTitle>
-            </CardHeader>
             <CardContent className="p-4 space-y-4">
+              <div className="text-sm font-medium text-muted-foreground">Inköpsinformation</div>
               <div>
                 <div className="text-sm text-muted-foreground mb-1">Inköpsdatum</div>
                 <div className="font-medium">{formatDate(vehicle.purchase_date)}</div>
