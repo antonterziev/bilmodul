@@ -73,9 +73,15 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
   useEffect(() => {
     if (vehicleId && user) {
       loadVehicleDetails();
-      loadNotes();
     }
   }, [vehicleId, user]);
+
+  // Load notes after vehicle data is loaded
+  useEffect(() => {
+    if (vehicle && vehicleId) {
+      loadNotes();
+    }
+  }, [vehicle, vehicleId]);
 
   const loadVehicleDetails = async () => {
     if (!vehicleId || !user) return;
@@ -128,6 +134,9 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
     
     try {
       setNotesLoading(true);
+      console.log('Loading notes for vehicle:', vehicleId);
+      console.log('Current vehicle data:', vehicle);
+      
       const { data, error } = await supabase
         .from('vehicle_notes')
         .select('*')
@@ -135,6 +144,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      console.log('Notes from database:', data);
 
       // Get user names for each note
       const notesWithNames = await Promise.all(
@@ -154,8 +164,12 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
         })
       );
 
+      console.log('Vehicle comment:', vehicle?.comment);
+      console.log('Notes with names before adding vehicle comment:', notesWithNames);
+
       // If vehicle has a comment/note from purchase form and no note exists for it yet, add it as a note
       if (vehicle?.comment && !notesWithNames.some(note => note.note_text === vehicle.comment)) {
+        console.log('Adding vehicle comment as note:', vehicle.comment);
         const vehicleOwnerNote = {
           id: `vehicle-comment-${vehicle.id}`,
           vehicle_id: vehicleId,
@@ -170,6 +184,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
         notesWithNames.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       }
 
+      console.log('Final notes array:', notesWithNames);
       setNotes(notesWithNames);
     } catch (error) {
       console.error('Error loading notes:', error);
