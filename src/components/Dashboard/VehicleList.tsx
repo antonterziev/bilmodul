@@ -461,11 +461,8 @@ export const VehicleList = ({
 
 
   const handleView = (vehicleId: string) => {
-    // For now, just show a toast. This could navigate to a detail view later
-    toast({
-      title: "Visa fordon",
-      description: "Fordonsdetaljer visas här i framtiden.",
-    });
+    // Navigate to vehicle details page
+    window.location.href = `/vehicle/${vehicleId}`;
   };
 
   const handleOpenFortnoxVoucher = async (verificationNumber: string) => {
