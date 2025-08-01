@@ -37,6 +37,7 @@ interface VehicleDetails {
   customer_country?: string;
   comment?: string;
   registered_by?: string;
+  created_at?: string;
 }
 
 interface VehicleNote {
@@ -152,6 +153,22 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
           };
         })
       );
+
+      // If vehicle has a comment/note from purchase form and no note exists for it yet, add it as a note
+      if (vehicle?.comment && !notesWithNames.some(note => note.note_text === vehicle.comment)) {
+        const vehicleOwnerNote = {
+          id: `vehicle-comment-${vehicle.id}`,
+          vehicle_id: vehicleId,
+          user_id: vehicle.user_id,
+          note_text: vehicle.comment,
+          created_at: vehicle.created_at || vehicle.purchase_date,
+          updated_at: vehicle.created_at || vehicle.purchase_date,
+          user_name: vehicle.registered_by || 'Okänd användare'
+        };
+        notesWithNames.push(vehicleOwnerNote);
+        // Sort again to maintain chronological order
+        notesWithNames.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      }
 
       setNotes(notesWithNames);
     } catch (error) {
@@ -771,18 +788,6 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                   ))}
                 </div>
               ) : null}
-
-              {/* Legacy comment display if exists */}
-              {vehicle.comment && (
-                <div className="border-t pt-4 mt-4">
-                  <div className="text-sm text-muted-foreground mb-2">
-                    Ursprunglig kommentar (från inköp):
-                  </div>
-                  <div className="text-sm bg-muted p-3 rounded italic">
-                    {vehicle.comment}
-                  </div>
-                </div>
-              )}
             </CardContent>
           </Card>
         </div>
