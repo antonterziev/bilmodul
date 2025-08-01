@@ -953,7 +953,7 @@ export const PurchaseForm = ({
 
                 {/* 6. Handpenning */}
                 <div>
-                  <Label htmlFor="down_payment" className="text-muted-foreground">Handpenning</Label>
+                  <Label htmlFor="down_payment">Handpenning</Label>
                   <div className="relative">
                     <Input id="down_payment" type="text" value={downPaymentDisplay} onChange={handleDownPaymentChange} placeholder="t.ex. 25,000" className="pr-20" />
                     <div className="absolute inset-y-0 right-0 flex items-center">
