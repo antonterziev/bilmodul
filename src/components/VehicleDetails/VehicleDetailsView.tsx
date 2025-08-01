@@ -770,13 +770,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                     </div>
                   ))}
                 </div>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p>Inga anteckningar finns för detta fordon.</p>
-                  <p className="text-xs mt-1">Skriv en anteckning ovan för att komma igång.</p>
-                </div>
-              )}
+              ) : null}
 
               {/* Legacy comment display if exists */}
               {vehicle.comment && (
