@@ -647,11 +647,6 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                         {pakostnadDocument.name}
                       </div>
                     )}
-                    {!pakostnadDocument && (
-                      <div className="px-3 pb-3 text-sm text-muted-foreground">
-                        Ingen fil vald
-                      </div>
-                    )}
                   </div>
                 </div>
                 
