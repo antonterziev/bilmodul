@@ -620,11 +620,9 @@ export const PurchaseForm = ({
                   </button>
                 </p>
               </div>
-              {isDuplicateRegNumber && <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-md">
-                  <p className="text-sm text-orange-800 mb-2">
-                    Detta registreringsnummer finns redan registrerat i systemet.
-                  </p>
-                  {duplicateVehicleId && <button type="button" onClick={() => {
+                {isDuplicateRegNumber && <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-md">
+                  <p className="text-sm text-orange-800">
+                    Registreringsnummer finns redan registrerat. {duplicateVehicleId && <button type="button" onClick={() => {
               // Just show a message since logistics view is removed
               toast({
                 title: "Fordon finns redan",
@@ -633,6 +631,7 @@ export const PurchaseForm = ({
             }} className="text-blue-600 hover:text-blue-700 underline">
                       Gå till fordon
                     </button>}
+                  </p>
                 </div>}
                   {form.formState.errors.registration_number && <p className="text-sm text-destructive mt-1 absolute">
                       {form.formState.errors.registration_number.message}
