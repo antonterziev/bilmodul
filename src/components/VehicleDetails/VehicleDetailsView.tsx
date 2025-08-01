@@ -541,7 +541,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
           {/* Purchase information */}
           <Card>
             <CardContent className="p-4 space-y-4">
-              <div className="text-sm font-medium text-muted-foreground">Inköpsinformation</div>
+              <div className="text-sm font-medium text-muted-foreground">{activeButton === 'pakostnad' ? 'Ny påkostnad' : 'Inköpsinformation'}</div>
               <div>
                 <div className="text-sm text-muted-foreground mb-1">Inköpt av</div>
                 <div className="font-medium">{vehicle.purchaser}</div>
