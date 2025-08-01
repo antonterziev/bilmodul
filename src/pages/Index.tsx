@@ -142,7 +142,7 @@ const Index = () => {
     }
     
     // Handle special cases
-    if (view === "purchase_form") {
+    if (view === "registrera_inkop") {
       setPurchaseFormKey(prev => prev + 1);
     }
     if (view.startsWith("lager")) {
