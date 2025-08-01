@@ -260,13 +260,13 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
 
       {/* Action buttons row */}
       <div className="flex items-center justify-between gap-4 p-4 bg-card border rounded-lg">
-        <Button variant="outline" className="flex-1">
+        <Button variant="default" className="flex-1">
           Vagnkort
         </Button>
         <Button variant="outline" className="flex-1">
           Påkostnad
         </Button>
-        <Button variant="default" onClick={handleSell} className="flex-1">
+        <Button variant="outline" onClick={handleSell} className="flex-1">
           Försäljning
         </Button>
         <Button variant="outline" onClick={handleBookkeeping} className="flex-1">
