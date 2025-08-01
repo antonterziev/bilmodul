@@ -912,11 +912,11 @@ export const PurchaseForm = ({
                     </p>}
                 </div>
 
-                {/* 5. Momsregel - Auto-determined */}
+                {/* 5. Momsmetod - Auto-determined */}
                 <div>
                   <div className="flex items-center gap-2">
-                    <Label className="text-muted-foreground">Momsregel*</Label>
-                    <InfoPopup title="Momsregel för köp från privatperson">
+                    <Label>Momsmetod*</Label>
+                    <InfoPopup title="Momsmetod för köp från privatperson">
                       <div className="space-y-2">
                         <p><strong>Momspliktig bil</strong> tillämpas när BÅDA följande villkor är uppfyllda:</p>
                         <ul className="list-disc list-inside space-y-1 ml-2">
