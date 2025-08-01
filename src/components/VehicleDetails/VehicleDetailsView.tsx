@@ -603,7 +603,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
 
                 {/* Belopp (exkl. moms) */}
                 <div>
-                  <label className="text-sm text-muted-foreground mb-1 block">Belopp (exkl. moms) *</label>
+                  <label className="text-sm text-foreground mb-1 block">Belopp (exkl. moms) *</label>
                   <div className="flex">
                     <Input
                       type="text"
