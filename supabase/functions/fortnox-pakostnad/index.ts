@@ -65,10 +65,16 @@ serve(async (req) => {
     if (pakostnadError || !pakostnad) {
       console.error('Error fetching påkostnad:', pakostnadError);
       return new Response(
-        JSON.stringify({ error: 'Påkostnad not found' }),
+        JSON.stringify({ 
+          error: 'Påkostnad not found', 
+          details: pakostnadError?.message || 'No data returned',
+          pakostnadId 
+        }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log('Påkostnad data:', pakostnad);
 
     // Get syncing user's profile
     const { data: syncingProfile, error: profileError } = await supabase
@@ -124,7 +130,7 @@ serve(async (req) => {
     let accessToken = integration.access_token;
 
     // Check if token needs refresh
-    const tokenExpiresAt = new Date(integration.expires_at);
+    const tokenExpiresAt = new Date(integration.token_expires_at || integration.expires_at);
     const now = new Date();
     const bufferTime = 5 * 60 * 1000; // 5 minutes buffer
 
@@ -138,7 +144,7 @@ serve(async (req) => {
         },
         body: new URLSearchParams({
           grant_type: 'refresh_token',
-          client_id: integration.client_id,
+          client_id: integration.fortnox_company_id || 'unknown',
           client_secret: FORTNOX_CLIENT_SECRET,
           refresh_token: integration.refresh_token,
         }),
@@ -162,7 +168,7 @@ serve(async (req) => {
         .update({
           access_token: refreshData.access_token,
           refresh_token: refreshData.refresh_token,
-          expires_at: new Date(Date.now() + refreshData.expires_in * 1000).toISOString(),
+          token_expires_at: new Date(Date.now() + refreshData.expires_in * 1000).toISOString(),
         })
         .eq('id', integration.id);
 
@@ -241,7 +247,7 @@ serve(async (req) => {
       method: 'POST',
       headers: {
         'Access-Token': accessToken,
-        'Client-Secret': integration.client_secret,
+        'Client-Secret': FORTNOX_CLIENT_SECRET,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(invoicePayload),
@@ -254,8 +260,8 @@ serve(async (req) => {
     if (!invoiceResponse.ok) {
       // Log error to database
       await supabase.from('fortnox_errors_log').insert({
-        organization_id: pakostnad.inventory_items.organization_id,
-        error_message: `Failed to create påkostnad invoice: ${invoiceResponseText}`,
+        message: `Failed to create påkostnad invoice: ${invoiceResponseText}`,
+        type: 'pakostnad_sync_error',
         context: { pakostnadId, invoicePayload },
         user_id: syncingUserId
       });
@@ -290,9 +296,10 @@ serve(async (req) => {
 
     // Log successful sync
     await supabase.from('fortnox_sync_log').insert({
-      organization_id: pakostnad.inventory_items.organization_id,
-      event_type: 'pakostnad_sync',
-      details: { 
+      inventory_item_id: pakostnad.inventory_item_id,
+      sync_type: 'pakostnad_sync',
+      sync_status: 'success',
+      sync_data: { 
         pakostnadId, 
         fortnoxInvoiceNumber,
         totalAmount,
