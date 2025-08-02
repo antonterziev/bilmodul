@@ -234,13 +234,17 @@ serve(async (req) => {
     console.log('Calculated amounts:', { totalAmount, netAmount, vatAmount });
 
     // Create supplier invoice in Fortnox
+    // Generate a shorter ID for OCR (max 25 chars) - use last 8 chars of UUID + PAK prefix
+    const shortId = pakostnad.id.slice(-8);
+    const ocrNumber = `PAK${shortId}`;
+    
     const invoicePayload = {
       SupplierInvoice: {
         SupplierNumber: pakostnad.supplier || 'UNKNOWN',
-        InvoiceNumber: `PAK-${pakostnad.id}`,
+        InvoiceNumber: `PAK-${shortId}`,
         InvoiceDate: pakostnad.date,
         DueDate: pakostnad.date,
-        OCR: `PAK${pakostnad.id}`,
+        OCR: ocrNumber,
         Total: totalAmount,
         Project: pakostnad.inventory_items.registration_number,
         Comments: `Påkostnad för ${pakostnad.inventory_items.registration_number} - ${pakostnad.category}`,
