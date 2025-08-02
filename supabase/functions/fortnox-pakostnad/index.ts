@@ -241,13 +241,14 @@ serve(async (req) => {
         InvoiceDate: pakostnad.date,
         DueDate: pakostnad.date,
         Total: totalAmount,
+        VAT: vatAmount,
         Project: pakostnad.inventory_items.registration_number,
         Comments: `Påkostnad för ${pakostnad.inventory_items.registration_number} - ${pakostnad.category} - ${pakostnad.supplier}`,
         SupplierInvoiceRows: [
           {
             Account: pakostnadAccount,
-            Total: netAmount,
-            Description: `${pakostnad.category} - ${pakostnad.supplier}`,
+            Debit: netAmount,
+            Credit: 0.0,
             Project: pakostnad.inventory_items.registration_number
           }
         ]
