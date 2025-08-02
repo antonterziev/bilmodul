@@ -77,6 +77,8 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
   const [pakostnadSupplier, setPakostnadSupplier] = useState('');
   const [pakostnadCategory, setPakostnadCategory] = useState('');
   const [pakostnadDocument, setPakostnadDocument] = useState<File | null>(null);
+  const [suppliers, setSuppliers] = useState<Array<{supplierNumber: string, name: string, organisationNumber: string}>>([]);
+  const [suppliersLoading, setSuppliersLoading] = useState(false);
 
   useEffect(() => {
     if (vehicleId && user) {
@@ -90,6 +92,35 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
       loadNotes();
     }
   }, [vehicle, vehicleId]);
+
+  // Load suppliers when switching to påkostnad tab
+  useEffect(() => {
+    if (activeButton === 'pakostnad' && suppliers.length === 0) {
+      loadSuppliers();
+    }
+  }, [activeButton]);
+
+  const loadSuppliers = async () => {
+    try {
+      setSuppliersLoading(true);
+      const { data, error } = await supabase.functions.invoke('fortnox-list-suppliers');
+      
+      if (error) throw error;
+      
+      if (data?.suppliers) {
+        setSuppliers(data.suppliers);
+      }
+    } catch (error) {
+      console.error('Error loading suppliers:', error);
+      toast({
+        title: "Fel",
+        description: "Kunde inte ladda leverantörer från Fortnox.",
+        variant: "destructive",
+      });
+    } finally {
+      setSuppliersLoading(false);
+    }
+  };
 
   const loadVehicleDetails = async () => {
     if (!vehicleId || !user) return;
@@ -610,11 +641,18 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                 {/* Leverantör */}
                 <div>
                   <label className="text-sm text-foreground mb-1 block">Leverantör *</label>
-                  <Input
-                    type="text"
-                    value={pakostnadSupplier}
-                    onChange={(e) => setPakostnadSupplier(e.target.value)}
-                  />
+                  <Select value={pakostnadSupplier} onValueChange={setPakostnadSupplier} disabled={suppliersLoading}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={suppliersLoading ? "Laddar leverantörer..." : "Välj leverantör"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {suppliers.map((supplier) => (
+                        <SelectItem key={supplier.supplierNumber} value={supplier.name}>
+                          {supplier.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 
                 {/* Kategori */}
