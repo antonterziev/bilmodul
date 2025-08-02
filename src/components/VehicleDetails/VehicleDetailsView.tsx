@@ -102,19 +102,25 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
 
   const loadSuppliers = async () => {
     try {
+      console.log('Loading suppliers from Fortnox...');
       setSuppliersLoading(true);
       const { data, error } = await supabase.functions.invoke('fortnox-list-suppliers');
+      
+      console.log('Suppliers response:', { data, error });
       
       if (error) throw error;
       
       if (data?.suppliers) {
+        console.log(`Loaded ${data.suppliers.length} suppliers`);
         setSuppliers(data.suppliers);
+      } else {
+        console.log('No suppliers data received:', data);
       }
     } catch (error) {
       console.error('Error loading suppliers:', error);
       toast({
         title: "Fel",
-        description: "Kunde inte ladda leverantörer från Fortnox.",
+        description: `Kunde inte ladda leverantörer från Fortnox: ${error.message}`,
         variant: "destructive",
       });
     } finally {
