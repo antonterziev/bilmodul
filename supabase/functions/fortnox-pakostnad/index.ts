@@ -236,7 +236,7 @@ serve(async (req) => {
     // Create supplier invoice in Fortnox
     const invoicePayload = {
       SupplierInvoice: {
-        SupplierNumber: "1", // Use supplier number instead of name
+        SupplierNumber: "1",
         InvoiceNumber: `${pakostnad.inventory_items.registration_number}-PÅKOST`,
         InvoiceDate: pakostnad.date,
         DueDate: pakostnad.date,
@@ -247,7 +247,6 @@ serve(async (req) => {
           {
             Account: pakostnadAccount,
             Total: netAmount,
-            VAT: vatAmount,
             Description: `${pakostnad.category} - ${pakostnad.supplier}`,
             Project: pakostnad.inventory_items.registration_number
           }
