@@ -510,8 +510,8 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
     }
 
     try {
-      // First, insert the påkostnad record
-      const { data: pakostnad, error: insertError } = await supabase
+      // First, insert the påkostnad record using any to bypass TypeScript until types are updated
+      const { data: pakostnad, error: insertError } = await (supabase as any)
         .from('pakostnader')
         .insert({
           inventory_item_id: vehicle.id,

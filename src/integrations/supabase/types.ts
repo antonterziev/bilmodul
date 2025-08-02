@@ -536,6 +536,56 @@ export type Database = {
         }
         Relationships: []
       }
+      pakostnader: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          date: string
+          description: string | null
+          fortnox_invoice_number: string | null
+          id: string
+          inventory_item_id: string
+          is_synced: boolean | null
+          supplier: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          category: string
+          created_at?: string
+          date: string
+          description?: string | null
+          fortnox_invoice_number?: string | null
+          id?: string
+          inventory_item_id: string
+          is_synced?: boolean | null
+          supplier: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          date?: string
+          description?: string | null
+          fortnox_invoice_number?: string | null
+          id?: string
+          inventory_item_id?: string
+          is_synced?: boolean | null
+          supplier?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pakostnader_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
