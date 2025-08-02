@@ -237,7 +237,7 @@ serve(async (req) => {
     const invoicePayload = {
       SupplierInvoice: {
         SupplierNumber: "1", // Use supplier number instead of name
-        InvoiceNumber: `${pakostnad.inventory_items.registration_number}-PK`,
+        InvoiceNumber: `PAK-${pakostnad.id.slice(-8)}`,
         InvoiceDate: pakostnad.date,
         DueDate: pakostnad.date,
         Total: totalAmount,
