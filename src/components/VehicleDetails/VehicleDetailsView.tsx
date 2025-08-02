@@ -490,7 +490,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
   };
 
   const handlePakostnadSubmit = async () => {
-    if (!pakostnadAmount || !pakostnadSupplier || !pakostnadCategory) {
+    if (!pakostnadAmount || !pakostnadSupplier || !pakostnadCategory || !vehicle?.id) {
       toast({
         title: "Fyll i alla fält",
         description: "Belopp, leverantör och kategori måste fyllas i.",
@@ -510,17 +510,54 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
     }
 
     try {
-      // Here you would typically save the påkostnad to the database
-      toast({
-        title: "Påkostnad registrerad",
-        description: `Påkostnad på ${formatPrice(amount)} har registrerats.`,
+      // First, insert the påkostnad record
+      const { data: pakostnad, error: insertError } = await supabase
+        .from('pakostnader')
+        .insert({
+          inventory_item_id: vehicle.id,
+          supplier: pakostnadSupplier,
+          amount: amount,
+          category: pakostnadCategory,
+          date: new Date().toISOString().split('T')[0],
+          description: '',
+        })
+        .select()
+        .single();
+
+      if (insertError) throw insertError;
+
+      // Then sync to Fortnox
+      const { data: syncResult, error: syncError } = await supabase.functions.invoke('fortnox-pakostnad', {
+        body: {
+          pakostnadId: pakostnad.id,
+          syncingUserId: user?.id
+        }
       });
+
+      if (syncError) {
+        console.error('Fortnox sync error:', syncError);
+        toast({
+          title: "Varning",
+          description: "Påkostnad registrerad men kunde inte synkas till Fortnox. Kontakta support.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Påkostnad registrerad",
+          description: `Påkostnad på ${formatPrice(amount)} har registrerats och synkats till Fortnox.`,
+        });
+      }
       
       // Reset form
       setPakostnadAmount('');
       setPakostnadSupplier('');
       setPakostnadCategory('');
       setPakostnadDocument(null);
+
+      // Reload vehicle data
+      if (vehicleId) {
+        loadVehicleDetails();
+      }
     } catch (error) {
       console.error('Error registering påkostnad:', error);
       toast({
