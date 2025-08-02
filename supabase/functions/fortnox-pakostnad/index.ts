@@ -99,28 +99,56 @@ serve(async (req) => {
       );
     }
 
-    // Find active Fortnox integration
-    const { data: fortnoxIntegrations, error: integrationsError } = await supabase
+    // Look for ANY active Fortnox integration within the same organization
+    console.log(`🔍 Looking for Fortnox integration for organization: ${syncingProfile.organization_id}`)
+    
+    // First, get all users in the same organization
+    const { data: orgUsers, error: orgUsersError } = await supabase
+      .from('profiles')
+      .select('user_id')
+      .eq('organization_id', syncingProfile.organization_id);
+
+    if (orgUsersError) {
+      console.error('❌ Error fetching organization users:', orgUsersError);
+      return new Response(
+        JSON.stringify({ error: 'Error fetching organization users', details: orgUsersError.message }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const userIds = orgUsers.map(u => u.user_id);
+    console.log(`🔍 Found ${userIds.length} users in organization`);
+
+    // Now find any active Fortnox integration for these users
+    const { data: fortnoxIntegration, error: integrationError } = await supabase
       .from('fortnox_integrations')
       .select('*')
-      .eq('organization_id', pakostnad.inventory_items.organization_id)
+      .in('user_id', userIds)
       .eq('is_active', true)
       .order('created_at', { ascending: false })
-      .limit(1);
+      .limit(1)
+      .maybeSingle();
 
-    if (integrationsError || !fortnoxIntegrations || fortnoxIntegrations.length === 0) {
-      console.error('No active Fortnox integration found:', integrationsError);
+    if (integrationError) {
+      console.error('❌ Error fetching Fortnox integration:', integrationError);
       return new Response(
-        JSON.stringify({ error: 'No active Fortnox integration found' }),
+        JSON.stringify({ error: 'Error fetching Fortnox integration', details: integrationError.message }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!fortnoxIntegration) {
+      console.error('❌ No active Fortnox integration found for organization');
+      return new Response(
+        JSON.stringify({ error: 'No active Fortnox integration found for organization' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const integration = fortnoxIntegrations[0];
+    const integration = fortnoxIntegration;
     const FORTNOX_CLIENT_SECRET = Deno.env.get('FORTNOX_CLIENT_SECRET');
-
     if (!FORTNOX_CLIENT_SECRET) {
-      console.error('FORTNOX_CLIENT_SECRET not found');
+      console.error('❌ FORTNOX_CLIENT_SECRET not found');
       return new Response(
         JSON.stringify({ error: 'Fortnox client secret not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -128,14 +156,15 @@ serve(async (req) => {
     }
 
     let accessToken = integration.access_token;
+    const clientSecret = FORTNOX_CLIENT_SECRET;
 
     // Check if token needs refresh
-    const tokenExpiresAt = new Date(integration.token_expires_at || integration.expires_at);
+    const tokenExpiresAt = new Date(integration.token_expires_at);
     const now = new Date();
     const bufferTime = 5 * 60 * 1000; // 5 minutes buffer
 
     if (now.getTime() > (tokenExpiresAt.getTime() - bufferTime)) {
-      console.log('Access token expired or expiring soon, refreshing...');
+      console.log('🔄 Access token expired or expiring soon, refreshing...');
       
       const refreshResponse = await fetch('https://apps.fortnox.se/oauth-v1/token', {
         method: 'POST',
@@ -145,7 +174,7 @@ serve(async (req) => {
         body: new URLSearchParams({
           grant_type: 'refresh_token',
           client_id: integration.fortnox_company_id || 'unknown',
-          client_secret: FORTNOX_CLIENT_SECRET,
+          client_secret: clientSecret,
           refresh_token: integration.refresh_token,
         }),
       });
@@ -246,9 +275,10 @@ serve(async (req) => {
     const invoiceResponse = await fetch('https://api.fortnox.se/3/supplierinvoices', {
       method: 'POST',
       headers: {
-        'Access-Token': accessToken,
-        'Client-Secret': FORTNOX_CLIENT_SECRET,
+        'Authorization': `Bearer ${accessToken}`,
+        'Access-Token': clientSecret,
         'Content-Type': 'application/json',
+        'Accept': 'application/json'
       },
       body: JSON.stringify(invoicePayload),
     });
