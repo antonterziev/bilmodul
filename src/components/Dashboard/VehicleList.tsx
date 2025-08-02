@@ -24,6 +24,7 @@ interface Vehicle {
   vat_type?: string;
   user_id: string;
   registered_by?: string; // User's name who registered the vehicle
+  inventory_value?: number;
 }
 
 interface VehicleListProps {
@@ -124,7 +125,7 @@ export const VehicleList = ({
         .select(`
           id, registration_number, brand, model, purchase_date, selling_date, 
           purchaser, purchase_price, selling_price, status, 
-          fortnox_sync_status, fortnox_verification_number, vat_type, user_id
+          fortnox_sync_status, fortnox_verification_number, vat_type, user_id, inventory_value
         `);
 
       // Apply status filter if not 'all'
@@ -667,7 +668,7 @@ export const VehicleList = ({
                     {/* Column 7: Purchase Price */}
                     <div className="w-16">
                       <p className="text-xs text-muted-foreground whitespace-nowrap">Lagervärde</p>
-                      <p className="font-medium">{formatPrice(vehicle.purchase_price)}</p>
+                      <p className="font-medium">{formatPrice(vehicle.inventory_value || 0)}</p>
                     </div>
                  </div>
                 
