@@ -336,6 +336,7 @@ export type Database = {
           fortnox_synced_by_user_id: string | null
           fortnox_verification_number: string | null
           id: string
+          inventory_value: number | null
           lagervaerde: number | null
           marketplace_channel: string | null
           marketplace_channel_other: string | null
@@ -382,6 +383,7 @@ export type Database = {
           fortnox_synced_by_user_id?: string | null
           fortnox_verification_number?: string | null
           id?: string
+          inventory_value?: number | null
           lagervaerde?: number | null
           marketplace_channel?: string | null
           marketplace_channel_other?: string | null
@@ -428,6 +430,7 @@ export type Database = {
           fortnox_synced_by_user_id?: string | null
           fortnox_verification_number?: string | null
           id?: string
+          inventory_value?: number | null
           lagervaerde?: number | null
           marketplace_channel?: string | null
           marketplace_channel_other?: string | null
@@ -715,6 +718,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_inventory_value: {
+        Args: {
+          vat_type_param: string
+          purchase_price_param: number
+          inventory_item_id_param: string
+        }
+        Returns: number
+      }
       calculate_lagervaerde: {
         Args: { vat_type_param: string; purchase_price_param: number }
         Returns: number
