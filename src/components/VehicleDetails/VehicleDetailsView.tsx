@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, DollarSign, FileText, Trash2, Car, Plus, TrendingUp, Calculator, Edit, Save, X, Upload } from "lucide-react";
+import { ArrowLeft, DollarSign, FileText, Trash2, Car, Plus, TrendingUp, Calculator, Edit, Save, X, Upload, RefreshCw } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { useToast } from "@/hooks/use-toast";
 
@@ -78,6 +78,10 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
   const [pakostnadCategory, setPakostnadCategory] = useState('');
   const [pakostnadDocument, setPakostnadDocument] = useState<File | null>(null);
   const [suppliers, setSuppliers] = useState<Array<{supplierNumber: string, name: string, organisationNumber: string}>>([]);
+  const [pakostnader, setPakostnader] = useState<Array<any>>([]);
+  const [loadingPakostnader, setLoadingPakostnader] = useState(false);
+  const [editingPakostnad, setEditingPakostnad] = useState<string | null>(null);
+  const [syncingPakostnad, setSyncingPakostnad] = useState<string | null>(null);
   const [suppliersLoading, setSuppliersLoading] = useState(false);
 
   useEffect(() => {
@@ -99,6 +103,13 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
       loadSuppliers();
     }
   }, [activeButton]);
+
+  // Load pakostnader when switching to påkostnad tab
+  useEffect(() => {
+    if (activeButton === 'pakostnad' && vehicleId) {
+      loadPakostnader();
+    }
+  }, [activeButton, vehicleId]);
 
   const loadSuppliers = async () => {
     try {
@@ -125,6 +136,31 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
       });
     } finally {
       setSuppliersLoading(false);
+    }
+  };
+
+  const loadPakostnader = async () => {
+    if (!vehicleId) return;
+    
+    try {
+      setLoadingPakostnader(true);
+      const { data, error } = await supabase
+        .from('pakostnader')
+        .select('*')
+        .eq('inventory_item_id', vehicleId)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setPakostnader(data || []);
+    } catch (error) {
+      console.error('Error loading pakostnader:', error);
+      toast({
+        title: "Fel",
+        description: "Kunde inte ladda påkostnader.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingPakostnader(false);
     }
   };
 
@@ -554,15 +590,100 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
       setPakostnadCategory('');
       setPakostnadDocument(null);
 
-      // Reload vehicle data
+      // Reload vehicle data and pakostnader
       if (vehicleId) {
         loadVehicleDetails();
+        loadPakostnader();
       }
     } catch (error) {
       console.error('Error registering påkostnad:', error);
       toast({
         title: "Fel",
         description: "Kunde inte registrera påkostnaden.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSyncPakostnad = async (pakostnadId: string) => {
+    try {
+      setSyncingPakostnad(pakostnadId);
+      
+      const { data, error } = await supabase.functions.invoke('fortnox-pakostnad', {
+        body: {
+          pakostnadId,
+          syncingUserId: user?.id
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Påkostnad synkad",
+        description: "Påkostnaden har synkats till Fortnox.",
+      });
+
+      loadPakostnader(); // Reload to get updated sync status
+    } catch (error) {
+      console.error('Error syncing pakostnad:', error);
+      toast({
+        title: "Fel",
+        description: "Kunde inte synka påkostnaden till Fortnox.",
+        variant: "destructive",
+      });
+    } finally {
+      setSyncingPakostnad(null);
+    }
+  };
+
+  const handleEditPakostnad = async (pakostnadId: string, updatedData: { supplier: string; category: string; amount: number }) => {
+    try {
+      const { error } = await supabase
+        .from('pakostnader')
+        .update(updatedData)
+        .eq('id', pakostnadId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Påkostnad uppdaterad",
+        description: "Påkostnaden har uppdaterats.",
+      });
+
+      setEditingPakostnad(null);
+      loadPakostnader();
+    } catch (error) {
+      console.error('Error updating pakostnad:', error);
+      toast({
+        title: "Fel",
+        description: "Kunde inte uppdatera påkostnaden.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeletePakostnad = async (pakostnadId: string) => {
+    if (!confirm('Är du säker på att du vill ta bort denna påkostnad?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('pakostnader')
+        .delete()
+        .eq('id', pakostnadId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Påkostnad borttagen",
+        description: "Påkostnaden har tagits bort.",
+      });
+
+      loadPakostnader();
+    } catch (error) {
+      console.error('Error deleting pakostnad:', error);
+      toast({
+        title: "Fel",
+        description: "Kunde inte ta bort påkostnaden.",
         variant: "destructive",
       });
     }
@@ -837,9 +958,155 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                 <CardTitle>Påkostnader</CardTitle>
               </CardHeader>
               <CardContent className="flex-1 p-6">
-                <div className="text-center text-muted-foreground">
-                  No påkostnader for this vehicle
-                </div>
+                {loadingPakostnader ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="animate-pulse border rounded-lg p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1 space-y-2">
+                            <div className="h-4 bg-muted rounded w-1/4" />
+                            <div className="h-4 bg-muted rounded w-1/3" />
+                          </div>
+                          <div className="h-6 bg-muted rounded w-20" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : pakostnader.length > 0 ? (
+                  <div className="space-y-3">
+                    {pakostnader.map((pakostnad) => (
+                      <div key={pakostnad.id} className="border rounded-lg p-4">
+                        <div className="flex items-center justify-between gap-4">
+                          {/* Leverantör */}
+                          <div className="flex-1">
+                            {editingPakostnad === pakostnad.id ? (
+                              <Input
+                                defaultValue={pakostnad.supplier}
+                                className="text-sm"
+                                onBlur={(e) => {
+                                  const supplier = e.target.value;
+                                  const category = pakostnad.category;
+                                  const amount = pakostnad.amount;
+                                  handleEditPakostnad(pakostnad.id, { supplier, category, amount });
+                                }}
+                              />
+                            ) : (
+                              <div className="font-medium text-sm">{pakostnad.supplier}</div>
+                            )}
+                          </div>
+
+                          {/* Kategori */}
+                          <div className="flex-1">
+                            {editingPakostnad === pakostnad.id ? (
+                              <Select
+                                defaultValue={pakostnad.category}
+                                onValueChange={(category) => {
+                                  const supplier = pakostnad.supplier;
+                                  const amount = pakostnad.amount;
+                                  handleEditPakostnad(pakostnad.id, { supplier, category, amount });
+                                }}
+                              >
+                                <SelectTrigger className="text-sm">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Lackering">Lackering</SelectItem>
+                                  <SelectItem value="Rekond">Rekond</SelectItem>
+                                  <SelectItem value="Glasbyte">Glasbyte</SelectItem>
+                                  <SelectItem value="Övrigt">Övrigt</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            ) : (
+                              <Badge variant="secondary" className="text-xs">
+                                {pakostnad.category}
+                              </Badge>
+                            )}
+                          </div>
+
+                          {/* Belopp */}
+                          <div className="flex-1 text-right">
+                            {editingPakostnad === pakostnad.id ? (
+                              <Input
+                                type="number"
+                                defaultValue={pakostnad.amount}
+                                className="text-sm text-right"
+                                onBlur={(e) => {
+                                  const amount = parseFloat(e.target.value);
+                                  const supplier = pakostnad.supplier;
+                                  const category = pakostnad.category;
+                                  handleEditPakostnad(pakostnad.id, { supplier, category, amount });
+                                }}
+                              />
+                            ) : (
+                              <div className="font-medium text-sm">{formatPrice(pakostnad.amount)}</div>
+                            )}
+                          </div>
+
+                          {/* Action buttons */}
+                          <div className="flex items-center gap-2">
+                            {/* Edit button */}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                if (editingPakostnad === pakostnad.id) {
+                                  setEditingPakostnad(null);
+                                } else {
+                                  setEditingPakostnad(pakostnad.id);
+                                }
+                              }}
+                              className="h-8 w-8 p-0"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+
+                            {/* Sync button */}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleSyncPakostnad(pakostnad.id)}
+                              disabled={syncingPakostnad === pakostnad.id}
+                              className={`h-8 w-8 p-0 ${pakostnad.is_synced ? 'text-green-600' : 'text-blue-600'}`}
+                            >
+                              {syncingPakostnad === pakostnad.id ? (
+                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                              ) : (
+                                <RefreshCw className="h-4 w-4" />
+                              )}
+                            </Button>
+
+                            {/* Remove button */}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeletePakostnad(pakostnad.id)}
+                              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Sync status indicator */}
+                        {pakostnad.is_synced && (
+                          <div className="mt-2 text-xs text-green-600 flex items-center gap-1">
+                            <div className="h-2 w-2 bg-green-600 rounded-full" />
+                            Synkad till Fortnox
+                            {pakostnad.fortnox_invoice_number && (
+                              <span className="text-muted-foreground">
+                                (#{pakostnad.fortnox_invoice_number})
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center text-muted-foreground py-8">
+                    Inga påkostnader registrerade för detta fordon
+                  </div>
+                )}
               </CardContent>
             </Card>
           ) : (
