@@ -268,8 +268,9 @@ serve(async (req) => {
     });
 
     console.log('Invoice response status:', invoiceResponse.status);
+    console.log('Invoice response headers:', JSON.stringify([...invoiceResponse.headers.entries()]));
     const invoiceResponseText = await invoiceResponse.text();
-    console.log('Invoice response:', invoiceResponseText);
+    console.log('Invoice response body:', invoiceResponseText);
 
     if (!invoiceResponse.ok) {
       // Log error to database
