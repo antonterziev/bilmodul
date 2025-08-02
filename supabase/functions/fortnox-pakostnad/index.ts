@@ -246,23 +246,9 @@ serve(async (req) => {
         SupplierInvoiceRows: [
           {
             Account: pakostnadAccount,
-            Debit: netAmount,
-            Credit: 0,
-            TransactionInformation: `Påkostnad - ${pakostnad.category}`,
-            Project: pakostnad.inventory_items.registration_number
-          },
-          {
-            Account: inputVatAccount,
-            Debit: vatAmount,
-            Credit: 0,
-            TransactionInformation: 'Ingående moms 25%',
-            Project: pakostnad.inventory_items.registration_number
-          },
-          {
-            Account: supplierDebtAccount,
-            Debit: 0,
-            Credit: totalAmount,
-            TransactionInformation: 'Leverantörsskuld',
+            Total: netAmount,
+            VAT: vatAmount,
+            Description: `${pakostnad.category} - ${pakostnad.supplier}`,
             Project: pakostnad.inventory_items.registration_number
           }
         ]
