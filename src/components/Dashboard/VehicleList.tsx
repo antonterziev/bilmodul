@@ -666,7 +666,7 @@ export const VehicleList = ({
                    
                     {/* Column 7: Purchase Price */}
                     <div className="w-16">
-                      <p className="text-xs text-muted-foreground whitespace-nowrap">Inköpspris</p>
+                      <p className="text-xs text-muted-foreground whitespace-nowrap">Lagervärde</p>
                       <p className="font-medium">{formatPrice(vehicle.purchase_price)}</p>
                     </div>
                  </div>
