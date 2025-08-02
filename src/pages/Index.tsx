@@ -195,15 +195,15 @@ const Index = () => {
       // Get inventory counts by status
       const { data: inventoryData, error } = await supabase
         .from('inventory_items')
-        .select('status, registration_number, created_at, purchase_price, selling_price, purchase_date');
+        .select('status, registration_number, created_at, purchase_price, selling_price, purchase_date, inventory_value');
 
       if (error) throw error;
 
       const vehiclesInStock = inventoryData?.filter(item => item.status === 'på_lager') || [];
       const totalStock = vehiclesInStock.length;
       
-      // Calculate inventory value (sum of purchase prices for vehicles with status "på_lager")
-      const inventoryValue = vehiclesInStock.reduce((sum, item) => sum + (item.purchase_price || 0), 0);
+      // Calculate inventory value (sum of inventory_value for vehicles with status "på_lager")
+      const inventoryValue = vehiclesInStock.reduce((sum, item) => sum + (item.inventory_value || 0), 0);
       
       // Calculate simple average of storage days
       let averageStorageDays = 0;
