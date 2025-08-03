@@ -830,35 +830,28 @@ export const Integrations = () => {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {/* Account number input as separate entry */}
-                          <TableRow className="bg-muted/30">
-                            <TableCell colSpan={5}>
-                              <div className="flex items-center gap-2 py-2">
-                                <span className="text-sm font-medium">Kontonummer för {category.name}:</span>
-                                <Input
-                                  type="text"
-                                  value={accountNumbers[category.accounts[0]?.name] || category.accounts[0]?.number || ''}
-                                  onChange={(e) => handleAccountNumberChange(category.accounts[0]?.name || '', e.target.value)}
-                                  className="w-20 h-8 text-center font-medium"
-                                  placeholder="0000"
-                                  maxLength={4}
-                                />
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-8 px-2 text-xs"
-                                  onClick={() => saveAccountNumber(category.accounts[0]?.name || '')}
-                                  disabled={!accountNumbers[category.accounts[0]?.name || ''] || accountNumbers[category.accounts[0]?.name || ''].length !== 4}
-                                >
-                                  Spara
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
                           {category.accounts.map((account) => (
                             <TableRow key={account.number}>
                                <TableCell>
-                                 {accountNumbers[account.name] || account.number}
+                                 <div className="flex items-center gap-2">
+                                   <Input
+                                     type="text"
+                                     value={accountNumbers[account.name] || account.number}
+                                     onChange={(e) => handleAccountNumberChange(account.name, e.target.value)}
+                                     className="w-20 h-8 text-center font-medium"
+                                     placeholder="0000"
+                                     maxLength={4}
+                                   />
+                                   <Button
+                                     variant="outline"
+                                     size="sm"
+                                     className="h-8 px-2 text-xs"
+                                     onClick={() => saveAccountNumber(account.name)}
+                                     disabled={!accountNumbers[account.name] || accountNumbers[account.name].length !== 4}
+                                   >
+                                     Spara
+                                   </Button>
+                                 </div>
                                </TableCell>
                               <TableCell>{account.name}</TableCell>
                               <TableCell>
