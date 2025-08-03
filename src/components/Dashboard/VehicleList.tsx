@@ -4,7 +4,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Car, Trash2, Eye, DollarSign, RefreshCw } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Car, Trash2, Eye, DollarSign, RefreshCw, ExternalLink } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { useToast } from "@/hooks/use-toast";
 
@@ -53,6 +54,8 @@ export const VehicleList = ({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [syncingId, setSyncingId] = useState<string | null>(null);
   const [forceUpdate, setForceUpdate] = useState(0);
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  const [showFortnoxDialog, setShowFortnoxDialog] = useState(false);
   
   // Use ref to track mounted state and cleanup timers
   const mountedRef = useRef(true);
@@ -466,9 +469,12 @@ export const VehicleList = ({
     onViewVehicle?.(vehicleId);
   };
 
+  const handleOpenFortnoxDialog = (vehicle: Vehicle) => {
+    setSelectedVehicle(vehicle);
+    setShowFortnoxDialog(true);
+  };
+
   const handleOpenFortnoxVoucher = async (verificationNumber: string) => {
-    
-    
     try {
       // Get the user's Fortnox integration to find their company ID
       const { data: fortnoxIntegrations, error } = await supabase
@@ -477,8 +483,6 @@ export const VehicleList = ({
         .eq('user_id', user.id)
         .eq('is_active', true)
         .order('created_at', { ascending: false });
-
-      
 
       if (error) {
         console.error('❌ Database error:', error);
@@ -493,7 +497,6 @@ export const VehicleList = ({
       // Find the first integration that has a company ID
       const fortnoxIntegration = fortnoxIntegrations.find(integration => integration.fortnox_company_id);
       
-      
       if (!fortnoxIntegration || !fortnoxIntegration.fortnox_company_id) {
         console.error('❌ Fortnox company ID is missing - please reconnect to Fortnox');
         return;
@@ -501,9 +504,7 @@ export const VehicleList = ({
 
       const fortnoxUrl = `https://apps5.fortnox.se/app/${fortnoxIntegration.fortnox_company_id}/bf/voucher/A-${verificationNumber}`;
       
-      
       window.open(fortnoxUrl, 'fortnox-voucher', 'width=1200,height=800,scrollbars=yes,resizable=yes');
-      
       
     } catch (error) {
       console.error('❌ Error opening Fortnox voucher:', error);
@@ -632,12 +633,12 @@ export const VehicleList = ({
                                : 'border-orange-500 text-orange-700 bg-orange-50'
                            }`}
                            title={vehicle.fortnox_verification_number ? `Verifikation: ${vehicle.fortnox_verification_number}` : undefined}
-                           onClick={(e) => {
-                             e.stopPropagation();
-                             if (vehicle.fortnox_sync_status === 'synced' && vehicle.fortnox_verification_number) {
-                               handleOpenFortnoxVoucher(vehicle.fortnox_verification_number);
-                             }
-                           }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (vehicle.fortnox_sync_status === 'synced' && vehicle.fortnox_verification_number) {
+                                handleOpenFortnoxDialog(vehicle);
+                              }
+                            }}
                         >
                            {vehicle.fortnox_sync_status === 'synced' ? 'Bokförd' : 
                             vehicle.fortnox_sync_status === 'failed' ? 'Ej syncat' : 'Inte bokförd'}
@@ -725,6 +726,53 @@ export const VehicleList = ({
           </div>
         )}
       </CardContent>
+
+      {/* Fortnox Dialog */}
+      <Dialog open={showFortnoxDialog} onOpenChange={setShowFortnoxDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Fortnox Bokföring</DialogTitle>
+            <DialogDescription>
+              Klicka på knappen nedan för att öppna fakturan i Fortnox.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedVehicle && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
+                <BrandLogo 
+                  brandName={selectedVehicle.brand} 
+                  className="h-8 w-8" 
+                  fallbackClassName="h-8 w-8"
+                />
+                <div>
+                  <p className="font-medium">{selectedVehicle.brand} {selectedVehicle.model}</p>
+                  <p className="text-sm text-muted-foreground">{selectedVehicle.registration_number}</p>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <p className="text-sm"><strong>Verifikationsnummer:</strong> {selectedVehicle.fortnox_verification_number}</p>
+                <p className="text-sm"><strong>Inköpspris:</strong> {formatPrice(selectedVehicle.purchase_price)}</p>
+                <p className="text-sm"><strong>Momsregel:</strong> {selectedVehicle.vat_type}</p>
+              </div>
+              
+              <Button 
+                onClick={() => {
+                  if (selectedVehicle.fortnox_verification_number) {
+                    handleOpenFortnoxVoucher(selectedVehicle.fortnox_verification_number);
+                  }
+                  setShowFortnoxDialog(false);
+                }}
+                className="w-full"
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Öppna i Fortnox
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
