@@ -633,12 +633,20 @@ export const VehicleList = ({
                                : 'border-orange-500 text-orange-700 bg-orange-50'
                            }`}
                            title={vehicle.fortnox_verification_number ? `Verifikation: ${vehicle.fortnox_verification_number}` : undefined}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (vehicle.fortnox_sync_status === 'synced' && vehicle.fortnox_verification_number) {
-                                handleOpenFortnoxDialog(vehicle);
-                              }
-                            }}
+                             onClick={(e) => {
+                               e.stopPropagation();
+                               console.log('Badge clicked:', {
+                                 sync_status: vehicle.fortnox_sync_status,
+                                 verification_number: vehicle.fortnox_verification_number,
+                                 vehicle_id: vehicle.id
+                               });
+                               if (vehicle.fortnox_sync_status === 'synced' && vehicle.fortnox_verification_number) {
+                                 console.log('Opening dialog for vehicle:', vehicle.registration_number);
+                                 handleOpenFortnoxDialog(vehicle);
+                               } else {
+                                 console.log('Cannot open dialog - vehicle not synced or missing verification number');
+                               }
+                             }}
                         >
                            {vehicle.fortnox_sync_status === 'synced' ? 'Bokförd' : 
                             vehicle.fortnox_sync_status === 'failed' ? 'Ej syncat' : 'Inte bokförd'}
