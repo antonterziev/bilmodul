@@ -318,7 +318,6 @@ export type Database = {
       }
       inventory_items: {
         Row: {
-          additional_costs: number | null
           brand: string
           brand_other: string | null
           chassi_number: string | null
@@ -361,11 +360,11 @@ export type Database = {
           status: string
           updated_at: string
           user_id: string
+          vat_amount: number | null
           vat_type: string | null
           year_model: number | null
         }
         Insert: {
-          additional_costs?: number | null
           brand: string
           brand_other?: string | null
           chassi_number?: string | null
@@ -408,11 +407,11 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id: string
+          vat_amount?: number | null
           vat_type?: string | null
           year_model?: number | null
         }
         Update: {
-          additional_costs?: number | null
           brand?: string
           brand_other?: string | null
           chassi_number?: string | null
@@ -455,6 +454,7 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string
+          vat_amount?: number | null
           vat_type?: string | null
           year_model?: number | null
         }
