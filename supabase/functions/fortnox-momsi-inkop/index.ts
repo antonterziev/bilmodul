@@ -440,53 +440,82 @@ serve(async (req) => {
         const downPaymentAmount = inventoryItem.down_payment || 0;
         console.log(`💰 Down payment amount: ${downPaymentAmount}`);
         
-        // Calculate VAT breakdown on full purchase price
-        const grossAmount = inventoryItem.purchase_price;
+        // Calculate VAT breakdown - for MOMSI EU purchases (25% VAT)
+        const totalPurchaseAmount = inventoryItem.purchase_price;
         const vatRate = 0.25;
-        const vatAmount = grossAmount * vatRate / (1 + vatRate);
-        const netAmount = grossAmount - vatAmount;
+        const netBaseAmount = totalPurchaseAmount / (1 + vatRate); // Net amount without VAT
+        const vatAmount = totalPurchaseAmount - netBaseAmount; // 25% VAT amount
         
-        console.log(`💰 Gross amount: ${grossAmount}`);
-        console.log(`💰 VAT amount (calculated on full purchase price): ${vatAmount}`);
-        console.log(`💰 Net amount: ${netAmount}`);
+        console.log(`💰 Total purchase amount: ${totalPurchaseAmount}`);
+        console.log(`💰 Net base amount (excluding VAT): ${netBaseAmount}`);
+        console.log(`💰 VAT amount (25%): ${vatAmount}`);
         
-        // Calculate the net amount to be invoiced (gross amount - down payment)
-        const netInvoiceAmount = grossAmount - downPaymentAmount;
-        console.log(`💰 Net invoice amount (gross - down payment): ${netInvoiceAmount}`);
+        // Calculate the amount to be invoiced (total - down payment)
+        const invoiceAmount = totalPurchaseAmount - downPaymentAmount;
+        console.log(`💰 Invoice amount (total - down payment): ${invoiceAmount}`);
 
-        // Build rows for complete EU purchase accounting structure
+        // Get additional account numbers for MOMSI EU structure
+        const utgaendeMomsOmvandAccountNumber = accountNumberMap['Utgående moms, omvänd betalningsskyldighet, 25 %'] || '2614';
+        const inkopVarorEUAccountNumber = accountNumberMap['Inköp av varor från EU'] || '4515';
+        const motkontoInkopEUAccountNumber = accountNumberMap['Motkonto inköp av varor från EU'] || '4519';
+        const beraknadIngaendeMomsAccountNumber = accountNumberMap['Beräknad ingående moms på förvärv från utlandet'] || '2645';
+
+        // Build rows for MOMSI EU purchase accounting structure matching the image
         const supplierInvoiceRows = [
           {
             Account: momsAccountNumber, // 1412 - Lager - Momsbilar - EU
-            Debit: netAmount,
+            Debit: totalPurchaseAmount,
             Credit: 0.0,
             Project: projectNumber
           },
           {
-            Account: omvandIngaendeMomsAccountNumber, // 2645 - Beräknad ingående moms på förvärv från utlandet
+            Account: inkopVarorEUAccountNumber, // 4515 - Inköp av varor från EU
+            Debit: netBaseAmount,
+            Credit: 0.0,
+            Project: projectNumber
+          },
+          {
+            Account: motkontoInkopEUAccountNumber, // 4519 - Motkonto inköp av varor från EU
+            Debit: 0.0,
+            Credit: netBaseAmount,
+            Project: projectNumber
+          },
+          {
+            Account: beraknadIngaendeMomsAccountNumber, // 2645 - Beräknad ingående moms på förvärv från utlandet
+            Debit: vatAmount,
+            Credit: 0.0,
+            Project: projectNumber
+          },
+          {
+            Account: utgaendeMomsOmvandAccountNumber, // 2614 - Utgående moms, omvänd betalningsskyldighet, 25 %
             Debit: 0.0,
             Credit: vatAmount,
-            Project: projectNumber
-          },
-          {
-            Account: motkontoEUAccountNumber, // 4539 - Motkonto inköp av varor från EU
-            Debit: 0.0,
-            Credit: netAmount,
-            Project: projectNumber
-          },
-          {
-            Account: inkopEUAccountNumber, // 4531 - Inköp av tjänster från ett land utanför EU, 25 % moms
-            Debit: netAmount,
-            Credit: 0.0,
             Project: projectNumber
           }
         ];
 
-        // If down payment exists, add credit entry
+        // If down payment exists, add it to rows and adjust supplier debt
         if (downPaymentAmount && downPaymentAmount > 0) {
+          // Add förskottsbetalning credit entry
           supplierInvoiceRows.push({
-            Account: forskottsbetalningAccountNumber,
+            Account: forskottsbetalningAccountNumber, // 1680 - Förskottsbetalning
             Credit: downPaymentAmount,
+            Debit: 0.0,
+            Project: projectNumber
+          });
+          
+          // Add leverantörsskulder credit entry (reduced by down payment)
+          supplierInvoiceRows.push({
+            Account: leverantorskulderAccountNumber, // 2440 - Leverantörsskulder
+            Credit: invoiceAmount,
+            Debit: 0.0,
+            Project: projectNumber
+          });
+        } else {
+          // No down payment - full amount as leverantörsskulder
+          supplierInvoiceRows.push({
+            Account: leverantorskulderAccountNumber, // 2440 - Leverantörsskulder
+            Credit: totalPurchaseAmount,
             Debit: 0.0,
             Project: projectNumber
           });
@@ -498,8 +527,8 @@ serve(async (req) => {
             InvoiceNumber: inventoryItem.registration_number,
             InvoiceDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0],
             Project: projectNumber,
-            Total: netInvoiceAmount,
-            VAT: vatAmount,
+            Total: invoiceAmount,
+            VAT: 0, // Set VAT to 0 as requested - VAT is handled manually in the accounting rows
             SupplierInvoiceRows: supplierInvoiceRows
           }
         };
