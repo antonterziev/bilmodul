@@ -336,7 +336,6 @@ export type Database = {
           fortnox_verification_number: string | null
           id: string
           inventory_value: number | null
-          lagervaerde: number | null
           marketplace_channel: string | null
           marketplace_channel_other: string | null
           mileage: number | null
@@ -383,7 +382,6 @@ export type Database = {
           fortnox_verification_number?: string | null
           id?: string
           inventory_value?: number | null
-          lagervaerde?: number | null
           marketplace_channel?: string | null
           marketplace_channel_other?: string | null
           mileage?: number | null
@@ -430,7 +428,6 @@ export type Database = {
           fortnox_verification_number?: string | null
           id?: string
           inventory_value?: number | null
-          lagervaerde?: number | null
           marketplace_channel?: string | null
           marketplace_channel_other?: string | null
           mileage?: number | null
@@ -724,10 +721,6 @@ export type Database = {
           purchase_price_param: number
           inventory_item_id_param: string
         }
-        Returns: number
-      }
-      calculate_lagervaerde: {
-        Args: { vat_type_param: string; purchase_price_param: number }
         Returns: number
       }
       can_remove_admin_permission: {
