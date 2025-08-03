@@ -1016,7 +1016,6 @@ export const PurchaseForm = ({
                               Välj fil
                             </Button>
                           </div>
-                          <p className="text-sm text-muted-foreground">Ingen fil vald</p>
                           {isUploading && <p className="text-sm text-muted-foreground">Laddar upp fil...</p>}
                         </div> : <div className="flex items-center justify-between p-2 border rounded-md bg-muted/50 h-10">
                           <div className="flex items-center space-x-2">
@@ -1055,7 +1054,6 @@ export const PurchaseForm = ({
                             Välj fil (max 5mb)
                           </Button>
                         </div>
-                        <p className="text-sm text-muted-foreground">Ingen fil vald</p>
                         {isUploadingPurchaseDoc && <div className="space-y-2">
                             <div className="flex items-center space-x-2">
                               <Progress value={uploadProgress} className="flex-1 h-2" />
