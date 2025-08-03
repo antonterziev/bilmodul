@@ -441,10 +441,10 @@ serve(async (req) => {
         console.log(`💰 Down payment amount: ${downPaymentAmount}`);
         
         // Calculate VAT breakdown - for MOMSI EU purchases (25% VAT)
+        // The purchase price should be treated as gross, and we deduct 25% for the net amount
         const totalPurchaseAmount = inventoryItem.purchase_price;
-        const vatRate = 0.25;
-        const netBaseAmount = totalPurchaseAmount / (1 + vatRate); // Net amount without VAT
-        const vatAmount = totalPurchaseAmount - netBaseAmount; // 25% VAT amount
+        const netBaseAmount = Math.round(totalPurchaseAmount * 0.75); // 75% of purchase price (net of 25% VAT)
+        const vatAmount = Math.round(netBaseAmount * 0.25); // 25% of the net base amount
         
         console.log(`💰 Total purchase amount: ${totalPurchaseAmount}`);
         console.log(`💰 Net base amount (excluding VAT): ${netBaseAmount}`);
@@ -465,7 +465,7 @@ serve(async (req) => {
         const supplierInvoiceRows = [
           {
             Account: momsAccountNumber, // 1412 - Lager - Momsbilar - EU
-            Debit: totalPurchaseAmount,
+            Debit: netBaseAmount, // Use net amount (75% of purchase price)
             Credit: 0.0,
             Project: projectNumber
           },
