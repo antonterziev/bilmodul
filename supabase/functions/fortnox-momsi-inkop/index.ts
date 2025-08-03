@@ -511,8 +511,8 @@ serve(async (req) => {
             InvoiceNumber: inventoryItem.registration_number,
             InvoiceDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0],
             Project: projectNumber,
-            Total: invoiceAmount,
-            VAT: 0, // Set VAT to 0 as requested - VAT is handled manually in the accounting rows
+            Total: 0, // Set to 0 to prevent automatic 2440 entry - only TOT will be created
+            VAT: 0,
             SupplierInvoiceRows: supplierInvoiceRows
           }
         };
