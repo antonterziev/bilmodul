@@ -463,6 +463,12 @@ serve(async (req) => {
         // Build rows for MOMSI EU purchase accounting structure matching the image
         const supplierInvoiceRows = [
           {
+            Account: leverantorskulderAccountNumber, // 2440 - Leverantörsskulder
+            Debit: 0.0,
+            Credit: invoiceAmount,
+            Project: projectNumber
+          },
+          {
             Account: momsAccountNumber, // 1412 - Lager - Momsbilar - EU
             Debit: totalPurchaseAmount,
             Credit: 0.0,
@@ -493,14 +499,6 @@ serve(async (req) => {
             Project: projectNumber
           }
         ];
-
-        // Add leverantörsskulder entry (this balances the total purchase amount)
-        supplierInvoiceRows.push({
-          Account: leverantorskulderAccountNumber, // 2440 - Leverantörsskulder
-          Credit: invoiceAmount,
-          Debit: 0.0,
-          Project: projectNumber
-        });
 
         // If down payment exists, add förskottsbetalning credit entry
         if (downPaymentAmount && downPaymentAmount > 0) {
