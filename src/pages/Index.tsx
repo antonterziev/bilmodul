@@ -515,7 +515,7 @@ const Index = () => {
         {/* Top header with logo spanning full width */}
         <div className="bg-white border-b flex h-16 z-10">
           <div className="flex items-center pl-6 py-3 w-72">
-            <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-8" />
+            <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Bilmodul" className="h-8" />
           </div>
           <div className="flex-1 px-4 py-4 flex justify-end items-center">
             <div className="flex items-center gap-4">
@@ -605,7 +605,7 @@ const Index = () => {
               <p className="mb-4">Kontakta vår kundtjänst för hjälp och support.</p>
               <div className="space-y-2">
                 <p><strong>Telefon:</strong> +46 8-123 456 78</p>
-                <p><strong>E-post:</strong> support@veksla.se</p>
+                <p><strong>E-post:</strong> support@bilmodul.se</p>
                 <p><strong>Öppettider:</strong> Mån-Fre 09:00-17:00</p>
               </div>
             </div>

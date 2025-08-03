@@ -310,7 +310,7 @@ const Auth = () => {
         <div className="w-full max-w-md">
           {/* Brand Logo */}
           <div className="text-center mb-8">
-            <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-16 mx-auto mb-8" />
+            <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Bilmodul" className="h-16 mx-auto mb-8" />
           </div>
           
           <Card className="shadow-lg border-0">
@@ -318,7 +318,7 @@ const Auth = () => {
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-semibold text-gray-900 mb-4">Försökte du logga in?</h2>
                 <p className="text-gray-600 text-sm">
-                  Vi märkte att du redan har ett konto hos Veksla,<br />
+                  Vi märkte att du redan har ett konto hos Bilmodul,<br />
                   försökte du att komma till det?
                 </p>
               </div>
@@ -343,7 +343,7 @@ const Auth = () => {
         <div className="flex-1 flex items-center justify-center bg-white p-8">
           <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-16 mx-auto mb-6" />
+            <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Bilmodul" className="h-16 mx-auto mb-6" />
             <h2 className="text-2xl font-semibold text-gray-900 mb-2">
               Kom igång med bilbranschens mest innovativa{" "}
               <span className={`inline-block w-44 text-left transition-opacity duration-300 ${isWordVisible ? 'opacity-100' : 'opacity-0'}`}>
@@ -419,7 +419,7 @@ const Auth = () => {
         <div className="w-full max-w-md">
           {/* Brand Logo */}
           <div className="text-center mb-8">
-            <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-16 mx-auto mb-8" />
+            <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Bilmodul" className="h-16 mx-auto mb-8" />
           </div>
           
           <Card className="shadow-lg border-0">
@@ -460,14 +460,14 @@ const Auth = () => {
         <div className="w-full max-w-md">
           {/* Brand Logo */}
           <div className="text-center mb-8">
-            <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-16 mx-auto mb-8" />
+            <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Bilmodul" className="h-16 mx-auto mb-8" />
           </div>
           
           <Card className="shadow-lg border-0">
             <CardContent className="p-8">
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-semibold text-gray-900 mb-2">Välkommen!</h2>
-                <p className="text-gray-600">Logga in till Veksla genom att ange din e-postadress</p>
+                <p className="text-gray-600">Logga in till Bilmodul genom att ange din e-postadress</p>
               </div>
               
               <form onSubmit={e => {
@@ -504,7 +504,7 @@ const Auth = () => {
       <div className="w-full max-w-md">
         {/* Brand Logo */}
         <div className="text-center mb-8">
-          <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" className="h-16 mx-auto mb-8" />
+          <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Bilmodul" className="h-16 mx-auto mb-8" />
         </div>
         
         <Card className="shadow-lg border-0">

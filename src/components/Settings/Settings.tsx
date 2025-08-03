@@ -117,7 +117,7 @@ export const Settings = () => {
           const { data: orgData } = await supabase
             .from('organizations')
             .select('id')
-            .eq('name', 'Veksla Bilhandel')
+            .eq('name', 'Bilmodul Bilhandel')
             .single();
 
           const { data: newProfile, error: createError } = await supabase
