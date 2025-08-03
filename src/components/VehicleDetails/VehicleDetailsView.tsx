@@ -770,17 +770,6 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
           Påkostnad
         </Button>
         <Button 
-          variant={activeButton === 'bokforing' ? 'default' : 'outline'} 
-          className={`flex-1 ${activeButton === 'bokforing' ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
-          onClick={() => {
-            setActiveButton('bokforing');
-            handleBookkeeping();
-          }}
-        >
-          <Calculator className="h-4 w-4 mr-2" />
-          Bokföring
-        </Button>
-        <Button 
           variant={activeButton === 'forsaljning' ? 'default' : 'outline'} 
           className={`flex-1 ${activeButton === 'forsaljning' ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
           onClick={() => {
@@ -790,6 +779,17 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
         >
           <TrendingUp className="h-4 w-4 mr-2" />
           Försäljning
+        </Button>
+        <Button 
+          variant={activeButton === 'bokforing' ? 'default' : 'outline'} 
+          className={`flex-1 ${activeButton === 'bokforing' ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+          onClick={() => {
+            setActiveButton('bokforing');
+            handleBookkeeping();
+          }}
+        >
+          <Calculator className="h-4 w-4 mr-2" />
+          Bokföring
         </Button>
         <Button 
           variant="outline" 
