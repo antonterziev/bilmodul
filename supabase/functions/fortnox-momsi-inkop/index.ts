@@ -505,13 +505,15 @@ serve(async (req) => {
           });
         }
 
+        const invoiceTotal = netBaseAmount - downPaymentAmount;
+        
         invoicePayload = {
           SupplierInvoice: {
             SupplierNumber: "1",
             InvoiceNumber: inventoryItem.registration_number,
             InvoiceDate: inventoryItem.purchase_date || new Date().toISOString().split('T')[0],
             Project: projectNumber,
-            Total: 0, // Set to 0 to prevent automatic 2440 entry - only TOT will be created
+            Total: invoiceTotal, // Purchase price less 25% less down payment
             VAT: 0,
             SupplierInvoiceRows: supplierInvoiceRows
           }
