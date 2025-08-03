@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { DashboardStats } from "@/components/Dashboard/DashboardStats";
 import { VehicleList } from "@/components/Dashboard/VehicleList";
 import { PurchaseForm } from "@/components/Dashboard/PurchaseForm";
-import { SalesForm } from "@/components/Sales/SalesForm";
+
 import { Settings } from "@/components/Settings/Settings";
 import { DeleteAccount } from "@/components/Settings/DeleteAccount";
 import { AdminDashboard } from "@/components/Admin/AdminDashboard";
@@ -44,7 +44,7 @@ const Index = () => {
   // Form and data states
   const [purchaseFormKey, setPurchaseFormKey] = useState(0);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
-  const [selectedSaleVehicleId, setSelectedSaleVehicleId] = useState<string | null>(null);
+  
   const [viewingVehicleId, setViewingVehicleId] = useState<string | null>(null);
   
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -136,10 +136,6 @@ const Index = () => {
     setSelectedVehicleId(null);
     setViewingVehicleId(null); // Clear vehicle details view when navigating
     
-    // Only reset selectedSaleVehicleId if not going to sales view
-    if (view !== "sales") {
-      setSelectedSaleVehicleId(null);
-    }
     
     // Handle special cases
     if (view === "registrera_inkop") {
@@ -388,15 +384,6 @@ const Index = () => {
         );
 
 
-      case "sales":
-        return <SalesForm 
-          vehicleId={selectedSaleVehicleId || undefined}
-          onBack={() => handleViewChange(previousView)}
-          onSuccess={() => {
-            handleViewChange("overview");
-            loadStats();
-          }}
-        />;
 
       case "settings":
         return <Settings />;
@@ -489,10 +476,6 @@ const Index = () => {
               searchTerm={searchTerm}
               sortField={sortField}
               sortOrder={sortOrder}
-              onSellVehicle={(vehicleId) => {
-                setSelectedSaleVehicleId(vehicleId);
-                handleViewChange("sales");
-              }}
               onViewVehicle={(vehicleId) => {
                 setViewingVehicleId(vehicleId);
               }}

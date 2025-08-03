@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, DollarSign, FileText, Trash2, Car, Plus, TrendingUp, Calculator, Edit, Save, X, Upload, RefreshCw } from "lucide-react";
+import { ArrowLeft, DollarSign, FileText, Trash2, Car, Plus, Calculator, Edit, Save, X, Upload, RefreshCw } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { useToast } from "@/hooks/use-toast";
 
@@ -487,12 +487,6 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
     return baseValue + (vehicle.additional_costs || 0);
   };
 
-  const handleSell = () => {
-    toast({
-      title: "Säljfunktion",
-      description: "Säljfunktionen kommer att implementeras här.",
-    });
-  };
 
   const handleBookkeeping = () => {
     toast({
@@ -767,17 +761,6 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
         >
           <Plus className="h-4 w-4 mr-2" />
           Påkostnad
-        </Button>
-        <Button 
-          variant={activeButton === 'forsaljning' ? 'default' : 'outline'} 
-          className={`flex-1 ${activeButton === 'forsaljning' ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
-          onClick={() => {
-            setActiveButton('forsaljning');
-            handleSell();
-          }}
-        >
-          <TrendingUp className="h-4 w-4 mr-2" />
-          Försäljning
         </Button>
         <Button 
           variant={activeButton === 'bokforing' ? 'default' : 'outline'} 
