@@ -1003,7 +1003,7 @@ export const PurchaseForm = ({
                 {form.watch("down_payment") > 0 && <div>
                     <Label htmlFor="down_payment_document">Handpenningsunderlag</Label>
                     <div className="space-y-2">
-                      {!uploadedFile ? <div>
+                      {!uploadedFile ? <div className="min-h-[60px] flex flex-col justify-center">
                           <div className="relative">
                             <Input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onChange={e => {
                         const file = e.target.files?.[0];
@@ -1018,7 +1018,7 @@ export const PurchaseForm = ({
                           </div>
                           <p className="text-sm text-muted-foreground">Ingen fil vald</p>
                           {isUploading && <p className="text-sm text-muted-foreground">Laddar upp fil...</p>}
-                        </div> : <div className="flex items-center justify-between p-2 border rounded-md bg-muted/50">
+                        </div> : <div className="flex items-center justify-between p-2 border rounded-md bg-muted/50 min-h-[60px]">
                           <div className="flex items-center space-x-2">
                             <Upload className="h-4 w-4" />
                             <span className="text-sm">{uploadedFile.name}</span>
@@ -1042,7 +1042,7 @@ export const PurchaseForm = ({
                 {/* 8. Inköpsunderlag - moved to same row as Anteckning */}
                 <div>
                   <Label htmlFor="purchase_documentation">Inköpsunderlag</Label>
-                  {!uploadedPurchaseDoc ? <div>
+                  {!uploadedPurchaseDoc ? <div className="min-h-[60px] flex flex-col justify-center">
                         <div className="relative">
                           <Input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onChange={e => {
                       const file = e.target.files?.[0];
@@ -1067,7 +1067,7 @@ export const PurchaseForm = ({
                               Laddar upp fil...
                             </p>
                           </div>}
-                      </div> : <div className="flex items-center justify-between p-2 border rounded-md bg-muted/50">
+                      </div> : <div className="flex items-center justify-between p-2 border rounded-md bg-muted/50 min-h-[60px]">
                         <div className="flex items-center space-x-2">
                           <Upload className="h-4 w-4" />
                           <span className="text-sm truncate max-w-48">{uploadedPurchaseDoc.name}</span>
