@@ -912,7 +912,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
               <Card>
                 <CardContent className="p-4">
                   <div className="text-sm font-medium text-muted-foreground">Lagervärde</div>
-                  <div className="text-2xl font-bold">{formatPrice(calculateStorageValue())}</div>
+                  <div className="text-2xl font-bold">{formatPrice(vehicle.inventory_value || 0)}</div>
                 </CardContent>
               </Card>
 
