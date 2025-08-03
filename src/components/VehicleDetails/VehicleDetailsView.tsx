@@ -826,11 +826,11 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="faktura" id="faktura" />
-                      <Label htmlFor="faktura" className="text-sm">Faktura</Label>
+                      <Label htmlFor="faktura" className="text-sm text-foreground">Faktura</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="kvitto" id="kvitto" />
-                      <Label htmlFor="kvitto" className="text-sm">Kvitto</Label>
+                      <Label htmlFor="kvitto" className="text-sm text-foreground">Kvitto</Label>
                     </div>
                   </RadioGroup>
                 </div>
