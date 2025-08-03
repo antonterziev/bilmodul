@@ -1051,7 +1051,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                             ) : (
                               <div className="font-medium text-sm">
                                 <div>{formatPrice(pakostnad.amount)}</div>
-                                <div className="text-xs text-muted-foreground">Moms (20%): {formatPrice(pakostnad.amount * 0.2)}</div>
+                                <div className="text-xs text-muted-foreground">Moms: {formatPrice(pakostnad.amount * 0.2)}</div>
                               </div>
                             )}
                           </div>
