@@ -440,19 +440,19 @@ serve(async (req) => {
         const downPaymentAmount = inventoryItem.down_payment || 0;
         console.log(`💰 Down payment amount: ${downPaymentAmount}`);
         
-        // Calculate VAT breakdown - for MOMSI EU purchases (25% VAT)
-        // The purchase price should be treated as gross, and we deduct 25% for the net amount
+        // Calculate VAT breakdown - for MOMSI EU purchases (20% VAT)
+        // The purchase price includes 20% VAT that needs to be separated
         const totalPurchaseAmount = inventoryItem.purchase_price;
-        const netBaseAmount = Math.round(totalPurchaseAmount * 0.75); // 75% of purchase price (net of 25% VAT)
-        const vatAmount = Math.round(netBaseAmount * 0.25); // 25% of the net base amount
+        const vatAmount = Math.round(totalPurchaseAmount * 0.20); // 20% VAT of total purchase price
+        const netBaseAmount = totalPurchaseAmount - vatAmount; // Purchase price less 20% VAT
         
         console.log(`💰 Total purchase amount: ${totalPurchaseAmount}`);
-        console.log(`💰 Net base amount (excluding VAT): ${netBaseAmount}`);
-        console.log(`💰 VAT amount (25%): ${vatAmount}`);
+        console.log(`💰 VAT amount (20% of total): ${vatAmount}`);
+        console.log(`💰 Net base amount (purchase price less VAT): ${netBaseAmount}`);
         
-        // Calculate the amount to be invoiced (total - down payment)
-        const invoiceAmount = totalPurchaseAmount - downPaymentAmount;
-        console.log(`💰 Invoice amount (total - down payment): ${invoiceAmount}`);
+        // Calculate the supplier debt amount (net amount less down payment)
+        const supplierDebtAmount = netBaseAmount - downPaymentAmount;
+        console.log(`💰 Supplier debt amount (net less down payment): ${supplierDebtAmount}`);
 
         // Get additional account numbers for MOMSI EU structure
         const utgaendeMomsOmvandAccountNumber = accountNumberMap['Utgående moms, omvänd betalningsskyldighet, 25 %'] || '2614';
@@ -505,7 +505,7 @@ serve(async (req) => {
           });
         }
 
-        const invoiceTotal = netBaseAmount - downPaymentAmount;
+        const invoiceTotal = supplierDebtAmount;
         
         invoicePayload = {
           SupplierInvoice: {
