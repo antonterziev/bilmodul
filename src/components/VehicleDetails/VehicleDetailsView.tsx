@@ -474,7 +474,16 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
 
   const calculateStorageValue = () => {
     if (!vehicle) return 0;
-    return vehicle.purchase_price + (vehicle.additional_costs || 0);
+    
+    const vatType = vehicle.vat_type || '';
+    let baseValue = vehicle.purchase_price;
+    
+    // For MOMSI and MOMS, deduct 20% VAT from purchase price
+    if (vatType === 'MOMSI' || vatType === 'MOMS') {
+      baseValue = vehicle.purchase_price * 0.8; // Purchase price less 20%
+    }
+    
+    return baseValue;
   };
 
   const handleSell = () => {
@@ -902,7 +911,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
               <Card>
                 <CardContent className="p-4">
                   <div className="text-sm font-medium text-muted-foreground">Lagervärde</div>
-                  <div className="text-2xl font-bold">{formatPrice(vehicle.inventory_value || 0)}</div>
+                  <div className="text-2xl font-bold">{formatPrice(calculateStorageValue())}</div>
                 </CardContent>
               </Card>
 
