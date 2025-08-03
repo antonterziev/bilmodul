@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { ArrowLeft, DollarSign, FileText, Trash2, Car, Plus, TrendingUp, Calculator, Edit, Save, X, Upload, RefreshCw } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { useToast } from "@/hooks/use-toast";
@@ -78,6 +80,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
   const [pakostnadSupplier, setPakostnadSupplier] = useState('');
   const [pakostnadCategory, setPakostnadCategory] = useState('');
   const [pakostnadDocument, setPakostnadDocument] = useState<File | null>(null);
+  const [pakostnadType, setPakostnadType] = useState<string>('faktura');
   const [suppliers, setSuppliers] = useState<Array<{supplierNumber: string, name: string, organisationNumber: string}>>([]);
   const [pakostnader, setPakostnader] = useState<Array<any>>([]);
   const [loadingPakostnader, setLoadingPakostnader] = useState(false);
@@ -813,6 +816,24 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
             <Card>
               <CardContent className="p-4 space-y-4">
                 <div className="text-sm font-medium text-foreground">Ny påkostnad</div>
+                
+                {/* Document type radio buttons */}
+                <div>
+                  <RadioGroup 
+                    value={pakostnadType} 
+                    onValueChange={setPakostnadType}
+                    className="flex flex-row space-x-6"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="faktura" id="faktura" />
+                      <Label htmlFor="faktura" className="text-sm font-medium">Faktura</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="kvitto" id="kvitto" />
+                      <Label htmlFor="kvitto" className="text-sm font-medium">Kvitto</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
                 
                 {/* Leverantör */}
                 <div>
