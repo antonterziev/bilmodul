@@ -4,10 +4,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Car, Trash2, Eye, DollarSign, RefreshCw, ExternalLink } from "lucide-react";
+import { Car, Trash2, Eye, DollarSign, RefreshCw } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface Vehicle {
   id: string;
@@ -22,8 +21,6 @@ interface Vehicle {
   status: string;
   fortnox_sync_status?: string;
   fortnox_verification_number?: string;
-  fortnox_invoice_number?: string;
-  fortnox_project_number?: string;
   vat_type?: string;
   user_id: string;
   registered_by?: string; // User's name who registered the vehicle
@@ -56,8 +53,6 @@ export const VehicleList = ({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [syncingId, setSyncingId] = useState<string | null>(null);
   const [forceUpdate, setForceUpdate] = useState(0);
-  const [invoiceDialogOpen, setInvoiceDialogOpen] = useState(false);
-  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   
   // Use ref to track mounted state and cleanup timers
   const mountedRef = useRef(true);
@@ -130,8 +125,7 @@ export const VehicleList = ({
         .select(`
           id, registration_number, brand, model, purchase_date, selling_date, 
           purchaser, purchase_price, selling_price, status, 
-          fortnox_sync_status, fortnox_verification_number, fortnox_invoice_number, 
-          fortnox_project_number, vat_type, user_id, inventory_value
+          fortnox_sync_status, fortnox_verification_number, vat_type, user_id, inventory_value
         `);
 
       // Apply status filter if not 'all'
@@ -472,11 +466,6 @@ export const VehicleList = ({
     onViewVehicle?.(vehicleId);
   };
 
-  const handleShowInvoiceDialog = (vehicle: Vehicle) => {
-    setSelectedVehicle(vehicle);
-    setInvoiceDialogOpen(true);
-  };
-
   const handleOpenFortnoxVoucher = async (verificationNumber: string) => {
     
     
@@ -643,12 +632,12 @@ export const VehicleList = ({
                                : 'border-orange-500 text-orange-700 bg-orange-50'
                            }`}
                            title={vehicle.fortnox_verification_number ? `Verifikation: ${vehicle.fortnox_verification_number}` : undefined}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (vehicle.fortnox_sync_status === 'synced') {
-                                handleShowInvoiceDialog(vehicle);
-                              }
-                            }}
+                           onClick={(e) => {
+                             e.stopPropagation();
+                             if (vehicle.fortnox_sync_status === 'synced' && vehicle.fortnox_verification_number) {
+                               handleOpenFortnoxVoucher(vehicle.fortnox_verification_number);
+                             }
+                           }}
                         >
                            {vehicle.fortnox_sync_status === 'synced' ? 'Bokförd' : 
                             vehicle.fortnox_sync_status === 'failed' ? 'Ej syncat' : 'Inte bokförd'}
@@ -736,71 +725,6 @@ export const VehicleList = ({
           </div>
         )}
       </CardContent>
-
-      {/* Invoice Dialog */}
-      <Dialog open={invoiceDialogOpen} onOpenChange={setInvoiceDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Faktura Information</DialogTitle>
-          </DialogHeader>
-          {selectedVehicle && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Fordon</p>
-                  <p className="text-base">
-                    {selectedVehicle.brand} {selectedVehicle.model} ({selectedVehicle.registration_number})
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Momsregel</p>
-                  <p className="text-base">{selectedVehicle.vat_type || "Ej angiven"}</p>
-                </div>
-              </div>
-              
-              <div className="space-y-3 border-t pt-4">
-                {selectedVehicle.fortnox_verification_number && (
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Verifikationsnummer</p>
-                      <p className="text-base">{selectedVehicle.fortnox_verification_number}</p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleOpenFortnoxVoucher(selectedVehicle.fortnox_verification_number!)}
-                      className="flex items-center gap-2"
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                      Öppna verifikation
-                    </Button>
-                  </div>
-                )}
-                
-                {selectedVehicle.fortnox_invoice_number && (
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Fakturanummer</p>
-                    <p className="text-base">{selectedVehicle.fortnox_invoice_number}</p>
-                  </div>
-                )}
-                
-                {selectedVehicle.fortnox_project_number && (
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Projektnummer</p>
-                    <p className="text-base">{selectedVehicle.fortnox_project_number}</p>
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex justify-end pt-4 border-t">
-                <Button variant="outline" onClick={() => setInvoiceDialogOpen(false)}>
-                  Stäng
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </Card>
   );
 };
