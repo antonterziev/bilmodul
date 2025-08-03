@@ -483,7 +483,8 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
       baseValue = vehicle.purchase_price * 0.8; // Purchase price less 20%
     }
     
-    return baseValue;
+    // Add additional costs for all cases
+    return baseValue + (vehicle.additional_costs || 0);
   };
 
   const handleSell = () => {
