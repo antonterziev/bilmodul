@@ -461,13 +461,8 @@ serve(async (req) => {
         const beraknadIngaendeMomsAccountNumber = accountNumberMap['Beräknad ingående moms på förvärv från utlandet'] || '2645';
 
         // Build rows for MOMSI EU purchase accounting structure matching the image
+        // Note: Fortnox automatically creates the 2440 (Leverantörsskulder) entry based on the invoice total
         const supplierInvoiceRows = [
-          {
-            Account: leverantorskulderAccountNumber, // 2440 - Leverantörsskulder
-            Debit: 0.0,
-            Credit: invoiceAmount,
-            Project: projectNumber
-          },
           {
             Account: momsAccountNumber, // 1412 - Lager - Momsbilar - EU
             Debit: totalPurchaseAmount,
