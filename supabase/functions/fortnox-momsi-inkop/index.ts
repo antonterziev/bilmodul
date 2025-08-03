@@ -494,28 +494,19 @@ serve(async (req) => {
           }
         ];
 
-        // If down payment exists, add it to rows and adjust supplier debt
+        // Add leverantörsskulder entry (this balances the total purchase amount)
+        supplierInvoiceRows.push({
+          Account: leverantorskulderAccountNumber, // 2440 - Leverantörsskulder
+          Credit: invoiceAmount,
+          Debit: 0.0,
+          Project: projectNumber
+        });
+
+        // If down payment exists, add förskottsbetalning credit entry
         if (downPaymentAmount && downPaymentAmount > 0) {
-          // Add förskottsbetalning credit entry
           supplierInvoiceRows.push({
             Account: forskottsbetalningAccountNumber, // 1680 - Förskottsbetalning
             Credit: downPaymentAmount,
-            Debit: 0.0,
-            Project: projectNumber
-          });
-          
-          // Add leverantörsskulder credit entry (reduced by down payment)
-          supplierInvoiceRows.push({
-            Account: leverantorskulderAccountNumber, // 2440 - Leverantörsskulder
-            Credit: invoiceAmount,
-            Debit: 0.0,
-            Project: projectNumber
-          });
-        } else {
-          // No down payment - full amount as leverantörsskulder
-          supplierInvoiceRows.push({
-            Account: leverantorskulderAccountNumber, // 2440 - Leverantörsskulder
-            Credit: totalPurchaseAmount,
             Debit: 0.0,
             Project: projectNumber
           });
