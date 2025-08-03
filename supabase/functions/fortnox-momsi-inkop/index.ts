@@ -574,6 +574,7 @@ serve(async (req) => {
         // Save invoice number and update sync status
         await supabase.from('inventory_items').update({
           fortnox_invoice_number: invoiceNumber,
+          fortnox_verification_number: invoiceNumber, // Use the invoice number as verification number
           fortnox_sync_status: 'synced',
           fortnox_synced_at: new Date().toISOString(),
           fortnox_synced_by_user_id: syncingUserId

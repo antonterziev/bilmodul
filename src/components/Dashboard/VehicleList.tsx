@@ -635,16 +635,8 @@ export const VehicleList = ({
                            title={vehicle.fortnox_verification_number ? `Verifikation: ${vehicle.fortnox_verification_number}` : undefined}
                              onClick={(e) => {
                                e.stopPropagation();
-                               console.log('Badge clicked:', {
-                                 sync_status: vehicle.fortnox_sync_status,
-                                 verification_number: vehicle.fortnox_verification_number,
-                                 vehicle_id: vehicle.id
-                               });
                                if (vehicle.fortnox_sync_status === 'synced' && vehicle.fortnox_verification_number) {
-                                 console.log('Opening dialog for vehicle:', vehicle.registration_number);
                                  handleOpenFortnoxDialog(vehicle);
-                               } else {
-                                 console.log('Cannot open dialog - vehicle not synced or missing verification number');
                                }
                              }}
                         >
