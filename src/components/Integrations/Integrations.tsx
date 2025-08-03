@@ -830,6 +830,86 @@ export const Integrations = () => {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
+                          {category.accounts.map((account) => (
+                            <TableRow key={account.number}>
+                               <TableCell>
+                                 <div className="flex items-center gap-2">
+                                   <Input
+                                     type="text"
+                                     value={accountNumbers[account.name] || account.number}
+                                     onChange={(e) => handleAccountNumberChange(account.name, e.target.value)}
+                                     className="w-20 h-8 text-center font-medium"
+                                     placeholder="0000"
+                                     maxLength={4}
+                                   />
+                                   <Button
+                                     variant="outline"
+                                     size="sm"
+                                     className="h-8 px-2 text-xs"
+                                     onClick={() => saveAccountNumber(account.name)}
+                                     disabled={!accountNumbers[account.name] || accountNumbers[account.name].length !== 4}
+                                   >
+                                     Spara
+                                   </Button>
+                                 </div>
+                               </TableCell>
+                              <TableCell>{account.name}</TableCell>
+                              <TableCell>
+                                <Input
+                                  type="text"
+                                  value={
+                                    // Show the actual account name from Fortnox, or appropriate status message
+                                    fortnoxAccountNames[account.name] && 
+                                    !["Konto ej kontrollerat", "Kontonummer ej aktivt"].includes(fortnoxAccountNames[account.name])
+                                      ? fortnoxAccountNames[account.name] // Real account name from Fortnox
+                                      : "" // Empty if no real name found
+                                  }
+                                  disabled
+                                  className="h-8 bg-muted text-muted-foreground cursor-not-allowed"
+                                  readOnly
+                                  placeholder={
+                                    !accountNumbers[account.name] && !account.number 
+                                      ? "Kontonummer saknas"
+                                      : fortnoxAccountNames[account.name] === "Kontonummer ej aktivt"
+                                        ? "Kontonummer ej aktivt"
+                                        : "Konto ej kontrollerat"
+                                  }
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Badge 
+                                  variant="default"
+                                  className={`text-xs whitespace-nowrap px-2 justify-center w-16 text-white ${
+                                    // Only show green/Aktiv if we have a real account name (not error messages)
+                                    fortnoxAccountNames[account.name] && 
+                                    !["Konto ej kontrollerat", "Kontonummer ej aktivt", "Kontonummer saknas", "Fel vid kontroll"].includes(fortnoxAccountNames[account.name])
+                                      ? 'bg-green-500 hover:bg-green-500'
+                                      : 'bg-gray-400 hover:bg-gray-400'
+                                  }`}
+                                >
+                                  {/* Only show Aktiv if we have a real account name from Fortnox */}
+                                  {fortnoxAccountNames[account.name] && 
+                                   !["Konto ej kontrollerat", "Kontonummer ej aktivt", "Kontonummer saknas", "Fel vid kontroll"].includes(fortnoxAccountNames[account.name]) 
+                                    ? 'Aktiv' : 'Inaktiv'}
+                                </Badge>
+                              </TableCell>
+                               <TableCell className="text-center">
+                                 <Button 
+                                   variant="outline" 
+                                   size="sm" 
+                                   className="w-10 h-10 p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
+                                   onClick={() => checkAccountInFortnox(account.name)}
+                                   disabled={checkingAccounts[account.name]}
+                                 >
+                                   {checkingAccounts[account.name] ? (
+                                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                                   ) : (
+                                     <ArrowUpDown className="h-4 w-4" />
+                                   )}
+                                 </Button>
+                               </TableCell>
+                            </TableRow>
+                          ))}
                         </TableBody>
                       </Table>
                     </div>
