@@ -112,8 +112,6 @@ export const Integrations = () => {
         { number: "4020", name: "Inköp - VMB" },
         { number: "4021", name: "Inköp - VMB EU" },
         { number: "4030", name: "Påkostnader" },
-        { number: "4515", name: "Inköp av varor från EU" },
-        { number: "4519", name: "Motkonto inköp av varor från EU" },
         { number: "4531", name: "Inköp av varor från EU" },
         { number: "4539", name: "Motkonto inköp av varor från EU" }
       ]
