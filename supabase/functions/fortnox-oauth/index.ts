@@ -29,7 +29,7 @@ serve(async (req) => {
       return new Response(null, {
         status: 302,
         headers: {
-          'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${encodeURIComponent('Server configuration error')}`
+          'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${encodeURIComponent('Server configuration error')}`
         }
       });
     }
@@ -60,7 +60,7 @@ serve(async (req) => {
       return new Response(null, {
         status: 302,
         headers: {
-          'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+          'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
         }
       });
     }
@@ -71,7 +71,7 @@ serve(async (req) => {
       return new Response(null, {
         status: 302,
         headers: {
-          'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+          'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
         }
       });
     }
@@ -99,7 +99,7 @@ serve(async (req) => {
       return new Response(null, {
         status: 302,
         headers: {
-          'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+          'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
         }
       });
     }
@@ -121,7 +121,7 @@ serve(async (req) => {
         return new Response(null, {
           status: 302,
           headers: {
-            'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+            'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
           }
         });
       }
@@ -132,7 +132,7 @@ serve(async (req) => {
         return new Response(null, {
           status: 302,
           headers: {
-            'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+            'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
           }
         });
       }
@@ -143,7 +143,7 @@ serve(async (req) => {
         return new Response(null, {
           status: 302,
           headers: {
-            'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+            'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
           }
         });
       }
@@ -157,7 +157,7 @@ serve(async (req) => {
         return new Response(null, {
           status: 302,
           headers: {
-            'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+            'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
           }
         });
       }
@@ -240,7 +240,7 @@ serve(async (req) => {
         return new Response(null, {
           status: 302,
           headers: {
-            'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+            'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
           }
         });
       }
@@ -292,7 +292,7 @@ serve(async (req) => {
         return new Response(null, {
           status: 302,
           headers: {
-            'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+            'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
           }
         });
       }
@@ -303,7 +303,7 @@ serve(async (req) => {
         return new Response(null, {
           status: 302,
           headers: {
-            'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+            'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
           }
         });
       }
@@ -338,7 +338,7 @@ serve(async (req) => {
         return new Response(null, {
           status: 302,
           headers: {
-            'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+            'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
           }
         });
       }
@@ -358,7 +358,7 @@ serve(async (req) => {
       return new Response(null, {
         status: 302,
         headers: {
-          'Location': `https://lagermodulen.se/fortnox-callback?status=success&message=${successMessage}`
+          'Location': `https://bilmodul.se/fortnox-callback?status=success&message=${successMessage}`
         }
       });
 
@@ -368,7 +368,7 @@ serve(async (req) => {
       return new Response(null, {
         status: 302,
         headers: {
-          'Location': `https://lagermodulen.se/fortnox-callback?status=error&message=${errorMessage}`
+          'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
         }
       });
     }

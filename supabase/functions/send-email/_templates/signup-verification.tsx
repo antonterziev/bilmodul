@@ -57,7 +57,7 @@ export const SignupVerificationEmail = ({
         {/* Main CTA Button */}
         <div style={buttonContainer}>
           <Link
-            href={`${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=https://lagermodulen.se/onboarding`}
+            href={`${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=https://bilmodul.se/onboarding`}
             style={button}
           >
             Bekräfta e-post
@@ -65,7 +65,7 @@ export const SignupVerificationEmail = ({
         </div>
 
         <Text style={footerText}>
-          Om du inte försökte registrera dig för <Link href="https://lagermodulen.se" style={link}>Veksla</Link> kan du ignorera detta meddelande.
+          Om du inte försökte registrera dig för <Link href="https://bilmodul.se" style={link}>Veksla</Link> kan du ignorera detta meddelande.
         </Text>
 
         <Text style={footer}>

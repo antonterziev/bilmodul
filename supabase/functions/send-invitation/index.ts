@@ -143,7 +143,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Send invitation email
-    const inviteUrl = `https://lagermodulen.se/onboarding?invite=true&email=${encodeURIComponent(email)}`;
+    const inviteUrl = `https://bilmodul.se/onboarding?invite=true&email=${encodeURIComponent(email)}`;
     
     // Format permissions for email
     const permissionDisplayNames: Record<string, string> = {
@@ -157,7 +157,7 @@ const handler = async (req: Request): Promise<Response> => {
     const formattedPermissions = permissions.map(permission => permissionDisplayNames[permission] || permission).join(', ');
     
     const emailResponse = await resend.emails.send({
-      from: "Veksla Bilhandel <noreply@lagermodulen.se>",
+      from: "Veksla Bilhandel <noreply@bilmodul.se>",
       to: [email],
       subject: `Inbjudan till ${organization.name}`,
       html: `

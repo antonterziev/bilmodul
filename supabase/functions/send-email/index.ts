@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
       )
 
       const { data, error } = await resend.emails.send({
-        from: 'Veksla <noreply@lagermodulen.se>',
+        from: 'Veksla <noreply@bilmodul.se>',
         to: [user.email],
         subject: `${token}. Använd den koden för att bekräfta din e-post`,
         html,
@@ -74,12 +74,12 @@ Deno.serve(async (req) => {
 
       console.log('Custom signup email sent successfully to:', user.email)
     } else if (email_action_type === 'recovery') {
-      // Ensure we're using the correct domain - force lagermodulen.se
-      const correctDomain = 'https://lagermodulen.se';
+      // Ensure we're using the correct domain - force bilmodul.se
+      const correctDomain = 'https://bilmodul.se';
       let resetUrl = '';
-      
+
       // Always use the correct domain regardless of what redirect_to contains
-      if (redirect_to && redirect_to.includes('lagermodulen.se')) {
+      if (redirect_to && redirect_to.includes('bilmodul.se')) {
         resetUrl = `${redirect_to}?token_hash=${token_hash}&type=recovery`;
       } else {
         // Force correct domain if redirect_to is wrong
@@ -92,7 +92,7 @@ Deno.serve(async (req) => {
       const html = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
-            <img src="https://lagermodulen.se/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" style="height: 60px;" />
+            <img src="https://bilmodul.se/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" style="height: 60px;" />
           </div>
           <h1 style="color: #333; text-align: center; margin-bottom: 30px;">Återställ ditt lösenord</h1>
           <p style="color: #555; font-size: 16px; line-height: 1.6;">Hej!</p>
@@ -111,7 +111,7 @@ Deno.serve(async (req) => {
       `;
 
       const { data, error } = await resend.emails.send({
-        from: 'Veksla <noreply@lagermodulen.se>',
+        from: 'Veksla <noreply@bilmodul.se>',
         to: [user.email],
         subject: 'Återställ ditt lösenord - Veksla',
         html,
