@@ -1290,7 +1290,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
 
                     {/* 4. Momskategori */}
                     <div className="md:col-span-2">
-                      <div className="text-sm text-muted-foreground mb-1">Momskategori</div>
+                      <div className="text-sm text-muted-foreground mb-1">Momsmetod</div>
                       <RadioGroup value={salesVatCategory} onValueChange={setSalesVatCategory} className="flex flex-row gap-6">
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="VMB" id="vat-vmb" />
