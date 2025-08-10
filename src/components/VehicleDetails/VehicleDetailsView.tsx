@@ -1258,7 +1258,15 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                             selected={salesDate}
                             onSelect={setSalesDate}
                             className="pointer-events-auto"
-                            disabled={(date) => date > new Date()}
+                            disabled={(date) => {
+                              const d = new Date(date);
+                              d.setHours(0,0,0,0);
+                              const today = new Date();
+                              today.setHours(0,0,0,0);
+                              const min = vehicle?.purchase_date ? new Date(vehicle.purchase_date) : undefined;
+                              if (min) min.setHours(0,0,0,0);
+                              return d > today || (min ? d < min : false);
+                            }}
                           />
                         </PopoverContent>
                       </Popover>
