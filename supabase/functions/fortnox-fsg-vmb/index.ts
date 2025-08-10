@@ -9,7 +9,7 @@ const corsHeaders = {
 // Get API documentation from fortnox-docs function
 async function getFortnoxApiDocs(endpoint?: string, method?: string) {
   try {
-    const baseUrl = Deno.env.get('SUPABASE_URL')?.replace('//', '//').replace(/\//$/, '');
+    const baseUrl = (Deno.env.get('SUPABASE_URL') || '').replace(/\/$/, '');
     const docsUrl = `${baseUrl}/functions/v1/fortnox-docs`;
     
     let url = docsUrl;
