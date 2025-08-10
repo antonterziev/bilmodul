@@ -6,7 +6,7 @@ const Landing = () => {
     <div className="min-h-screen bg-background flex flex-col items-center justify-center space-y-8">
       {/* Centered Logo */}
       <div className="flex items-center justify-center">
-        <img src="/lovable-uploads/6c75fa63-fcda-4592-96f8-e8d9fe767606.png" alt="Bilmodul logotyp" className="h-16" loading="eager" fetchPriority="high" />
+        <img src="/lovable-uploads/600c4315-b18a-44c9-9a47-d558560c64a8.png" alt="Bilmodul logotyp" className="h-16" loading="eager" fetchPriority="high" />
       </div>
       
       {/* Kom igång Button */}
