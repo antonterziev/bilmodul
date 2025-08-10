@@ -10,8 +10,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, DollarSign, FileText, Trash2, Car, Plus, TrendingUp, Calculator, Edit, Save, X, Upload, RefreshCw } from "lucide-react";
+import { Calendar as CalendarIcon } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface VehicleDetails {
   id: string;
@@ -1219,8 +1223,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                 )}
               </CardContent>
             </Card>
-          ) : (
-            {activeButton === 'forsaljning' ? (
+          ) : activeButton === 'forsaljning' ? (
               <Card className="flex-1">
                 <CardHeader>
                   <CardTitle>Försäljning</CardTitle>
@@ -1440,7 +1443,6 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                   </div>
                 </CardContent>
               </Card>
-            )}
           )}
 
           {/* Notes section - only show when not in påkostnad mode */}
