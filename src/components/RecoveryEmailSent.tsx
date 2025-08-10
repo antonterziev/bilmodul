@@ -16,7 +16,7 @@ const RecoveryEmailSent = ({ email, onBack, onResend, isResending = false, email
       <div className="w-full max-w-md">
         {/* Brand Logo */}
         <div className="text-center mb-8">
-          <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Bilmodul" className="h-16 mx-auto mb-8" />
+          <img src="/lovable-uploads/600c4315-b18a-44c9-9a47-d558560c64a8.png" alt="Bilmodul" className="h-16 mx-auto mb-8" />
         </div>
         
         <Card className="shadow-lg border-0 bg-white">
