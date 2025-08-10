@@ -1441,7 +1441,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
           )}
 
           {/* Notes section - only show when not in påkostnad mode */}
-          {activeButton !== 'pakostnad' && (
+          {activeButton !== 'pakostnad' && activeButton !== 'forsaljning' && (
             <Card className="flex-1">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle>Anteckningar</CardTitle>
