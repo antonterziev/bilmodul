@@ -136,9 +136,10 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
       loadInvitations(); // Refresh the list
     } catch (error: any) {
       console.error('Error sending invitation:', error);
+      const serverMessage = (error as any)?.context?.error || (error as any)?.message || "Kunde inte skicka inbjudan";
       toast({
         title: "Fel",
-        description: error.message || "Kunde inte skicka inbjudan",
+        description: serverMessage,
         variant: "destructive",
       });
     } finally {
@@ -170,9 +171,10 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
       loadInvitations(); // Refresh to update timestamp
     } catch (error: any) {
       console.error('Error resending invitation:', error);
+      const serverMessage = (error as any)?.context?.error || (error as any)?.message || "Kunde inte skicka inbjudan igen";
       toast({
         title: "Fel",
-        description: error.message || "Kunde inte skicka inbjudan igen",
+        description: serverMessage,
         variant: "destructive",
       });
     }

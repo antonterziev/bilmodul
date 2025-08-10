@@ -43,6 +43,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Get the authorization header to identify the current user
     const authHeader = req.headers.get("Authorization");
+    console.log("Authorization header present:", !!authHeader);
     if (!authHeader) {
       throw new Error("No authorization header");
     }
@@ -157,7 +158,7 @@ const handler = async (req: Request): Promise<Response> => {
     const formattedPermissions = permissions.map(permission => permissionDisplayNames[permission] || permission).join(', ');
     
     const emailResponse = await resend.emails.send({
-      from: "Veksla Bilhandel <noreply@bilmodul.se>",
+      from: "Bilmodul Bilhandel <noreply@bilmodul.se>",
       to: [email],
       subject: `Inbjudan till ${organization.name}`,
       html: `
