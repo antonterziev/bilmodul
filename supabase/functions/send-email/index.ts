@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
       )
 
       const { data, error } = await resend.emails.send({
-        from: 'Veksla <noreply@bilmodul.se>',
+        from: 'Bilmodul <noreply@bilmodul.se>',
         to: [user.email],
         subject: `${token}. Använd den koden för att bekräfta din e-post`,
         html,
@@ -92,11 +92,11 @@ Deno.serve(async (req) => {
       const html = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
-            <img src="https://bilmodul.se/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Veksla" style="height: 60px;" />
+            <img src="https://bilmodul.se/lovable-uploads/600c4315-b18a-44c9-9a47-d558560c64a8.png" alt="Bilmodul" style="height: 60px;" />
           </div>
           <h1 style="color: #333; text-align: center; margin-bottom: 30px;">Återställ ditt lösenord</h1>
           <p style="color: #555; font-size: 16px; line-height: 1.6;">Hej!</p>
-          <p style="color: #555; font-size: 16px; line-height: 1.6;">Du har begärt att återställa ditt lösenord för Veksla. Klicka på knappen nedan för att skapa ett nytt lösenord:</p>
+          <p style="color: #555; font-size: 16px; line-height: 1.6;">Du har begärt att återställa ditt lösenord för Bilmodul. Klicka på knappen nedan för att skapa ett nytt lösenord:</p>
           <div style="text-align: center; margin: 40px 0;">
             <a href="${resetUrl}" style="background-color: #3b82f6; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; font-size: 16px;">
               Återställ lösenord
@@ -105,15 +105,15 @@ Deno.serve(async (req) => {
           <p style="color: #555; font-size: 16px; line-height: 1.6;">Om du inte begärt denna återställning kan du ignorera detta e-postmeddelande.</p>
           <p style="color: #555; font-size: 16px; line-height: 1.6;">Länken är giltig i 1 timme.</p>
           <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee;">
-            <p style="color: #888; font-size: 14px; text-align: center;">Med vänlig hälsning,<br>Veksla-teamet</p>
+            <p style="color: #888; font-size: 14px; text-align: center;">Med vänlig hälsning,<br>Bilmodul-teamet</p>
           </div>
         </div>
       `;
 
       const { data, error } = await resend.emails.send({
-        from: 'Veksla <noreply@bilmodul.se>',
+        from: 'Bilmodul <noreply@bilmodul.se>',
         to: [user.email],
-        subject: 'Återställ ditt lösenord - Veksla',
+        subject: 'Återställ ditt lösenord - Bilmodul',
         html,
       })
 

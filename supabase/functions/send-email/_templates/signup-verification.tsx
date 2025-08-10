@@ -31,15 +31,15 @@ export const SignupVerificationEmail = ({
 }: SignupVerificationEmailProps) => (
   <Html>
     <Head />
-    <Preview>Välkommen till Veksla - Bekräfta din e-post</Preview>
+    <Preview>Välkommen till Bilmodul - Bekräfta din e-post</Preview>
     <Body style={main}>
       <Container style={container}>
         {/* Veksla Logo */}
         <div style={logoContainer}>
-          <Text style={logoText}>Veksla</Text>
+          <Img src="https://bilmodul.se/lovable-uploads/600c4315-b18a-44c9-9a47-d558560c64a8.png" alt="Bilmodul logotyp" style={{ height: '48px', margin: '0 auto' }} />
         </div>
         
-        <Heading style={h1}>Välkommen till Veksla</Heading>
+        <Heading style={h1}>Välkommen till Bilmodul</Heading>
         
         <Text style={text}>
           För att göra klart din registrering, var vänlig klicka på knappen nedan
@@ -65,12 +65,12 @@ export const SignupVerificationEmail = ({
         </div>
 
         <Text style={footerText}>
-          Om du inte försökte registrera dig för <Link href="https://bilmodul.se" style={link}>Veksla</Link> kan du ignorera detta meddelande.
+          Om du inte försökte registrera dig för <Link href="https://bilmodul.se" style={link}>Bilmodul</Link> kan du ignorera detta meddelande.
         </Text>
 
         <Text style={footer}>
           Med vänliga hälsningar,<br />
-          Veksla-teamet
+          Bilmodul-teamet
         </Text>
       </Container>
     </Body>
