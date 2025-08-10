@@ -28,11 +28,11 @@ interface UserInvitationsProps {
 // Available permissions (renamed from roles)
 const AVAILABLE_PERMISSIONS = [
   { key: 'admin', label: 'Admin' },
-  { key: 'lager', label: 'Lager' },
-  { key: 'ekonomi', label: 'Ekonomi' },
   { key: 'inkop', label: 'Inköp' },
+  { key: 'lager', label: 'Lager' },
   { key: 'pakostnad', label: 'Påkostnad' },
-  { key: 'forsaljning', label: 'Försäljning' }
+  { key: 'forsaljning', label: 'Försäljning' },
+  { key: 'ekonomi', label: 'Ekonomi' }
 ];
 
 export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId }) => {
