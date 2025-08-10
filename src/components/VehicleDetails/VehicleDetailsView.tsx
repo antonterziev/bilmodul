@@ -568,12 +568,8 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
     return baseValue + (vehicle.additional_costs || 0);
   };
 
-  const handleSell = () => {
-    toast({
-      title: "Säljfunktion",
-      description: "Säljfunktionen kommer att implementeras här.",
-    });
-  };
+  // Removed placeholder handleSell toast
+
 
 
   const handleBookkeeping = () => {
@@ -855,7 +851,6 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
           className={`flex-1 ${activeButton === 'forsaljning' ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
           onClick={() => {
             setActiveButton('forsaljning');
-            handleSell();
           }}
         >
           <TrendingUp className="h-4 w-4 mr-2" />
