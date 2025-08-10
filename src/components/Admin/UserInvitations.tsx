@@ -45,7 +45,7 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
   const [email, setEmail] = useState('');
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>(['lager']);
   
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -119,7 +119,8 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
           email: email.trim(),
           permissions: selectedPermissions, // Send array of permissions
           organizationId
-        }
+        },
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
       });
 
       if (error) throw error;
@@ -155,7 +156,8 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
           email: invitation.email,
           permissions: invitation.permissions, // Send array of permissions
           organizationId
-        }
+        },
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
       });
 
       if (error) throw error;
