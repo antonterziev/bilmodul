@@ -310,7 +310,7 @@ const Auth = () => {
         <div className="w-full max-w-md">
           {/* Brand Logo */}
           <div className="text-center mb-8">
-            <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Bilmodul" className="h-16 mx-auto mb-8" />
+            <img src="/lovable-uploads/600c4315-b18a-44c9-9a47-d558560c64a8.png" alt="Bilmodul" className="h-16 mx-auto mb-8" />
           </div>
           
           <Card className="shadow-lg border-0">
@@ -343,7 +343,7 @@ const Auth = () => {
         <div className="flex-1 flex items-center justify-center bg-white p-8">
           <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Bilmodul" className="h-16 mx-auto mb-6" />
+            <img src="/lovable-uploads/600c4315-b18a-44c9-9a47-d558560c64a8.png" alt="Bilmodul" className="h-16 mx-auto mb-6" />
             <h2 className="text-2xl font-semibold text-gray-900 mb-2">
               Kom igång med bilbranschens mest innovativa{" "}
               <span className={`inline-block w-44 text-left transition-opacity duration-300 ${isWordVisible ? 'opacity-100' : 'opacity-0'}`}>
@@ -419,7 +419,7 @@ const Auth = () => {
         <div className="w-full max-w-md">
           {/* Brand Logo */}
           <div className="text-center mb-8">
-            <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Bilmodul" className="h-16 mx-auto mb-8" />
+            <img src="/lovable-uploads/600c4315-b18a-44c9-9a47-d558560c64a8.png" alt="Bilmodul" className="h-16 mx-auto mb-8" />
           </div>
           
           <Card className="shadow-lg border-0">
@@ -460,7 +460,7 @@ const Auth = () => {
         <div className="w-full max-w-md">
           {/* Brand Logo */}
           <div className="text-center mb-8">
-            <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Bilmodul" className="h-16 mx-auto mb-8" />
+            <img src="/lovable-uploads/600c4315-b18a-44c9-9a47-d558560c64a8.png" alt="Bilmodul" className="h-16 mx-auto mb-8" />
           </div>
           
           <Card className="shadow-lg border-0">
@@ -504,7 +504,7 @@ const Auth = () => {
       <div className="w-full max-w-md">
         {/* Brand Logo */}
         <div className="text-center mb-8">
-          <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Bilmodul" className="h-16 mx-auto mb-8" />
+          <img src="/lovable-uploads/600c4315-b18a-44c9-9a47-d558560c64a8.png" alt="Bilmodul" className="h-16 mx-auto mb-8" />
         </div>
         
         <Card className="shadow-lg border-0">
