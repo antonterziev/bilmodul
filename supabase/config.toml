@@ -26,3 +26,6 @@ verify_jwt = true
 
 [functions.fortnox-vmbi-inkop]
 verify_jwt = true
+
+[functions.fortnox-fsg-vmb]
+verify_jwt = true
