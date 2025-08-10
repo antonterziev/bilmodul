@@ -88,6 +88,13 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
   const [syncingPakostnad, setSyncingPakostnad] = useState<string | null>(null);
   const [suppliersLoading, setSuppliersLoading] = useState(false);
 
+  // Försäljning form state
+  const [salesUsers, setSalesUsers] = useState<Array<{ user_id: string; full_name: string; email: string }>>([]);
+  const [selectedSellerId, setSelectedSellerId] = useState<string>("");
+  const [salesDate, setSalesDate] = useState<Date | undefined>(new Date());
+  const [salesPriceDisplay, setSalesPriceDisplay] = useState<string>("");
+  const [salesVatCategory, setSalesVatCategory] = useState<string>("VMB");
+
   useEffect(() => {
     if (vehicleId && user) {
       loadVehicleDetails();
@@ -114,6 +121,56 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
       loadPakostnader();
     }
   }, [activeButton, vehicleId]);
+
+  // Load sellers (users with 'försäljning' permission) when opening Försäljning tab
+  useEffect(() => {
+    const loadSalesUsers = async () => {
+      if (activeButton !== 'forsaljning' || !user?.id) return;
+      try {
+        // Get current user's organization
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('organization_id')
+          .eq('user_id', user.id)
+          .single();
+        if (profileError) throw profileError;
+
+        if (!profileData?.organization_id) return;
+
+        // Get all profiles in same organization
+        const { data: orgProfiles, error: orgProfilesError } = await supabase
+          .from('profiles')
+          .select('user_id, full_name, email, first_name, last_name')
+          .eq('organization_id', profileData.organization_id);
+        if (orgProfilesError) throw orgProfilesError;
+
+        // Filter to only those with 'forsaljning' permission using the SECURITY DEFINER function
+        const withPermission = await Promise.all(
+          (orgProfiles || []).map(async (p) => {
+            const { data: hasSales, error } = await supabase.rpc('has_permission', {
+              _user_id: p.user_id,
+              _permission: 'forsaljning'
+            } as any);
+            if (error) {
+              console.warn('Permission check error:', error);
+              return null;
+            }
+            if (hasSales) {
+              const fullName = p.full_name || `${p.first_name || ''} ${p.last_name || ''}`.trim() || p.email;
+              return { user_id: p.user_id, full_name: fullName, email: p.email };
+            }
+            return null;
+          })
+        );
+
+        setSalesUsers(withPermission.filter(Boolean) as Array<{ user_id: string; full_name: string; email: string }>);
+      } catch (e) {
+        console.error('Error loading sales users:', e);
+      }
+    };
+
+    loadSalesUsers();
+  }, [activeButton, user]);
 
   const loadSuppliers = async () => {
     try {
@@ -412,6 +469,23 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('sv-SE');
+  };
+
+  // Format price with thousands separator and decimals (for typing)
+  const formatPriceWithThousands = (value: string) => {
+    const cleanValue = value.replace(/\s/g, '').replace(/,/g, '.');
+    if (!cleanValue) return '';
+    const num = parseFloat(cleanValue);
+    if (isNaN(num)) return value;
+    return num.toLocaleString('sv-SE', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  };
+
+  const handleSalesPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const cleanValue = value.replace(/\s/g, '').replace(/,/g, '.');
+    if (cleanValue === '' || /^\d+([.,]\d{0,2})?$/.test(cleanValue)) {
+      setSalesPriceDisplay(value === '' ? '' : formatPriceWithThousands(value));
+    }
   };
 
   const getStatusVariant = (status: string) => {
@@ -1146,123 +1220,227 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
               </CardContent>
             </Card>
           ) : (
-            <Card className="flex-1">
-              <CardHeader>
-                <CardTitle>Fakta</CardTitle>
-              </CardHeader>
-              <CardContent className="flex-1">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                  {/* Row 1 - Top three: Märke, Modell, Regnummer */}
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Märke</div>
-                    <div className="font-medium">{vehicle.brand}</div>
-                  </div>
-                  
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Modell</div>
-                    <div className="font-medium">{vehicle.model || '-'}</div>
-                  </div>
-                  
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Regnummer</div>
-                    <div className="font-medium">{vehicle.registration_number}</div>
-                  </div>
-
-                  {/* Row 2 - Modellår, Miltal, Datum i trafik */}
-                  {vehicle.year_model ? (
+            {activeButton === 'forsaljning' ? (
+              <Card className="flex-1">
+                <CardHeader>
+                  <CardTitle>Försäljning</CardTitle>
+                </CardHeader>
+                <CardContent className="flex-1 p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* 1. Säljare */}
                     <div>
-                      <div className="text-sm text-muted-foreground mb-1">Modellår</div>
-                      <div className="font-medium">{vehicle.year_model}</div>
+                      <div className="text-sm text-muted-foreground mb-1">Säljare</div>
+                      <Select value={selectedSellerId} onValueChange={setSelectedSellerId}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Välj säljare" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {salesUsers.map((u) => (
+                            <SelectItem key={u.user_id} value={u.user_id}>
+                              {u.full_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
-                  ) : (
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Modellår</div>
-                      <div className="font-medium">-</div>
-                    </div>
-                  )}
-                  
-                  {vehicle.mileage ? (
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Miltal</div>
-                      <div className="font-medium">{vehicle.mileage.toLocaleString('sv-SE')} km</div>
-                    </div>
-                  ) : (
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Miltal</div>
-                      <div className="font-medium">-</div>
-                    </div>
-                  )}
-                  
-                  {vehicle.first_registration_date ? (
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Datum i trafik</div>
-                      <div className="font-medium">{formatDate(vehicle.first_registration_date)}</div>
-                    </div>
-                  ) : (
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Datum i trafik</div>
-                      <div className="font-medium">-</div>
-                    </div>
-                  )}
 
-                  {/* Row 3 */}
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Bränsle</div>
-                    <div className="font-medium">-</div>
-                  </div>
-                  
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Växellåda</div>
-                    <div className="font-medium">-</div>
-                  </div>
+                    {/* 2. Försäljningsdatum */}
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Försäljningsdatum</div>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="w-full justify-start text-left font-normal">
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {salesDate ? format(salesDate, 'yyyy-MM-dd') : 'Välj datum'}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={salesDate}
+                            onSelect={setSalesDate}
+                            className="pointer-events-auto"
+                            disabled={(date) => date > new Date()}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
 
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Hästkrafter</div>
-                    <div className="font-medium">-</div>
-                  </div>
-
-                  {/* Row 4 */}
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Biltyp</div>
-                    <div className="font-medium">-</div>
-                  </div>
-                  
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Motorstorlek</div>
-                    <div className="font-medium">-</div>
-                  </div>
-
-                  {/* Row 5 */}
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Färg</div>
-                    <div className="font-medium">-</div>
-                  </div>
-
-                  {/* Sales info for sold vehicles */}
-                  {vehicle.status === 'såld' && (
-                    <div className="col-span-2 md:col-span-3 pt-4 border-t">
-                      <h4 className="font-semibold mb-4">Försäljningsinformation</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {vehicle.selling_date && (
-                          <div>
-                            <div className="text-sm text-muted-foreground mb-1">Säljdatum</div>
-                            <div className="font-medium">{formatDate(vehicle.selling_date)}</div>
-                          </div>
-                        )}
-                        
-                        {vehicle.selling_price && (
-                          <div>
-                            <div className="text-sm text-muted-foreground mb-1">Säljpris</div>
-                            <div className="font-medium">{formatPrice(vehicle.selling_price)}</div>
+                    {/* 3. Försäljningspris (inkl. moms) */}
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Försäljningspris (inkl. moms)</div>
+                      <div className="relative">
+                        <Input
+                          type="text"
+                          value={salesPriceDisplay}
+                          onChange={handleSalesPriceChange}
+                          placeholder="t.ex. 200,000"
+                          className="pr-20"
+                        />
+                        <div className="absolute inset-y-0 right-0 flex items-center">
+                          <Select value="SEK" disabled>
+                            <SelectTrigger className="w-16 h-8 border-0 bg-transparent text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="SEK">SEK</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
-                        )}
                       </div>
                     </div>
-                  )}
 
-                </div>
-              </CardContent>
-            </Card>
+                    {/* 4. Momskategori */}
+                    <div className="md:col-span-2">
+                      <div className="text-sm text-muted-foreground mb-1">Momskategori</div>
+                      <RadioGroup value={salesVatCategory} onValueChange={setSalesVatCategory} className="flex flex-row gap-6">
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="VMB" id="vat-vmb" />
+                          <Label htmlFor="vat-vmb" className="font-normal cursor-pointer">VMB</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="MOMS" id="vat-moms" />
+                          <Label htmlFor="vat-moms" className="font-normal cursor-pointer">MOMS (25%)</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="IMPORT" id="vat-import" />
+                          <Label htmlFor="vat-import" className="font-normal cursor-pointer">Import</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="EXPORT_EU" id="vat-export-eu" />
+                          <Label htmlFor="vat-export-eu" className="font-normal cursor-pointer">Export (inom EU)</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+
+                    {/* 5. Registrera försäljning */}
+                    <div className="md:col-span-2">
+                      <Button className="w-full" disabled>
+                        Registrera försäljning
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="flex-1">
+                <CardHeader>
+                  <CardTitle>Fakta</CardTitle>
+                </CardHeader>
+                <CardContent className="flex-1">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                    {/* Row 1 - Top three: Märke, Modell, Regnummer */}
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Märke</div>
+                      <div className="font-medium">{vehicle.brand}</div>
+                    </div>
+                    
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Modell</div>
+                      <div className="font-medium">{vehicle.model || '-'}</div>
+                    </div>
+                    
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Regnummer</div>
+                      <div className="font-medium">{vehicle.registration_number}</div>
+                    </div>
+
+                    {/* Row 2 - Modellår, Miltal, Datum i trafik */}
+                    {vehicle.year_model ? (
+                      <div>
+                        <div className="text-sm text-muted-foreground mb-1">Modellår</div>
+                        <div className="font-medium">{vehicle.year_model}</div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="text-sm text-muted-foreground mb-1">Modellår</div>
+                        <div className="font-medium">-</div>
+                      </div>
+                    )}
+                    
+                    {vehicle.mileage ? (
+                      <div>
+                        <div className="text-sm text-muted-foreground mb-1">Miltal</div>
+                        <div className="font-medium">{vehicle.mileage.toLocaleString('sv-SE')} km</div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="text-sm text-muted-foreground mb-1">Miltal</div>
+                        <div className="font-medium">-</div>
+                      </div>
+                    )}
+                    
+                    {vehicle.first_registration_date ? (
+                      <div>
+                        <div className="text-sm text-muted-foreground mb-1">Datum i trafik</div>
+                        <div className="font-medium">{formatDate(vehicle.first_registration_date)}</div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="text-sm text-muted-foreground mb-1">Datum i trafik</div>
+                        <div className="font-medium">-</div>
+                      </div>
+                    )}
+
+                    {/* Row 3 */}
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Bränsle</div>
+                      <div className="font-medium">-</div>
+                    </div>
+                    
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Växellåda</div>
+                      <div className="font-medium">-</div>
+                    </div>
+
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Hästkrafter</div>
+                      <div className="font-medium">-</div>
+                    </div>
+
+                    {/* Row 4 */}
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Biltyp</div>
+                      <div className="font-medium">-</div>
+                    </div>
+                    
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Motorstorlek</div>
+                      <div className="font-medium">-</div>
+                    </div>
+
+                    {/* Row 5 */}
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Färg</div>
+                      <div className="font-medium">-</div>
+                    </div>
+
+                    {/* Sales info for sold vehicles */}
+                    {vehicle.status === 'såld' && (
+                      <div className="col-span-2 md:col-span-3 pt-4 border-t">
+                        <h4 className="font-semibold mb-4">Försäljningsinformation</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {vehicle.selling_date && (
+                            <div>
+                              <div className="text-sm text-muted-foreground mb-1">Säljdatum</div>
+                              <div className="font-medium">{formatDate(vehicle.selling_date)}</div>
+                            </div>
+                          )}
+                          
+                          {vehicle.selling_price && (
+                            <div>
+                              <div className="text-sm text-muted-foreground mb-1">Säljpris</div>
+                              <div className="font-medium">{formatPrice(vehicle.selling_price)}</div>
+                          </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           )}
 
           {/* Notes section - only show when not in påkostnad mode */}
