@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -20,6 +21,8 @@ interface Invitation {
   created_at: string;
   invited_by_user_id: string;
 }
+
+interface Organization { id: string; name: string; }
 
 interface UserInvitationsProps {
   organizationId: string;
@@ -44,20 +47,26 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
   // Form state - now using array for multiple permissions
   const [email, setEmail] = useState('');
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>(['lager']);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [selectedOrgId, setSelectedOrgId] = useState<string>(organizationId);
   
   const { user, session } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
+    loadOrganizations();
+  }, []);
+
+  useEffect(() => {
     loadInvitations();
-  }, [organizationId]);
+  }, [selectedOrgId]);
 
   const loadInvitations = async () => {
     try {
       const { data, error } = await supabase
         .from('invitations')
         .select('*')
-        .eq('organization_id', organizationId)
+        .eq('organization_id', selectedOrgId || organizationId)
         .neq('status', 'accepted') // Filter out accepted invitations
         .order('created_at', { ascending: false });
 
@@ -77,6 +86,21 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadOrganizations = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('organizations')
+        .select('id, name');
+      if (error) throw error;
+      setOrganizations(data || []);
+      if (!selectedOrgId && data && data.length > 0) {
+        setSelectedOrgId(data[0].id);
+      }
+    } catch (error) {
+      console.error('Error loading organizations:', error);
     }
   };
 
@@ -112,13 +136,18 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
       return;
     }
 
+    if (!selectedOrgId) {
+      toast({ title: "Fel", description: "Välj organisation", variant: "destructive" });
+      return;
+    }
+
     setSending(true);
     try {
       const { data, error } = await supabase.functions.invoke('send-invitation', {
         body: {
           email: email.trim(),
           permissions: selectedPermissions, // Send array of permissions
-          organizationId
+          organizationId: selectedOrgId
         },
         headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
       });
@@ -156,7 +185,7 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
         body: {
           email: invitation.email,
           permissions: invitation.permissions, // Send array of permissions
-          organizationId
+          organizationId: selectedOrgId
         },
         headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
       });
@@ -270,6 +299,21 @@ export const UserInvitations: React.FC<UserInvitationsProps> = ({ organizationId
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="användare@exempel.se"
                 />
+              </div>
+
+              <div>
+                <Label htmlFor="org">Organisation</Label>
+                <Select value={selectedOrgId} onValueChange={setSelectedOrgId}>
+                  <SelectTrigger id="org">
+                    <SelectValue placeholder="Välj organisation" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {organizations.map((org) => (
+                      <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">Välj vilken organisation användaren ska bjudas in till.</p>
               </div>
               
               <div>
