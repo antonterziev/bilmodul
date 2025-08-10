@@ -158,7 +158,7 @@ const handler = async (req: Request): Promise<Response> => {
     const formattedPermissions = permissions.map(permission => permissionDisplayNames[permission] || permission).join(', ');
     
     const emailResponse = await resend.emails.send({
-      from: "Bilmodul Bilhandel <noreply@bilmodul.se>",
+      from: "Bilmodul <noreply@bilmodul.se>",
       to: [email],
       subject: `Inbjudan till ${organization.name}`,
       html: `
