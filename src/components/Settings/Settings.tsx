@@ -351,7 +351,7 @@ export const Settings = () => {
       <h2 className="text-2xl font-bold">Inställningar</h2>
 
       <Tabs defaultValue="profile" className="w-full">
-        <TabsList className={`grid w-full ${(userRoles.includes('admin') || userRoles.includes('superuser')) ? 'grid-cols-4' : 'grid-cols-3'}`}>
+        <TabsList className={`grid w-full ${userRoles.includes('admin') ? 'grid-cols-4' : 'grid-cols-3'}`}>
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <User className="w-4 h-4" />
             Profil
@@ -360,7 +360,7 @@ export const Settings = () => {
             <Lock className="w-4 h-4" />
             Lösenord
           </TabsTrigger>
-          {(userRoles.includes('admin') || userRoles.includes('superuser')) && (
+          {userRoles.includes('admin') && (
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
               Användare
@@ -495,7 +495,7 @@ export const Settings = () => {
           </Card>
         </TabsContent>
 
-        {(userRoles.includes('admin') || userRoles.includes('superuser')) && (
+        {userRoles.includes('admin') && (
           <TabsContent value="users" className="space-y-4">
             {profile?.organization_id && (
               <UserInvitations organizationId={profile.organization_id} />
