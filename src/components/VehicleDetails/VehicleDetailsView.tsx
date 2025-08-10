@@ -97,7 +97,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
   const [selectedSellerId, setSelectedSellerId] = useState<string>("");
   const [salesDate, setSalesDate] = useState<Date | undefined>(new Date());
   const [salesPriceDisplay, setSalesPriceDisplay] = useState<string>("");
-  const [salesVatCategory, setSalesVatCategory] = useState<string>("VMB");
+  
 
   useEffect(() => {
     if (vehicleId && user) {
@@ -1296,28 +1296,6 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                       </div>
                     </div>
 
-                    {/* 4. Momskategori */}
-                    <div className="md:col-span-2">
-                      <div className="text-sm text-muted-foreground mb-1">Momsmetod</div>
-                      <RadioGroup value={salesVatCategory} onValueChange={setSalesVatCategory} className="flex flex-row gap-6">
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="VMB" id="vat-vmb" />
-                          <Label htmlFor="vat-vmb" className="font-normal cursor-pointer">VMB</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="MOMS" id="vat-moms" />
-                          <Label htmlFor="vat-moms" className="font-normal cursor-pointer">MOMS (25%)</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="IMPORT" id="vat-import" />
-                          <Label htmlFor="vat-import" className="font-normal cursor-pointer">Import</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="EXPORT_EU" id="vat-export-eu" />
-                          <Label htmlFor="vat-export-eu" className="font-normal cursor-pointer">Export (inom EU)</Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
 
                     {/* 5. Registrera försäljning */}
                     <div className="md:col-span-2">
