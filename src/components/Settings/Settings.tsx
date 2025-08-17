@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { User, Lock, AlertTriangle, Users } from "lucide-react";
 import { OrganizationUserManagement } from "./OrganizationUserManagement";
 import { UserInvitations } from "../Admin/UserInvitations";
+import { DeleteAccount } from "./DeleteAccount";
 
 interface UserProfile {
   id: string;
@@ -505,52 +506,7 @@ export const Settings = () => {
         )}
 
         <TabsContent value="danger" className="space-y-4">
-          <Card className="border-destructive">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-destructive">
-                <AlertTriangle className="h-5 w-5" />
-                Radera konto
-              </CardTitle>
-              <CardDescription>
-                Detta kommer permanent radera ditt konto och all associerad data. Denna åtgärd kan inte ångras.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-destructive/10 p-4 rounded-lg">
-                <h4 className="font-semibold text-destructive mb-2">Vad som kommer att raderas:</h4>
-                <ul className="text-sm space-y-1 text-muted-foreground">
-                  <li>• Din profil och kontoinformation</li>
-                  <li>• Alla registrerade fordon och lagerdata</li>
-                  <li>• Fortnox-integrationer och synkroniseringshistorik</li>
-                  <li>• Säljhistorik och dokumentation</li>
-                  <li>• Alla uppladdade filer och dokument</li>
-                </ul>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="confirm-delete">
-                  Skriv "radera" för att bekräfta att du vill radera ditt konto:
-                </Label>
-                <Input
-                  id="confirm-delete"
-                  type="text"
-                  value={confirmText}
-                  onChange={(e) => setConfirmText(e.target.value)}
-                  placeholder="Skriv 'radera' här"
-                  className="max-w-sm"
-                />
-              </div>
-
-              <Button
-                variant="destructive"
-                onClick={handleDeleteAccount}
-                disabled={confirmText.toLowerCase() !== 'radera' || isDeleting}
-                className="w-full"
-              >
-                {isDeleting ? 'Raderar...' : 'Radera konto permanent'}
-              </Button>
-            </CardContent>
-          </Card>
+          <DeleteAccount onBack={() => {}} />
         </TabsContent>
       </Tabs>
     </div>
