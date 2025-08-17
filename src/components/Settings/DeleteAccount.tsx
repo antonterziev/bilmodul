@@ -207,7 +207,7 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
               <li>• Alla registrerade fordon och lagerdata</li>
               <li>• Fortnox-integrationer och synkroniseringshistorik</li>
               <li>• Säljhistorik och dokumentation</li>
-              <li>• Alla uppladdade filer och dokument</li>
+              
             </ul>
           </div>
 
