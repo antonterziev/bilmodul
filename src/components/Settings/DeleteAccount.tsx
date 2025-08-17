@@ -246,7 +246,9 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
                 </Label>
                 <Input
                   id="confirm-delete"
+                  name="confirm-delete"
                   type="text"
+                  autoComplete="off"
                   value={confirmText}
                   onChange={(e) => setConfirmText(e.target.value)}
                   placeholder="Skriv 'RADERA' här"
