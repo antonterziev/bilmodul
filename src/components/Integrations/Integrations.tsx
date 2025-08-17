@@ -595,7 +595,7 @@ export const Integrations = () => {
               
               {fortnoxConnected && fortnoxIntegration ? (
                 <div className="flex items-center justify-between w-full">
-                  <div className="text-left ml-6">
+                  <div className="flex flex-col items-end ml-auto mr-8">
                     <p className="text-sm font-medium">
                       {fortnoxIntegration.company_name || 'Okänt företag'}
                     </p>
@@ -604,7 +604,6 @@ export const Integrations = () => {
                     </p>
                   </div>
                   <div className="flex gap-2">
-                    <div className="w-[7.5rem]"></div>
                     <Button
                       variant="destructive"
                       size="sm"
