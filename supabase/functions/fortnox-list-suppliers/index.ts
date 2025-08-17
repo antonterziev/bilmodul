@@ -1,8 +1,24 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+// Standard error response with stable codes
+function errorResponse(message: string, code: string, status: number = 400) {
+  return new Response(
+    JSON.stringify({ 
+      error: message, 
+      code,
+      timestamp: new Date().toISOString() 
+    }),
+    { 
+      status, 
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+    }
+  );
 }
 
 Deno.serve(async (req) => {

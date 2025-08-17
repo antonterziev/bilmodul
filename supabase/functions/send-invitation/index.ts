@@ -1,16 +1,35 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { Resend } from "npm:resend@2.0.0";
+import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface InvitationRequest {
-  email: string;
-  permissions: string[]; // Changed from roles to permissions
-  organizationId: string;
+// Request validation schema
+const InvitationRequestSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  permissions: z.array(z.enum(['admin', 'lager', 'inkop', 'forsaljning', 'ekonomi', 'pakostnad'])),
+  organizationId: z.string().uuid('Invalid organization ID'),
+});
+
+type InvitationRequest = z.infer<typeof InvitationRequestSchema>;
+
+// Standard error response with stable codes
+function errorResponse(message: string, code: string, status: number = 400) {
+  return new Response(
+    JSON.stringify({ 
+      error: message, 
+      code,
+      timestamp: new Date().toISOString() 
+    }),
+    { 
+      status, 
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+    }
+  );
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -37,8 +56,19 @@ const handler = async (req: Request): Promise<Response> => {
     // Initialize Resend
     const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
-    // Get request data
-    const { email, permissions, organizationId }: InvitationRequest = await req.json();
+    // Validate request data
+    const bodyRaw = await req.json();
+    const validationResult = InvitationRequestSchema.safeParse(bodyRaw);
+    
+    if (!validationResult.success) {
+      console.error('Validation error:', validationResult.error.errors);
+      return errorResponse(
+        'Invalid request body', 
+        'VALIDATION_ERROR'
+      );
+    }
+    
+    const { email, permissions, organizationId } = validationResult.data;
     console.log("Invitation request:", { email, permissions, organizationId });
 
     // Get the authorization header to identify the current user

@@ -1,10 +1,31 @@
 // ✅ Updated Fortnox sync-purchase function to support ArchiveFileId + attachment linking
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Request body validation schema
+const RequestBody = z.object({
+  inventoryItemId: z.string().uuid(),
+});
+
+// Standard error response with stable codes
+function errorResponse(message: string, code: string, status: number = 400) {
+  return new Response(
+    JSON.stringify({ 
+      error: message, 
+      code,
+      timestamp: new Date().toISOString() 
+    }),
+    { 
+      status, 
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+    }
+  );
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
@@ -19,17 +40,50 @@ Deno.serve(async (req) => {
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
     if (userError || !user) throw new Error('Unauthorized');
 
-    const { inventoryItemId } = await req.json();
-    if (!inventoryItemId) throw new Error('Missing inventoryItemId');
+    // Validate request body
+    const bodyRaw = await req.json();
+    const validationResult = RequestBody.safeParse(bodyRaw);
+    
+    if (!validationResult.success) {
+      console.error('Validation error:', validationResult.error.errors);
+      return errorResponse(
+        'Invalid request body', 
+        'VALIDATION_ERROR'
+      );
+    }
+    
+    const { inventoryItemId } = validationResult.data;
 
+    // Get inventory item and verify organization access
     const { data: inventoryItem, error: itemError } = await supabaseClient
       .from('inventory_items')
-      .select('*')
+      .select('*, organization_id')
       .eq('id', inventoryItemId)
+      .single();
+
+    if (itemError || !inventoryItem) {
+      return errorResponse('Inventory item not found', 'ITEM_NOT_FOUND', 404);
+    }
+
+    // Verify user's organization access
+    const { data: userProfile, error: profileError } = await supabaseClient
+      .from('profiles')
+      .select('organization_id')
       .eq('user_id', user.id)
       .single();
 
-    if (itemError || !inventoryItem) throw new Error('Inventory item not found');
+    if (profileError || !userProfile) {
+      return errorResponse('User profile not found', 'PROFILE_NOT_FOUND', 404);
+    }
+
+    if (inventoryItem.organization_id !== userProfile.organization_id) {
+      console.error('Organization access violation:', {
+        itemOrgId: inventoryItem.organization_id,
+        userOrgId: userProfile.organization_id,
+        userId: user.id
+      });
+      return errorResponse('Organization access denied', 'ORG_ACCESS_DENIED', 403);
+    }
     if (inventoryItem.fortnox_sync_status === 'synced') {
       return new Response(JSON.stringify({ success: true, message: 'Already synced' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -1,10 +1,32 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Request body validation schema
+const RequestBody = z.object({
+  pakostnadId: z.string().uuid(),
+  syncingUserId: z.string().uuid(),
+});
+
+// Standard error response with stable codes
+function errorResponse(message: string, code: string, status: number = 400) {
+  return new Response(
+    JSON.stringify({ 
+      error: message, 
+      code,
+      timestamp: new Date().toISOString() 
+    }),
+    { 
+      status, 
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+    }
+  );
+}
 
 // Helper function to get Fortnox API docs
 async function getFortnoxApiDocs(endpoint?: string, method?: string): Promise<any | null> {
@@ -37,17 +59,20 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const body = await req.json();
-    const { pakostnadId, syncingUserId } = body;
-
-    console.log('Processing påkostnad:', { pakostnadId, syncingUserId });
-
-    if (!pakostnadId) {
-      return new Response(
-        JSON.stringify({ error: 'pakostnadId is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    // Validate request body
+    const bodyRaw = await req.json();
+    const validationResult = RequestBody.safeParse(bodyRaw);
+    
+    if (!validationResult.success) {
+      console.error('Validation error:', validationResult.error.errors);
+      return errorResponse(
+        'Invalid request body', 
+        'VALIDATION_ERROR'
       );
     }
+    
+    const { pakostnadId, syncingUserId } = validationResult.data;
+    console.log('Processing påkostnad:', { pakostnadId, syncingUserId });
 
     // Get påkostnad details
     const { data: pakostnad, error: pakostnadError } = await supabase
@@ -76,7 +101,7 @@ serve(async (req) => {
 
     console.log('Påkostnad data:', pakostnad);
 
-    // Get syncing user's profile
+    // Verify organization membership for syncing user
     const { data: syncingProfile, error: profileError } = await supabase
       .from('profiles')
       .select('organization_id')
@@ -85,18 +110,17 @@ serve(async (req) => {
 
     if (profileError || !syncingProfile) {
       console.error('Error fetching syncing user profile:', profileError);
-      return new Response(
-        JSON.stringify({ error: 'Syncing user not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return errorResponse('Syncing user not found', 'USER_NOT_FOUND', 404);
     }
 
-    // Verify organization consistency
+    // Verify organization consistency - critical security check
     if (pakostnad.inventory_items.organization_id !== syncingProfile.organization_id) {
-      return new Response(
-        JSON.stringify({ error: 'Organization mismatch' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      console.error('Organization access violation:', {
+        pakostnadOrgId: pakostnad.inventory_items.organization_id,
+        userOrgId: syncingProfile.organization_id,
+        syncingUserId
+      });
+      return errorResponse('Organization access denied', 'ORG_ACCESS_DENIED', 403);
     }
 
     // Look for ANY active Fortnox integration within the same organization
