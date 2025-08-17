@@ -593,7 +593,7 @@ export const Integrations = () => {
             </div>
             <div className="flex items-center gap-3">
               <div className="flex flex-col items-center gap-1">
-                <span className="text-xs text-muted-foreground">Status</span>
+                
                 <Badge 
                   variant="default"
                   className={`text-xs whitespace-nowrap px-2 justify-center w-16 text-white bg-gray-400 hover:bg-gray-400 ${
