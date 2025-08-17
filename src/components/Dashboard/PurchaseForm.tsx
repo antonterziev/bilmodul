@@ -1033,7 +1033,7 @@ export const PurchaseForm = ({
                       }} disabled={isUploading} className="hidden" id="file-upload" />
                             <Button type="button" variant="outline" className="w-full justify-start text-left font-normal" onClick={() => document.getElementById('file-upload')?.click()} disabled={isUploading}>
                               <Upload className="mr-2 h-4 w-4" />
-                              Välj fil
+                              Välj fil (max 5mb)
                             </Button>
                           </div>
                           {isUploading && <p className="text-sm text-muted-foreground">Laddar upp fil...</p>}
