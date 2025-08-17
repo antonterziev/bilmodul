@@ -823,7 +823,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
         <h2 className="text-2xl font-bold">
           {vehicle.brand}{vehicle.model && ` ${vehicle.model}`} ({vehicle.registration_number})
         </h2>
-        <Button variant="ghost" onClick={onBack}>
+        <Button variant="outline" onClick={onBack}>
           Tillbaka
         </Button>
       </div>
