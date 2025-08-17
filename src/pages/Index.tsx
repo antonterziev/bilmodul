@@ -76,21 +76,24 @@ const Index = () => {
   const [disconnectingFortnox, setDisconnectingFortnox] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && !user) {
-      navigate("/login-or-signup");
-    } else if (!isLoading && user) {
-      // Check if email is verified first
-      if (!user.email_confirmed_at) {
+    // Only redirect if we're not in development mode
+    if (import.meta.env.MODE !== 'development') {
+      if (!isLoading && !user) {
         navigate("/login-or-signup");
-        return;
-      }
-      
-      // Check if user has completed onboarding
-      // Skip onboarding check if user is on password reset flow
-      const hasCompletedOnboarding = user.user_metadata?.onboarding_completed;
-      const isPasswordReset = window.location.pathname === '/password-reset';
-      if (!hasCompletedOnboarding && !isPasswordReset) {
-        navigate("/onboarding");
+      } else if (!isLoading && user) {
+        // Check if email is verified first
+        if (!user.email_confirmed_at) {
+          navigate("/login-or-signup");
+          return;
+        }
+        
+        // Check if user has completed onboarding
+        // Skip onboarding check if user is on password reset flow
+        const hasCompletedOnboarding = user.user_metadata?.onboarding_completed;
+        const isPasswordReset = window.location.pathname === '/password-reset';
+        if (!hasCompletedOnboarding && !isPasswordReset) {
+          navigate("/onboarding");
+        }
       }
     }
   }, [user, isLoading, navigate]);
@@ -333,6 +336,44 @@ const Index = () => {
           <p className="text-xl text-muted-foreground">Laddar...</p>
         </div>
       </div>
+    );
+  }
+
+  // In development, show a preview version even without user
+  if (!user && import.meta.env.MODE === 'development') {
+    return (
+      <SidebarProvider defaultOpen={true}>
+        <div className="min-h-screen w-full bg-background flex flex-col">
+          <div className="bg-white border-b flex h-16 z-10">
+            <div className="flex items-center pl-6 py-3 w-72">
+              <img src="/lovable-uploads/600c4315-b18a-44c9-9a47-d558560c64a8.png" alt="Bilmodul" className="h-8" />
+            </div>
+            <div className="flex-1 px-4 py-4 flex justify-end items-center">
+              <div className="text-sm text-muted-foreground">Development Preview</div>
+            </div>
+          </div>
+          <div className="flex flex-1">
+            <AppSidebar 
+              currentView={currentView}
+              onViewChange={handleViewChange}
+              expandedSections={expandedSections}
+              onSectionToggle={handleSectionToggle}
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              searchPlaceholder={searchPlaceholder}
+              hasVehicles={inventoryItems.length > 0}
+            />
+            <main className="flex-1 flex flex-col">
+              <div className="flex-1 overflow-auto">
+                <div className="p-6">
+                  <h2 className="text-2xl font-bold mb-4">Development Preview</h2>
+                  <p className="text-muted-foreground">This is a preview version. Authentication is disabled in development mode.</p>
+                </div>
+              </div>
+            </main>
+          </div>
+        </div>
+      </SidebarProvider>
     );
   }
 
