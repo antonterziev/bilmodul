@@ -15,7 +15,7 @@ interface DeleteAccountProps {
 export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
   const [confirmText, setConfirmText] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLastAdmin, setIsLastAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
