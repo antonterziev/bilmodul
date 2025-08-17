@@ -63,15 +63,16 @@ interface VehicleNote {
 interface VehicleDetailsViewProps {
   vehicleId: string;
   onBack: () => void;
+  initialTab?: string;
 }
 
-export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProps) => {
+export const VehicleDetailsView = ({ vehicleId, onBack, initialTab = 'vagnkort' }: VehicleDetailsViewProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [vehicle, setVehicle] = useState<VehicleDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const [activeButton, setActiveButton] = useState<string>('vagnkort');
+  const [activeButton, setActiveButton] = useState<string>(initialTab);
   
   // Notes state
   const [notes, setNotes] = useState<VehicleNote[]>([]);

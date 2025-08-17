@@ -46,7 +46,7 @@ const Index = () => {
   const [purchaseFormKey, setPurchaseFormKey] = useState(0);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   
-  const [viewingVehicleId, setViewingVehicleId] = useState<string | null>(null);
+  const [viewingVehicleId, setViewingVehicleId] = useState<{vehicleId: string; initialTab?: string} | null>(null);
   
   const [userProfile, setUserProfile] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -368,7 +368,8 @@ const Index = () => {
     if (viewingVehicleId) {
       return (
         <VehicleDetailsView 
-          vehicleId={viewingVehicleId} 
+          vehicleId={viewingVehicleId.vehicleId} 
+          initialTab={viewingVehicleId.initialTab}
           onBack={() => {
             setViewingVehicleId(null);
             // Stay on the current view (like lagerlista) when going back
@@ -489,8 +490,8 @@ const Index = () => {
               searchTerm={searchTerm}
               sortField={sortField}
               sortOrder={sortOrder}
-              onViewVehicle={(vehicleId) => {
-                setViewingVehicleId(vehicleId);
+              onViewVehicle={(vehicleId, initialTab) => {
+                setViewingVehicleId({vehicleId, initialTab});
               }}
               onStatsUpdate={loadStats}
             />
@@ -600,7 +601,7 @@ const Index = () => {
             searchPlaceholder={searchPlaceholder}
             hasVehicles={inventoryItems.length > 0}
             onVehicleSelect={(vehicleId) => {
-              setViewingVehicleId(vehicleId);
+              setViewingVehicleId({vehicleId});
             }}
           />
         

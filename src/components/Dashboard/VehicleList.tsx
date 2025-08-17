@@ -31,7 +31,7 @@ interface VehicleListProps {
   filter?: 'all' | 'på_lager' | 'såld';
   onStatsUpdate?: () => void;
   onSellVehicle?: (vehicleId: string) => void;
-  onViewVehicle?: (vehicleId: string) => void;
+  onViewVehicle?: (vehicleId: string, initialTab?: string) => void;
   searchTerm?: string;
   sortField?: 'storage-days' | 'purchase-price' | 'selling-price' | 'gross-profit';
   sortOrder?: 'desc' | 'asc';
@@ -692,7 +692,7 @@ export const VehicleList = ({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => onSellVehicle?.(vehicle.id)}
+                      onClick={() => onViewVehicle?.(vehicle.id, 'forsaljning')}
                       className="text-green-600 hover:bg-green-600 hover:text-white w-10 h-10 p-0"
                     >
                       <DollarSign className="h-4 w-4" />
