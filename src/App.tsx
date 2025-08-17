@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import FortnoxCallback from "./components/FortnoxCallback";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { DashboardSkeleton } from "@/components/LoadingSkeleton";
+import { SentryErrorBoundary } from "@/lib/sentry";
 
 
 const queryClient = new QueryClient({
@@ -32,29 +33,44 @@ const queryClient = new QueryClient({
 });
 
 const App = () => (
-  <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <Suspense fallback={<DashboardSkeleton />}>
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route path="/dashboard" element={<Index />} />
-              <Route path="/login-or-signup" element={<Auth />} />
-              <Route path="/onboarding" element={<Onboarding />} />
-              <Route path="/password-reset" element={<PasswordReset />} />
-              <Route path="/fortnox-callback" element={<FortnoxCallback />} />
-              
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </AuthProvider>
-      </BrowserRouter>
-    </QueryClientProvider>
-  </ErrorBoundary>
+  <SentryErrorBoundary fallback={({ error, resetError }) => (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="text-center space-y-4">
+        <h1 className="text-2xl font-bold text-foreground">Something went wrong</h1>
+        <p className="text-muted-foreground">We've been notified about this error</p>
+        <button 
+          onClick={resetError}
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+        >
+          Try again
+        </button>
+      </div>
+    </div>
+  )}>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <Suspense fallback={<DashboardSkeleton />}>
+              <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route path="/dashboard" element={<Index />} />
+                <Route path="/login-or-signup" element={<Auth />} />
+                <Route path="/onboarding" element={<Onboarding />} />
+                <Route path="/password-reset" element={<PasswordReset />} />
+                <Route path="/fortnox-callback" element={<FortnoxCallback />} />
+                
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </AuthProvider>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ErrorBoundary>
+  </SentryErrorBoundary>
 );
 
 export default App;
