@@ -580,27 +580,27 @@ export const VehicleList = ({
         ) : (
           <div className="space-y-4">
             {/* Header row */}
-            <div className="flex items-center gap-4 py-2 px-4 bg-muted/30 rounded-lg font-medium text-sm text-muted-foreground border">
+            <div className="flex items-center gap-2 py-2 px-4 bg-muted/30 rounded-lg font-medium text-sm text-muted-foreground border">
               <div className="flex-shrink-0 w-16">
                 {/* Brand logo space */}
               </div>
-              <div className="flex items-center gap-4 flex-1">
-                <div className="w-48">Fordon</div>
-                <div className="w-20 text-center">Status</div>
-                <div className="w-20 text-center">Bokföring</div>
-                <div className="w-24">Lagerdagar</div>
-                <div className="w-24">Momsregel</div>
-                <div className="w-20">Inköpare</div>
-                <div className="w-24">Lagervärde</div>
+              <div className="flex items-center gap-2 flex-1">
+                <div className="w-40">Fordon</div>
+                <div className="w-18 text-center">Status</div>
+                <div className="w-18 text-center">Bokföring</div>
+                <div className="w-20">Lagerdagar</div>
+                <div className="w-16">Momsregel</div>
+                <div className="w-16">Inköpare</div>
+                <div className="w-20">Lagervärde</div>
               </div>
-              <div className="flex-shrink-0 w-[180px]">
+              <div className="flex-shrink-0 w-[168px]">
                 {/* Actions space */}
               </div>
             </div>
 
             {/* Data rows */}
             {sortedVehicles.map((vehicle) => (
-              <div key={vehicle.id} className="flex items-center gap-4 py-4 border rounded-lg hover:bg-muted/50 transition-colors w-full cursor-pointer" onClick={() => handleView(vehicle.id)}>
+              <div key={vehicle.id} className="flex items-center gap-2 py-4 border rounded-lg hover:bg-muted/50 transition-colors w-full cursor-pointer" onClick={() => handleView(vehicle.id)}>
                 {/* Car icon or brand logo */}
                 <div className="flex-shrink-0 w-16 flex justify-start items-center pl-4">
                   <BrandLogo 
@@ -611,9 +611,9 @@ export const VehicleList = ({
                 </div>
                 
                  {/* Vehicle main info */}
-                 <div className="flex items-center gap-4 flex-1">
+                 <div className="flex items-center gap-2 flex-1">
                    {/* Column 1: Brand & Model + Registration */}
-                   <div className="w-48">
+                   <div className="w-40">
                      <h3 className="font-medium truncate" title={`${vehicle.brand} ${vehicle.model || ''}`}>
                        {vehicle.brand} {vehicle.model || ''}
                      </h3>
@@ -623,10 +623,10 @@ export const VehicleList = ({
                    </div>
                    
                    {/* Column 2: Status */}
-                   <div className="w-20 flex justify-center">
+                   <div className="w-18 flex justify-center">
                      <Badge 
                        variant={getStatusVariant(vehicle.status)} 
-                       className={`text-xs whitespace-nowrap px-2 justify-center w-20 ${
+                       className={`text-xs whitespace-nowrap px-2 justify-center w-18 ${
                          vehicle.status === 'på_lager' 
                            ? 'border-blue-500 text-blue-500 hover:border-blue-600 hover:text-blue-600' 
                            : vehicle.status === 'såld'
@@ -639,11 +639,11 @@ export const VehicleList = ({
                    </div>
 
                    {/* Column 3: Status 2 (Fortnox) */}
-                   <div className="w-20 flex justify-center">
+                   <div className="w-18 flex justify-center">
                       {vehicle.fortnox_sync_status && (
                          <Badge 
                            variant="outline"
-                           className={`text-xs px-1 w-20 justify-center whitespace-nowrap cursor-pointer ${
+                           className={`text-xs px-1 w-18 justify-center whitespace-nowrap cursor-pointer ${
                              vehicle.fortnox_sync_status === 'synced' 
                                ? 'border-green-500 text-green-700 bg-green-50 hover:bg-green-100' 
                                : vehicle.fortnox_sync_status === 'failed'
@@ -665,31 +665,31 @@ export const VehicleList = ({
                    </div>
                    
                    {/* Column 4: Storage Days */}
-                   <div className="w-24">
+                   <div className="w-20">
                      <p className="font-medium text-sm whitespace-nowrap">{calculateStorageDays(vehicle.purchase_date, vehicle.status, vehicle.selling_date)} {calculateStorageDays(vehicle.purchase_date, vehicle.status, vehicle.selling_date) === 1 ? 'dag' : 'dagar'}</p>
                    </div>
                    
                    {/* Column 5: VAT Type */}
-                   <div className="w-24">
+                   <div className="w-16">
                      <p className="font-medium whitespace-nowrap">{vehicle.vat_type === "Vinstmarginalbeskattning (VMB)" ? "VMB" : vehicle.vat_type || "Ej angiven"}</p>
                    </div>
                    
                    {/* Column 6: Registered By (Inköpare) */}
-                   <div className="w-20">
+                   <div className="w-16">
                      <p className="font-medium whitespace-nowrap text-sm" title={vehicle.registered_by}>
                        {formatPurchaserName(vehicle.registered_by || 'Okänd')}
                      </p>
                    </div>
                    
                     {/* Column 7: Purchase Price */}
-                    <div className="w-24">
+                    <div className="w-20">
                       <p className="font-medium">{formatPrice(vehicle.inventory_value || 0)}</p>
                     </div>
                  </div>
                 
                   {/* Action buttons */}
                    <TooltipProvider>
-                    <div className="flex-shrink-0 flex gap-2 w-[180px] justify-start" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex-shrink-0 flex gap-2 w-[168px] justify-start" onClick={(e) => e.stopPropagation()}>
                       {/* Påkostnad button */}
                       <Tooltip>
                         <TooltipTrigger asChild>
