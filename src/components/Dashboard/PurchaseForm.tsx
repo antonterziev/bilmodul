@@ -682,7 +682,7 @@ export const PurchaseForm = ({
                   <div>
                     <Label htmlFor="registration_number">Registreringsnummer*</Label>
                     <div className="relative">
-                      <Input id="registration_number" placeholder="t.ex. JSK15L eller 1234567890ABCDEFG" {...form.register("registration_number")} style={{ textTransform: 'uppercase' }} className={cn(form.formState.errors.registration_number && "border-destructive", isDuplicateRegNumber && "border-destructive", "pr-20" // Add padding for radio buttons
+                       <Input id="registration_number" placeholder="t.ex. JSK15L eller 1234567890ABCDEFG" {...form.register("registration_number")} style={{ textTransform: 'uppercase' }} className={cn(form.formState.errors.registration_number && "border-destructive", isDuplicateRegNumber && "border-destructive", "pr-20" // Add padding for radio buttons
                   )} readOnly={carDataFetched} />
                       <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                         <span className="text-sm text-muted-foreground">
