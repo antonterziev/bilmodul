@@ -727,12 +727,12 @@ export const PurchaseForm = ({
 
                 {form.watch("brand") === "Annat" && <div>
                     <Label htmlFor="brand_other">Ange märke</Label>
-                    <Input id="brand_other" {...form.register("brand_other")} placeholder="t.ex. Batmobile" />
+                    <Input id="brand_other" {...form.register("brand_other")} placeholder="t.ex. Batmobile" style={{ textTransform: 'capitalize' }} />
                   </div>}
 
                 <div>
                   <Label htmlFor="model">Modell</Label>
-                  <Input id="model" {...form.register("model")} placeholder="t.ex. XC60" />
+                  <Input id="model" {...form.register("model")} placeholder="t.ex. XC60" style={{ textTransform: 'capitalize' }} />
                 </div>
 
                 <div>
@@ -907,7 +907,7 @@ export const PurchaseForm = ({
 
                 {form.watch("purchase_channel") === "Annan" && <div>
                     <Label htmlFor="purchase_channel_other">Ange inköpskanal</Label>
-                    <Input id="purchase_channel_other" {...form.register("purchase_channel_other")} placeholder="Ange vilken inköpskanal" />
+                    <Input id="purchase_channel_other" {...form.register("purchase_channel_other")} placeholder="Ange vilken inköpskanal" style={{ textTransform: 'capitalize' }} />
                   </div>}
 
                 {/* Marketplace section removed as it's no longer in the dropdown */}
@@ -1035,7 +1035,7 @@ export const PurchaseForm = ({
                 {/* 7. Anteckning - moved below handpenning and greyed out */}
                 <div>
                   <Label htmlFor="comment">Anteckning</Label>
-                  <Input id="comment" {...form.register("comment")} placeholder="Lägg till en anteckning om fordonet..." />
+                  <Input id="comment" {...form.register("comment")} placeholder="Lägg till en anteckning om fordonet..." style={{ textTransform: 'capitalize' }} />
                 </div>
 
                 {/* 8. Inköpsunderlag - moved to same row as Anteckning */}
