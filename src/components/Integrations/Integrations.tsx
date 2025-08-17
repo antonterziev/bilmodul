@@ -774,13 +774,13 @@ export const Integrations = () => {
                     });
                     setOpenCategories(newOpenCategories);
                   }}
-                  className="text-xs"
+                  className="text-xs w-32"
                 >
                   {/* Show collapse icon and text if all are expanded, otherwise show expand */}
                   {accountCategories.every(category => openCategories[category.key]) ? (
                     <>
                       <ChevronRight className="h-3 w-3 mr-1" />
-                      Kollaps alla
+                      Kollapsa alla
                     </>
                   ) : (
                     <>
