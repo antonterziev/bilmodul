@@ -816,7 +816,7 @@ export const Integrations = () => {
                     </div>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
-                    <div className="mt-2 ml-4 border rounded-md">
+                    <div className="mt-2 border rounded-md">
                       <Table>
                         <TableHeader>
                           <TableRow>
