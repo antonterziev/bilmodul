@@ -78,6 +78,13 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
   const [newNote, setNewNote] = useState('');
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editingNoteText, setEditingNoteText] = useState('');
+  
+  // Mention state
+  const [showMentionDropdown, setShowMentionDropdown] = useState(false);
+  const [mentionPosition, setMentionPosition] = useState({ top: 0, left: 0 });
+  const [mentionQuery, setMentionQuery] = useState('');
+  const [orgUsers, setOrgUsers] = useState<Array<{ user_id: string; full_name: string; email: string }>>([]);
+  const [mentionStartPos, setMentionStartPos] = useState(0);
 
   // Påkostnad form state
   const [pakostnadAmount, setPakostnadAmount] = useState('');
@@ -175,6 +182,45 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
 
     loadSalesUsers();
   }, [activeButton, user]);
+
+  // Load organization users for mentions
+  useEffect(() => {
+    const loadOrgUsers = async () => {
+      if (!user?.id) return;
+      try {
+        // Get current user's organization
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('organization_id')
+          .eq('user_id', user.id)
+          .single();
+        if (profileError) throw profileError;
+
+        if (!profileData?.organization_id) return;
+
+        // Get all profiles in same organization
+        const { data: orgProfiles, error: orgProfilesError } = await supabase
+          .from('profiles')
+          .select('user_id, full_name, email, first_name, last_name')
+          .eq('organization_id', profileData.organization_id);
+        if (orgProfilesError) throw orgProfilesError;
+
+        const users = (orgProfiles || []).map(p => ({
+          user_id: p.user_id,
+          full_name: p.full_name || `${p.first_name || ''} ${p.last_name || ''}`.trim() || p.email,
+          email: p.email
+        }));
+
+        setOrgUsers(users);
+      } catch (e) {
+        console.error('Error loading organization users:', e);
+      }
+    };
+
+    if (user) {
+      loadOrgUsers();
+    }
+  }, [user]);
 
   const loadSuppliers = async () => {
     try {
@@ -491,6 +537,44 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
       setSalesPriceDisplay(value === '' ? '' : formatPriceWithThousands(value));
     }
   };
+
+  // Mention functionality
+  const handleMentionSelect = (user: { user_id: string; full_name: string; email: string }) => {
+    const beforeMention = newNote.slice(0, mentionStartPos);
+    const afterMention = newNote.slice(mentionStartPos + mentionQuery.length + 1); // +1 for @
+    const newText = `${beforeMention}@${user.full_name} ${afterMention}`;
+    setNewNote(newText);
+    setShowMentionDropdown(false);
+    setMentionQuery('');
+  };
+
+  const handleNoteChange = (value: string) => {
+    setNewNote(value);
+    
+    // Check for @ mentions
+    const cursorPos = value.length; // Simplified - assumes typing at end
+    const textBeforeCursor = value.slice(0, cursorPos);
+    const lastAtIndex = textBeforeCursor.lastIndexOf('@');
+    
+    if (lastAtIndex !== -1) {
+      const textAfterAt = textBeforeCursor.slice(lastAtIndex + 1);
+      // Check if there's no space after @ (still typing the mention)
+      if (!textAfterAt.includes(' ') && textAfterAt.length <= 50) {
+        setMentionStartPos(lastAtIndex);
+        setMentionQuery(textAfterAt);
+        setShowMentionDropdown(true);
+      } else {
+        setShowMentionDropdown(false);
+      }
+    } else {
+      setShowMentionDropdown(false);
+    }
+  };
+
+  const filteredMentionUsers = orgUsers.filter(user =>
+    user.full_name.toLowerCase().includes(mentionQuery.toLowerCase()) ||
+    user.email.toLowerCase().includes(mentionQuery.toLowerCase())
+  ).slice(0, 5);
 
   const getStatusVariant = (status: string) => {
     switch (status) {
@@ -1437,22 +1521,43 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Add new note */}
-                <div className="flex gap-2">
-                  <Textarea
-                    placeholder="Skriv en ny anteckning..."
-                    value={newNote}
-                    onChange={(e) => setNewNote(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        if (newNote.trim()) {
-                          addNote();
+                <div className="flex gap-2 relative">
+                  <div className="flex-1 relative">
+                    <Textarea
+                      placeholder="Skriv en ny anteckning..."
+                      value={newNote}
+                      onChange={(e) => handleNoteChange(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          if (newNote.trim()) {
+                            addNote();
+                          }
                         }
-                      }
-                    }}
-                    rows={1}
-                    className="flex-1 min-h-0 h-10 resize-none"
-                  />
+                        if (e.key === 'Escape') {
+                          setShowMentionDropdown(false);
+                        }
+                      }}
+                      rows={1}
+                      className="min-h-0 h-10 resize-none"
+                    />
+                    
+                    {/* Mention dropdown */}
+                    {showMentionDropdown && filteredMentionUsers.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-white border rounded-md shadow-lg max-h-40 overflow-y-auto">
+                        {filteredMentionUsers.map((user) => (
+                          <div
+                            key={user.user_id}
+                            onClick={() => handleMentionSelect(user)}
+                            className="px-3 py-2 hover:bg-blue-50 cursor-pointer border-b last:border-b-0"
+                          >
+                            <div className="font-medium text-sm">{user.full_name}</div>
+                            <div className="text-xs text-muted-foreground">{user.email}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                   <Button 
                     onClick={addNote}
                     disabled={!newNote.trim()}
