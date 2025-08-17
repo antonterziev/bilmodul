@@ -13,6 +13,7 @@ import { ArrowLeft, DollarSign, FileText, Trash2, Car, Plus, TrendingUp, Calcula
 import { Calendar as CalendarIcon } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { useToast } from "@/hooks/use-toast";
+import { BookkeepingEventsTable } from "./BookkeepingEventsTable";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -657,10 +658,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
 
 
   const handleBookkeeping = () => {
-    toast({
-      title: "Bokföring",
-      description: "Bokförings- och transaktionsvy kommer att implementeras här.",
-    });
+    // This is now handled by showing the BookkeepingEventsTable component
   };
 
   const handleDelete = async () => {
@@ -1302,6 +1300,8 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                 )}
               </CardContent>
             </Card>
+          ) : activeButton === 'bokforing' ? (
+            <BookkeepingEventsTable vehicleId={vehicleId} />
           ) : activeButton === 'forsaljning' ? (
               <Card className="flex-1">
                 <CardHeader>
