@@ -356,7 +356,7 @@ const Auth = () => {
           <form onSubmit={handleSignUp} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="signup-email" className="text-sm font-medium">E-post</Label>
-                <Input id="signup-email" type="email" value={email} onChange={e => setEmail(e.target.value)} className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500" required />
+                <Input id="signup-email" type="email" value={email} onChange={e => setEmail(e.target.value)} className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Ange en giltig e-postadress" />
               </div>
               
               <div className="grid grid-cols-2 gap-4">
@@ -435,7 +435,7 @@ const Auth = () => {
               e.preventDefault();
               handleForgotPassword(resetEmail);
             }} className="space-y-4">
-                <Input type="email" value={resetEmail} onChange={e => setResetEmail(e.target.value)} className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-center" placeholder="din.email@exempel.se" required />
+                <Input type="email" value={resetEmail} onChange={e => setResetEmail(e.target.value)} className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-center" placeholder="din.email@exempel.se" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Ange en giltig e-postadress" />
                 
                 <Button type="submit" disabled={isResettingPassword || !resetEmail.trim()} className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium">
                   {isResettingPassword ? "Skickar..." : "Skicka länken"}

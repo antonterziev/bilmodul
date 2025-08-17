@@ -269,6 +269,9 @@ const [selectedPermissions, setSelectedPermissions] = useState<string[]>(['lager
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="användare@exempel.se"
+                  required
+                  pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                  title="Ange en giltig e-postadress"
                 />
               </div>
 
