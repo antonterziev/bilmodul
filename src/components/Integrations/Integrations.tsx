@@ -765,30 +765,29 @@ export const Integrations = () => {
                   size="sm"
                   onClick={() => {
                     const newOpenCategories = { ...openCategories };
+                    // Check if all categories are currently open
+                    const allExpanded = accountCategories.every(category => openCategories[category.key]);
+                    
+                    // If all are expanded, collapse all. Otherwise, expand all.
                     accountCategories.forEach(category => {
-                      newOpenCategories[category.key] = true;
+                      newOpenCategories[category.key] = !allExpanded;
                     });
                     setOpenCategories(newOpenCategories);
                   }}
                   className="text-xs"
                 >
-                  <ChevronDown className="h-3 w-3 mr-1" />
-                  Expandera alla
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const newOpenCategories = { ...openCategories };
-                    accountCategories.forEach(category => {
-                      newOpenCategories[category.key] = false;
-                    });
-                    setOpenCategories(newOpenCategories);
-                  }}
-                  className="text-xs"
-                >
-                  <ChevronRight className="h-3 w-3 mr-1" />
-                  Kollaps alla
+                  {/* Show collapse icon and text if all are expanded, otherwise show expand */}
+                  {accountCategories.every(category => openCategories[category.key]) ? (
+                    <>
+                      <ChevronRight className="h-3 w-3 mr-1" />
+                      Kollaps alla
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="h-3 w-3 mr-1" />
+                      Expandera alla
+                    </>
+                  )}
                 </Button>
               </div>
               {autoCheckingAccounts && (
