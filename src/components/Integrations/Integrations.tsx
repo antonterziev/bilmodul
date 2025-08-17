@@ -604,6 +604,7 @@ export const Integrations = () => {
                     </p>
                   </div>
                   <div className="flex gap-2">
+                    <div className="w-[7.5rem]"></div>
                     <Button
                       variant="destructive"
                       size="sm"
