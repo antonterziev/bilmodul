@@ -121,7 +121,7 @@ export function VehicleSearch({
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+    const value = e.target.value.toUpperCase();
     onSearchChange(value);
     
     if (value.trim().length > 0) {
@@ -171,7 +171,7 @@ export function VehicleSearch({
           onChange={handleInputChange}
           onFocus={handleInputFocus}
           disabled={!hasVehicles}
-          className="pl-9 w-full disabled:opacity-50 disabled:cursor-not-allowed"
+          className="pl-9 w-full disabled:opacity-50 disabled:cursor-not-allowed uppercase placeholder:normal-case"
         />
         <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${hasVehicles ? 'text-muted-foreground' : 'text-muted-foreground/50'}`} />
         
