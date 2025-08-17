@@ -579,7 +579,7 @@ export const VehicleList = ({
         ) : (
           <div className="space-y-4">
             {/* Header row */}
-            <div className="flex items-center gap-4 py-2 px-4 bg-muted/30 rounded-lg font-medium text-sm text-foreground border">
+            <div className="flex items-center gap-4 py-2 px-4 bg-muted/30 rounded-lg font-medium text-sm text-muted-foreground border">
               <div className="flex-shrink-0 w-16">
                 {/* Brand logo space */}
               </div>
