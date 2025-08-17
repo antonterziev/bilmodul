@@ -440,7 +440,7 @@ export const OrganizationUserManagement = () => {
                   variant="default"
                   onClick={saveChanges}
                   disabled={saving || !hasUnsavedChanges}
-                  className="flex-1"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   {saving ? (
                     <>
