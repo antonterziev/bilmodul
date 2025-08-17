@@ -598,10 +598,6 @@ const Index = () => {
             hasVehicles={inventoryItems.length > 0}
             onVehicleSelect={(vehicleId) => {
               setViewingVehicleId(vehicleId);
-              // Make sure we're in the correct view to show vehicle details
-              if (currentView !== "lager_all") {
-                handleViewChange("lager_all");
-              }
             }}
           />
         
