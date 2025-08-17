@@ -98,45 +98,45 @@ async function fetchBrandLogoFromAPI(brand: string): Promise<string | null> {
   console.log(`Fetching logo for brand: ${brand}`)
   
   try {
-    // Use a free logo API service
-    const logoApiUrl = `https://logo.clearbit.com/${brand.toLowerCase()}.com`
+    // Fetch the car logos dataset from GitHub
+    const datasetUrl = 'https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/data.json'
     
-    // Test if the logo exists by making a HEAD request
-    const response = await fetch(logoApiUrl, { 
-      method: 'HEAD',
+    const response = await fetch(datasetUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; LogoFetcher/1.0)'
       }
     })
     
-    if (response.ok) {
-      console.log(`Found logo for ${brand} at Clearbit`)
-      return logoApiUrl
+    if (!response.ok) {
+      console.error(`Failed to fetch car logos dataset: ${response.status}`)
+      return null
     }
     
-    // Fallback: Try alternative domain patterns
-    const altDomains = [
-      `${brand.toLowerCase()}.se`,
-      `${brand.toLowerCase()}.com`,
-      `${brand.toLowerCase()}.net`
-    ]
+    const logos = await response.json()
     
-    for (const domain of altDomains) {
-      const altUrl = `https://logo.clearbit.com/${domain}`
-      const altResponse = await fetch(altUrl, { 
-        method: 'HEAD',
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; LogoFetcher/1.0)'
-        }
-      })
+    // Normalize brand name for comparison (remove special characters, convert to lowercase)
+    const normalizedBrand = brand.toLowerCase()
+      .replace(/[^a-z0-9]/g, '')
+      .trim()
+    
+    // Find matching logo in the dataset
+    const matchingLogo = logos.find((logo: any) => {
+      const logoName = logo.name.toLowerCase().replace(/[^a-z0-9]/g, '')
+      const logoSlug = logo.slug.toLowerCase().replace(/[^a-z0-9]/g, '')
       
-      if (altResponse.ok) {
-        console.log(`Found logo for ${brand} at ${domain}`)
-        return altUrl
-      }
+      return logoName === normalizedBrand || 
+             logoSlug === normalizedBrand ||
+             logoName.includes(normalizedBrand) ||
+             normalizedBrand.includes(logoName)
+    })
+    
+    if (matchingLogo) {
+      console.log(`Found logo for ${brand} in GitHub dataset: ${matchingLogo.name}`)
+      // Use the optimized version for better performance
+      return matchingLogo.image.optimized
     }
     
-    console.log(`No logo found for brand: ${brand}`)
+    console.log(`No logo found for brand: ${brand} in GitHub dataset`)
     return null
     
   } catch (error) {
