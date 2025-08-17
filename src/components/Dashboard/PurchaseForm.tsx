@@ -675,6 +675,9 @@ export const PurchaseForm = ({
                 if (e.key === 'Enter' && activeTab === 'fordonsdata' && isVehicleDataValid()) {
                   e.preventDefault();
                   setActiveTab("inkopsinformation");
+                } else if (e.key === 'Enter' && activeTab === 'inkopsinformation' && isFormValid() && !isSubmitting) {
+                  e.preventDefault();
+                  form.handleSubmit(onSubmit)();
                 }
               }}>
               <TabsContent value="fordonsdata" className="space-y-4">

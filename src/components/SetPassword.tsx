@@ -86,7 +86,12 @@ const SetPassword = ({ email, firstName, lastName, onBack }: SetPasswordProps) =
               </p>
             </div>
             
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4" onKeyDown={(e) => {
+              if (e.key === 'Enter' && canSubmit && !isLoading) {
+                e.preventDefault();
+                handleSubmit(e as any);
+              }
+            }}>
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-sm font-medium">Lösenord</Label>
                 <div className="relative">

@@ -353,7 +353,12 @@ const Auth = () => {
             <p className="text-gray-600 text-sm mx-0 my-4">Du binder dig inte till något.</p>
           </div>
           
-          <form onSubmit={handleSignUp} className="space-y-4">
+          <form onSubmit={handleSignUp} className="space-y-4" onKeyDown={(e) => {
+            if (e.key === 'Enter' && email && firstName && lastName && acceptedTerms && !isLoading) {
+              e.preventDefault();
+              handleSignUp(e as any);
+            }
+          }}>
             <div className="space-y-2">
               <Label htmlFor="signup-email" className="text-sm font-medium">E-post</Label>
                 <Input id="signup-email" type="email" value={email} onChange={e => setEmail(e.target.value)} className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Ange en giltig e-postadress" />
