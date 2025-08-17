@@ -242,7 +242,7 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
 
               <div className="space-y-2">
                 <Label htmlFor="confirm-delete" className="text-sm font-medium">
-                  Skriv "RADERA" för att bekräfta att du vill radera ditt konto:
+                  Skriv "RADERA" för att bekräfta premanent radering av ditt konto:
                 </Label>
                 <Input
                   id="confirm-delete"
