@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { VehicleSearch } from "@/components/VehicleSearch";
 import { 
   Home, 
   BarChart3, 
@@ -22,7 +23,7 @@ import {
   CheckSquare,
   File,
   Landmark,
-  Search,
+  
   Link,
   Calculator,
   FileText,
@@ -31,7 +32,6 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 import {
   Sidebar,
@@ -55,6 +55,7 @@ interface AppSidebarProps {
   onSearchChange: (term: string) => void;
   searchPlaceholder: string;
   hasVehicles: boolean;
+  onVehicleSelect: (vehicleId: string) => void;
 }
 
 export function AppSidebar({ 
@@ -65,7 +66,8 @@ export function AppSidebar({
   searchTerm,
   onSearchChange,
   searchPlaceholder,
-  hasVehicles
+  hasVehicles,
+  onVehicleSelect
 }: AppSidebarProps) {
   const location = useLocation();
   const { user } = useAuth();
@@ -130,17 +132,13 @@ export function AppSidebar({
         <SidebarGroup>
           <SidebarGroupContent>
             <div className="p-4 pb-2 space-y-3">
-              <div className="relative">
-                <Input
-                  type="text"
-                  placeholder={hasVehicles ? searchPlaceholder : "Lägg till fordon först..."}
-                  value={searchTerm}
-                  onChange={(e) => onSearchChange(e.target.value)}
-                  disabled={!hasVehicles}
-                  className="pl-9 w-full disabled:opacity-50 disabled:cursor-not-allowed"
-                />
-                <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${hasVehicles ? 'text-muted-foreground' : 'text-muted-foreground/50'}`} />
-              </div>
+              <VehicleSearch
+                searchTerm={searchTerm}
+                onSearchChange={onSearchChange}
+                searchPlaceholder={searchPlaceholder}
+                hasVehicles={hasVehicles}
+                onVehicleSelect={onVehicleSelect}
+              />
             </div>
           </SidebarGroupContent>
         </SidebarGroup>

@@ -124,6 +124,33 @@ const Index = () => {
     };
   }, [user?.id]);
 
+  // Set up real-time updates for inventory items (for search functionality)
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const channel = supabase
+      .channel('inventory-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'inventory_items'
+        },
+        (payload) => {
+          console.log('Real-time inventory update:', payload);
+          // Reload inventory items when any change occurs
+          loadInventoryItems();
+          loadStats(); // Also refresh stats
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
+
   // Navigation handlers
   const handleViewChange = (view: string) => {
     setPreviousView(currentView); // Store current view as previous before changing
@@ -569,6 +596,13 @@ const Index = () => {
             onSearchChange={setSearchTerm}
             searchPlaceholder={searchPlaceholder}
             hasVehicles={inventoryItems.length > 0}
+            onVehicleSelect={(vehicleId) => {
+              setViewingVehicleId(vehicleId);
+              // Make sure we're in the correct view to show vehicle details
+              if (currentView !== "lager_all") {
+                handleViewChange("lager_all");
+              }
+            }}
           />
         
           <div className="flex-1 flex flex-col min-w-0">
