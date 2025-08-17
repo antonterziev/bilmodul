@@ -192,10 +192,7 @@ export function VehicleSearch({
                 onClick={() => handleVehicleClick(vehicle.id)}
                 className="flex items-center justify-between p-3 hover:bg-muted/50 cursor-pointer rounded-md transition-colors"
               >
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="flex-shrink-0">
-                    <Car className="h-4 w-4 text-muted-foreground" />
-                  </div>
+                <div className="flex items-center justify-between w-full">
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-sm truncate">
                       {getVehicleDisplayText(vehicle)}
@@ -204,9 +201,6 @@ export function VehicleSearch({
                       Inköpt: {new Date(vehicle.purchase_date).toLocaleDateString('sv-SE')}
                     </div>
                   </div>
-                </div>
-                <div className="flex-shrink-0">
-                  {getStatusBadge(vehicle.status)}
                 </div>
               </div>
             ))}
