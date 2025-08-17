@@ -255,7 +255,7 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
             </div>
           )}
 
-          <div className="flex gap-3">
+          <div className="flex gap-3 justify-end">
             <Button variant="outline" onClick={onBack}>
               Avbryt
             </Button>
