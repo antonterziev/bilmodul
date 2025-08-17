@@ -619,6 +619,7 @@ export const Integrations = () => {
                       size="sm"
                       onClick={disconnectFortnox}
                       disabled={disconnectingFortnox}
+                      className="w-32"
                     >
                       <Unlink className="h-4 w-4 mr-2" />
                       {disconnectingFortnox ? "Kopplar från..." : "Koppla från"}
