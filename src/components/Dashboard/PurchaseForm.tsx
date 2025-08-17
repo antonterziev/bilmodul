@@ -626,7 +626,7 @@ export const PurchaseForm = ({
               <Label htmlFor="registration_number"></Label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
-                  <Input id="registration_number" placeholder="t.ex. JSK15L" {...form.register("registration_number")} onKeyPress={handleKeyPress} className={cn(form.formState.errors.registration_number && "border-destructive", isDuplicateRegNumber && "border-destructive", (isCheckingRegNumber || isLoadingCarInfo) && "pr-10", "uppercase" // Add uppercase class instead of inline style
+                  <Input id="registration_number" placeholder="t.ex. JSK15L" {...form.register("registration_number")} onKeyPress={handleKeyPress} className={cn(form.formState.errors.registration_number && "border-destructive", isDuplicateRegNumber && "border-destructive", (isCheckingRegNumber || isLoadingCarInfo) && "pr-10", "placeholder:normal-case uppercase" // Add uppercase class instead of inline style
               )} />
                   {(isCheckingRegNumber || isLoadingCarInfo) && <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                       <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full"></div>
@@ -682,7 +682,7 @@ export const PurchaseForm = ({
                   <div>
                     <Label htmlFor="registration_number">Registreringsnummer*</Label>
                     <div className="relative">
-                       <Input id="registration_number" placeholder="t.ex. JSK15L eller 1234567890ABCDEFG" {...form.register("registration_number")} className={cn(form.formState.errors.registration_number && "border-destructive", isDuplicateRegNumber && "border-destructive", "pr-20", "uppercase" // Add uppercase class instead of inline style
+                       <Input id="registration_number" placeholder="t.ex. JSK15L eller 1234567890ABCDEFG" {...form.register("registration_number")} className={cn(form.formState.errors.registration_number && "border-destructive", isDuplicateRegNumber && "border-destructive", "pr-20", "placeholder:normal-case uppercase" // Add uppercase class instead of inline style
                   )} readOnly={carDataFetched} />
                       <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                         <span className="text-sm text-muted-foreground">
