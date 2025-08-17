@@ -1,7 +1,7 @@
 import { useState, useEffect, createContext, useContext } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { setUser as setSentryUser, captureException } from "@/lib/sentry";
+// Sentry disabled
 
 interface AuthContextType {
   user: User | null;
@@ -24,15 +24,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Set Sentry user context
-        if (session?.user) {
-          setSentryUser({
-            id: session.user.id,
-            email: session.user.email,
-          });
-        } else {
-          setSentryUser(null);
-        }
+        // Sentry disabled
+        // if (session?.user) {
+        //   setSentryUser({
+        //     id: session.user.id,
+        //     email: session.user.email,
+        //   });
+        // } else {
+        //   setSentryUser(null);
+        // }
         
         setIsLoading(false);
       }
@@ -75,14 +75,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } catch (err) {
         // Continue even if this fails
         console.warn('Sign out error:', err);
-        captureException(err);
+        // captureException(err);
       }
       
       // Force page reload for a clean state
       window.location.href = "/login-or-signup";
     } catch (error) {
       console.error('Logout error:', error);
-      captureException(error);
+      // captureException(error);
       // Force redirect even if logout fails
       window.location.href = "/login-or-signup";
     }

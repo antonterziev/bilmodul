@@ -14,7 +14,7 @@ import NotFound from "./pages/NotFound";
 import FortnoxCallback from "./components/FortnoxCallback";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { DashboardSkeleton } from "@/components/LoadingSkeleton";
-import { SentryErrorBoundary } from "@/lib/sentry";
+
 
 
 const queryClient = new QueryClient({
@@ -33,21 +33,7 @@ const queryClient = new QueryClient({
 });
 
 const App = () => (
-  <SentryErrorBoundary fallback={({ error, resetError }) => (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center space-y-4">
-        <h1 className="text-2xl font-bold text-foreground">Something went wrong</h1>
-        <p className="text-muted-foreground">We've been notified about this error</p>
-        <button 
-          onClick={resetError}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-        >
-          Try again
-        </button>
-      </div>
-    </div>
-  )}>
-    <ErrorBoundary>
+  <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <Toaster />
         <Sonner />
@@ -70,7 +56,6 @@ const App = () => (
         </BrowserRouter>
       </QueryClientProvider>
     </ErrorBoundary>
-  </SentryErrorBoundary>
 );
 
 export default App;
