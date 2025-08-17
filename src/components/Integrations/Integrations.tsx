@@ -772,8 +772,8 @@ export const Integrations = () => {
                             <TableHead className="w-32">Kontonummer</TableHead>
                             <TableHead className="w-48">Kontonamn</TableHead>
                             <TableHead className="w-64">Kontonamn i Fortnox</TableHead>
-                            <TableHead className="w-20 text-center justify-center items-center">Status</TableHead>
-                            <TableHead className="w-16">Sync</TableHead>
+                            <TableHead className="w-16 text-center">Status</TableHead>
+                            <TableHead className="w-10 text-center">Synka</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
