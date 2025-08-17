@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Car, Trash2, Eye, DollarSign, RefreshCw, Plus } from "lucide-react";
+import { Car, Trash2, Eye, DollarSign, RefreshCw, Plus, ArrowUpDown } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { useToast } from "@/hooks/use-toast";
 
@@ -724,7 +724,7 @@ export const VehicleList = ({
                       {syncingId === vehicle.id ? (
                         <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                       ) : (
-                        <RefreshCw className="h-4 w-4" />
+                        <ArrowUpDown className="h-4 w-4" />
                       )}
                     </Button>
 
