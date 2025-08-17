@@ -747,7 +747,7 @@ export const Integrations = () => {
                   onOpenChange={() => toggleCategory(category.key)}
                 >
                   <CollapsibleTrigger className="w-full">
-                    <div className="flex items-center justify-between w-full p-3 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
+                    <div className="flex items-center justify-between w-full p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
                       <span className="font-medium text-left">{category.name}</span>
                       {openCategories[category.key] ? (
                         <ChevronDown className="h-4 w-4" />
