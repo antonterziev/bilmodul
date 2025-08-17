@@ -578,6 +578,26 @@ export const VehicleList = ({
           </div>
         ) : (
           <div className="space-y-4">
+            {/* Header row */}
+            <div className="flex items-center gap-4 py-2 px-4 bg-muted/30 rounded-lg font-medium text-sm text-muted-foreground border">
+              <div className="flex-shrink-0 w-16">
+                {/* Brand logo space */}
+              </div>
+              <div className="flex-1 grid grid-cols-8 gap-4 items-center">
+                <div className="col-span-2">Fordon</div>
+                <div className="text-center">Status</div>
+                <div className="text-center">Bokföring</div>
+                <div>Lagerdagar</div>
+                <div>Momsregel</div>
+                <div>Inköpare</div>
+                <div className="w-16">Lagervärde</div>
+              </div>
+              <div className="flex-shrink-0 w-[124px]">
+                {/* Actions space */}
+              </div>
+            </div>
+
+            {/* Data rows */}
             {sortedVehicles.map((vehicle) => (
               <div key={vehicle.id} className="flex items-center gap-4 py-4 border rounded-lg hover:bg-muted/50 transition-colors w-full cursor-pointer" onClick={() => handleView(vehicle.id)}>
                 {/* Car icon or brand logo */}
@@ -603,7 +623,6 @@ export const VehicleList = ({
                    
                    {/* Column 2: Status */}
                    <div className="text-center">
-                     <p className="text-xs text-muted-foreground whitespace-nowrap">Status</p>
                      <Badge 
                        variant={getStatusVariant(vehicle.status)} 
                        className={`text-xs whitespace-nowrap px-2 justify-center w-20 ${
@@ -620,7 +639,6 @@ export const VehicleList = ({
 
                    {/* Column 3: Status 2 (Fortnox) */}
                    <div className="text-center">
-                     <p className="text-xs text-muted-foreground whitespace-nowrap">Bokföring</p>
                       {vehicle.fortnox_sync_status && (
                          <Badge 
                            variant="outline"
@@ -647,19 +665,16 @@ export const VehicleList = ({
                    
                    {/* Column 4: Storage Days */}
                    <div>
-                     <p className="text-xs text-muted-foreground whitespace-nowrap">Lagerdagar</p>
                      <p className="font-medium text-sm whitespace-nowrap">{calculateStorageDays(vehicle.purchase_date, vehicle.status, vehicle.selling_date)} {calculateStorageDays(vehicle.purchase_date, vehicle.status, vehicle.selling_date) === 1 ? 'dag' : 'dagar'}</p>
                    </div>
                    
                    {/* Column 5: VAT Type */}
                    <div>
-                     <p className="text-xs text-muted-foreground whitespace-nowrap">Momsregel</p>
                      <p className="font-medium whitespace-nowrap">{vehicle.vat_type === "Vinstmarginalbeskattning (VMB)" ? "VMB" : vehicle.vat_type || "Ej angiven"}</p>
                    </div>
                    
                    {/* Column 6: Registered By (Inköpare) */}
                    <div>
-                     <p className="text-xs text-muted-foreground whitespace-nowrap">Inköpare</p>
                      <p className="font-medium whitespace-nowrap text-sm" title={vehicle.registered_by}>
                        {formatPurchaserName(vehicle.registered_by || 'Okänd')}
                      </p>
@@ -667,7 +682,6 @@ export const VehicleList = ({
                    
                     {/* Column 7: Purchase Price */}
                     <div className="w-16">
-                      <p className="text-xs text-muted-foreground whitespace-nowrap">Lagervärde</p>
                       <p className="font-medium">{formatPrice(vehicle.inventory_value || 0)}</p>
                     </div>
                  </div>
