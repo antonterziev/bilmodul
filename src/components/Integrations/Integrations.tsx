@@ -618,15 +618,6 @@ export const Integrations = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={checkAllAccountsInFortnox}
-                      disabled={autoCheckingAccounts}
-                    >
-                      <RefreshCw className={`h-4 w-4 mr-2 ${autoCheckingAccounts ? 'animate-spin' : ''}`} />
-                      Synkronisera
-                    </Button>
-                    <Button
                       variant="destructive"
                       size="sm"
                       onClick={disconnectFortnox}
@@ -716,6 +707,15 @@ export const Integrations = () => {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Kontoplan</h3>
               <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={checkAllAccountsInFortnox}
+                  disabled={autoCheckingAccounts}
+                >
+                  <RefreshCw className={`h-4 w-4 mr-2 ${autoCheckingAccounts ? 'animate-spin' : ''}`} />
+                  Synkronisera
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
