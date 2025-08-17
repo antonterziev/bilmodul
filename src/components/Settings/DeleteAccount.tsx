@@ -249,7 +249,7 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
                   type="text"
                   value={confirmText}
                   onChange={(e) => setConfirmText(e.target.value)}
-                  placeholder="Skriv 'radera' här"
+                  placeholder="Skriv 'RADERA' här"
                 />
               </div>
             </div>
