@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Car, Trash2, Eye, DollarSign, RefreshCw } from "lucide-react";
+import { Car, Trash2, Eye, DollarSign, RefreshCw, Plus } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { useToast } from "@/hooks/use-toast";
 
@@ -687,16 +687,26 @@ export const VehicleList = ({
                  </div>
                 
                  {/* Action buttons */}
-                  <div className="flex-shrink-0 flex gap-2 pr-[1rem]" onClick={(e) => e.stopPropagation()}>
-                    {/* Sell button */}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onViewVehicle?.(vehicle.id, 'forsaljning')}
-                      className="text-green-600 hover:bg-green-600 hover:text-white w-10 h-10 p-0"
-                    >
-                      <DollarSign className="h-4 w-4" />
-                    </Button>
+                   <div className="flex-shrink-0 flex gap-2 pr-[1rem]" onClick={(e) => e.stopPropagation()}>
+                     {/* Påkostnad button */}
+                     <Button
+                       variant="outline"
+                       size="sm"
+                       onClick={() => onViewVehicle?.(vehicle.id, 'pakostnad')}
+                       className="text-blue-600 hover:bg-blue-600 hover:text-white w-10 h-10 p-0"
+                     >
+                       <Plus className="h-4 w-4" />
+                     </Button>
+                     
+                     {/* Sell button */}
+                     <Button
+                       variant="outline"
+                       size="sm"
+                       onClick={() => onViewVehicle?.(vehicle.id, 'forsaljning')}
+                       className="text-green-600 hover:bg-green-600 hover:text-white w-10 h-10 p-0"
+                     >
+                       <DollarSign className="h-4 w-4" />
+                     </Button>
                     
                     {/* Always show sync button but grey out if synced */}
                     <Button
