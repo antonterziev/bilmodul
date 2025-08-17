@@ -1636,6 +1636,17 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                           <Textarea
                             value={editingNoteText}
                             onChange={(e) => setEditingNoteText(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                if (editingNoteText.trim()) {
+                                  saveEditNote();
+                                }
+                              }
+                              if (e.key === 'Escape') {
+                                cancelEditNote();
+                              }
+                            }}
                             rows={3}
                             className="text-sm"
                           />
