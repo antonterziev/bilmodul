@@ -1104,37 +1104,6 @@ export const VehicleDetailsView = ({ vehicleId, onBack, initialTab = 'vagnkort' 
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardContent className="p-4 space-y-4">
-                  <div className="text-sm font-medium text-foreground">Inköpsinformation</div>
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Inköpt av</div>
-                    <div className="font-medium">{vehicle.purchaser}</div>
-                  </div>
-                  
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Inköpsdatum</div>
-                    <div className="font-medium">{formatDate(vehicle.purchase_date)}</div>
-                  </div>
-                  
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Inköpspris (inkl. moms)</div>
-                    <div className="font-medium">{formatPrice(vehicle.purchase_price)}</div>
-                  </div>
-                  
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Momsmetod</div>
-                    <div className="font-medium">{vehicle.vat_type === "Vinstmarginalbeskattning (VMB)" ? "VMB" : vehicle.vat_type || "Ej angiven"}</div>
-                  </div>
-
-                  {vehicle.seller && (
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Säljare</div>
-                      <div className="font-medium">{vehicle.seller}</div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
             </>
           )}
         </div>
