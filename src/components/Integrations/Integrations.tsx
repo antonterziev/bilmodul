@@ -599,7 +599,7 @@ export const Integrations = () => {
                     <p className="text-sm font-medium">
                       {fortnoxIntegration.company_name || 'Okänt företag'}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground whitespace-nowrap">
                       Kopplad: {new Date(fortnoxIntegration.created_at).toLocaleDateString('sv-SE')}
                     </p>
                   </div>
