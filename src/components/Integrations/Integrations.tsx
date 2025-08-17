@@ -762,7 +762,7 @@ export const Integrations = () => {
                             <TableHead className="w-32">Kontonummer</TableHead>
                             <TableHead className="w-48">Kontonamn</TableHead>
                             <TableHead className="w-64">Kontonamn i Fortnox</TableHead>
-                            <TableHead className="w-64 text-center">Status</TableHead>
+                            <TableHead className="w-16 text-center">Status</TableHead>
                             <TableHead className="w-10 text-center">Synka</TableHead>
                           </TableRow>
                         </TableHeader>
@@ -802,10 +802,10 @@ export const Integrations = () => {
                                   }
                                 />
                               </TableCell>
-                               <TableCell className="text-center flex justify-center items-center">
-                                <Badge 
-                                  variant="default"
-                                  className={`text-xs whitespace-nowrap px-2 py-1 flex items-center justify-center w-16 h-6 text-white ${
+                               <TableCell className="text-center">
+                                 <Badge 
+                                   variant="default"
+                                   className={`text-xs whitespace-nowrap px-2 py-1 flex items-center justify-center w-16 h-8 text-white ${
                                     // Only show green/Aktiv if we have a real account name (not error messages)
                                     fortnoxAccountNames[account.name] && 
                                     !["Konto ej kontrollerat", "Kontonummer ej aktivt", "Kontonummer saknas", "Fel vid kontroll"].includes(fortnoxAccountNames[account.name])
