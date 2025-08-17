@@ -15,7 +15,7 @@ interface DeleteAccountProps {
 export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
   const [confirmText, setConfirmText] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLastAdmin, setIsLastAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -158,10 +158,7 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="outline" onClick={onBack}>
-          ← Tillbaka
-        </Button>
+      <div>
         <h2 className="text-2xl font-bold">Radera konto</h2>
       </div>
 
@@ -215,12 +212,12 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
           </div>
 
           {!isLoading && (
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-sm font-medium">
                   Ange ditt lösenord för att bekräfta identiteten:
                 </Label>
-                <div className="relative max-w-sm">
+                <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
@@ -253,7 +250,6 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
                   value={confirmText}
                   onChange={(e) => setConfirmText(e.target.value)}
                   placeholder="Skriv 'radera' här"
-                  className="max-w-sm"
                 />
               </div>
             </div>
