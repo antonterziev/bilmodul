@@ -802,22 +802,24 @@ export const Integrations = () => {
                                    }
                                  />
                                </TableCell>
-                                <TableCell className="text-center h-12 flex items-center justify-center">
-                                  <Badge 
-                                    variant="default"
-                                    className={`text-xs whitespace-nowrap px-2 py-1 flex items-center justify-center w-16 h-8 text-white ${
-                                     // Only show green/Aktiv if we have a real account name (not error messages)
-                                     fortnoxAccountNames[account.name] && 
-                                     !["Konto ej kontrollerat", "Kontonummer ej aktivt", "Kontonummer saknas", "Fel vid kontroll"].includes(fortnoxAccountNames[account.name])
-                                       ? 'bg-green-500 hover:bg-green-500'
-                                       : 'bg-gray-400 hover:bg-gray-400'
-                                   }`}
-                                 >
-                                   {/* Only show Aktiv if we have a real account name from Fortnox */}
-                                   {fortnoxAccountNames[account.name] && 
-                                    !["Konto ej kontrollerat", "Kontonummer ej aktivt", "Kontonummer saknas", "Fel vid kontroll"].includes(fortnoxAccountNames[account.name]) 
-                                     ? 'Aktiv' : 'Inaktiv'}
-                                 </Badge>
+                                <TableCell className="text-center h-12">
+                                  <div className="flex items-center justify-center h-full">
+                                    <Badge 
+                                      variant="default"
+                                      className={`text-xs whitespace-nowrap px-2 py-1 flex items-center justify-center w-16 h-8 text-white ${
+                                       // Only show green/Aktiv if we have a real account name (not error messages)
+                                       fortnoxAccountNames[account.name] && 
+                                       !["Konto ej kontrollerat", "Kontonummer ej aktivt", "Kontonummer saknas", "Fel vid kontroll"].includes(fortnoxAccountNames[account.name])
+                                         ? 'bg-green-500 hover:bg-green-500'
+                                         : 'bg-gray-400 hover:bg-gray-400'
+                                     }`}
+                                   >
+                                     {/* Only show Aktiv if we have a real account name from Fortnox */}
+                                     {fortnoxAccountNames[account.name] && 
+                                      !["Konto ej kontrollerat", "Kontonummer ej aktivt", "Kontonummer saknas", "Fel vid kontroll"].includes(fortnoxAccountNames[account.name]) 
+                                       ? 'Aktiv' : 'Inaktiv'}
+                                   </Badge>
+                                  </div>
                                </TableCell>
                                <TableCell className="text-center">
                                  <Button 
