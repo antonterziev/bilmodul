@@ -866,7 +866,7 @@ export const Integrations = () => {
                               <TableCell>
                                 <Badge 
                                   variant="default"
-                                  className={`text-xs whitespace-nowrap px-2 justify-center w-16 text-white ${
+                                  className={`text-xs whitespace-nowrap px-2 py-1 flex items-center justify-center w-16 h-6 text-white ${
                                     // Only show green/Aktiv if we have a real account name (not error messages)
                                     fortnoxAccountNames[account.name] && 
                                     !["Konto ej kontrollerat", "Kontonummer ej aktivt", "Kontonummer saknas", "Fel vid kontroll"].includes(fortnoxAccountNames[account.name])
