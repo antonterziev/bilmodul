@@ -215,7 +215,7 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-sm font-medium">
-                  Ange ditt lösenord för att bekräfta identiteten:
+                  Ange ditt lösenord för att bekräfta din identitet:
                 </Label>
                 <div className="relative">
                   <Input
