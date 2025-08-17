@@ -410,7 +410,7 @@ export const OrganizationUserManagement = () => {
                            checked={(pendingChanges[userRow.user_id] || userRow.roles).includes(permission.key)} 
                            onCheckedChange={() => toggleUserRole(userRow.user_id, permission.key)} 
                            disabled={updating === userRow.user_id || wouldRemoveLastAdmin(userRow.user_id, permission.key)} 
-                           className="w-5 h-5" 
+                           className="w-5 h-5 data-[state=checked]:bg-white data-[state=checked]:text-black border-gray-300" 
                            title={wouldRemoveLastAdmin(userRow.user_id, permission.key) ? "Kan inte ta bort den sista administratören" : undefined} 
                          />
                       </div>)}
