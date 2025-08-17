@@ -567,7 +567,7 @@ export const PurchaseForm = ({
         user_id: user.id,
         organization_id: profileData.organization_id,
         status: 'på_lager' as const,
-        registration_number: data.registration_number,
+        registration_number: data.registration_number.toUpperCase(),
         chassi_number: data.chassis_number || null,
         mileage: data.mileage || null,
         brand: data.brand?.trim() || "Saknas",
