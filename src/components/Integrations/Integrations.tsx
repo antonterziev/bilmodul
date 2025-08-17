@@ -595,7 +595,7 @@ export const Integrations = () => {
               
               {fortnoxConnected && fortnoxIntegration ? (
                 <div className="flex items-center justify-between w-full">
-                  <div className="text-left ml-[7.5rem]">
+                  <div className="text-left ml-6">
                     <p className="text-sm font-medium">
                       {fortnoxIntegration.company_name || 'Okänt företag'}
                     </p>
