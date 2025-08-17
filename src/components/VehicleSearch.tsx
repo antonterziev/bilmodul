@@ -229,7 +229,7 @@ export function VehicleSearch({
                 className={cn(
                   "flex items-center justify-between p-3 cursor-pointer rounded-md transition-colors",
                   highlightedIndex === index 
-                    ? "bg-primary/10 border border-primary/20" 
+                    ? "bg-blue-50 border border-blue-200" 
                     : "hover:bg-muted/50"
                 )}
               >
