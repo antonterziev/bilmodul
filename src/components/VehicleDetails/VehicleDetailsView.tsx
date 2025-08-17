@@ -1442,6 +1442,14 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                     placeholder="Skriv en ny anteckning..."
                     value={newNote}
                     onChange={(e) => setNewNote(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        if (newNote.trim()) {
+                          addNote();
+                        }
+                      }
+                    }}
                     rows={1}
                     className="flex-1 min-h-0 h-10 resize-none"
                   />
