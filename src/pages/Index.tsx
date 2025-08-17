@@ -77,7 +77,6 @@ const Index = () => {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      if (import.meta.env.DEV) return; // In preview/dev, stay on dashboard to render demo
       navigate("/login-or-signup");
     } else if (!isLoading && user) {
       // Check if email is verified first
@@ -338,17 +337,6 @@ const Index = () => {
   }
 
   if (!user) {
-    if (import.meta.env.DEV) {
-      return (
-        <div className="min-h-screen flex items-center justify-center bg-background">
-          <div className="text-center space-y-4">
-            <h1 className="text-2xl font-bold text-foreground">Förhandsvisning</h1>
-            <p className="text-muted-foreground">Ingen användare inloggad. Visar demo i utvecklingsläge.</p>
-            <Button onClick={() => navigate("/login-or-signup")}>Logga in</Button>
-          </div>
-        </div>
-      );
-    }
     return <Navigate to="/login-or-signup" replace />;
   }
 
