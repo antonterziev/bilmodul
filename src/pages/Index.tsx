@@ -548,8 +548,10 @@ const Index = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuItem onClick={() => setShowSupportDialog(true)}>
-                      Kontakta support
+                    <DropdownMenuItem asChild>
+                      <a href="mailto:info@bilmodul.se" className="cursor-pointer">
+                        Kontakta support
+                      </a>
                     </DropdownMenuItem>
                     <DropdownMenuItem className="flex items-center justify-between cursor-not-allowed pointer-events-none">
                       <span>Telefonsupport</span>
