@@ -202,7 +202,7 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
 
           <div className="bg-destructive/10 p-4 rounded-lg">
             <h4 className="font-semibold text-destructive mb-2">Vad som kommer att raderas:</h4>
-            <ul className="text-sm space-y-1 text-muted-foreground">
+            <ul className="text-sm space-y-1 text-muted-foreground grid grid-cols-2 gap-x-4">
               <li>• Din profil och kontoinformation</li>
               <li>• Alla registrerade fordon och lagerdata</li>
               <li>• Fortnox-integrationer och synkroniseringshistorik</li>
