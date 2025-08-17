@@ -619,15 +619,17 @@ export const Integrations = () => {
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={checkAllAccountsInFortnox}
-                    disabled={!fortnoxConnected || autoCheckingAccounts}
-                  >
-                    <RefreshCw className={`h-4 w-4 mr-2 ${autoCheckingAccounts ? 'animate-spin' : ''}`} />
-                    Synkronisera
-                  </Button>
+                  {fortnoxConnected && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={checkAllAccountsInFortnox}
+                      disabled={autoCheckingAccounts}
+                    >
+                      <RefreshCw className={`h-4 w-4 mr-2 ${autoCheckingAccounts ? 'animate-spin' : ''}`} />
+                      Synkronisera
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     onClick={async () => {
