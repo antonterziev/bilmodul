@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,6 +14,8 @@ interface DeleteAccountProps {
 
 export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
   const [confirmText, setConfirmText] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLastAdmin, setIsLastAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -87,6 +90,15 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
       return;
     }
 
+    if (!password.trim()) {
+      toast({
+        title: "Fel",
+        description: "Du måste ange ditt lösenord för att radera kontot",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Check if user is the last admin in their organization
     if (isLastAdmin) {
       toast({
@@ -100,9 +112,28 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
     setIsDeleting(true);
     console.log('Starting account deletion process...');
     try {
-      // With CASCADE DELETE constraints in place, we only need to sign out
-      // All user data will be automatically cleaned up when the user account is deleted
-      console.log('Account deletion initiated. User data will be automatically cleaned up.');
+      // Verify password before deletion
+      if (!user?.email) {
+        throw new Error('Användarens e-postadress saknas');
+      }
+
+      const { error: verifyError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: password
+      });
+
+      if (verifyError) {
+        console.error('Password verification failed:', verifyError);
+        toast({
+          title: "Fel lösenord",
+          description: "Det angivna lösenordet är felaktigt. Försök igen.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Password verified, proceed with deletion
+      console.log('Password verified. Account deletion initiated. User data will be automatically cleaned up.');
       
       toast({
         title: "Konto raderat",
@@ -117,7 +148,7 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
       console.error('Error deleting account:', error);
       toast({
         title: "Fel",
-        description: "Det gick inte att radera kontot. Försök igen senare.",
+        description: error.message || "Det gick inte att radera kontot. Försök igen senare.",
         variant: "destructive",
       });
     } finally {
@@ -178,18 +209,47 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
             </ul>
           </div>
 
-          <div className="space-y-2">
-            <label htmlFor="confirm-delete" className="text-sm font-medium">
-              Skriv "radera" för att bekräfta att du vill radera ditt konto:
-            </label>
-            <Input
-              id="confirm-delete"
-              type="text"
-              value={confirmText}
-              onChange={(e) => setConfirmText(e.target.value)}
-              placeholder="Skriv 'radera' här"
-              className="max-w-sm"
-            />
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm font-medium">
+                Ange ditt lösenord för att bekräfta identiteten:
+              </Label>
+              <div className="relative max-w-sm">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Ditt lösenord"
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 text-gray-400" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-gray-400" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirm-delete" className="text-sm font-medium">
+                Skriv "radera" för att bekräfta att du vill radera ditt konto:
+              </Label>
+              <Input
+                id="confirm-delete"
+                type="text"
+                value={confirmText}
+                onChange={(e) => setConfirmText(e.target.value)}
+                placeholder="Skriv 'radera' här"
+                className="max-w-sm"
+              />
+            </div>
           </div>
 
           <div className="flex gap-3">
@@ -199,7 +259,7 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
             <Button
               variant="destructive"
               onClick={handleDeleteAccount}
-              disabled={confirmText.toLowerCase() !== 'radera' || isDeleting || isLastAdmin}
+              disabled={confirmText.toLowerCase() !== 'radera' || !password.trim() || isDeleting || isLastAdmin}
             >
               {isDeleting ? 'Raderar...' : 'Radera konto permanent'}
             </Button>
