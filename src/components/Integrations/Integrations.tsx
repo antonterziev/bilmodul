@@ -603,13 +603,13 @@ export const Integrations = () => {
                       Kopplad: {new Date(fortnoxIntegration.created_at).toLocaleDateString('sv-SE')}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex gap-2">
                     <Button
                       variant="destructive"
                       size="sm"
                       onClick={disconnectFortnox}
                       disabled={disconnectingFortnox}
-                      className="w-32"
+                      className="text-xs w-32"
                     >
                       <Unlink className="h-4 w-4 mr-2" />
                       {disconnectingFortnox ? "Kopplar från..." : "Koppla från"}
