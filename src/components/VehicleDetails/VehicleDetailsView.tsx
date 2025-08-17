@@ -964,9 +964,9 @@ export const VehicleDetailsView = ({ vehicleId, onBack, initialTab = 'vagnkort' 
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Left sidebar with key info */}
-        <div className="space-y-4">
+      <div className={`grid grid-cols-1 gap-6 ${activeButton === 'bokforing' ? '' : 'lg:grid-cols-4'}`}>
+        {/* Left sidebar with key info - hidden for Bokföring tab */}
+        {activeButton !== 'bokforing' && <div className="space-y-4">
           {activeButton === 'pakostnad' ? (
             /* Påkostnad form */
             <Card>
@@ -1083,6 +1083,9 @@ export const VehicleDetailsView = ({ vehicleId, onBack, initialTab = 'vagnkort' 
                 </Button>
               </CardContent>
             </Card>
+          ) : activeButton === 'bokforing' ? (
+            /* No sidebar content for Bokföring tab */
+            null
           ) : (
             /* Purchase information and storage info for other tabs */
             <>
@@ -1137,10 +1140,10 @@ export const VehicleDetailsView = ({ vehicleId, onBack, initialTab = 'vagnkort' 
               </Card>
             </>
           )}
-        </div>
+        </div>}
 
         {/* Main content area - conditional based on active button */}
-        <div className="lg:col-span-3 space-y-6 flex flex-col">
+        <div className={`space-y-6 flex flex-col ${activeButton === 'bokforing' ? 'col-span-1' : 'lg:col-span-3'}`}>
           {activeButton === 'pakostnad' ? (
             <Card className="flex-1">
               <CardHeader>
