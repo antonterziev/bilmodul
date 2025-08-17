@@ -626,7 +626,7 @@ export const PurchaseForm = ({
               <Label htmlFor="registration_number"></Label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
-                  <Input id="registration_number" placeholder="T.ex. JSK15L" {...form.register("registration_number")} onKeyPress={handleKeyPress} style={{ textTransform: 'uppercase' }} className={cn(form.formState.errors.registration_number && "border-destructive", isDuplicateRegNumber && "border-destructive", (isCheckingRegNumber || isLoadingCarInfo) && "pr-10" // Add padding for spinner
+                  <Input id="registration_number" placeholder="t.ex. JSK15L" {...form.register("registration_number")} onKeyPress={handleKeyPress} style={{ textTransform: 'uppercase' }} className={cn(form.formState.errors.registration_number && "border-destructive", isDuplicateRegNumber && "border-destructive", (isCheckingRegNumber || isLoadingCarInfo) && "pr-10" // Add padding for spinner
               )} />
                   {(isCheckingRegNumber || isLoadingCarInfo) && <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                       <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full"></div>
