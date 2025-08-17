@@ -17,7 +17,7 @@ import { Integrations } from "@/components/Integrations/Integrations";
 import { AppSidebar } from "@/components/AppSidebar";
 
 import { supabase } from "@/integrations/supabase/client";
-import { Phone, MessageCircle, LogOut, Search, Filter, RotateCcw, Triangle, Unlink, Link, Bell, HelpCircle, ChevronDown, User, FileText, File, CheckSquare, BookOpen, Download, FileCheck, Receipt } from "lucide-react";
+import { Phone, MessageCircle, LogOut, Search, Filter, RotateCcw, Triangle, Unlink, Link, Bell, HelpCircle, ChevronDown, User, FileText, File, CheckSquare, BookOpen, Download, FileCheck, Receipt, Settings2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -575,6 +575,7 @@ const Index = () => {
                       <p className="text-sm text-muted-foreground">{user?.email}</p>
                     </div>
                     <DropdownMenuItem onClick={() => setCurrentView('settings')}>
+                      <Settings2 className="mr-2 h-4 w-4" />
                       Inställningar
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleLogout} className="text-red-600">
