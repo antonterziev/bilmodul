@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Car, Trash2, Eye, DollarSign, RefreshCw, Plus, ArrowUpDown } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { useToast } from "@/hooks/use-toast";
 
@@ -686,64 +687,93 @@ export const VehicleList = ({
                     </div>
                  </div>
                 
-                 {/* Action buttons */}
-                   <div className="flex-shrink-0 flex gap-2 pr-[1rem]" onClick={(e) => e.stopPropagation()}>
-                     {/* Påkostnad button */}
-                     <Button
-                       variant="outline"
-                       size="sm"
-                       onClick={() => onViewVehicle?.(vehicle.id, 'pakostnad')}
-                       className="text-blue-600 hover:bg-blue-600 hover:text-white w-10 h-10 p-0"
-                     >
-                       <Plus className="h-4 w-4" />
-                     </Button>
+                  {/* Action buttons */}
+                   <TooltipProvider>
+                    <div className="flex-shrink-0 flex gap-2 pr-[1rem]" onClick={(e) => e.stopPropagation()}>
+                      {/* Påkostnad button */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => onViewVehicle?.(vehicle.id, 'pakostnad')}
+                            className="text-blue-600 hover:bg-blue-600 hover:text-white w-10 h-10 p-0"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Påkostnad</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      
+                      {/* Sell button */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => onViewVehicle?.(vehicle.id, 'forsaljning')}
+                            className="text-green-600 hover:bg-green-600 hover:text-white w-10 h-10 p-0"
+                          >
+                            <DollarSign className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Försäljning</p>
+                        </TooltipContent>
+                      </Tooltip>
                      
-                     {/* Sell button */}
-                     <Button
-                       variant="outline"
-                       size="sm"
-                       onClick={() => onViewVehicle?.(vehicle.id, 'forsaljning')}
-                       className="text-green-600 hover:bg-green-600 hover:text-white w-10 h-10 p-0"
-                     >
-                       <DollarSign className="h-4 w-4" />
-                     </Button>
-                    
-                    {/* Always show sync button but grey out if synced */}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onViewVehicle?.(vehicle.id, 'bokforing')}
-                      disabled={syncingId === vehicle.id || vehicle.fortnox_sync_status === 'synced'}
-                      className={`w-10 h-10 p-0 ${
-                        vehicle.fortnox_sync_status === 'synced'
-                          ? 'text-gray-400 hover:bg-gray-100 hover:text-gray-400 cursor-not-allowed'
-                          : 'text-blue-600 hover:bg-blue-600 hover:text-white'
-                      }`}
-                      title={vehicle.fortnox_sync_status === 'synced' ? 'Redan synkroniserad med Fortnox' : 'Synkronisera med Fortnox'}
-                    >
-                      {syncingId === vehicle.id ? (
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                      ) : (
-                        <ArrowUpDown className="h-4 w-4" />
-                      )}
-                    </Button>
+                     {/* Always show sync button but grey out if synced */}
+                     <Tooltip>
+                       <TooltipTrigger asChild>
+                         <Button
+                           variant="outline"
+                           size="sm"
+                           onClick={() => onViewVehicle?.(vehicle.id, 'bokforing')}
+                           disabled={syncingId === vehicle.id || vehicle.fortnox_sync_status === 'synced'}
+                           className={`w-10 h-10 p-0 ${
+                             vehicle.fortnox_sync_status === 'synced'
+                               ? 'text-gray-400 hover:bg-gray-100 hover:text-gray-400 cursor-not-allowed'
+                               : 'text-blue-600 hover:bg-blue-600 hover:text-white'
+                           }`}
+                         >
+                           {syncingId === vehicle.id ? (
+                             <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                           ) : (
+                             <ArrowUpDown className="h-4 w-4" />
+                           )}
+                         </Button>
+                       </TooltipTrigger>
+                       <TooltipContent>
+                         <p>Synkronisera med Fortnox</p>
+                       </TooltipContent>
+                     </Tooltip>
 
-                    {/* Delete button */}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDelete(vehicle.id, vehicle.registration_number)}
-                      disabled={deletingId === vehicle.id}
-                      className="text-destructive hover:bg-destructive hover:text-destructive-foreground w-10 h-10 p-0"
-                    >
-                      {deletingId === vehicle.id ? (
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                      ) : (
-                        <Trash2 className="h-4 w-4" />
-                      )}
-                    </Button>
-                    
-                  </div>
+                     {/* Delete button */}
+                     <Tooltip>
+                       <TooltipTrigger asChild>
+                         <Button
+                           variant="outline"
+                           size="sm"
+                           onClick={() => handleDelete(vehicle.id, vehicle.registration_number)}
+                           disabled={deletingId === vehicle.id}
+                           className="text-destructive hover:bg-destructive hover:text-destructive-foreground w-10 h-10 p-0"
+                         >
+                           {deletingId === vehicle.id ? (
+                             <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                           ) : (
+                             <Trash2 className="h-4 w-4" />
+                           )}
+                         </Button>
+                       </TooltipTrigger>
+                       <TooltipContent>
+                         <p>Ta bort</p>
+                       </TooltipContent>
+                     </Tooltip>
+                     
+                   </div>
+                   </TooltipProvider>
               </div>
             ))}
           </div>
