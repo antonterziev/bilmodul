@@ -395,7 +395,7 @@ export const Settings = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="firstName">Förnamn</Label>
+                  <Label htmlFor="firstName">Förnamn *</Label>
                   <Input
                     id="firstName"
                     value={firstName}
@@ -404,7 +404,7 @@ export const Settings = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="lastName">Efternamn</Label>
+                  <Label htmlFor="lastName">Efternamn *</Label>
                   <Input
                     id="lastName"
                     value={lastName}
@@ -438,7 +438,7 @@ export const Settings = () => {
               <Button 
                 onClick={saveProfile} 
                 disabled={saving || !hasChanges}
-                className={`w-full ${!hasChanges ? 'opacity-50' : ''}`}
+                className={`w-full bg-blue-600 hover:bg-blue-700 text-white ${!hasChanges ? 'opacity-50' : ''}`}
               >
                 {saving ? "Sparar..." : "Uppdatera profil"}
               </Button>
