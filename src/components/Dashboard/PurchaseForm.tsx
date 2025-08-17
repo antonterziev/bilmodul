@@ -619,7 +619,7 @@ export const PurchaseForm = ({
       <CardContent>
         {!showFullForm ? <div className="space-y-4">
             <div className="text-center">
-              <p className="text-foreground mb-6">Ange fordonets registreringsnummer för att hämta fordonsinformation</p>
+              <p className="text-foreground mb-6 font-bold">Ange fordonets registreringsnummer för att hämta fordonsinformation</p>
             </div>
             
             <div className="max-w-md mx-auto">
