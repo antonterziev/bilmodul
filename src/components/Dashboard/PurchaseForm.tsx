@@ -626,7 +626,7 @@ export const PurchaseForm = ({
               <Label htmlFor="registration_number"></Label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
-                  <Input id="registration_number" placeholder="t.ex. JSK15L" {...form.register("registration_number")} onKeyPress={handleKeyPress} className={cn(form.formState.errors.registration_number && "border-destructive", isDuplicateRegNumber && "border-destructive", (isCheckingRegNumber || isLoadingCarInfo) && "pr-10" // Add padding for spinner
+                  <Input id="registration_number" placeholder="t.ex. JSK15L" {...form.register("registration_number")} onKeyPress={handleKeyPress} style={{ textTransform: 'uppercase' }} className={cn(form.formState.errors.registration_number && "border-destructive", isDuplicateRegNumber && "border-destructive", (isCheckingRegNumber || isLoadingCarInfo) && "pr-10" // Add padding for spinner
               )} />
                   {(isCheckingRegNumber || isLoadingCarInfo) && <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                       <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full"></div>
@@ -677,7 +677,7 @@ export const PurchaseForm = ({
                   <div>
                     <Label htmlFor="registration_number">Registreringsnummer*</Label>
                     <div className="relative">
-                      <Input id="registration_number" placeholder="t.ex. JSK15L eller 1234567890ABCDEFG" {...form.register("registration_number")} className={cn(form.formState.errors.registration_number && "border-destructive", isDuplicateRegNumber && "border-destructive", "pr-20" // Add padding for radio buttons
+                      <Input id="registration_number" placeholder="t.ex. JSK15L eller 1234567890ABCDEFG" {...form.register("registration_number")} style={{ textTransform: 'uppercase' }} className={cn(form.formState.errors.registration_number && "border-destructive", isDuplicateRegNumber && "border-destructive", "pr-20" // Add padding for radio buttons
                   )} readOnly={carDataFetched} />
                       <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                         <span className="text-sm text-muted-foreground">
@@ -727,12 +727,12 @@ export const PurchaseForm = ({
 
                 {form.watch("brand") === "Annat" && <div>
                     <Label htmlFor="brand_other">Ange märke</Label>
-                    <Input id="brand_other" {...form.register("brand_other")} placeholder="t.ex. Batmobile" style={{ textTransform: 'capitalize' }} />
+                    <Input id="brand_other" {...form.register("brand_other")} placeholder="t.ex. Batmobile" />
                   </div>}
 
                 <div>
                   <Label htmlFor="model">Modell</Label>
-                  <Input id="model" {...form.register("model")} placeholder="t.ex. XC60" style={{ textTransform: 'capitalize' }} />
+                  <Input id="model" {...form.register("model")} placeholder="t.ex. XC60" />
                 </div>
 
                 <div>
@@ -1035,7 +1035,7 @@ export const PurchaseForm = ({
                 {/* 7. Anteckning - moved below handpenning and greyed out */}
                 <div>
                   <Label htmlFor="comment">Anteckning</Label>
-                  <Input id="comment" {...form.register("comment")} placeholder="Lägg till en anteckning om fordonet..." style={{ textTransform: 'capitalize' }} />
+                  <Input id="comment" {...form.register("comment")} placeholder="Lägg till en anteckning om fordonet..." />
                 </div>
 
                 {/* 8. Inköpsunderlag - moved to same row as Anteckning */}
