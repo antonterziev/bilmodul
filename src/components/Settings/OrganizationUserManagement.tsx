@@ -437,6 +437,7 @@ export const OrganizationUserManagement = () => {
               {/* Save/Discard buttons - always visible */}
               <div className="flex gap-3 pt-4 border-t">
                 <Button 
+                  variant="default"
                   onClick={saveChanges}
                   disabled={saving || !hasUnsavedChanges}
                   className="flex-1"

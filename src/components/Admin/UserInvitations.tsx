@@ -251,7 +251,7 @@ const [selectedPermissions, setSelectedPermissions] = useState<string[]>(['lager
         
         <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
           <DialogTrigger asChild>
-            <Button>
+            <Button variant="default">
               <UserPlus className="w-4 h-4 mr-2" />
               Bjud in användare
             </Button>
