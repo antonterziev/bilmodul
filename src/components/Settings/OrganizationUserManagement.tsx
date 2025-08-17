@@ -451,13 +451,6 @@ export const OrganizationUserManagement = () => {
                     'Spara ändringar'
                   )}
                 </Button>
-                <Button 
-                  variant="outline"
-                  onClick={discardChanges}
-                  disabled={saving || !hasUnsavedChanges}
-                >
-                  Ångra
-                </Button>
               </div>
             </div> : <p className="text-muted-foreground text-center py-8">
               Inga användare hittades i din organisation
