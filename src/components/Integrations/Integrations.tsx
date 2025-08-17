@@ -617,50 +617,6 @@ export const Integrations = () => {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={async () => {
-                        if (!user?.id) return;
-                        
-                        try {
-                          const { data, error } = await supabase.functions.invoke('fortnox-test-connection');
-                          
-                          if (error) {
-                            console.error('Test connection error:', error);
-                            toast({
-                              title: "Anslutningstest misslyckades",
-                              description: error.message || "Okänt fel uppstod",
-                              variant: "destructive",
-                            });
-                            return;
-                          }
-                          
-                          if (data?.success) {
-                            toast({
-                              title: "Anslutning fungerar!",
-                              description: `Framgångsrikt anslutet till ${data.companyName || 'Fortnox'}`,
-                            });
-                          } else {
-                            toast({
-                              title: "Anslutningstest misslyckades",
-                              description: data?.message || "Anslutningen fungerar inte korrekt",
-                              variant: "destructive",
-                            });
-                          }
-                        } catch (error) {
-                          console.error('Test connection error:', error);
-                          toast({
-                            title: "Anslutningstest misslyckades",
-                            description: "Ett fel uppstod vid test av anslutning",
-                            variant: "destructive",
-                          });
-                        }
-                      }}
-                    >
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                      Testa anslutning
-                    </Button>
                     <Button
                       variant="outline"
                       size="sm"
