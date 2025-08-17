@@ -802,7 +802,7 @@ export const Integrations = () => {
                                    }
                                  />
                                </TableCell>
-                                <TableCell className="text-center h-12">
+                                <TableCell className="text-center h-12 flex items-center justify-center">
                                   <Badge 
                                     variant="default"
                                     className={`text-xs whitespace-nowrap px-2 py-1 flex items-center justify-center w-16 h-8 text-white ${
