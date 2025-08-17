@@ -176,6 +176,11 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {isLoading && (
+            <div className="text-center py-4">
+              <p>Laddar...</p>
+            </div>
+          )}
           {isLastAdmin && (
             <div className="bg-orange-50 border-l-4 border-orange-400 p-4 rounded">
               <div className="flex">
@@ -209,48 +214,50 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
             </ul>
           </div>
 
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium">
-                Ange ditt lösenord för att bekräfta identiteten:
-              </Label>
-              <div className="relative max-w-sm">
+          {!isLoading && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-medium">
+                  Ange ditt lösenord för att bekräfta identiteten:
+                </Label>
+                <div className="relative max-w-sm">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Ditt lösenord"
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-gray-400" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-400" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirm-delete" className="text-sm font-medium">
+                  Skriv "radera" för att bekräfta att du vill radera ditt konto:
+                </Label>
                 <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Ditt lösenord"
-                  className="pr-10"
+                  id="confirm-delete"
+                  type="text"
+                  value={confirmText}
+                  onChange={(e) => setConfirmText(e.target.value)}
+                  placeholder="Skriv 'radera' här"
+                  className="max-w-sm"
                 />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-gray-400" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-gray-400" />
-                  )}
-                </button>
               </div>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="confirm-delete" className="text-sm font-medium">
-                Skriv "radera" för att bekräfta att du vill radera ditt konto:
-              </Label>
-              <Input
-                id="confirm-delete"
-                type="text"
-                value={confirmText}
-                onChange={(e) => setConfirmText(e.target.value)}
-                placeholder="Skriv 'radera' här"
-                className="max-w-sm"
-              />
-            </div>
-          </div>
+          )}
 
           <div className="flex gap-3">
             <Button variant="outline" onClick={onBack}>
