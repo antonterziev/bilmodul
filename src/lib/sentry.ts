@@ -2,11 +2,8 @@ import * as Sentry from "@sentry/react";
 
 // Initialize Sentry
 export const initSentry = () => {
-  // Only initialize Sentry in production or when DSN is available
-  if (import.meta.env.MODE === 'development') {
-    console.log('Sentry disabled in development mode');
-    return;
-  }
+  console.log('Sentry disabled');
+  return;
 
   try {
     Sentry.init({
