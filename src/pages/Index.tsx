@@ -29,9 +29,6 @@ const Index = () => {
   const { user, signOut, isLoading } = useAuth();
   const navigate = useNavigate();
   
-  // Demo mode for development preview
-  const isDemoMode = import.meta.env.DEV && !user;
-  
   // Current view state
   const [currentView, setCurrentView] = useState("overview");
   const [previousView, setPreviousView] = useState("overview");
@@ -79,7 +76,7 @@ const Index = () => {
   const [disconnectingFortnox, setDisconnectingFortnox] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && !user && !isDemoMode) {
+    if (!isLoading && !user) {
       navigate("/login-or-signup");
     } else if (!isLoading && user) {
       // Check if email is verified first
@@ -96,16 +93,16 @@ const Index = () => {
         navigate("/onboarding");
       }
     }
-  }, [user, isLoading, navigate, isDemoMode]);
+  }, [user, isLoading, navigate]);
 
   useEffect(() => {
-    if (user || isDemoMode) {
+    if (user) {
       loadStats();
       loadUserProfile();
       loadInventoryItems();
       checkFortnoxConnection();
     }
-  }, [user, isDemoMode]);
+  }, [user]);
 
   // Listen for profile updates to refresh welcome message
   useEffect(() => {
@@ -168,19 +165,9 @@ const Index = () => {
   };
 
   const loadUserProfile = async () => {
-    if (!user && !isDemoMode) return;
+    if (!user) return;
 
     try {
-      if (isDemoMode) {
-        // Demo data for preview
-        setUserProfile({
-          first_name: "Demo",
-          last_name: "User",
-          full_name: "Demo User"
-        });
-        return;
-      }
-
       const { data, error } = await supabase
         .from('profiles')
         .select('first_name, last_name, full_name')
@@ -199,19 +186,9 @@ const Index = () => {
   };
 
   const loadStats = async () => {
-    if (!user && !isDemoMode) return;
+    if (!user) return;
 
     try {
-      if (isDemoMode) {
-        // Demo stats for preview
-        setStats({ 
-          totalStock: 12, 
-          averageStorageDays: 45, 
-          inventoryValue: 1250000 
-        });
-        return;
-      }
-
       // Get inventory counts by status
       const { data: inventoryData, error } = await supabase
         .from('inventory_items')
@@ -253,21 +230,9 @@ const Index = () => {
   };
 
   const loadInventoryItems = async () => {
-    if (!user && !isDemoMode) return;
+    if (!user) return;
 
     try {
-      if (isDemoMode) {
-        // Demo inventory for preview
-        const demoItems = [
-          { registration_number: "ABC123", brand: "Volvo", model: "XC60" },
-          { registration_number: "DEF456", brand: "BMW", model: "X5" },
-          { registration_number: "GHI789", brand: "Audi", model: "Q7" }
-        ];
-        setInventoryItems(demoItems);
-        setSearchPlaceholder("Sök fordon (t.ex. ABC123)");
-        return;
-      }
-
       const { data, error } = await supabase
         .from('inventory_items')
         .select('registration_number, brand, model')
@@ -304,16 +269,9 @@ const Index = () => {
   };
 
   const checkFortnoxConnection = async () => {
-    if (!user && !isDemoMode) return;
+    if (!user) return;
 
     try {
-      if (isDemoMode) {
-        // Demo mode - no Fortnox connection
-        setFortnoxConnected(false);
-        setFortnoxIntegration(null);
-        return;
-      }
-
       const { data, error } = await supabase
         .from('fortnox_integrations')
         .select('*')
@@ -362,9 +320,6 @@ const Index = () => {
   };
 
   const getDisplayName = () => {
-    if (isDemoMode) {
-      return "Demo";
-    }
     if (userProfile?.first_name) {
       return userProfile.first_name;
     }
@@ -381,7 +336,7 @@ const Index = () => {
     );
   }
 
-  if (!user && !isDemoMode) {
+  if (!user) {
     return <Navigate to="/login-or-signup" replace />;
   }
 
