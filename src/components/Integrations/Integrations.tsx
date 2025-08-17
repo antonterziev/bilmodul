@@ -821,8 +821,8 @@ export const Integrations = () => {
                         <TableHeader>
                           <TableRow>
                             <TableHead className="w-32">Kontonummer</TableHead>
-                            <TableHead>Kontonamn</TableHead>
-                            <TableHead>Kontonamn i Fortnox</TableHead>
+                            <TableHead className="w-48">Kontonamn</TableHead>
+                            <TableHead className="w-64">Kontonamn i Fortnox</TableHead>
                             <TableHead className="w-20">Status</TableHead>
                             <TableHead className="w-16">Sync</TableHead>
                           </TableRow>
