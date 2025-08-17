@@ -1387,7 +1387,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack, initialTab = 'vagnkort' 
 
                     {/* 5. Registrera försäljning */}
                     <div className="md:col-span-2">
-                      <Button className="w-full" disabled>
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled>
                         Registrera försäljning
                       </Button>
                     </div>
