@@ -709,6 +709,7 @@ export const Integrations = () => {
                   size="sm"
                   onClick={checkAllAccountsInFortnox}
                   disabled={autoCheckingAccounts}
+                  className="text-xs"
                 >
                   <RefreshCw className={`h-4 w-4 mr-2 ${autoCheckingAccounts ? 'animate-spin' : ''}`} />
                   Synkronisera
