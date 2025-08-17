@@ -231,13 +231,58 @@ serve(async (req) => {
       )
     }
 
-    // First, check if we have cached data for this registration number
+    // Get user from JWT token to determine organization
+    const authHeader = req.headers.get('authorization')
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Authorization required' }),
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
+    }
+
+    // Get user from token
+    const { data: { user }, error: userError } = await supabase.auth.getUser(
+      authHeader.replace('Bearer ', '')
+    )
+    
+    if (userError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication' }),
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
+    }
+
+    // Get user's organization
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('organization_id')
+      .eq('user_id', user.id)
+      .single()
+
+    if (profileError || !profile) {
+      return new Response(
+        JSON.stringify({ error: 'User profile not found' }),
+        { 
+          status: 403, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
+    }
+
+    // First, check if we have cached data for this registration number in the user's organization
     console.log('Checking cache for registration number:', registrationNumber);
     try {
       const { data: cachedData, error: cacheError } = await supabase
         .from('scraped_car_cache')
         .select('scraped_data')
         .eq('registration_number', registrationNumber.toUpperCase())
+        .eq('organization_id', profile.organization_id)
         .single();
 
       if (cacheError && cacheError.code !== 'PGRST116') {
@@ -300,13 +345,14 @@ serve(async (req) => {
           if (Object.keys(extractedData).length > 0) {
             console.log('Successfully extracted vehicle data:', extractedData);
             
-            // Cache the extracted data for future use
+            // Cache the extracted data for future use with organization scope
             try {
               await supabase
                 .from('scraped_car_cache')
                 .insert({
                   registration_number: registrationNumber.toUpperCase(),
-                  scraped_data: extractedData
+                  scraped_data: extractedData,
+                  organization_id: profile.organization_id
                 });
               console.log('Cached data for registration number:', registrationNumber);
             } catch (cacheInsertError) {

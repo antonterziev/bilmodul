@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -634,6 +634,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          organization_id: string | null
           registration_number: string
           scraped_data: Json
           updated_at: string
@@ -641,6 +642,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          organization_id?: string | null
           registration_number: string
           scraped_data: Json
           updated_at?: string
@@ -648,11 +650,20 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          organization_id?: string | null
           registration_number?: string
           scraped_data?: Json
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "scraped_car_cache_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_permissions: {
         Row: {
@@ -717,18 +728,18 @@ export type Database = {
     Functions: {
       calculate_inventory_value: {
         Args: {
-          vat_type_param: string
-          purchase_price_param: number
           inventory_item_id_param: string
+          purchase_price_param: number
+          vat_type_param: string
         }
         Returns: number
       }
       can_remove_admin_permission: {
-        Args: { _user_id: string; _organization_id: string }
+        Args: { _organization_id: string; _user_id: string }
         Returns: boolean
       }
       can_remove_admin_role: {
-        Args: { _user_id: string; _organization_id: string }
+        Args: { _organization_id: string; _user_id: string }
         Returns: boolean
       }
       cleanup_old_oauth_states: {
@@ -745,8 +756,8 @@ export type Database = {
       }
       has_permission: {
         Args: {
-          _user_id: string
           _permission: Database["public"]["Enums"]["app_permission"]
+          _user_id: string
         }
         Returns: boolean
       }
