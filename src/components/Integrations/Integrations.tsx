@@ -736,12 +736,12 @@ export const Integrations = () => {
                   {accountCategories.every(category => openCategories[category.key]) ? (
                     <>
                       <ChevronRight className="h-3 w-3 mr-1" />
-                      Kollapsa alla
+                      Kollapsa
                     </>
                   ) : (
                     <>
                       <ChevronDown className="h-3 w-3 mr-1" />
-                      Expandera alla
+                      Expandera
                     </>
                   )}
                 </Button>
