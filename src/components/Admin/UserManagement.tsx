@@ -530,6 +530,7 @@ export const UserManagement = () => {
               <Button 
                 onClick={createOrganization}
                 disabled={!newOrgName.trim() || creatingOrg}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 {creatingOrg ? (
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
