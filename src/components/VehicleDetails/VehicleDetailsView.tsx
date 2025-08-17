@@ -1449,7 +1449,7 @@ export const VehicleDetailsView = ({ vehicleId, onBack }: VehicleDetailsViewProp
                     onClick={addNote}
                     disabled={!newNote.trim()}
                     size="sm"
-                    className="h-10"
+                    className="h-10 bg-blue-600 hover:bg-blue-700 text-white"
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
