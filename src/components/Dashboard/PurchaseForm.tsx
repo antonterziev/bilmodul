@@ -673,20 +673,6 @@ export const PurchaseForm = ({
 
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <TabsContent value="fordonsdata" className="space-y-4">
-                <div className="flex justify-start mb-4">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => {
-                      setShowFullForm(false);
-                      setCarDataFetched(false);
-                    }}
-                    className="flex items-center gap-2"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                    Tillbaka
-                  </Button>
-                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="registration_number">Registreringsnummer*</Label>
@@ -844,7 +830,19 @@ export const PurchaseForm = ({
               </div>
 
 
-              <div className="flex justify-end">
+              <div className="flex justify-between">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => {
+                    setShowFullForm(false);
+                    setCarDataFetched(false);
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Tillbaka
+                </Button>
                 <Button type="button" onClick={() => setActiveTab("inkopsinformation")} disabled={!isVehicleDataValid()} className="bg-blue-600 hover:bg-blue-700 text-white">
                   Fortsätt
                 </Button>
