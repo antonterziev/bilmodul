@@ -592,16 +592,6 @@ export const Integrations = () => {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Badge 
-                variant="default"
-                className={`text-xs whitespace-nowrap px-2 justify-center w-16 text-white bg-gray-400 hover:bg-gray-400 ${
-                  fortnoxConnected 
-                    ? 'bg-green-500 hover:bg-green-500' 
-                    : 'bg-gray-400 hover:bg-gray-400'
-                }`}
-              >
-                {fortnoxConnected ? 'Aktiv' : 'Inaktiv'}
-              </Badge>
               
               {fortnoxConnected && fortnoxIntegration ? (
                 <div className="flex items-center justify-between w-full">
