@@ -35,6 +35,7 @@ export function VehicleSearch({
   const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -51,6 +52,7 @@ export function VehicleSearch({
     if (!searchTerm.trim()) {
       setFilteredVehicles([]);
       setShowDropdown(false);
+      setHighlightedIndex(-1);
       return;
     }
 
@@ -65,6 +67,7 @@ export function VehicleSearch({
 
     setFilteredVehicles(filtered);
     setShowDropdown(filtered.length > 0 && searchTerm.trim().length > 0);
+    setHighlightedIndex(-1); // Reset highlighted index when filtering
   }, [searchTerm, vehicles]);
 
   // Close dropdown when clicking outside
@@ -129,8 +132,40 @@ export function VehicleSearch({
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showDropdown || filteredVehicles.length === 0) return;
+
+    const visibleVehicles = filteredVehicles.slice(0, 8);
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setHighlightedIndex(prev => 
+          prev < visibleVehicles.length - 1 ? prev + 1 : 0
+        );
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setHighlightedIndex(prev => 
+          prev > 0 ? prev - 1 : visibleVehicles.length - 1
+        );
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (highlightedIndex >= 0 && highlightedIndex < visibleVehicles.length) {
+          handleVehicleClick(visibleVehicles[highlightedIndex].id);
+        }
+        break;
+      case 'Escape':
+        setShowDropdown(false);
+        setHighlightedIndex(-1);
+        break;
+    }
+  };
+
   const handleVehicleClick = (vehicleId: string) => {
     setShowDropdown(false);
+    setHighlightedIndex(-1);
     onSearchChange(""); // Clear search term
     onVehicleSelect(vehicleId);
   };
@@ -170,6 +205,7 @@ export function VehicleSearch({
           value={searchTerm}
           onChange={handleInputChange}
           onFocus={handleInputFocus}
+          onKeyDown={handleKeyDown}
           disabled={!hasVehicles}
           className="pl-9 w-full disabled:opacity-50 disabled:cursor-not-allowed uppercase placeholder:normal-case"
         />
@@ -186,11 +222,16 @@ export function VehicleSearch({
       {showDropdown && filteredVehicles.length > 0 && (
         <Card className="absolute top-full left-0 right-0 mt-1 z-50 max-h-80 overflow-y-auto shadow-lg border">
           <div className="p-2">
-            {filteredVehicles.slice(0, 8).map((vehicle) => (
+            {filteredVehicles.slice(0, 8).map((vehicle, index) => (
               <div
                 key={vehicle.id}
                 onClick={() => handleVehicleClick(vehicle.id)}
-                className="flex items-center justify-between p-3 hover:bg-muted/50 cursor-pointer rounded-md transition-colors"
+                className={cn(
+                  "flex items-center justify-between p-3 cursor-pointer rounded-md transition-colors",
+                  highlightedIndex === index 
+                    ? "bg-primary/10 border border-primary/20" 
+                    : "hover:bg-muted/50"
+                )}
               >
                 <div className="flex items-center justify-between w-full">
                   <div className="flex-1 min-w-0">
