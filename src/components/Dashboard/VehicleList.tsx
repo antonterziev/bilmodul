@@ -702,7 +702,7 @@ export const VehicleList = ({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleSync(vehicle.id, vehicle.registration_number)}
+                      onClick={() => onViewVehicle?.(vehicle.id, 'bokforing')}
                       disabled={syncingId === vehicle.id || vehicle.fortnox_sync_status === 'synced'}
                       className={`w-10 h-10 p-0 ${
                         vehicle.fortnox_sync_status === 'synced'
