@@ -508,8 +508,7 @@ export const UserManagement = () => {
       {(userRole === 'superuser' || userRole === 'admin') && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Building className="w-5 h-5" />
+            <CardTitle>
               Skapa Organisation
             </CardTitle>
           </CardHeader>
