@@ -852,7 +852,7 @@ export const Integrations = () => {
                                       : "" // Empty if no real name found
                                   }
                                   disabled
-                                  className="h-8 bg-muted text-muted-foreground cursor-not-allowed"
+                                  className="h-8 bg-muted text-muted-foreground cursor-not-allowed text-left truncate"
                                   readOnly
                                   placeholder={
                                     !accountNumbers[account.name] && !account.number 
