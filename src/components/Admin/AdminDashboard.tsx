@@ -103,7 +103,6 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
-        <Shield className="w-6 h-6" />
         <h2 className="text-2xl font-bold">Administratörsområde</h2>
       </div>
 
