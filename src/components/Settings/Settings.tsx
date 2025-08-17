@@ -489,6 +489,7 @@ export const Settings = () => {
                 onClick={changePassword} 
                 disabled={changingPassword || !currentPassword || !newPassword || !confirmPassword}
                 className="w-full"
+                variant="default"
               >
                 {changingPassword ? "Ändrar..." : "Ändra lösenord"}
               </Button>
