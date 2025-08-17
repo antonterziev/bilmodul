@@ -23,6 +23,21 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import * as Sentry from '@sentry/react';
+
+// Test component for Sentry error tracking
+function ErrorButton() {
+  return (
+    <button
+      onClick={() => {
+        throw new Error('This is your first error!');
+      }}
+      className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+    >
+      Break the world
+    </button>
+  );
+}
 
 const Index = () => {
   const { user, signOut, isLoading } = useAuth();
@@ -498,7 +513,10 @@ const Index = () => {
 
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold">Översikt</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold">Översikt</h2>
+              <ErrorButton />
+            </div>
             <DashboardStats
               totalStock={stats.totalStock}
               averageStorageDays={stats.averageStorageDays}
