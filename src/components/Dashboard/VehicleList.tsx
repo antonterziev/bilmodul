@@ -584,16 +584,16 @@ export const VehicleList = ({
               <div className="flex-shrink-0 w-16">
                 {/* Brand logo space */}
               </div>
-              <div className="flex-1 grid grid-cols-8 gap-4 items-center">
-                <div className="col-span-2">Fordon</div>
-                <div className="text-center">Status</div>
-                <div className="text-center">Bokföring</div>
-                <div>Lagerdagar</div>
-                <div>Momsregel</div>
-                <div>Inköpare</div>
-                <div className="w-16">Lagervärde</div>
+              <div className="flex items-center gap-4 flex-1">
+                <div className="w-48">Fordon</div>
+                <div className="w-20 text-center">Status</div>
+                <div className="w-20 text-center">Bokföring</div>
+                <div className="w-24">Lagerdagar</div>
+                <div className="w-24">Momsregel</div>
+                <div className="w-20">Inköpare</div>
+                <div className="w-24">Lagervärde</div>
               </div>
-              <div className="flex-shrink-0 w-[124px]">
+              <div className="flex-shrink-0 w-[180px]">
                 {/* Actions space */}
               </div>
             </div>
@@ -611,9 +611,9 @@ export const VehicleList = ({
                 </div>
                 
                  {/* Vehicle main info */}
-                 <div className="flex-1 grid grid-cols-8 gap-4 items-center text-sm">
+                 <div className="flex items-center gap-4 flex-1">
                    {/* Column 1: Brand & Model + Registration */}
-                   <div className="col-span-2">
+                   <div className="w-48">
                      <h3 className="font-medium truncate" title={`${vehicle.brand} ${vehicle.model || ''}`}>
                        {vehicle.brand} {vehicle.model || ''}
                      </h3>
@@ -623,7 +623,7 @@ export const VehicleList = ({
                    </div>
                    
                    {/* Column 2: Status */}
-                   <div className="text-center">
+                   <div className="w-20 flex justify-center">
                      <Badge 
                        variant={getStatusVariant(vehicle.status)} 
                        className={`text-xs whitespace-nowrap px-2 justify-center w-20 ${
@@ -639,7 +639,7 @@ export const VehicleList = ({
                    </div>
 
                    {/* Column 3: Status 2 (Fortnox) */}
-                   <div className="text-center">
+                   <div className="w-20 flex justify-center">
                       {vehicle.fortnox_sync_status && (
                          <Badge 
                            variant="outline"
@@ -665,31 +665,31 @@ export const VehicleList = ({
                    </div>
                    
                    {/* Column 4: Storage Days */}
-                   <div>
+                   <div className="w-24">
                      <p className="font-medium text-sm whitespace-nowrap">{calculateStorageDays(vehicle.purchase_date, vehicle.status, vehicle.selling_date)} {calculateStorageDays(vehicle.purchase_date, vehicle.status, vehicle.selling_date) === 1 ? 'dag' : 'dagar'}</p>
                    </div>
                    
                    {/* Column 5: VAT Type */}
-                   <div>
+                   <div className="w-24">
                      <p className="font-medium whitespace-nowrap">{vehicle.vat_type === "Vinstmarginalbeskattning (VMB)" ? "VMB" : vehicle.vat_type || "Ej angiven"}</p>
                    </div>
                    
                    {/* Column 6: Registered By (Inköpare) */}
-                   <div>
+                   <div className="w-20">
                      <p className="font-medium whitespace-nowrap text-sm" title={vehicle.registered_by}>
                        {formatPurchaserName(vehicle.registered_by || 'Okänd')}
                      </p>
                    </div>
                    
                     {/* Column 7: Purchase Price */}
-                    <div className="w-16">
+                    <div className="w-24">
                       <p className="font-medium">{formatPrice(vehicle.inventory_value || 0)}</p>
                     </div>
                  </div>
                 
                   {/* Action buttons */}
                    <TooltipProvider>
-                    <div className="flex-shrink-0 flex gap-2 pr-[1rem]" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex-shrink-0 flex gap-2 w-[180px] justify-start" onClick={(e) => e.stopPropagation()}>
                       {/* Påkostnad button */}
                       <Tooltip>
                         <TooltipTrigger asChild>
