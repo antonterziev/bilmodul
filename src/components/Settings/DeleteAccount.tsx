@@ -261,7 +261,7 @@ export const DeleteAccount: React.FC<DeleteAccountProps> = ({ onBack }) => {
               onClick={handleDeleteAccount}
               disabled={confirmText.toLowerCase() !== 'radera' || !password.trim() || isDeleting || isLastAdmin}
             >
-              {isDeleting ? 'Raderar...' : 'Radera konto permanent'}
+              {isDeleting ? 'Raderar...' : 'Radera konto'}
             </Button>
           </div>
         </CardContent>
