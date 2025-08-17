@@ -680,6 +680,7 @@ export const Integrations = () => {
                         alert('Kunde inte ansluta till Fortnox. Försök igen senare.');
                       }
                     }}
+                    className="text-xs w-32"
                   >
                     <Link className="h-4 w-4 mr-2" />
                     Koppla
