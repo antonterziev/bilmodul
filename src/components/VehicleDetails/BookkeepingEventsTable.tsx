@@ -351,7 +351,7 @@ export const BookkeepingEventsTable = ({ vehicleId }: BookkeepingEventsTableProp
                         )}
                       </Button>
                     ) : (
-                      <span className="text-green-600 text-sm">✓ Synkad</span>
+                      <span className="text-green-600 text-sm">Synkad</span>
                     )}
                   </TableCell>
                 </TableRow>
