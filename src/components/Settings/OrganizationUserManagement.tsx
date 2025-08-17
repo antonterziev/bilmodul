@@ -342,8 +342,10 @@ export const OrganizationUserManagement = () => {
 
       if (profileError) throw profileError;
 
-      // Finally, delete the user from Supabase auth
-      const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+      // Finally, delete the user from Supabase auth using edge function
+      const { data: deleteResult, error: authError } = await supabase.functions.invoke('delete-user', {
+        body: { userId }
+      });
       
       if (authError) {
         console.error('Error deleting user from auth:', authError);
