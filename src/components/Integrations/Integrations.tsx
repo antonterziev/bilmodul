@@ -746,12 +746,6 @@ export const Integrations = () => {
                   )}
                 </Button>
               </div>
-              {autoCheckingAccounts && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  Kontrollerar alla konton...
-                </div>
-              )}
             </div>
             <div className="space-y-2">
               {accountCategories.map((category) => (
