@@ -390,7 +390,9 @@ const Auth = () => {
                   className={`h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${emailError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`} 
                   required 
                 />
-                {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
+                <div className="h-5">
+                  {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
+                </div>
               </div>
               
               <div className="grid grid-cols-2 gap-4">
@@ -483,7 +485,9 @@ const Auth = () => {
                     placeholder="din.email@exempel.se" 
                     required 
                   />
-                  {emailError && <p className="text-red-500 text-sm text-center">{emailError}</p>}
+                  <div className="h-5">
+                    {emailError && <p className="text-red-500 text-sm text-center">{emailError}</p>}
+                  </div>
                 </div>
                 
                 <Button type="submit" disabled={isResettingPassword || !resetEmail.trim()} className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium">
@@ -539,7 +543,9 @@ const Auth = () => {
                     className={`h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${emailError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`} 
                     required
                   />
-                  {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
+                  <div className="h-5">
+                    {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
+                  </div>
                 </div>
                 
                 <Button type="submit" disabled={!email.includes('@') || !!emailError} className={`w-full h-12 text-white font-medium transition-colors ${email.includes('@') && !emailError ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-300 cursor-not-allowed"}`}>
