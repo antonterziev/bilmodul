@@ -268,12 +268,17 @@ serve(async (req) => {
           console.log(`📊 Company information received for ${requestId}:`, companyData);
           
           if (companyData.CompanyInformation) {
-            companyId = companyData.CompanyInformation.DatabaseNumber?.toString();
+            // Use OrganizationNumber instead of DatabaseNumber for validation
+            const fortnoxOrgNumber = companyData.CompanyInformation.OrganizationNumber;
+            companyId = fortnoxOrgNumber?.toString();
             companyName = companyData.CompanyInformation.CompanyName;
-            console.log(`📊 Extracted company ID: ${companyId}, name: ${companyName}`);
+            console.log(`📊 Extracted company org number: ${companyId}, name: ${companyName}`);
+            console.log(`📊 Full company data:`, JSON.stringify(companyData.CompanyInformation, null, 2));
           }
         } else {
           console.warn(`⚠️ Failed to fetch company information for ${requestId}:`, companyResponse.status);
+          const responseText = await companyResponse.text();
+          console.warn(`⚠️ Response body:`, responseText);
         }
       } catch (companyError) {
         console.error(`❌ Error fetching company information for ${requestId}:`, companyError);
@@ -321,32 +326,46 @@ serve(async (req) => {
         fortnox_company_id: companyId
       });
 
-      // CRITICAL: Validate that the Fortnox company ID matches the user's organization number
-      if (companyId && companyId !== userOrgNumber) {
-        console.error(`🚫 Organization mismatch for ${requestId}:`, {
-          user_org_number: userOrgNumber,
-          fortnox_company_id: companyId,
-          user_org_name: userOrgName,
-          fortnox_company_name: companyName
-        });
-        
-        const errorMessage = encodeURIComponent(
-          `Du kan endast ansluta till din egen organisation (${userOrgNumber}). ` +
-          `Det Fortnox-företag du försökte ansluta till har organisationsnummer ${companyId}.`
-        );
-        
-        return new Response(null, {
-          status: 302,
-          headers: {
-            'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
-          }
-        });
-      }
+      // Helper function to normalize organization numbers for comparison
+      const normalizeOrgNumber = (orgNumber: string): string => {
+        return orgNumber?.replace(/[-\s]/g, '') || '';
+      };
 
-      if (!companyId) {
-        console.warn(`⚠️ No company ID received from Fortnox for ${requestId}. Proceeding without validation.`);
+      // CRITICAL: Validate that the Fortnox organization number matches the user's organization number
+      if (companyId) {
+        const normalizedFortnoxOrgNumber = normalizeOrgNumber(companyId);
+        const normalizedUserOrgNumber = normalizeOrgNumber(userOrgNumber);
+        
+        if (normalizedFortnoxOrgNumber !== normalizedUserOrgNumber) {
+          console.error(`🚫 Organization mismatch for ${requestId}:`, {
+            user_org_number: userOrgNumber,
+            user_org_number_normalized: normalizedUserOrgNumber,
+            fortnox_org_number: companyId,
+            fortnox_org_number_normalized: normalizedFortnoxOrgNumber,
+            user_org_name: userOrgName,
+            fortnox_company_name: companyName
+          });
+          
+          const errorMessage = encodeURIComponent(
+            `Du kan endast ansluta till din egen organisation (${userOrgNumber}). ` +
+            `Det Fortnox-företag du försökte ansluta till har organisationsnummer ${companyId}.`
+          );
+          
+          return new Response(null, {
+            status: 302,
+            headers: {
+              'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
+            }
+          });
+        } else {
+          console.log(`✅ Organization validation passed for ${requestId}:`, {
+            user_org_number: userOrgNumber,
+            fortnox_org_number: companyId,
+            normalized_match: `${normalizedUserOrgNumber} === ${normalizedFortnoxOrgNumber}`
+          });
+        }
       } else {
-        console.log(`✅ Organization validation passed for ${requestId}: ${companyId} matches ${userOrgNumber}`);
+        console.warn(`⚠️ No organization number received from Fortnox for ${requestId}. Proceeding without validation.`);
       }
 
       // Deactivate previous integrations for user
