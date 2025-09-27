@@ -279,10 +279,13 @@ serve(async (req) => {
         console.error(`❌ Error fetching company information for ${requestId}:`, companyError);
       }
       
-      // Get user's organization_id from profile using service role to bypass RLS
+      // Get user's organization_id and organization_number from profile using service role to bypass RLS
       const { data: userProfile, error: profileError } = await supabase
         .from('profiles')
-        .select('organization_id')
+        .select(`
+          organization_id,
+          organizations!inner(organization_number, name)
+        `)
         .eq('user_id', validState.user_id)
         .single();
 
@@ -297,9 +300,9 @@ serve(async (req) => {
         });
       }
 
-      if (!userProfile?.organization_id) {
-        console.error(`User profile missing organization_id for ${requestId}:`, userProfile);
-        const errorMessage = encodeURIComponent('Användarorganisation saknas. Kontakta support.');
+      if (!userProfile?.organization_id || !userProfile?.organizations?.organization_number) {
+        console.error(`User profile missing organization data for ${requestId}:`, userProfile);
+        const errorMessage = encodeURIComponent('Användarorganisation eller organisationsnummer saknas. Kontakta support.');
         return new Response(null, {
           status: 302,
           headers: {
@@ -308,7 +311,43 @@ serve(async (req) => {
         });
       }
 
-      console.log(`✅ Found organization_id for user ${validState.user_id}:`, userProfile.organization_id);
+      const userOrgNumber = userProfile.organizations.organization_number;
+      const userOrgName = userProfile.organizations.name;
+      
+      console.log(`✅ Found organization for user ${validState.user_id}:`, {
+        org_id: userProfile.organization_id,
+        org_number: userOrgNumber,
+        org_name: userOrgName,
+        fortnox_company_id: companyId
+      });
+
+      // CRITICAL: Validate that the Fortnox company ID matches the user's organization number
+      if (companyId && companyId !== userOrgNumber) {
+        console.error(`🚫 Organization mismatch for ${requestId}:`, {
+          user_org_number: userOrgNumber,
+          fortnox_company_id: companyId,
+          user_org_name: userOrgName,
+          fortnox_company_name: companyName
+        });
+        
+        const errorMessage = encodeURIComponent(
+          `Du kan endast ansluta till din egen organisation (${userOrgNumber}). ` +
+          `Det Fortnox-företag du försökte ansluta till har organisationsnummer ${companyId}.`
+        );
+        
+        return new Response(null, {
+          status: 302,
+          headers: {
+            'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
+          }
+        });
+      }
+
+      if (!companyId) {
+        console.warn(`⚠️ No company ID received from Fortnox for ${requestId}. Proceeding without validation.`);
+      } else {
+        console.log(`✅ Organization validation passed for ${requestId}: ${companyId} matches ${userOrgNumber}`);
+      }
 
       // Deactivate previous integrations for user
       await supabase
