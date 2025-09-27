@@ -110,7 +110,7 @@ export const PurchaseForm = ({
       purchase_date: new Date(),
       down_payment: 0,
       purchase_channel: "Privatperson",
-      vat_type: "Vinstmarginalbeskattning (VMB)"
+      vat_type: "VMB"
     }
   });
 
@@ -134,7 +134,7 @@ export const PurchaseForm = ({
       purchase_date: new Date(),
       down_payment: 0,
       purchase_channel: "Privatperson",
-      vat_type: "Vinstmarginalbeskattning (VMB)"
+      vat_type: "VMB"
     });
   };
 
