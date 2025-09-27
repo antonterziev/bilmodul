@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
     const accounts = accountsData.Accounts || []
 
     // Filter for commonly used accounts for vehicles/equipment and bank accounts
-    const relevantAccounts = accounts.filter(account => {
+    const relevantAccounts = accounts.filter((account: any) => {
       const number = parseInt(account.Number)
       const description = account.Description?.toLowerCase() || ''
       
@@ -83,7 +83,7 @@ Deno.serve(async (req) => {
       JSON.stringify({ 
         success: true,
         totalAccounts: accounts.length,
-        relevantAccounts: relevantAccounts.map(acc => ({
+        relevantAccounts: relevantAccounts.map((acc: any) => ({
           number: acc.Number,
           description: acc.Description,
           active: acc.Active
@@ -92,11 +92,12 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return new Response(
       JSON.stringify({ 
-        error: error.message,
+        error: errorMessage,
         success: false 
       }),
       { 

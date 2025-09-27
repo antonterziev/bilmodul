@@ -95,7 +95,7 @@ serve(async (req) => {
     });
 
     const correctionRows = orig.VoucherRows
-      .filter((row) => Number(row.Debit || 0) !== 0 || Number(row.Credit || 0) !== 0)
+      .filter((row: any) => Number(row.Debit || 0) !== 0 || Number(row.Credit || 0) !== 0)
       .map((row: any, index: number) => {
         const cleaned = cleanRow(row);
         console.log(`🔧 PROCESSED ROW ${index + 1}:`, JSON.stringify(cleaned, null, 2));
@@ -200,9 +200,19 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200
     });
-  } catch (e) {
+  } catch (e: unknown) {
     console.error('❌ Unexpected error in fortnox-makulering-verifikat:', e);
-    await logError(userId || 'unknown', 'Unexpected error', { error: e.message, stack: e.stack });
+    const errorMessage = e instanceof Error ? e.message : 'Unknown error'
+    const errorStack = e instanceof Error ? e.stack : undefined
+    // Get userId from request - need to parse it from request
+    let userId = 'unknown'
+    try {
+      const body = await req.clone().json()
+      userId = body.userId || 'unknown'
+    } catch {
+      // If parsing fails, use unknown
+    }
+    await logError(userId, 'Unexpected error', { error: errorMessage, stack: errorStack });
     return errorResponse('Ett oväntat fel inträffade', 500);
   }
 });

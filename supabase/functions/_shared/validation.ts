@@ -1,6 +1,45 @@
 import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+// Input validation schemas
+export const fortnoxRequestSchema = z.object({
+  inventoryItemId: z.string().uuid(),
+  syncingUserId: z.string().uuid().optional(),
+});
+
+export const accountCheckSchema = z.object({
+  accountNumber: z.string().min(1),
+  userId: z.string().uuid(),
+});
+
+export const correctionSchema = z.object({
+  series: z.string().min(1),
+  number: z.string().min(1),
+  userId: z.string().uuid(),
+  correctionSeries: z.string().default('A'),
+  correctionDate: z.string().optional(),
+  registrationNumber: z.string().optional(),
+});
+
+// Safe error message extraction
+export function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  return 'Unknown error occurred';
+}
+
+// Safe error stack extraction
+export function getErrorStack(error: unknown): string | undefined {
+  if (error instanceof Error) {
+    return error.stack;
+  }
+  return undefined;
+}
+
 // Standard error response with stable codes
 export function errorResponse(message: string, code: string, status: number = 400) {
   return new Response(
@@ -96,18 +135,14 @@ export function logError(
   }));
 }
 
-export function logInfo(
-  functionName: string,
-  userId: string,
-  message: string,
-  context: Record<string, any> = {}
-) {
-  console.log(JSON.stringify({
-    timestamp: new Date().toISOString(),
-    level: 'INFO',
-    function: functionName,
-    userId,
-    message,
-    context
-  }));
+// Create Supabase client safely
+export function createSupabaseClient() {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Missing Supabase configuration');
+  }
+  
+  return createClient(supabaseUrl, supabaseKey);
 }

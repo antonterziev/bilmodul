@@ -178,7 +178,7 @@ serve(async (req) => {
             );
           }
 
-          const endpointData = fortnoxDocs.paths?.[path]?.[method];
+          const endpointData = method ? fortnoxDocs.paths?.[path]?.[method] : undefined;
           
           if (!endpointData) {
             return new Response(

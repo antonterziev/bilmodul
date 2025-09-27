@@ -82,13 +82,13 @@ Deno.serve(async (req) => {
 
     // Filter for active suppliers and sort by name
     const activeSuppliers = suppliers
-      .filter(supplier => supplier.Active !== false)
-      .map(supplier => ({
+      .filter((supplier: any) => supplier.Active !== false)
+      .map((supplier: any) => ({
         supplierNumber: supplier.SupplierNumber,
         name: supplier.Name,
         organisationNumber: supplier.OrganisationNumber
       }))
-      .sort((a, b) => a.name.localeCompare(b.name))
+      .sort((a: any, b: any) => a.name.localeCompare(b.name))
 
     console.log(`Found ${suppliers.length} total suppliers, ${activeSuppliers.length} active ones`)
 
@@ -100,11 +100,12 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return new Response(
       JSON.stringify({ 
-        error: error.message,
+        error: errorMessage,
         success: false 
       }),
       { 
