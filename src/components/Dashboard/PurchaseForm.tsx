@@ -968,24 +968,17 @@ export const PurchaseForm = ({
                       </div>
                     </InfoPopup>
                   </div>
-                  <RadioGroup value={form.watch("vat_type")} onValueChange={value => form.setValue("vat_type", value)} className="flex flex-row gap-6 mt-2">
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="VMB" id="vmb" />
-                      <Label htmlFor="vmb" className="font-normal cursor-pointer">Vinstmarginalbeskattning (VMB)</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="MOMS" id="moms" />
-                      <Label htmlFor="moms" className="font-normal cursor-pointer">Moms (25%)</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="VMBI" id="import-vmb" />
-                      <Label htmlFor="import-vmb" className="font-normal cursor-pointer">Import (VMB)</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="MOMSI" id="import-moms" />
-                      <Label htmlFor="import-moms" className="font-normal cursor-pointer">Import (MOMS)</Label>
-                    </div>
-                  </RadioGroup>
+                   <Select value={form.watch("vat_type") || ""} onValueChange={value => form.setValue("vat_type", value)}>
+                     <SelectTrigger className="w-full">
+                       <SelectValue placeholder="Välj momsmetod" />
+                     </SelectTrigger>
+                     <SelectContent>
+                       <SelectItem value="VMB">Vinstmarginalbeskattning (VMB)</SelectItem>
+                       <SelectItem value="MOMS">Moms (25%)</SelectItem>
+                       <SelectItem value="VMBI">Import (VMB)</SelectItem>
+                       <SelectItem value="MOMSI">Import (MOMS)</SelectItem>
+                     </SelectContent>
+                   </Select>
                   {form.formState.errors.vat_type && <p className="text-sm text-destructive mt-1 absolute">
                       {form.formState.errors.vat_type.message}
                     </p>}
