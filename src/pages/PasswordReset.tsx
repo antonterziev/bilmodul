@@ -136,8 +136,8 @@ const PasswordReset = () => {
       return;
     }
 
-    if (password.length < 6) {
-      toast.error("Lösenordet måste vara minst 6 tecken");
+    if (password.length < 8) {
+      toast.error("Lösenordet måste vara minst 8 tecken");
       return;
     }
 
@@ -220,7 +220,7 @@ const PasswordReset = () => {
             <div className="text-center mb-6">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">Återställ lösenord</h2>
                <p className="text-gray-600 text-sm">
-                 Ange ditt nya lösenord nedan. Minst 6 tecken.
+                 Ange ditt nya lösenord nedan. Minst 8 tecken.
                </p>
             </div>
             
@@ -234,7 +234,7 @@ const PasswordReset = () => {
                   className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-center pr-10"
                   autoComplete="new-password"
                   required
-                  minLength={6}
+                  minLength={8}
                 />
                 <button
                   type="button"
@@ -253,7 +253,7 @@ const PasswordReset = () => {
                   className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-center pr-10"
                   autoComplete="new-password"
                   required
-                  minLength={6}
+                  minLength={8}
                 />
                 <button
                   type="button"
