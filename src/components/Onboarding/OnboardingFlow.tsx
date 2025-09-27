@@ -114,7 +114,7 @@ const OnboardingFlow = ({ email, firstName, lastName }: OnboardingFlowProps) => 
         <div className="text-center mb-8">
           {/* Brand Logo */}
           <div className="mb-8">
-            <img src="/lovable-uploads/057dc8b8-62ce-4b36-b42f-7cda0b9a01d1.png" alt="Bilmodul" className="h-16 mx-auto" />
+            <img src="/lovable-uploads/600c4315-b18a-44c9-9a47-d558560c64a8.png" alt="Bilmodul logotyp" className="h-16 mx-auto" />
           </div>
         </div>
         
