@@ -24,6 +24,7 @@ interface UserWithProfile {
 interface Organization {
   id: string;
   name: string;
+  organization_number: string;
   created_at: string;
   user_count: number;
   users: UserWithProfile[];
@@ -91,6 +92,7 @@ export const UserManagement = () => {
         .select(`
           id,
           name,
+          organization_number,
           created_at,
           profiles(count)
         `)
@@ -142,6 +144,7 @@ export const UserManagement = () => {
         return {
           id: org.id,
           name: org.name,
+          organization_number: org.organization_number || '',
           created_at: org.created_at,
           user_count: orgUsers.length,
           users: orgUsers
@@ -407,7 +410,9 @@ export const UserManagement = () => {
                             <ChevronRight className="w-4 h-4" />
                           )}
                         </TableCell>
-                        <TableCell className="font-medium">{org.name}</TableCell>
+                         <TableCell className="font-medium">
+                           {org.name} {org.organization_number && `(${org.organization_number})`}
+                         </TableCell>
                         <TableCell>{org.user_count}</TableCell>
                         <TableCell>
                           {new Date(org.created_at).toLocaleDateString('sv-SE')}
@@ -451,11 +456,11 @@ export const UserManagement = () => {
                                       <SelectTrigger className="w-full">
                                         <SelectValue />
                                       </SelectTrigger>
-                                      <SelectContent>
-                                        {organizations.map((orgOption) => (
-                                          <SelectItem key={orgOption.id} value={orgOption.id}>
-                                            {orgOption.name}
-                                          </SelectItem>
+                                       <SelectContent>
+                                         {organizations.map((orgOption) => (
+                                           <SelectItem key={orgOption.id} value={orgOption.id}>
+                                             {orgOption.name} {orgOption.organization_number && `(${orgOption.organization_number})`}
+                                           </SelectItem>
                                         ))}
                                       </SelectContent>
                                     </Select>
