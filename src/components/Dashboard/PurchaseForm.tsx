@@ -187,24 +187,23 @@ export const PurchaseForm = ({
   useEffect(() => {
     const checkLagerPermission = async () => {
       if (!user?.id) return;
-      
       try {
-        const { data, error } = await supabase.rpc('has_permission', {
+        const {
+          data,
+          error
+        } = await supabase.rpc('has_permission', {
           _user_id: user.id,
           _permission: 'lager'
         });
-        
         if (error) {
           console.error('Error checking lager permission:', error);
           return;
         }
-        
         setHasLagerPermission(data || false);
       } catch (error) {
         console.error('Error checking lager permission:', error);
       }
     };
-
     checkLagerPermission();
   }, [user]);
 
@@ -649,12 +648,12 @@ export const PurchaseForm = ({
                 {isDuplicateRegNumber && <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-md">
                   <p className="text-sm text-orange-800 text-center">
                     Registreringsnummer finns redan registrerat.{hasLagerPermission && duplicateVehicleId && <> <button type="button" onClick={() => {
-              // Just show a message since logistics view is removed
-              toast({
-                title: "Fordon finns redan",
-                description: "Detta registreringsnummer är redan registrerat i systemet."
-              });
-            }} className="text-blue-600 hover:text-blue-700 underline">
+                  // Just show a message since logistics view is removed
+                  toast({
+                    title: "Fordon finns redan",
+                    description: "Detta registreringsnummer är redan registrerat i systemet."
+                  });
+                }} className="text-blue-600 hover:text-blue-700 underline">
                       Gå till fordon
                     </button></>}
                   </p>
@@ -671,15 +670,15 @@ export const PurchaseForm = ({
               </TabsTrigger>
             </TabsList>
 
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6" onKeyDown={(e) => {
-                if (e.key === 'Enter' && activeTab === 'fordonsdata' && isVehicleDataValid()) {
-                  e.preventDefault();
-                  setActiveTab("inkopsinformation");
-                } else if (e.key === 'Enter' && activeTab === 'inkopsinformation' && isFormValid() && !isSubmitting) {
-                  e.preventDefault();
-                  form.handleSubmit(onSubmit)();
-                }
-              }}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6" onKeyDown={e => {
+          if (e.key === 'Enter' && activeTab === 'fordonsdata' && isVehicleDataValid()) {
+            e.preventDefault();
+            setActiveTab("inkopsinformation");
+          } else if (e.key === 'Enter' && activeTab === 'inkopsinformation' && isFormValid() && !isSubmitting) {
+            e.preventDefault();
+            form.handleSubmit(onSubmit)();
+          }
+        }}>
               <TabsContent value="fordonsdata" className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -762,7 +761,7 @@ export const PurchaseForm = ({
                 </div>
 
                 <div>
-                  <Label>Första datum i trafik *</Label>
+                  <Label>Registrerad *</Label>
                   <Popover open={firstRegOpen} onOpenChange={setFirstRegOpen}>
                     <PopoverTrigger asChild>
                       <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !form.watch("first_registration_date") && "text-muted-foreground")}>
@@ -839,15 +838,10 @@ export const PurchaseForm = ({
 
 
               <div className="flex justify-between">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => {
-                    setShowFullForm(false);
-                    setCarDataFetched(false);
-                  }}
-                  className="flex items-center gap-2"
-                >
+                <Button type="button" variant="outline" onClick={() => {
+                setShowFullForm(false);
+                setCarDataFetched(false);
+              }} className="flex items-center gap-2">
                   <ChevronLeft className="w-4 h-4" />
                   Tillbaka
                 </Button>
@@ -927,7 +921,9 @@ export const PurchaseForm = ({
 
                 {form.watch("purchase_channel") === "Annan" && <div>
                     <Label htmlFor="purchase_channel_other">Ange inköpskanal</Label>
-                    <Input id="purchase_channel_other" {...form.register("purchase_channel_other")} placeholder="Ange vilken inköpskanal" style={{ textTransform: 'capitalize' }} />
+                    <Input id="purchase_channel_other" {...form.register("purchase_channel_other")} placeholder="Ange vilken inköpskanal" style={{
+                  textTransform: 'capitalize'
+                }} />
                   </div>}
 
                 {/* Marketplace section removed as it's no longer in the dropdown */}
