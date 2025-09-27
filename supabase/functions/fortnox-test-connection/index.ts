@@ -112,7 +112,7 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           success: false,
-          message: `Fortnox API test failed: ${apiError.message}`,
+          message: `Fortnox API test failed: ${(apiError as Error).message || 'Unknown API error'}`,
           integration_id: fortnoxIntegration.id,
           token_expired: isTokenExpired
         }),
@@ -124,7 +124,7 @@ Deno.serve(async (req) => {
     console.error('Error in fortnox-test-connection:', error)
     return new Response(
       JSON.stringify({ 
-        error: error.message || 'Unknown error occurred',
+        error: (error as Error).message || 'Unknown error occurred',
         success: false 
       }),
       { 

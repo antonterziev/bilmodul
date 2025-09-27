@@ -269,7 +269,7 @@ Deno.serve(async (req) => {
         }
       } catch (attachmentError) {
         console.error("❌ Attachment upload error:", attachmentError);
-        attachmentResult = { success: false, error: attachmentError.message };
+        attachmentResult = { success: false, error: (attachmentError as Error).message || 'Unknown attachment error' };
       }
     }
 
@@ -285,7 +285,7 @@ Deno.serve(async (req) => {
     });
   } catch (err) {
     console.error('❌ Sync error:', err);
-    return new Response(JSON.stringify({ success: false, error: err.message }), {
+    return new Response(JSON.stringify({ success: false, error: (err as Error).message || 'Unknown sync error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });

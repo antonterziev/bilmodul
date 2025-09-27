@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
             <!-- Verification Code Display -->
             <div style="text-align: center; margin: 32px 0;">
               <div style="display: inline-flex; gap: 8px; margin: 0 0 32px 0;">
-                ${token.split('').map(digit => `<span style="display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; background-color: #f3f4f6; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 24px; font-weight: bold; color: #1f2937; text-align: center;">${digit}</span>`).join('')}
+                ${token.split('').map((digit: string) => `<span style="display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; background-color: #f3f4f6; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 24px; font-weight: bold; color: #1f2937; text-align: center;">${digit}</span>`).join('')}
               </div>
             </div>
 
@@ -165,14 +165,14 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Error in send-email function:', error)
-    console.error('Error message:', error.message)
-    console.error('Error stack:', error.stack)
+    console.error('Error message:', (error as Error).message || 'Unknown error')
+    console.error('Error stack:', (error as Error).stack || 'No stack trace')
     
     return new Response(
       JSON.stringify({
         error: {
-          message: error.message,
-          details: error.toString(),
+          message: (error as Error).message || 'Unknown error',
+          details: (error as Error).toString() || 'Unknown error details',
         },
       }),
       {

@@ -233,7 +233,7 @@ Deno.serve(async (req) => {
           }
           
           // Check if it contains individual words from search term
-          const searchWords = searchTermLower.split(' ').filter(word => word.length > 2);
+          const searchWords = searchTermLower.split(' ').filter((word: string) => word.length > 2);
           for (const word of searchWords) {
             if (companyNameLower.includes(word)) {
               score += 10;

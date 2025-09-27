@@ -26,7 +26,7 @@ async function getFortnoxApiDocs(endpoint?: string, method?: string) {
       return await response.json();
     }
   } catch (error) {
-    console.log('📚 Could not fetch API docs:', error.message);
+    console.log('📚 Could not fetch API docs:', (error as Error).message || 'Unknown error');
   }
   return null;
 }
@@ -58,7 +58,7 @@ serve(async (req) => {
     } catch (parseError) {
       console.error('❌ Failed to parse request body:', parseError);
       return new Response(
-        JSON.stringify({ error: 'Invalid JSON in request body', details: parseError.message }),
+        JSON.stringify({ error: 'Invalid JSON in request body', details: (parseError as Error).message || 'Invalid JSON' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -613,16 +613,16 @@ serve(async (req) => {
         await supabase.from('fortnox_errors_log').insert({
           user_id: inventoryItem.user_id,
           type: 'supplier_invoice_error',
-          message: `Error during supplier invoice creation: ${invoiceError.message}`,
+          message: `Error during supplier invoice creation: ${(invoiceError as Error).message || 'Unknown error'}`,
           context: {
             inventory_item_id: inventoryItemId,
-            error_stack: invoiceError.stack
+            error_stack: (invoiceError as Error).stack || 'No stack trace'
           }
         });
 
         return new Response(JSON.stringify({
           error: 'Error during supplier invoice creation',
-          details: invoiceError.message
+          details: (invoiceError as Error).message || 'Unknown error'
         }), {
           status: 500,
           headers: {
@@ -634,7 +634,7 @@ serve(async (req) => {
     } catch (projectError) {
       console.error('❌ Error during Fortnox project creation:', projectError);
       return new Response(
-        JSON.stringify({ error: 'Error during project creation', details: projectError.message }),
+        JSON.stringify({ error: 'Error during project creation', details: (projectError as Error).message || 'Unknown error' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -642,7 +642,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('❌ Unexpected error:', error)
     return new Response(
-      JSON.stringify({ error: 'Internal server error', details: error.message }),
+      JSON.stringify({ error: 'Internal server error', details: (error as Error).message || 'Unknown error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
