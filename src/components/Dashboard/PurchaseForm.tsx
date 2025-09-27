@@ -930,7 +930,7 @@ export const PurchaseForm = ({
 
                 {/* 4. Inköpspris */}
                 <div>
-                  <Label htmlFor="purchase_price">Inköpspris (inkl. moms) *</Label>
+                  <Label htmlFor="purchase_price">Inköpspris (inkl. moms)*</Label>
                   <div className="relative">
                     <Input id="purchase_price" type="text" value={priceDisplay} onChange={handlePriceChange} placeholder="t.ex. 150,000" className={cn("pr-20", form.formState.errors.purchase_price ? "border-destructive" : "")} />
                     <div className="absolute inset-y-0 right-0 flex items-center">
