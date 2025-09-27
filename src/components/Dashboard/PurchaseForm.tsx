@@ -753,7 +753,7 @@ export const PurchaseForm = ({
                 </div>
 
                 <div>
-                  <Label htmlFor="mileage">Miltal (mil) *</Label>
+                  <Label htmlFor="mileage">Miltal (mil)*</Label>
                   <Input id="mileage" type="text" min="0" value={mileageDisplay} onChange={handleMileageChange} placeholder="t.ex. 4,500" />
                   {form.formState.errors.mileage && <p className="text-sm text-destructive mt-1 absolute">
                       {form.formState.errors.mileage.message}
@@ -761,7 +761,7 @@ export const PurchaseForm = ({
                 </div>
 
                 <div>
-                  <Label>Registrerad *</Label>
+                  <Label>Registrerad*</Label>
                   <Popover open={firstRegOpen} onOpenChange={setFirstRegOpen}>
                     <PopoverTrigger asChild>
                       <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !form.watch("first_registration_date") && "text-muted-foreground")}>
