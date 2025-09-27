@@ -44,6 +44,7 @@ export const UserManagement = () => {
   const [updating, setUpdating] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [newOrgName, setNewOrgName] = useState("");
+  const [newOrgNumber, setNewOrgNumber] = useState("");
   const [creatingOrg, setCreatingOrg] = useState(false);
   const [expandedOrgs, setExpandedOrgs] = useState<Set<string>>(new Set());
   const { toast } = useToast();
@@ -304,18 +305,22 @@ export const UserManagement = () => {
   };
 
   const createOrganization = async () => {
-    if (!newOrgName.trim()) return;
+    if (!newOrgName.trim() || !newOrgNumber.trim()) return;
     
     setCreatingOrg(true);
     try {
       const { error } = await supabase
         .from('organizations')
-        .insert({ name: newOrgName.trim() });
+        .insert({ 
+          name: newOrgName.trim(),
+          organization_number: newOrgNumber.trim()
+        });
 
       if (error) throw error;
 
       await loadOrganizations();
       setNewOrgName("");
+      setNewOrgNumber("");
       
       toast({
         title: "Skapat",
@@ -513,31 +518,47 @@ export const UserManagement = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex gap-2 items-end">
-              <div className="flex-1">
-                <label htmlFor="orgName" className="text-sm font-medium">
-                  Organisationsnamn
-                </label>
-                <Input
-                  id="orgName"
-                  value={newOrgName}
-                  onChange={(e) => setNewOrgName(e.target.value)}
-                  placeholder="Ange organisationsnamn"
-                  disabled={creatingOrg}
-                />
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="orgName" className="text-sm font-medium">
+                    Organisationsnamn *
+                  </label>
+                  <Input
+                    id="orgName"
+                    value={newOrgName}
+                    onChange={(e) => setNewOrgName(e.target.value)}
+                    placeholder="Ange organisationsnamn"
+                    disabled={creatingOrg}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="orgNumber" className="text-sm font-medium">
+                    Organisationsnummer *
+                  </label>
+                  <Input
+                    id="orgNumber"
+                    value={newOrgNumber}
+                    onChange={(e) => setNewOrgNumber(e.target.value)}
+                    placeholder="Ange organisationsnummer"
+                    disabled={creatingOrg}
+                  />
+                </div>
               </div>
-              <Button 
-                onClick={createOrganization}
-                disabled={!newOrgName.trim() || creatingOrg}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                {creatingOrg ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                ) : (
-                  <Plus className="w-4 h-4 mr-2" />
-                )}
-                Skapa
-              </Button>
+              <div className="flex justify-end">
+                <Button 
+                  onClick={createOrganization}
+                  disabled={!newOrgName.trim() || !newOrgNumber.trim() || creatingOrg}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  {creatingOrg ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <Plus className="w-4 h-4 mr-2" />
+                  )}
+                  Skapa Organisation
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
