@@ -1,9 +1,6 @@
 
-import React from 'npm:react@18.3.1'
 import { Webhook } from 'https://esm.sh/standardwebhooks@1.0.0'
-import { Resend } from 'npm:resend@4.0.0'
-import { renderAsync } from 'npm:@react-email/components@0.0.22'
-import { SignupVerificationEmail } from './_templates/signup-verification.tsx'
+import { Resend } from 'https://esm.sh/resend@2.0.0'
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY') as string)
 const hookSecret = Deno.env.get('SEND_EMAIL_HOOK_SECRET') as string
@@ -49,16 +46,47 @@ Deno.serve(async (req) => {
 
     // Handle different email types
     if (email_action_type === 'signup') {
-      const html = await renderAsync(
-        React.createElement(SignupVerificationEmail, {
-          supabase_url: Deno.env.get('SUPABASE_URL') ?? '',
-          token,
-          token_hash,
-          redirect_to,
-          email_action_type,
-          user_email: user.email,
-        })
-      )
+      // Create signup verification HTML template 
+      const verificationUrl = `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=https://bilmodul.se/onboarding`;
+      
+      const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f6f6f6;">
+          <div style="background-color: white; padding: 40px 20px; border-radius: 8px;">
+            <div style="text-align: center; margin-bottom: 32px;">
+              <img src="https://bilmodul.se/lovable-uploads/600c4315-b18a-44c9-9a47-d558560c64a8.png" alt="Bilmodul logotyp" style="height: 48px;" />
+            </div>
+            
+            <h1 style="color: #1f2937; font-size: 28px; font-weight: bold; text-align: center; margin: 0 0 24px 0;">Välkommen till Bilmodul</h1>
+            
+            <p style="color: #4b5563; font-size: 16px; line-height: 24px; text-align: center; margin: 0 0 32px 0;">
+              För att göra klart din registrering, var vänlig klicka på knappen nedan
+            </p>
+
+            <!-- Verification Code Display -->
+            <div style="text-align: center; margin: 32px 0;">
+              <div style="display: inline-flex; gap: 8px; margin: 0 0 32px 0;">
+                ${token.split('').map(digit => `<span style="display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; background-color: #f3f4f6; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 24px; font-weight: bold; color: #1f2937; text-align: center;">${digit}</span>`).join('')}
+              </div>
+            </div>
+
+            <!-- Main CTA Button -->
+            <div style="text-align: center; margin: 32px 0;">
+              <a href="${verificationUrl}" style="background-color: #2563eb; border-radius: 6px; color: #ffffff; font-size: 16px; font-weight: 600; text-decoration: none; text-align: center; display: inline-block; padding: 12px 32px;">
+                Bekräfta e-post
+              </a>
+            </div>
+
+            <p style="color: #6b7280; font-size: 14px; line-height: 20px; text-align: center; margin: 32px 0 24px 0;">
+              Om du inte försökte registrera dig för <a href="https://bilmodul.se" style="color: #2563eb; text-decoration: underline;">Bilmodul</a> kan du ignorera detta meddelande.
+            </p>
+
+            <p style="color: #6b7280; font-size: 14px; line-height: 20px; text-align: center; margin: 24px 0 0 0;">
+              Med vänliga hälsningar,<br />
+              Bilmodul-teamet
+            </p>
+          </div>
+        </div>
+      `;
 
       const { data, error } = await resend.emails.send({
         from: 'Bilmodul <noreply@bilmodul.se>',
