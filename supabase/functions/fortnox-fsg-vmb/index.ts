@@ -25,8 +25,9 @@ async function getFortnoxApiDocs(endpoint?: string, method?: string) {
     if (response.ok) {
       return await response.json();
     }
-  } catch (error) {
-    console.log('📚 Could not fetch API docs:', error.message);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    console.log('📚 Could not fetch API docs:', errorMessage);
   }
   return null;
 }
@@ -55,10 +56,11 @@ serve(async (req) => {
     try {
       requestData = await req.json();
       console.log('📥 Successfully parsed request body:', requestData);
-    } catch (parseError) {
+    } catch (parseError: unknown) {
       console.error('❌ Failed to parse request body:', parseError);
+      const errorMessage = parseError instanceof Error ? parseError.message : 'Invalid JSON format'
       return new Response(
-        JSON.stringify({ error: 'Invalid JSON in request body', details: parseError.message }),
+        JSON.stringify({ error: 'Invalid JSON in request body', details: errorMessage }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

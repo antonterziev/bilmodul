@@ -192,6 +192,9 @@ export type Database = {
           code_used_at: string | null
           company_name: string | null
           created_at: string
+          encrypted_access_token: string | null
+          encrypted_refresh_token: string | null
+          encryption_key_id: string | null
           fortnox_company_id: string | null
           id: string
           is_active: boolean
@@ -207,6 +210,9 @@ export type Database = {
           code_used_at?: string | null
           company_name?: string | null
           created_at?: string
+          encrypted_access_token?: string | null
+          encrypted_refresh_token?: string | null
+          encryption_key_id?: string | null
           fortnox_company_id?: string | null
           id?: string
           is_active?: boolean
@@ -222,6 +228,9 @@ export type Database = {
           code_used_at?: string | null
           company_name?: string | null
           created_at?: string
+          encrypted_access_token?: string | null
+          encrypted_refresh_token?: string | null
+          encryption_key_id?: string | null
           fortnox_company_id?: string | null
           id?: string
           is_active?: boolean
@@ -633,6 +642,39 @@ export type Database = {
           },
         ]
       }
+      rate_limits: {
+        Row: {
+          created_at: string | null
+          endpoint: string
+          id: string
+          ip_address: string | null
+          request_count: number | null
+          updated_at: string | null
+          user_id: string | null
+          window_start: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          ip_address?: string | null
+          request_count?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          window_start?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          ip_address?: string | null
+          request_count?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          window_start?: string | null
+        }
+        Relationships: []
+      }
       scraped_car_cache: {
         Row: {
           created_at: string
@@ -667,6 +709,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      security_audit_log: {
+        Row: {
+          created_at: string | null
+          event_description: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_description: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_description?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       user_permissions: {
         Row: {
@@ -745,6 +820,16 @@ export type Database = {
         Args: { _organization_id: string; _user_id: string }
         Returns: boolean
       }
+      check_rate_limit: {
+        Args: {
+          p_endpoint: string
+          p_ip_address: string
+          p_limit?: number
+          p_user_id: string
+          p_window_minutes?: number
+        }
+        Returns: boolean
+      }
       cleanup_old_oauth_states: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -767,6 +852,17 @@ export type Database = {
       is_admin: {
         Args: { _user_id?: string }
         Returns: boolean
+      }
+      log_security_event: {
+        Args: {
+          p_event_description: string
+          p_event_type: string
+          p_ip_address?: string
+          p_metadata?: Json
+          p_user_agent?: string
+          p_user_id: string
+        }
+        Returns: undefined
       }
       populate_default_account_mappings: {
         Args: { _organization_id: string }
