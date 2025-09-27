@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
 
 import RecoveryEmailSent from "@/components/RecoveryEmailSent";
 import { Eye, EyeOff } from "lucide-react";
@@ -32,7 +33,22 @@ const Auth = () => {
   const [showRecoveryEmailSent, setShowRecoveryEmailSent] = useState(false);
   const [emailSentSuccess, setEmailSentSuccess] = useState(false);
   const [loginError, setLoginError] = useState("");
+  const [emailError, setEmailError] = useState("");
   const navigate = useNavigate();
+
+  // Email validation schema
+  const emailSchema = z.string().email("Ange en giltig e-postadress");
+
+  // Validate email function
+  const validateEmail = (email: string) => {
+    const result = emailSchema.safeParse(email);
+    if (!result.success) {
+      setEmailError(result.error.errors[0].message);
+      return false;
+    }
+    setEmailError("");
+    return true;
+  };
   
   // Force reset function for debugging
   const forceReset = () => {
@@ -244,7 +260,7 @@ const Auth = () => {
     }
   };
   const handleEmailContinue = async () => {
-    if (email.trim()) {
+    if (email.trim() && validateEmail(email)) {
       setIsLoading(true);
       try {
         // Try to sign in with a temporary password to check if user exists
@@ -359,9 +375,22 @@ const Auth = () => {
               handleSignUp(e as any);
             }
           }}>
-            <div className="space-y-2">
+              <div className="space-y-2">
               <Label htmlFor="signup-email" className="text-sm font-medium">E-post</Label>
-                <Input id="signup-email" type="email" value={email} onChange={e => setEmail(e.target.value)} className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Ange en giltig e-postadress" />
+                <Input 
+                  id="signup-email" 
+                  type="email" 
+                  value={email} 
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (e.target.value) {
+                      validateEmail(e.target.value);
+                    }
+                  }} 
+                  className={`h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${emailError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`} 
+                  required 
+                />
+                {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
               </div>
               
               <div className="grid grid-cols-2 gap-4">
@@ -440,7 +469,22 @@ const Auth = () => {
               e.preventDefault();
               handleForgotPassword(resetEmail);
             }} className="space-y-4">
-                <Input type="email" value={resetEmail} onChange={e => setResetEmail(e.target.value)} className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-center" placeholder="din.email@exempel.se" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Ange en giltig e-postadress" />
+                <div className="space-y-2">
+                  <Input 
+                    type="email" 
+                    value={resetEmail} 
+                    onChange={(e) => {
+                      setResetEmail(e.target.value);
+                      if (e.target.value) {
+                        validateEmail(e.target.value);
+                      }
+                    }} 
+                    className={`h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-center ${emailError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`} 
+                    placeholder="din.email@exempel.se" 
+                    required 
+                  />
+                  {emailError && <p className="text-red-500 text-sm text-center">{emailError}</p>}
+                </div>
                 
                 <Button type="submit" disabled={isResettingPassword || !resetEmail.trim()} className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium">
                   {isResettingPassword ? "Skickar..." : "Skicka länken"}
@@ -479,20 +523,26 @@ const Auth = () => {
               e.preventDefault();
               handleEmailContinue();
             }} className="space-y-4">
-                <div className="space-y-1">
+                <div className="space-y-2">
                   <Label htmlFor="email" className="text-sm text-gray-700">E-post</Label>
                   <Input 
                     id="email" 
                     type="email" 
                     value={email} 
-                    onChange={e => setEmail(e.target.value)} 
-                    onKeyDown={e => e.key === 'Enter' && email.includes('@') && handleEmailContinue()}
-                    className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500" 
-                    required 
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (e.target.value) {
+                        validateEmail(e.target.value);
+                      }
+                    }} 
+                    onKeyDown={e => e.key === 'Enter' && email.includes('@') && validateEmail(email) && handleEmailContinue()}
+                    className={`h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${emailError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`} 
+                    required
                   />
+                  {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
                 </div>
                 
-                <Button type="submit" disabled={!email.includes('@')} className={`w-full h-12 text-white font-medium transition-colors ${email.includes('@') ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-300 cursor-not-allowed"}`}>
+                <Button type="submit" disabled={!email.includes('@') || !!emailError} className={`w-full h-12 text-white font-medium transition-colors ${email.includes('@') && !emailError ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-300 cursor-not-allowed"}`}>
                   Fortsätt
                 </Button>
               </form>
