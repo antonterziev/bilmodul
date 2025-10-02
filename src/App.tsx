@@ -3,17 +3,20 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Suspense } from "react";
+import { Suspense, lazy } from "react";
 import { AuthProvider } from "@/hooks/useAuth";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
 import Landing from "./pages/Landing";
-import PasswordReset from "./pages/PasswordReset";
-import Onboarding from "./pages/Onboarding";
-import NotFound from "./pages/NotFound";
-import FortnoxCallback from "./components/FortnoxCallback";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { DashboardSkeleton } from "@/components/LoadingSkeleton";
+
+// Lazy load heavy components to reduce initial bundle size
+const Index = lazy(() => import("./pages/Index"));
+const Auth = lazy(() => import("./pages/Auth"));
+const PasswordReset = lazy(() => import("./pages/PasswordReset"));
+const Onboarding = lazy(() => import("./pages/Onboarding"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const FortnoxCallback = lazy(() => import("./components/FortnoxCallback"));
+
 
 
 
