@@ -415,9 +415,6 @@ const Index = () => {
       case "radera-kontot":
         return <DeleteAccount onBack={() => handleViewChange("settings")} />;
 
-      case "admin":
-        return <AdminDashboard onBack={() => handleViewChange("overview")} />;
-
       case "lager_all":
       case "lager_sold":
         const getHeaderTitle = () => {

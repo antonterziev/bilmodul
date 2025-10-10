@@ -16,6 +16,7 @@ const PasswordReset = lazy(() => import("./pages/PasswordReset"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const FortnoxCallback = lazy(() => import("./components/FortnoxCallback"));
+const Admin = lazy(() => import("./pages/Admin"));
 
 
 
@@ -46,6 +47,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/dashboard" element={<Index />} />
+                <Route path="/admin" element={<Admin />} />
                 <Route path="/login-or-signup" element={<Auth />} />
                 <Route path="/onboarding" element={<Onboarding />} />
                 <Route path="/password-reset" element={<PasswordReset />} />

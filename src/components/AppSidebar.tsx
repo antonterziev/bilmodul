@@ -1,5 +1,5 @@
 
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -70,6 +70,7 @@ export function AppSidebar({
   onVehicleSelect
 }: AppSidebarProps) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [userPermissions, setUserPermissions] = useState<string[]>([]);
 
@@ -228,8 +229,8 @@ export function AppSidebar({
                 {hasPermission('admin') && (
                   <SidebarMenuItem>
                     <SidebarMenuButton
-                      onClick={() => onViewChange("admin")}
-                      className={getNavClass("admin")}
+                      onClick={() => navigate("/admin")}
+                      className="text-muted-foreground hover:bg-muted/50"
                     >
                       <Shield className="h-4 w-4" />
                       <span>Administratör</span>
