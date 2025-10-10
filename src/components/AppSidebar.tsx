@@ -224,19 +224,6 @@ export function AppSidebar({
                     <span>Inställningar</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-
-                {/* Admin - Only show for administrators and superusers */}
-                {hasPermission('admin') && (
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      onClick={() => navigate("/admin")}
-                      className="text-muted-foreground hover:bg-muted/50"
-                    >
-                      <Shield className="h-4 w-4" />
-                      <span>Administratör</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )}
               </SidebarMenu>
             </div>
           </SidebarGroupContent>
