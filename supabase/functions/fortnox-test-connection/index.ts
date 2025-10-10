@@ -75,8 +75,8 @@ Deno.serve(async (req) => {
     }
 
     try {
-      // Decrypt token before use
-      const accessToken = await readToken(fortnoxIntegration.access_token);
+      // Decrypt token before use from encrypted column
+      const accessToken = await readToken(fortnoxIntegration.encrypted_access_token);
       
       console.log(`🔑 Using decrypted access token: ${accessToken.substring(0, 20)}...`);
       console.log(`🔑 Using client secret: ${clientSecret.substring(0, 10)}...`);

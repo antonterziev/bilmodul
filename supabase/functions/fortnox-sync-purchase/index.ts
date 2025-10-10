@@ -102,9 +102,9 @@ Deno.serve(async (req) => {
       throw new Error('No active Fortnox integration found.');
     }
 
-    // Decrypt tokens
-    let accessToken = await readToken(integrations[0].access_token);
-    let refreshToken = await readToken(integrations[0].refresh_token);
+    // Decrypt tokens from encrypted columns
+    let accessToken = await readToken(integrations[0].encrypted_access_token);
+    let refreshToken = await readToken(integrations[0].encrypted_refresh_token);
     const clientSecret = Deno.env.get("FORTNOX_CLIENT_SECRET")!;
     
     // Check if token is expired and refresh if needed
@@ -138,10 +138,8 @@ Deno.serve(async (req) => {
       const encryptedAccessToken = await encryptToken(accessToken);
       const encryptedRefreshToken = await encryptToken(refreshToken);
       
-      // Update the token in database with encrypted versions
+      // Update only encrypted columns
       await supabaseClient.from('fortnox_integrations').update({
-        access_token: encryptedAccessToken,
-        refresh_token: encryptedRefreshToken,
         encrypted_access_token: encryptedAccessToken,
         encrypted_refresh_token: encryptedRefreshToken,
         token_expires_at: new Date(Date.now() + tokenData.expires_in * 1000).toISOString(),

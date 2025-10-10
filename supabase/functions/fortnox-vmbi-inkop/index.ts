@@ -188,9 +188,9 @@ serve(async (req) => {
       )
     }
 
-    // Decrypt tokens
-    let accessToken = await readToken(fortnoxIntegration.access_token);
-    let refreshToken = await readToken(fortnoxIntegration.refresh_token);
+    // Decrypt tokens from encrypted columns
+    let accessToken = await readToken(fortnoxIntegration.encrypted_access_token);
+    let refreshToken = await readToken(fortnoxIntegration.encrypted_refresh_token);
 
     // Check if access token needs refresh
     if (fortnoxIntegration.token_expires_at && new Date(fortnoxIntegration.token_expires_at) <= new Date()) {
@@ -225,12 +225,10 @@ serve(async (req) => {
       const encryptedAccessToken = await encryptToken(accessToken);
       const encryptedRefreshToken = await encryptToken(refreshToken);
 
-      // Update the integration with new tokens
+      // Update only encrypted columns
       await supabase
         .from('fortnox_integrations')
         .update({
-          access_token: encryptedAccessToken,
-          refresh_token: encryptedRefreshToken,
           encrypted_access_token: encryptedAccessToken,
           encrypted_refresh_token: encryptedRefreshToken,
           token_expires_at: new Date(Date.now() + refreshData.expires_in * 1000).toISOString(),

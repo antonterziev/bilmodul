@@ -40,8 +40,8 @@ Deno.serve(async (req) => {
 
     const fortnoxIntegration = fortnoxIntegrations[0]
 
-    // Decrypt token before use
-    const accessToken = await readToken(fortnoxIntegration.access_token);
+    // Decrypt token before use from encrypted column
+    const accessToken = await readToken(fortnoxIntegration.encrypted_access_token);
 
     // Get all accounts from Fortnox
     console.log('Fetching accounts from Fortnox...')

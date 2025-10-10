@@ -67,8 +67,8 @@ serve(async (req) => {
 
     const integration = fortnoxIntegrations[0];
     
-    // Decrypt token before use
-    const accessToken = await readToken(integration.access_token);
+    // Decrypt token before use from encrypted column
+    const accessToken = await readToken(integration.encrypted_access_token);
 
     if (!accessToken) {
       console.error('❌ No access token found');

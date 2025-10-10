@@ -394,8 +394,6 @@ serve(async (req) => {
           organization_id: userProfile.organization_id,
           encrypted_access_token: encryptedAccessToken,
           encrypted_refresh_token: encryptedRefreshToken,
-          access_token: encryptedAccessToken, // Store in both columns during migration
-          refresh_token: encryptedRefreshToken,
           token_expires_at: expiresAt.toISOString(),
           oauth_code: code,
           code_used_at: new Date().toISOString(),
