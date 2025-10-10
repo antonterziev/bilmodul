@@ -191,7 +191,7 @@ export const OrganizationUserManagement = () => {
     let hasErrors = false;
 
     try {
-      // Process each user's role changes
+      // Process each user's role changes using secure RPCs
       for (const [userId, newRoles] of Object.entries(pendingChanges)) {
         const userToUpdate = users.find(u => u.user_id === userId);
         if (!userToUpdate || !currentUserOrgId) continue;
@@ -200,31 +200,38 @@ export const OrganizationUserManagement = () => {
         const rolesToAdd = newRoles.filter(role => !originalRoles.includes(role));
         const rolesToRemove = originalRoles.filter(role => !newRoles.includes(role));
 
-        // Remove permissions
+        // Remove permissions using secure RPC
         for (const role of rolesToRemove) {
-          const { error } = await supabase
-            .from('user_permissions')
-            .delete()
-            .eq('user_id', userId)
-            .eq('permission', role as any);
+          const { error } = await supabase.rpc('revoke_user_permission', {
+            target_user_id: userId,
+            permission_to_revoke: role as any
+          });
 
           if (error) {
             console.error('Error removing role:', error);
+            toast({
+              title: "Fel",
+              description: `Kunde inte ta bort behörighet: ${error.message}`,
+              variant: "destructive"
+            });
             hasErrors = true;
           }
         }
 
-        // Add permissions
+        // Add permissions using secure RPC
         for (const role of rolesToAdd) {
-          const { error } = await supabase
-            .from('user_permissions')
-            .insert({
-              user_id: userId,
-              permission: role as any
-            } as any);
+          const { error } = await supabase.rpc('assign_user_permission', {
+            target_user_id: userId,
+            new_permission: role as any
+          });
 
           if (error) {
             console.error('Error adding role:', error);
+            toast({
+              title: "Fel",
+              description: `Kunde inte lägga till behörighet: ${error.message}`,
+              variant: "destructive"
+            });
             hasErrors = true;
           }
         }
@@ -252,11 +259,11 @@ export const OrganizationUserManagement = () => {
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving changes:', error);
       toast({
         title: "Fel",
-        description: "Kunde inte spara ändringar",
+        description: error.message || "Kunde inte spara ändringar",
         variant: "destructive",
       });
     } finally {
@@ -306,72 +313,53 @@ export const OrganizationUserManagement = () => {
     setUpdating(userId);
     
     try {
-      // Get user's email for invitation cleanup
-      const userToRemove = users.find(u => u.user_id === userId);
-      const userEmail = userToRemove?.email;
+      // Use secure RPC to delete user with proper audit trail
+      const reason = `Deleted by ${user?.email || 'admin'} via Organization User Management`;
+      
+      const { error: rpcError } = await supabase.rpc('admin_delete_user', {
+        target_user_id: userId,
+        reason: reason
+      });
 
-      // First remove all user permissions
-      const { error: permissionsError } = await supabase
-        .from('user_permissions')
-        .delete()
-        .eq('user_id', userId);
+      if (rpcError) throw rpcError;
 
-      if (permissionsError) throw permissionsError;
-
-      // Remove any accepted invitations for this user's email
-      if (userEmail) {
-        const { error: invitationsError } = await supabase
-          .from('invitations')
-          .delete()
-          .eq('email', userEmail)
-          .eq('organization_id', currentUserOrgId)
-          .eq('status', 'accepted');
-
-        if (invitationsError) {
-          console.error('Error removing accepted invitations:', invitationsError);
-          // Continue execution as this is not critical
-        }
-      }
-
-      // Then remove the user's profile from the organization
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('user_id', userId)
-        .eq('organization_id', currentUserOrgId);
-
-      if (profileError) throw profileError;
-
-      // Finally, delete the user from Supabase auth using edge function
-      const { data: deleteResult, error: authError } = await supabase.functions.invoke('delete-user', {
+      // Also delete from Supabase auth using edge function (for complete cleanup)
+      const { error: authError } = await supabase.functions.invoke('delete-user', {
         body: { userId }
       });
       
       if (authError) {
-        console.error('Error deleting user from auth:', authError);
-        // Continue execution as the user has been removed from the organization
+        console.error('Error deleting from auth (non-critical):', authError);
+        // Continue - RPC already handled database cleanup
       }
 
       // Update local state
-      setUsers(users.filter(u => u.user_id !== userId));
+      setUsers(prev => prev.filter(u => u.user_id !== userId));
+      setPendingChanges(prev => {
+        const newChanges = { ...prev };
+        delete newChanges[userId];
+        return newChanges;
+      });
 
       toast({
         title: "Användare borttagen",
-        description: `${userName} har tagits bort från systemet`,
+        description: `${userName} har tagits bort från organisationen`,
       });
-    } catch (error) {
+
+      setDeleteDialogOpen(false);
+      setUserToDelete(null);
+    } catch (error: any) {
       console.error('Error removing user:', error);
       toast({
         title: "Fel",
-        description: "Kunde inte ta bort användaren",
+        description: error.message || "Kunde inte ta bort användaren",
         variant: "destructive",
       });
     } finally {
       setUpdating(null);
-      setDeleteDialogOpen(false);
-      setUserToDelete(null);
     }
   };
+  
   if (loading) {
     return <div className="flex items-center justify-center p-8">
         <Loader2 className="w-6 h-6 animate-spin mr-2" />

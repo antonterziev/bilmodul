@@ -804,6 +804,47 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_delete_user: {
+        Args: { reason?: string; target_user_id: string }
+        Returns: boolean
+      }
+      admin_list_invitations: {
+        Args: { filter_org_id?: string; filter_status?: string }
+        Returns: {
+          accepted_at: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by_email: string
+          organization_id: string
+          organization_name: string
+          permissions: string[]
+          status: string
+        }[]
+      }
+      admin_list_users: {
+        Args: { filter_org_id?: string }
+        Returns: {
+          created_at: string
+          email: string
+          first_name: string
+          last_name: string
+          last_sign_in_at: string
+          organization_id: string
+          organization_name: string
+          permissions: string[]
+          user_id: string
+        }[]
+      }
+      assign_user_permission: {
+        Args: {
+          new_permission: Database["public"]["Enums"]["app_permission"]
+          target_org_id?: string
+          target_user_id: string
+        }
+        Returns: boolean
+      }
       calculate_inventory_value: {
         Args: {
           inventory_item_id_param: string
@@ -867,6 +908,13 @@ export type Database = {
       populate_default_account_mappings: {
         Args: { _organization_id: string }
         Returns: undefined
+      }
+      revoke_user_permission: {
+        Args: {
+          permission_to_revoke: Database["public"]["Enums"]["app_permission"]
+          target_user_id: string
+        }
+        Returns: boolean
       }
     }
     Enums: {

@@ -177,22 +177,19 @@ export const UserManagement = () => {
       const hasPermission = user.roles.includes(permission);
 
       if (hasPermission) {
-        // Remove permission
-        const { error } = await supabase
-          .from('user_permissions')
-          .delete()
-          .eq('user_id', userId)
-          .eq('permission', permission as any);
+        // Use secure RPC to revoke permission
+        const { error } = await supabase.rpc('revoke_user_permission', {
+          target_user_id: userId,
+          permission_to_revoke: permission as any
+        });
 
         if (error) throw error;
       } else {
-        // Add permission
-        const { error } = await supabase
-          .from('user_permissions')
-          .insert({
-            user_id: userId,
-            permission: permission as any
-          } as any);
+        // Use secure RPC to assign permission
+        const { error } = await supabase.rpc('assign_user_permission', {
+          target_user_id: userId,
+          new_permission: permission as any
+        });
 
         if (error) throw error;
       }
@@ -215,11 +212,12 @@ export const UserManagement = () => {
         title: "Uppdaterat",
         description: `Användarens ${permission} behörighet har ${hasPermission ? 'tagits bort' : 'lagts till'}`
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error toggling user permission:', error);
+      const errorMessage = error.message || "Kunde inte uppdatera användarens behörigheter";
       toast({
         title: "Fel",
-        description: "Kunde inte uppdatera användarens behörigheter",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
@@ -265,24 +263,19 @@ export const UserManagement = () => {
   };
 
   const removeUser = async (userId: string, userName: string, organizationId: string) => {
+    // Confirm deletion with reason
+    const reason = prompt(`Är du säker på att du vill ta bort ${userName}?\n\nAnge anledning (valfritt):`);
+    if (reason === null) return; // User cancelled
+    
     setUpdating(userId);
     try {
-      // First remove all user permissions
-      const { error: permissionsError } = await supabase
-        .from('user_permissions')
-        .delete()
-        .eq('user_id', userId);
+      // Use secure RPC to delete user with audit trail
+      const { error } = await supabase.rpc('admin_delete_user', {
+        target_user_id: userId,
+        reason: reason || 'No reason provided'
+      });
 
-      if (permissionsError) throw permissionsError;
-
-      // Then remove the user's profile from the organization
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('user_id', userId)
-        .eq('organization_id', organizationId);
-
-      if (profileError) throw profileError;
+      if (error) throw error;
 
       // Update local state
       setOrganizations(organizations.map(org => ({
@@ -293,13 +286,14 @@ export const UserManagement = () => {
 
       toast({
         title: "Användare borttagen",
-        description: `${userName} har tagits bort från organisationen`,
+        description: `${userName} har tagits bort från systemet`,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error removing user:', error);
+      const errorMessage = error.message || "Kunde inte ta bort användaren";
       toast({
         title: "Fel",
-        description: "Kunde inte ta bort användaren",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

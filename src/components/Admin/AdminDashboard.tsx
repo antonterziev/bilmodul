@@ -28,16 +28,14 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
-        .from('user_permissions')
-        .select('permission')
-        .eq('user_id', user.id)
-        .eq('permission', 'admin')
-        .maybeSingle();
+      // Use secure server-side function to check admin status
+      const { data, error } = await supabase.rpc('is_admin', {
+        _user_id: user.id
+      });
 
       if (error) throw error;
 
-      setIsAdmin(!!data);
+      setIsAdmin(data === true);
     } catch (error) {
       console.error('Error checking admin status:', error);
       setIsAdmin(false);
