@@ -875,6 +875,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      encrypt_token: {
+        Args: { key_id?: string; token: string }
+        Returns: string
+      }
       get_current_user_permission: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_permission"]
