@@ -1,6 +1,6 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { encryptToken } from "../_shared/encryption.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -379,13 +379,23 @@ serve(async (req) => {
         .update({ is_active: false })
         .eq('user_id', validState.user_id);
 
+      console.log(`🔐 Encrypting tokens for request ${requestId}...`);
+      
+      // Encrypt tokens before storing
+      const encryptedAccessToken = await encryptToken(tokenData.access_token);
+      const encryptedRefreshToken = await encryptToken(tokenData.refresh_token);
+      
+      console.log(`✅ Tokens encrypted for request ${requestId}`);
+
       const { error: insertError } = await supabase
         .from('fortnox_integrations')
         .insert({
           user_id: validState.user_id,
           organization_id: userProfile.organization_id,
-          access_token: tokenData.access_token,
-          refresh_token: tokenData.refresh_token,
+          encrypted_access_token: encryptedAccessToken,
+          encrypted_refresh_token: encryptedRefreshToken,
+          access_token: encryptedAccessToken, // Store in both columns during migration
+          refresh_token: encryptedRefreshToken,
           token_expires_at: expiresAt.toISOString(),
           oauth_code: code,
           code_used_at: new Date().toISOString(),

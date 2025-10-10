@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
+import { readToken } from "../_shared/encryption.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -65,7 +66,9 @@ serve(async (req) => {
     }
 
     const integration = fortnoxIntegrations[0];
-    const accessToken = integration.access_token;
+    
+    // Decrypt token before use
+    const accessToken = await readToken(integration.access_token);
 
     if (!accessToken) {
       console.error('❌ No access token found');
@@ -85,7 +88,7 @@ serve(async (req) => {
     }
 
     console.log(`📞 Making request to Fortnox API for account ${accountNumber}`);
-    console.log(`🔑 Using access token: ${accessToken.substring(0, 20)}...`);
+    console.log(`🔑 Using decrypted access token: ${accessToken.substring(0, 20)}...`);
     console.log(`🔑 Using client secret: ${clientSecret.substring(0, 10)}...`);
     console.log(`🔍 Token length: ${accessToken.length}`);
     console.log(`🔍 Secret length: ${clientSecret.length}`);

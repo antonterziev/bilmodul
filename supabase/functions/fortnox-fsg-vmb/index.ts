@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.0'
+import { readToken, encryptToken } from "../_shared/encryption.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -189,7 +190,9 @@ serve(async (req) => {
       )
     }
 
-    let accessToken = fortnoxIntegration.access_token
+    // Decrypt tokens
+    let accessToken = await readToken(fortnoxIntegration.access_token);
+    let refreshToken = await readToken(fortnoxIntegration.refresh_token);
 
     // Check if access token needs refresh
     if (fortnoxIntegration.token_expires_at && new Date(fortnoxIntegration.token_expires_at) <= new Date()) {
@@ -202,7 +205,7 @@ serve(async (req) => {
         },
         body: new URLSearchParams({
           grant_type: 'refresh_token',
-          refresh_token: fortnoxIntegration.refresh_token,
+          refresh_token: refreshToken,
           client_id: Deno.env.get('FORTNOX_CLIENT_ID') || '',
           client_secret: clientSecret,
         }),
@@ -218,13 +221,20 @@ serve(async (req) => {
 
       const refreshData = await refreshResponse.json()
       accessToken = refreshData.access_token
+      refreshToken = refreshData.refresh_token
+
+      // Encrypt new tokens before storing
+      const encryptedAccessToken = await encryptToken(accessToken);
+      const encryptedRefreshToken = await encryptToken(refreshToken);
 
       // Update the integration with new tokens
       await supabase
         .from('fortnox_integrations')
         .update({
-          access_token: refreshData.access_token,
-          refresh_token: refreshData.refresh_token,
+          access_token: encryptedAccessToken,
+          refresh_token: encryptedRefreshToken,
+          encrypted_access_token: encryptedAccessToken,
+          encrypted_refresh_token: encryptedRefreshToken,
           token_expires_at: new Date(Date.now() + refreshData.expires_in * 1000).toISOString(),
           updated_at: new Date().toISOString()
         })

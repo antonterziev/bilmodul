@@ -1,6 +1,7 @@
 // ✅ Updated Fortnox sync-purchase function to support ArchiveFileId + attachment linking
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
+import { readToken, encryptToken } from "../_shared/encryption.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -101,7 +102,9 @@ Deno.serve(async (req) => {
       throw new Error('No active Fortnox integration found.');
     }
 
-    let accessToken = integrations[0].access_token;
+    // Decrypt tokens
+    let accessToken = await readToken(integrations[0].access_token);
+    let refreshToken = await readToken(integrations[0].refresh_token);
     const clientSecret = Deno.env.get("FORTNOX_CLIENT_SECRET")!;
     
     // Check if token is expired and refresh if needed
@@ -117,7 +120,7 @@ Deno.serve(async (req) => {
         },
         body: new URLSearchParams({
           grant_type: 'refresh_token',
-          refresh_token: integrations[0].refresh_token,
+          refresh_token: refreshToken,
           client_id: 'uNVVMz2CA4VA',
           client_secret: clientSecret,
         }),
@@ -129,16 +132,23 @@ Deno.serve(async (req) => {
 
       const tokenData = await refreshResponse.json();
       accessToken = tokenData.access_token;
+      refreshToken = tokenData.refresh_token;
       
-      // Update the token in database
+      // Encrypt new tokens before storing
+      const encryptedAccessToken = await encryptToken(accessToken);
+      const encryptedRefreshToken = await encryptToken(refreshToken);
+      
+      // Update the token in database with encrypted versions
       await supabaseClient.from('fortnox_integrations').update({
-        access_token: tokenData.access_token,
-        refresh_token: tokenData.refresh_token,
+        access_token: encryptedAccessToken,
+        refresh_token: encryptedRefreshToken,
+        encrypted_access_token: encryptedAccessToken,
+        encrypted_refresh_token: encryptedRefreshToken,
         token_expires_at: new Date(Date.now() + tokenData.expires_in * 1000).toISOString(),
         updated_at: new Date().toISOString()
       }).eq('id', integrations[0].id);
       
-      console.log('✅ Token refreshed successfully');
+      console.log('✅ Token refreshed and re-encrypted successfully');
     }
     const purchaseDate = new Date(inventoryItem.purchase_date).toISOString().split('T')[0];
     const verificationData = {

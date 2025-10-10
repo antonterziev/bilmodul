@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
+import { readToken } from "../_shared/encryption.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -55,12 +56,15 @@ Deno.serve(async (req) => {
 
     const fortnoxIntegration = fortnoxIntegrations[0]
 
+    // Decrypt token before use
+    const accessToken = await readToken(fortnoxIntegration.access_token);
+
     // Get all suppliers from Fortnox
     console.log('Fetching suppliers from Fortnox...')
     const suppliersResponse = await fetch('https://api.fortnox.se/3/suppliers', {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${fortnoxIntegration.access_token}`,
+        'Authorization': `Bearer ${accessToken}`,
         'Accept': 'application/json'
       }
     })

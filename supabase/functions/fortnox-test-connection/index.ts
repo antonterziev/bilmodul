@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { readToken } from "../_shared/encryption.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -74,13 +75,16 @@ Deno.serve(async (req) => {
     }
 
     try {
-      console.log(`🔑 Using access token: ${fortnoxIntegration.access_token.substring(0, 20)}...`);
+      // Decrypt token before use
+      const accessToken = await readToken(fortnoxIntegration.access_token);
+      
+      console.log(`🔑 Using decrypted access token: ${accessToken.substring(0, 20)}...`);
       console.log(`🔑 Using client secret: ${clientSecret.substring(0, 10)}...`);
       
       const testResponse = await fetch('https://api.fortnox.se/3/companyinformation', {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${fortnoxIntegration.access_token}`,
+          'Authorization': `Bearer ${accessToken}`,
           'Client-Secret': clientSecret,
           'Accept': 'application/json',
           'Content-Type': 'application/json'
