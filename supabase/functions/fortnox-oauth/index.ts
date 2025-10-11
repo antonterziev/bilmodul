@@ -310,7 +310,7 @@ serve(async (req) => {
         });
       }
 
-      if (!userProfile?.organization_id || !userProfile?.organizations?.[0]?.organization_number) {
+      if (!userProfile?.organization_id || !userProfile?.organizations?.organization_number) {
         console.error(`User profile missing organization data for ${requestId}:`, userProfile);
         const errorMessage = encodeURIComponent('Användarorganisation eller organisationsnummer saknas. Kontakta support.');
         return new Response(null, {
@@ -321,8 +321,8 @@ serve(async (req) => {
         });
       }
 
-      const userOrgNumber = userProfile.organizations[0].organization_number;
-      const userOrgName = userProfile.organizations[0].name;
+      const userOrgNumber = userProfile.organizations.organization_number;
+      const userOrgName = userProfile.organizations.name;
       
       console.log(`✅ Found organization for user ${validState.user_id}:`, {
         org_id: userProfile.organization_id,
