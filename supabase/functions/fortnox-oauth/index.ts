@@ -27,6 +27,15 @@ serve(async (req) => {
   const clientId = Deno.env.get('FORTNOX_CLIENT_ID');
   const clientSecret = Deno.env.get('FORTNOX_CLIENT_SECRET');
   const redirectUri = 'https://yztwwehxppldoecwhomg.supabase.co/functions/v1/fortnox-oauth';
+  
+  // Determine app callback URL based on environment
+  const isProduction = supabaseUrl?.includes('yztwwehxppldoecwhomg.supabase.co');
+  const appCallbackUrl = isProduction
+    ? 'https://bilmodul.se/fortnox-callback'
+    : 'https://ef9da7a5-43fb-4d9c-92e6-459d7d3317e9.lovableproject.com/fortnox-callback';
+  
+  console.log('Using PRODUCTION endpoint and redirect URI:', redirectUri);
+  console.log('App callback URL:', appCallbackUrl);
 
   if (!clientId || !clientSecret) {
     console.error('Missing Fortnox credentials');
@@ -34,7 +43,7 @@ serve(async (req) => {
       return new Response(null, {
         status: 302,
         headers: {
-          'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${encodeURIComponent('Server configuration error')}`
+          'Location': `${appCallbackUrl}?status=error&message=${encodeURIComponent('Server configuration error')}`
         }
       });
     }
@@ -65,7 +74,7 @@ serve(async (req) => {
       return new Response(null, {
         status: 302,
         headers: {
-          'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
+          'Location': `${appCallbackUrl}?status=error&message=${errorMessage}`
         }
       });
     }
@@ -76,7 +85,7 @@ serve(async (req) => {
       return new Response(null, {
         status: 302,
         headers: {
-          'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
+          'Location': `${appCallbackUrl}?status=error&message=${errorMessage}`
         }
       });
     }
@@ -104,7 +113,7 @@ serve(async (req) => {
       return new Response(null, {
         status: 302,
         headers: {
-          'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
+          'Location': `${appCallbackUrl}?status=error&message=${errorMessage}`
         }
       });
     }
@@ -126,7 +135,7 @@ serve(async (req) => {
         return new Response(null, {
           status: 302,
           headers: {
-            'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
+            'Location': `${appCallbackUrl}?status=error&message=${errorMessage}`
           }
         });
       }
@@ -137,7 +146,7 @@ serve(async (req) => {
         return new Response(null, {
           status: 302,
           headers: {
-            'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
+            'Location': `${appCallbackUrl}?status=error&message=${errorMessage}`
           }
         });
       }
@@ -148,7 +157,7 @@ serve(async (req) => {
         return new Response(null, {
           status: 302,
           headers: {
-            'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
+            'Location': `${appCallbackUrl}?status=error&message=${errorMessage}`
           }
         });
       }
@@ -162,7 +171,7 @@ serve(async (req) => {
         return new Response(null, {
           status: 302,
           headers: {
-            'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
+            'Location': `${appCallbackUrl}?status=error&message=${errorMessage}`
           }
         });
       }
@@ -245,7 +254,7 @@ serve(async (req) => {
         return new Response(null, {
           status: 302,
           headers: {
-            'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
+            'Location': `${appCallbackUrl}?status=error&message=${errorMessage}`
           }
         });
       }
@@ -305,7 +314,7 @@ serve(async (req) => {
         return new Response(null, {
           status: 302,
           headers: {
-            'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
+            'Location': `${appCallbackUrl}?status=error&message=${errorMessage}`
           }
         });
       }
@@ -316,7 +325,7 @@ serve(async (req) => {
         return new Response(null, {
           status: 302,
           headers: {
-            'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
+            'Location': `${appCallbackUrl}?status=error&message=${errorMessage}`
           }
         });
       }
@@ -359,7 +368,7 @@ serve(async (req) => {
           return new Response(null, {
             status: 302,
             headers: {
-              'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
+              'Location': `${appCallbackUrl}?status=error&message=${errorMessage}`
             }
           });
         } else {
@@ -409,7 +418,7 @@ serve(async (req) => {
         return new Response(null, {
           status: 302,
           headers: {
-            'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
+            'Location': `${appCallbackUrl}?status=error&message=${errorMessage}`
           }
         });
       }
@@ -429,7 +438,7 @@ serve(async (req) => {
       return new Response(null, {
         status: 302,
         headers: {
-          'Location': `https://bilmodul.se/fortnox-callback?status=success&message=${successMessage}`
+          'Location': `${appCallbackUrl}?status=success&message=${successMessage}`
         }
       });
 
@@ -439,7 +448,7 @@ serve(async (req) => {
       return new Response(null, {
         status: 302,
         headers: {
-          'Location': `https://bilmodul.se/fortnox-callback?status=error&message=${errorMessage}`
+          'Location': `${appCallbackUrl}?status=error&message=${errorMessage}`
         }
       });
     }
