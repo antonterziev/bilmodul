@@ -188,7 +188,7 @@ export type Database = {
       }
       fortnox_integrations: {
         Row: {
-          access_token: string
+          access_token: string | null
           code_used_at: string | null
           company_name: string | null
           created_at: string
@@ -206,7 +206,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          access_token: string
+          access_token?: string | null
           code_used_at?: string | null
           company_name?: string | null
           created_at?: string
@@ -224,7 +224,7 @@ export type Database = {
           user_id: string
         }
         Update: {
-          access_token?: string
+          access_token?: string | null
           code_used_at?: string | null
           company_name?: string | null
           created_at?: string
